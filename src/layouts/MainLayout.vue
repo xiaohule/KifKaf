@@ -14,7 +14,7 @@
       <!-- ROUTING -->
       <router-view />
       <!-- IMPORT -->
-      <!--  <HomePage /> -->
+      <!--  <HomeTab /> -->
     </q-page-container>
 
     <q-footer class="bg-transparent" bordered>
@@ -33,7 +33,7 @@
 <script setup>
 import { ref } from 'vue'
 /* IF IMPORT*/
-//import HomePage from 'src/pages/HomePage.vue';
+//import HomeTab from 'src/pages/HomeTab.vue';
 
 const tab = ref('home')
 </script>

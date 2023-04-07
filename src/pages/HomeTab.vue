@@ -1,82 +1,84 @@
-<template>
-  <q-page class="flex flex-center">
-    <div class="q-pa-md">
+<template >
+  <q-page>
+    <!-- flexbox container -->
+    <div class="q-pa-md flexbox-container">
 
-      <q-card class="new-moment-card bg-blue-2" flat>
-        <q-card-section class="date-card-section">
-          <div class="text-subtitle1">
-            Add a new Moment
-          </div>
-        </q-card-section>
+      <q-card class="new-moment-card bg-blue-2 q-mb-sm" flat>
+        <div class="new-moment-grid-container">
 
-        <q-card-section class="q-py-none">
-          <q-item>
-            <q-item-section>
-              <div>
-                <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="0.1"
-                  :drag-on-click="true"></vue-slider>
-              </div>
-            </q-item-section>
-            <q-item-section avatar>
-              <div>{{ newIntensity > 0 ? `+${newIntensity}` : newIntensity }}</div>
-            </q-item-section>
-          </q-item>
-        </q-card-section>
+          <q-card-section class="date-card-section">
+            <div class="text-subtitle1">
+              Add a new Moment
+            </div>
+          </q-card-section>
 
-        <q-card-section class="q-py-none">
-          <q-form @submit="onSubmit">
+          <q-card-section class="q-py-none">
+            <div>
+              <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="0.1"
+                :drag-on-click="true"></vue-slider>
+            </div>
+          </q-card-section>
 
-            <q-input bg-color="white" color="white" rounded outlined v-model="text"
-              label="Feeling ... when/at/to ...  #mytag" lazy-rules
-              :rules="[val => val && val.length > 0 || 'Please type something']">
+          <q-card-section class="q-py-none">
+            <div>{{ newIntensity > 0 ? `+${newIntensity}` : newIntensity }}</div>
+          </q-card-section>
 
-              <template v-slot:after>
-                <q-btn round color="primary" icon="arrow_forward" />
-              </template>
-            </q-input>
+          <q-card-section class="q-py-none input-card-section">
+            <q-form @submit="onSubmit">
 
-          </q-form>
-        </q-card-section>
+              <q-input bg-color="white" color="white" rounded outlined v-model="text"
+                label="Feeling ... when/at/to ...  #mytag" lazy-rules
+                :rules="[val => val && val.length > 0 || 'Please type something']">
+
+                <template v-slot:after>
+                  <q-btn round color="primary" icon="arrow_forward" />
+                </template>
+              </q-input>
+
+            </q-form>
+          </q-card-section>
+        </div>
       </q-card>
 
-      <q-list class="date-cards-list">
 
+      <q-list class="date-cards-list">
         <q-item class="date-card-item q-px-none" v-for="item in uniqueDatesList" :key="item">
           <q-card class="date-card bg-white col" flat>
-            <q-card-section class="date-card-section">
-              <div class="text-subtitle1">
-                {{ item }}
-              </div>
-            </q-card-section>
+            <div class="previous-moments-grid-container">
 
-            <q-card-section class="q-pt-none">
-              <q-list class="moments-list">
+              <q-card-section class="date-card-section">
+                <div class="text-subtitle1">{{ item }}</div>
+              </q-card-section>
 
-                <q-item class="moment-item" clickable v-for="moment in momentsList.filter(i => i.date === item)"
-                  :key="moment.id">
-                  <div>
+              <q-card-section class="q-pt-none">
+                <q-list class="moments-list">
+                  <q-item class="moment-item" clickable v-for="moment in momentsList.filter(i => i.date === item)"
+                    :key="moment.id">
+                    <div>
 
-                    <q-item class="q-px-none row">
-                      <q-item-section>
-                        <!-- TODO block clicking and differentiate appearance of those sliders -->
-                        <div>
-                          <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5"
-                            :interval="0.1" disabled></vue-slider>
-                        </div>
-                      </q-item-section>
-                      <q-item-section avatar>
-                        <div>{{ moment.intensity > 0 ? `+${moment.intensity}` : moment.intensity }}</div>
-                      </q-item-section>
-                    </q-item>
+                      <q-item class="q-px-none row">
+                        <q-item-section>
+                          <!-- TODO block clicking and differentiate appearance of those sliders -->
+                          <div>
+                            <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5"
+                              :interval="0.1" disabled></vue-slider>
+                          </div>
+                        </q-item-section>
+                        <q-item-section avatar>
+                          <div>{{ moment.intensity > 0 ? `+${moment.intensity}` : moment.intensity }}</div>
+                        </q-item-section>
+                      </q-item>
 
-                    <div class="moment">{{ moment.moment }}</div>
-                    <div class="tags">{{ moment.tags.join(' ') }}</div>
+                      <div class="moment">{{ moment.moment }}</div>
+                      <div class="tags">{{ moment.tags.join(' ') }}</div>
 
-                  </div>
-                </q-item>
+                    </div>
+                  </q-item>
 
-              </q-list>
-            </q-card-section>
+                </q-list>
+              </q-card-section>
+            </div>
+
           </q-card>
         </q-item>
 
@@ -217,11 +219,39 @@ const momentsList = ref([
 
 //TODO make it a computed, avoid creating new set each time
 const uniqueDatesList = ref([...new Set(momentsList.value.map(moment => moment.date))])
-
-
 </script>
 
 <style lang="scss">
+.flexbox-container {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 700px;
+}
+
+.new-moment-grid-container {
+  display: grid;
+  grid-template-columns: 11fr 2fr;
+  grid-template-rows: auto auto auto;
+  grid-gap: 1rem;
+}
+
+.date-card-section {
+  grid-column: 1 / 3;
+}
+
+//TODO break it in 2 different cells
+.input-card-section {
+  grid-column: 1 / 3;
+}
+
+.previous-moments-grid-container {
+  display: grid;
+  grid-template-columns: 11fr 2fr;
+  grid-template-rows: auto auto auto auto;
+  grid-gap: 1rem;
+}
+
 .tags {
 
   font-size: 0.9rem;
