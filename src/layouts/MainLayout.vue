@@ -36,6 +36,11 @@ import { ref } from 'vue'
 //import HomeTab from 'src/pages/HomeTab.vue';
 
 const tab = ref('home')
+/*The reason why using {} allows you to call the ref function directly is because it is a named import.
+When you use named imports, you can import only the specific functions or objects that you need from a module.
+This makes your code more efficient and easier to read. The behavior of using named imports is called destructuring.*/
+/*When you use “import { ref } from ‘vue’”, you can use the ref function directly in your code, like this: const count = ref(0).
+ When you use “import ref from ‘vue’”, you need to call the function like this: const count = ref.ref(0)*/
 </script>
 
 <style lang="scss">

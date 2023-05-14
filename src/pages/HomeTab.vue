@@ -253,7 +253,6 @@ const uniqueDatesList = ref([...new Set(momentsList.value.map(moment => moment.d
 }
 
 .tags {
-
   font-size: 0.9rem;
   color: $primary;
 }
