@@ -1,5 +1,14 @@
 <template >
   <q-page>
+    <!-- <div>{{ momentsStore.moments }}</div>
+    <div>XXX {{ momentsStore.moments[2] }}</div> -->
+    <!-- <div>XXX2 {{ momentsStore.moments.value[2] }}</div>
+    <div>XXX3 {{ momentsStore.moments.data[2] }}</div>
+    <div>XXX4 {{ momentsStore.moments.value[2].date }}</div>
+    <div>XXX5 {{ momentsStore.moments.data[2].date }}</div> -->
+    <!-- <div>XXX6 {{ momentsStore.moments.value[2].date.secontoDate() }}</div>
+    <div>XXX7 {{ momentsStore.moments.data[2].date.toDate() }}</div>-->
+
     <!-- flexbox container -->
     <div class="q-pa-md flexbox-container">
 
@@ -26,13 +35,15 @@
           <q-card-section class="q-py-none input-card-section">
             <q-form @submit="onSubmit">
 
-              <q-input bg-color="white" color="white" rounded outlined v-model="text"
+              <q-input bg-color="white" color="white" rounded outlined v-model="newText"
                 label="Feeling ... when/at/to ...  #mytag" lazy-rules
                 :rules="[val => val && val.length > 0 || 'Please type something']">
 
-                <template v-slot:after>
-                  <q-btn round color="primary" icon="arrow_forward" />
-                </template>
+                <!-- <template v-slot:after> -->
+                <div>
+                  <q-btn label="Submit" round color="primary" icon="arrow_forward" type="submit" />
+                </div>
+                <!-- </template> -->
               </q-input>
 
             </q-form>
@@ -88,20 +99,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import uniqueId from 'lodash.uniqueid'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
+import { useMomentsStore } from './../stores/moments.js'
+import { Timestamp } from 'firebase/firestore'
+
+const momentsStore = useMomentsStore()
+onMounted(async () => {
+  await momentsStore.fetchMoments('jdouet')
+  await console.log('momentsStore.uniqueDays from HomeTab ONMOUNTED', momentsStore.uniqueDays);
+})
+// // Fetch moments when component is mounted
+// onMounted(/*async*/() => {
+//   // Check if moments are already fetched
+//   // if (momentsStore.moments.length === 0) {
+//     /*await*/ momentsStore.fetchMoments('jdouet')
+//   // }
+// })
 
 const newIntensity = ref(0)
+const newText = ref('')
+const newTags = ref([])
+const newDate = ref(null)
 
-function trackProcess(dotsPos) {
-  //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.
-  // cf. https://nightcatsama.github.io/vue-slider-component/#/basics/process
-  return [[50, dotsPos[0]]]
+const onSubmit = (event) => {
+  event.preventDefault()
+  newDate.value = Timestamp.now() //Date.now()
+  momentsStore.addMoment({
+    date: newDate.value,
+    intensity: newIntensity.value,
+    text: newText.value,
+    tags: newTags.value,
+    // id: uniqueId('moment_') //removed bec. already generated in store and wasn't used
+  })
+  console.log('onSubmit', newDate.value, newIntensity.value, newText.value, newTags.value,)
+
+  newIntensity.value = 0
+  newText.value = ''
+  newTags.value = []
+  newDate.value = null
 }
 
-//TODO get from DB
 const momentsList = ref([
   {
     id: uniqueId('moment_'),
@@ -216,9 +256,29 @@ const momentsList = ref([
     tags: ['#weather']
   },
 ])
+// console.log('momentsList', momentsList.value);
 
 //TODO make it a computed, avoid creating new set each time
 const uniqueDatesList = ref([...new Set(momentsList.value.map(moment => moment.date))])
+
+// const days = momentsStore.moments.map((moment) => {
+//   // Convert Firestore Timestamp to JavaScript Date
+//   const date = moment.date.toDate();
+//   // Remove time
+//   date.setHours(0, 0, 0, 0);
+//   return date.getTime();
+// });
+// const uniqueDays = [...new Set(days)];
+// // Convert back to Date objects
+// return uniqueDays.map((day) => new Date(day));
+
+
+function trackProcess(dotsPos) {
+  //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.
+  // cf. https://nightcatsama.github.io/vue-slider-component/#/basics/process
+  return [[50, dotsPos[0]]]
+}
+
 </script>
 
 <style lang="scss">
