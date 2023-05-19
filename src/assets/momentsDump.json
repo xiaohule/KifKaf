@@ -1,0 +1,133 @@
+In a Vue.js 3 application, Firebase and a state management library like Pinia can interact in a way that Firebase handles all the backend operations (like authentication, database management, and storage), while Pinia manages the application state based on the responses from Firebase.
+
+Here's a basic example of how they might interact:
+
+1. **Firebase Services**: Firebase services are utilized within your application for various purposes such as user authentication, database interactions, cloud storage, etc. For instance, Firebase's Firestore service can be used to interact with your database, and Firebase Authentication for managing user authentication.
+2. **API Service Layer**: In a typical Vue.js application, you might have a service layer that interacts with Firebase. This layer would contain functions for signing up, logging in, fetching data from Firestore, etc.
+3. **Pinia Store**: The functions from the service layer are then used within your Pinia store. The store will use these functions to make requests to Firebase and update its state based on the responses.
+4. **Vue Components**: Your Vue components will then use the Pinia store to display data and trigger actions. The components do not interact with Firebase directly. Instead, they dispatch actions and consume state from the Pinia store.
+
+Here are some best practices when using Firebase with Pinia:
+
+- **Decouple Firebase and Vue**: By using a service layer between Firebase and your Pinia store, you decouple your Vue application from Firebase. This makes your application more flexible and easier to maintain.
+- **Handle Asynchronous Operations**: Firebase operations are typically asynchronous. Make sure to handle these properly in your Pinia store, for example by using async/await.
+- **Manage User State**: If you're using Firebase Authentication, consider storing the current user in your Pinia store. This makes it easy to access user information from your components.
+- **Realtime Updates**: Firebase offers realtime updates, for example with Firestore's onSnapshot method. You can use this feature to update your Pinia store in real time when data changes in Firestore.
+- **Error Handling**: Always handle errors from Firebase operations. You can do this in your service layer or in your Pinia actions.
+
+Remember that Firebase, like any backend, should be considered untrusted from a security standpoint. Validate and sanitize all data coming from Firebase before using it in your application. Also, make sure to secure your Firebase project properly, for example by setting up Firestore security rules.
+
+[
+    {
+      id: uniqueId('moment_'),
+      date: 'Today',
+      intensity: -3.3,
+      moment: 'Feeling guilty and sad when mam tell us we stay in touch bec. she will have difficulties when we leave matthieu’s home bec. I want my mum to be happy and striving',
+      tags: ['#mam', '#guilt']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'Today',
+      intensity: +2.1,
+      moment: 'Feeling safe and powerful when managing my money online',
+      tags: ['#autonomy', '#safety', '#successful']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 18',
+      intensity: +2.8,
+      moment: 'Feeling smart and useful when discussing with Thomas about his project and mine, bec. I felt less of a failure',
+      tags: ['#usefulness']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 18',
+      intensity: +3.3,
+      moment: '🍑 with mona, good connection and sharing, we had a good chat which made me feel like a valuable partner to her not only physically but intellectually',
+      tags: ['#sex', '#body']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 17',
+      intensity: 4.1,
+      moment: 'Feeling grateful to have the sun on my face while walking down from Montmarte bec. it felt warm and natural',
+      tags: ['#sun', '#nature']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 17',
+      intensity: -3.7,
+      moment: 'Feeling like I am losing my time at the playfight workshop bec. I am not learning anything',
+      tags: ['#impatience']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 17',
+      intensity: +1.8,
+      moment: 'Feeling content and proud when theorizing about office locking and my chance bec. I like feeling different and free',
+      tags: ['#autonomy', '#walk']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 17',
+      intensity: +2.1,
+      moment: 'Feeling completely relaxed and epic at the end of movement course when lying down ',
+      tags: ['#rest', '#harmony', '#movement']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 13',
+      intensity: +2.3,
+      moment: 'Feeling aroused and capable when playfight jamming with bastos caro and new ppl',
+      tags: ['#body', '#women', '#lettinggo', '#dance']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 13',
+      intensity: -3.3,
+      moment: 'Feeling incapable to help mam when she tells me she’s not going well on phone call bec. hard to see loved ones struggle',
+      tags: ['#mam']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 9',
+      intensity: -2.3,
+      moment: 'Feeling guilty to have let Maria down yest. night bec. I need to be more trustful',
+      tags: ['#trustfulness', '#maria']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 7',
+      intensity: -2.1,
+      moment: 'Feeling disrespected that mona came to sleep with me despite me saying no bec. I wanted to work',
+      tags: ['#sayingno', '#autonomy']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'March 7',
+      intensity: +2.3,
+      moment: 'Finally alone at home',
+      tags: ['#autonomy']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'February 27',
+      intensity: +4.1,
+      moment: 'Feeling grateful and cuddled to have my tea prepared by James bec. proof of love',
+      tags: ['#james', '#cocooning', '#proofoflove']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'February 27',
+      intensity: -4.1,
+      moment: 'Feeling stressed of not knowing what I’m gonna do today',
+      tags: ['#selfesteem']
+    },
+    {
+      id: uniqueId('moment_'),
+      date: 'February 25',
+      intensity: -1.1,
+      moment: 'Feeling moody bec. of the grey weather',
+      tags: ['#weather']
+    }
+]
