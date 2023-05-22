@@ -1,8 +1,17 @@
 import { defineStore } from "pinia";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { useCollection } from "vuefire";
+import { useCollection, useCurrentUser } from "vuefire";
 import { db } from "../boot/setup.js";
 import { ref, computed } from "vue";
+import { date } from "quasar";
+// destructuring to keep only what is needed in date
+const { formatDate } = date;
+
+// TODO use this to get the user id and therefore modify fetchMoments call
+const user = useCurrentUser();
+/* <template>
+  <p v-if="user">Hello {{ user.providerData.displayName }}</p>
+</template> */
 
 export const useMomentsStore = defineStore("moments", () => {
   // const userId = ref("jdouet"); //TODO make it dynami
@@ -25,22 +34,28 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
+  //TODO improve perf
   const uniqueDays = computed(() => {
     const days = moments.value.data.map((moment) => {
       // Convert Firestore Timestamp to JavaScript Date
-      console.log("moment_i.text", moment.text);
-      console.log("moment_i.date", moment.date);
+      // console.log("moment_i", moment.text + " - " + moment.date);
+      // FORMAT moment.date is like {seconds: 1678296892, nanoseconds: 210000000}
       const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
       // const date = Date(moment.date.seconds);
       const date = ts.toDate();
       // Remove time
       date.setHours(0, 0, 0, 0);
-      console.log("moment_i.getTime", date.getTime());
+      // console.log("moment_i.getTime", date.getTime());
+      // FORMAT date.getTime() is like 1678230000000
       return date.getTime();
     });
+    //Make an array of unique dates
     const uniqueDaysTemp = [...new Set(days)];
-    // Convert back to Date objects
-    return uniqueDaysTemp.map((day) => new Date(day));
+    //Sort the array in descending order
+    uniqueDaysTemp.sort((a, b) => b - a);
+    // console.log("uniqueDaysTemp", uniqueDaysTemp);
+    // Convert to formatted Date objects
+    return uniqueDaysTemp.map((day) => date.formatDate(day, "MMMM D, YYYY"));
   });
 
   const addMoment = async (moment) => {

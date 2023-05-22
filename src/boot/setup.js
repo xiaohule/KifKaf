@@ -1,8 +1,8 @@
 import { boot } from "quasar/wrappers";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth"; // TODO firebase
 import { getAnalytics } from "firebase/analytics";
-
 import { VueFire, VueFireAuth } from "vuefire";
 
 const firebaseConfig = {
@@ -16,8 +16,10 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-const analytics = getAnalytics(firebaseApp);
 export const db = getFirestore(firebaseApp);
+export const auth = getAuth(firebaseApp);
+export const analytics = getAnalytics(firebaseApp);
+// export const auth = firebaseApp.auth(); // TODO firebase
 
 export default boot(({ app, store }) => {
   app.use(VueFire, {

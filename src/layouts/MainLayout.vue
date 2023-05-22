@@ -4,7 +4,9 @@
     <q-header class="bg-transparent" bordered reveal>
       <q-toolbar class="text-dark">
         <q-toolbar-title>KifKaf</q-toolbar-title>
-        <q-avatar><img src="https://cdn.quasar.dev/img/avatar.png"></q-avatar>
+        <router-link to="/profile">
+          <q-avatar><img src="https://cdn.quasar.dev/img/avatar.png"></q-avatar>
+        </router-link>
       </q-toolbar>
     </q-header>
 
