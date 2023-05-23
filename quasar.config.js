@@ -27,7 +27,7 @@ module.exports = configure(function (/* ctx */) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
-    boot: ["setup", "routerAuthentication"],
+    boot: ["firebaseBoot", "authBoot"],
     // boot: ["firebase", "vuefire"],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css

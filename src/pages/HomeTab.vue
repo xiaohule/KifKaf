@@ -1,93 +1,77 @@
 <template >
-  <q-page>
-    <!-- flexbox container -->
-    <div class="q-pa-md flexbox-container">
+  <q-page class="q-pa-sm q-mx-auto" style="max-width: 600px">
+    <!-- TODO: welcome user -->
+    <!-- <template>
+      <p v-if="user">Hello {{ user.providerData.displayName }}</p>
+    </template> -->
 
-      <q-card class="new-moment-card bg-blue-2 q-mb-sm" flat>
-        <div class="new-moment-grid-container">
+    <q-card class="bg-blue-2 q-mb-sm q-pa-sm rounded-borders-14" flat>
+      <q-card-section class="text-subtitle1 q-pb-sm">
+        Add a new Moment
+      </q-card-section>
 
-          <q-card-section class="date-card-section">
-            <div class="text-subtitle1">
-              Add a new Moment
-            </div>
-          </q-card-section>
+      <q-card-section horizontal class="no-wrap items-center q-mx-xs q-mb-md">
 
-          <q-card-section class="q-py-none">
-            <div>
-              <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="0.1"
-                :drag-on-click="true"></vue-slider>
-            </div>
-          </q-card-section>
+        <q-card-section class="col-11">
+          <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="0.1"
+            :drag-on-click="true"></vue-slider>
+        </q-card-section>
 
-          <q-card-section class="q-py-none">
-            <div>{{ newIntensity > 0 ? `+${newIntensity}` : newIntensity }}</div>
-          </q-card-section>
+        <q-card-section class="col-grow">
+          {{ newIntensity > 0 ? `+${newIntensity}` : newIntensity }}
+        </q-card-section>
 
-          <q-card-section class="q-py-none input-card-section">
-            <q-form @submit="onSubmit">
+      </q-card-section>
 
-              <q-input bg-color="white" color="white" rounded outlined v-model="rawNewText"
-                label="Feeling ... when/at/to ...  #mytag" lazy-rules
-                :rules="[val => val && val.length > 0 || 'Please type something']">
+      <q-input class="q-mx-sm" bg-color="white" color="white" rounded outlined bottom-slots dense autogrow
+        v-model="rawNewText" label="Feeling ... when/at/to ...  #mytag" lazy-rules
+        :rules="[val => val && val.length > 0 || 'Please type something']">
+        <!-- bottom-slots :dense="dense" -->
 
-                <!-- <template v-slot:after> -->
-                <div>
-                  <q-btn label="Submit" round color="primary" icon="arrow_forward" type="submit" />
-                </div>
-                <!-- </template> -->
+        <!-- TODO: make the btn align with the end of the text area when it grows -->
+        <template v-slot:append>
+          <q-btn v-if="rawNewText !== ''" round dense color="primary" icon="arrow_forward" @click="onSubmit" />
+        </template>
+      </q-input>
+    </q-card>
 
-              </q-input>
+    <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length === 0">No Moments found</div>
+    <q-list v-else>
+      <q-card class="bg-white q-mb-sm q-pa-sm rounded-borders-14 " v-for="day in momentsStore.uniqueDays" :key="day" flat>
 
-            </q-form>
-          </q-card-section>
-        </div>
+        <q-card-section class="text-subtitle1 q-pb-none">
+          {{ day }}
+        </q-card-section>
+
+        <q-card-section class="q-py-none">
+          <q-list class="q-mx-none">
+            <q-card-section class="q-px-none" clickable v-for="moment in momentsOfTheDay(day)" :key="moment.id">
+              <q-item class="q-px-none">
+                <q-item-section>
+                  <!-- TODO: block clicking and differentiate appearance of those sliders -->
+                  <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5" :interval="0.1"
+                    disabled></vue-slider>
+                </q-item-section>
+
+                <!-- TODO: keep avatar? -->
+                <q-item-section side>
+                  {{ moment.intensity > 0 ? `+${moment.intensity}` : moment.intensity }}
+                </q-item-section>
+              </q-item>
+
+              <q-item class="q-py-none">{{ moment.text }}</q-item>
+              <q-item v-if="moment.tags && moment.tags.length > 0" class="tags q-py-none">{{ moment.tags.map(tag => '#' +
+                tag).join(' ') }}</q-item>
+            </q-card-section>
+          </q-list>
+        </q-card-section>
       </q-card>
-
-      <q-list class="date-cards-list">
-        <q-item class="date-card-item q-px-none" v-for="day in momentsStore.uniqueDays" :key="day">
-          <q-card class="date-card bg-white col" flat>
-            <div class="previous-moments-grid-container">
-
-              <q-card-section class="date-card-section">
-                <div class="text-subtitle1">{{ day }}</div>
-              </q-card-section>
-
-              <q-card-section class="q-pt-none">
-                <q-list class="moments-list">
-                  <q-item class="moment-item" clickable v-for="moment in momentsOfTheDay(day)" :key="moment.id">
-                    <div>
-                      <q-item class="q-px-none row">
-                        <q-item-section>
-                          <!-- TODO block clicking and differentiate appearance of those sliders -->
-                          <div>
-                            <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5"
-                              :interval="0.1" disabled></vue-slider>
-                          </div>
-                        </q-item-section>
-                        <q-item-section avatar>
-                          <div>{{ moment.intensity > 0 ? `+${moment.intensity}` : moment.intensity }}</div>
-                        </q-item-section>
-                      </q-item>
-                      <div class="moment">{{ moment.text }}</div>
-                      <div class="tags">{{ moment.tags.map(tag => '#' + tag).join(' ') }}</div>
-
-                    </div>
-                  </q-item>
-
-                </q-list>
-              </q-card-section>
-            </div>
-
-          </q-card>
-        </q-item>
-
-      </q-list>
-    </div>
+    </q-list>
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
@@ -97,28 +81,13 @@ import { date } from "quasar";
 const { formatDate } = date;
 
 const momentsStore = useMomentsStore()
-momentsStore.fetchMoments('jdouet');
-// console.log('onSetup', momentsStore.uniqueDays)
 
-// onBeforeMount(() => {
-//   console.log('onBeforeMount', momentsStore.uniqueDays)
-// })
+// Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
+onMounted(async () => {
+  await momentsStore.fetchMoments();
+})
 
-// onMounted(() => {
-//   console.log('onMounted', momentsStore.uniqueDays)
-// })
-
-// onUpdated(() => {
-//   console.log('onUpdated', momentsStore.uniqueDays)
-// })
-
-// onBeforeUpdate(() => {
-//   console.log('onBeforeUpdate', momentsStore.uniqueDays)
-// })
-
-// uniqueDaysList.value = momentsStore.uniqueDays;
-// uniqueDaysList.value = await momentsStore.uniqueDays;
-
+//TODO: change to a reactive object
 const newIntensity = ref(0)
 const rawNewText = ref('')
 const newText = ref('')
@@ -166,7 +135,7 @@ const onSubmit = (event) => {
     tags: newTags.value,
     // id: uniqueId('moment_') //removed bec. already generated in store and wasn't used
   })
-  console.log('onSubmit', newDate.value, newIntensity.value, newText.value, newTags.value,)
+  console.log('New Moment added:', newDate.value, newIntensity.value, newText.value, newTags.value,)
 
   newIntensity.value = 0
   rawNewText.value = ''
@@ -183,34 +152,8 @@ function trackProcess(dotsPos) {
 </script>
 
 <style lang="scss">
-.flexbox-container {
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  max-width: 700px;
-}
-
-.new-moment-grid-container {
-  display: grid;
-  grid-template-columns: 11fr 2fr;
-  grid-template-rows: auto auto auto;
-  grid-gap: 1rem;
-}
-
-.date-card-section {
-  grid-column: 1 / 3;
-}
-
-//TODO break it in 2 different cells
-.input-card-section {
-  grid-column: 1 / 3;
-}
-
-.previous-moments-grid-container {
-  display: grid;
-  grid-template-columns: 11fr 2fr;
-  grid-template-rows: auto auto auto auto;
-  grid-gap: 1rem;
+.rounded-borders-14 {
+  border-radius: 14px;
 }
 
 .tags {

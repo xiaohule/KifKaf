@@ -1,7 +1,7 @@
 import { boot } from "quasar/wrappers";
 import { getCurrentUser } from "vuefire";
 
-export default boot(({ app, router }) => {
+export default boot(({ router }) => {
   router.beforeEach(async (to) => {
     // routes with `meta: { requiresAuth: true }` will check for the users, others won't
     if (to.meta.requiresAuth) {
@@ -20,5 +20,5 @@ export default boot(({ app, router }) => {
     }
   });
 
-  app.use(router);
+  // app.use(router); //handled by quasar
 });
