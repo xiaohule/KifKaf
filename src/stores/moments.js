@@ -12,18 +12,16 @@ export const useMomentsStore = defineStore("moments", () => {
   const momentsRef = ref(null);
   const moments = ref([]);
 
-  //TODO: when i will want to have a clean separation betw local state and firestore i will need to remove the use of vuefire
+  //TODO: separate betw local state and firestore?
   const fetchMoments = async () => {
     try {
       user.value = await getCurrentUser();
-      console.log("User accessed from moments store", user.value);
-
+      // console.log("User accessed from moments store", user.value);
       // user.value.uid;
       // user.value.displayName;
       // user.value.email;
       // user.value.photoURL;
 
-      // TODO: ensure we create collection if non existent
       momentsRef.value = collection(db, `users/${user.value.uid}/moments`);
       moments.value = useCollection(momentsRef);
     } catch (error) {

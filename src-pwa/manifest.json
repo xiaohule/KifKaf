@@ -1,7 +1,12 @@
 {
+  "name": "KifKaf",
+  "short_name": "KifKaf",
+  "start_url": "/",
+  "description": "Embrace your Kifs & Kafs (positive & negative moments). Know yourself better. Discover the changes you need for a more fulfilling life.",
+  "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#027be3",
+  "background_color": "#e0e0e0",
+  "theme_color": "#e0e0e0",
   "icons": [
     {
       "src": "icons/icon-128x128.png",

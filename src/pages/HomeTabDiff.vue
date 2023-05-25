@@ -1,9 +1,6 @@
-<template >
+<template>
   <q-page class="q-mx-auto" style="max-width: 600px" padding>
     <!-- TODO: welcome user -->
-    <!-- <template>
-      <p v-if="user">Hello {{ user.providerData.displayName }}</p>
-    </template> -->
 
     <q-card class="bg-blue-2 q-mb-sm q-pa-xs rounded-borders-14" flat>
       <q-card-section class="text-subtitle1 q-pb-none">
@@ -14,27 +11,22 @@
         <q-item class="q-px-none">
           <q-item-section class="col-11">
             <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1" drag-on-click
-              adsorb :marks="marksEmoji">
-            </vue-slider>
+              adsorb :marks="marksEmoji"></vue-slider>
           </q-item-section>
 
           <q-item-section side class="col text-subtitle1 text-dark">
             {{ newIntensity }}
-            <!-- {{ newIntensity > 0 ? `+${newIntensity}` : newIntensity }} -->
           </q-item-section>
         </q-item>
       </q-card-section>
-
-      <!-- // TODO: make the btn align with the end of the text area when it grows -->
 
       <q-input ref="inputRef" class="q-mx-sm q-mb-md" bg-color="white" color="white" type="text" rounded outlined autogrow
         v-model="rawNewText" placeholder="Feeling ... when/at/to ...  #mytag">
         <template v-slot:append>
           <q-btn v-if="rawNewText !== '' && !isRecognizing" round dense color="primary" icon="arrow_forward"
             @click="onSubmit" />
-          <q-btn v-else :color="isRecognizing ? 'primary' : null" :flat=!isRecognizing dense round icon="mic"
+          <q-btn v-else :color="isRecognizing ? 'primary' : null" :flat="!isRecognizing" dense round icon="mic"
             @click="toggleSpeechRecognition" />
-          <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
         </template>
       </q-input>
     </q-card>
@@ -61,8 +53,7 @@
 
             <q-item class="q-py-none" dense>{{ moment.text }}</q-item>
             <q-item v-if="moment.tags && moment.tags.length > 0" class="tags q-py-none" dense>{{ moment.tags.map(tag =>
-              '#' +
-              tag).join(' ') }}</q-item>
+              '#' + tag).join(' ') }}</q-item>
           </q-card-section>
         </q-list>
       </q-card>
@@ -82,29 +73,19 @@ import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
-// destructuring to keep only what is needed in date
+
 const { formatDate } = date;
 
 const momentsStore = useMomentsStore()
-// Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
   await momentsStore.fetchMoments();
 })
 
-//TODO: change to a reactive object
 const newIntensity = ref(0)
 const rawNewText = ref('')
 const newText = ref('')
 const newTags = ref([])
 const newDate = ref(null)
-
-const formatLikeUniqueDays = (moment) => {
-  const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-  const dt = ts.toDate();
-  dt.setHours(0, 0, 0, 0);
-  dt.getTime();
-  return date.formatDate(dt, "MMMM D, YYYY")
-};
 
 const uniqueDays = computed(() => {
   return momentsStore.uniqueDays || []
@@ -113,8 +94,7 @@ const uniqueDays = computed(() => {
 const momentsOfTheDay = (day) => {
   const moments = computed(() => momentsStore.moments.value)
   const ul = moments.value.filter(m => formatLikeUniqueDays(m) === day)
-  // sort array ul per descending moments.value.date.seconds
-  const ol = ul.sort((a, b) => b.date.seconds - a.date.seconds);
+  const ol = ul.sort((a, b) => b.date.seconds - a.date.seconds)
   return ol;
 }
 
@@ -133,38 +113,31 @@ const marksEmoji = {
 }
 
 function trackProcess(dotsPos) {
-  //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.
-  // cf. https://nightcatsama.github.io/vue-slider-component/#/basics/process
   return [[50, dotsPos[0]]]
 }
 
-//TODO: move to composable bec. used elsewhere?
-//TODO: doesn't work in ios safari pwa yet as explained in https://bugs.webkit.org/show_bug.cgi?id=225298 graceful fallback needed
-
-// Create a new instance of the API outside the function
 const recognitionName = window.webkitSpeechRecognition || window.SpeechRecognition
 let recognition;
+
 if ('webkitSpeechRecognition' in window) {
   recognition = new recognitionName();
   recognition.continuous = false;
   recognition.interimResults = true;
-  recognition.lang = "fr-FR"; //TODO: make this dynamic based on user's language
+  recognition.lang = "fr-FR";
   recognition.onerror = function (event) {
     console.error(event);
   };
 }
 
-// Create a flag to track whether speech recognition is active
 const isRecognizing = ref(false);
 
 const toggleSpeechRecognition = () => {
   if (!recognition) {
-    return; // return early if the API is not available
+    return;
   }
 
   if (!isRecognizing.value) {
     recognition.onresult = (event) => {
-
       let finalTranscript = '';
       let interimTranscript = '';
 
@@ -181,10 +154,10 @@ const toggleSpeechRecognition = () => {
       rawNewText.value = finalTranscript + interimTranscript;
     };
 
-    recognition.start(); // Start listening
+    recognition.start();
     isRecognizing.value = true;
   } else {
-    recognition.stop(); // Stop listening
+    recognition.stop();
     isRecognizing.value = false;
   }
 }
@@ -192,12 +165,10 @@ const toggleSpeechRecognition = () => {
 const inputRef = ref(null)
 const appendHashtag = () => {
   rawNewText.value += '#'
-  // nextTick(() => {
   inputRef.value.focus()
-  // })
 }
 
-onMounted(() => { //TODO: move to a composition function bec. will be used elsewhere, for example when updating?
+onMounted(() => {
   var bottomBar = document.getElementById('bottombar');
   var viewport = window.visualViewport;
   let pendingUpdate = false;
@@ -210,19 +181,10 @@ onMounted(() => { //TODO: move to a composition function bec. will be used elsew
       pendingUpdate = false;
       const layoutViewport = document.getElementById("layoutViewport");
 
-      // Since the bar is position: fixed we need to offset it by the
-      // visual viewport's offset from the layout viewport origin.
-      const viewport = event.target;
       const offsetLeft = viewport.offsetLeft;
-      const offsetTop =
-        viewport.height -
-        layoutViewport.getBoundingClientRect().height +
-        viewport.offsetTop;
+      const offsetTop = viewport.height - layoutViewport.getBoundingClientRect().height + viewport.offsetTop;
 
-      // You could also do this by setting style.left and style.top if you
-      // use width: 100% instead.
-      bottomBar.style.transform = `translate(${offsetLeft}px, ${offsetTop}px) scale(${1 / viewport.scale
-        })`;
+      bottomBar.style.transform = `translate(${offsetLeft}px, ${offsetTop}px) scale(${1 / viewport.scale})`;
     });
   }
 
@@ -232,21 +194,17 @@ onMounted(() => { //TODO: move to a composition function bec. will be used elsew
 
 const onSubmit = (event) => {
   event.preventDefault()
-  newDate.value = Timestamp.now() //Date.now()
+  newDate.value = Timestamp.now()
 
-  // Split the text by space to get all words
   const words = rawNewText.value.split(' ')
-  // Iterate over each word
   words.forEach((word) => {
     if (word.startsWith('#')) {
-      // If the word starts with a '#', remove the '#' and add it to the tags array
       newTags.value.push(word.slice(1))
     } else {
-      // Otherwise, add it to the parsed text
       newText.value += word + ' '
     }
   })
-  // Trim the trailing space off the parsed text
+
   newText.value = newText.value.trim()
 
   momentsStore.addMoment({
@@ -254,9 +212,7 @@ const onSubmit = (event) => {
     intensity: newIntensity.value,
     text: newText.value,
     tags: newTags.value,
-    // id: uniqueId('moment_') //removed bec. already generated in store and wasn't used
   })
-  console.log('New Moment added:', newDate.value, newIntensity.value, newText.value, newTags.value,)
 
   newIntensity.value = 0
   rawNewText.value = ''
@@ -291,8 +247,4 @@ const onSubmit = (event) => {
   bottom: 0px;
   transform-origin: left bottom;
   transform: translate(0px, 0px) scale(1);
-}
-</style>
-
-
-
+}</style>

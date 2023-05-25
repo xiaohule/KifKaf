@@ -10,7 +10,7 @@
       </q-toolbar>
     </q-header>
 
-    <!-- TODO: set a smaller max-width for this for use on desktop app -->
+    <!-- TODO: set max-width direclty here an not in pages -->
     <!-- class="column items-center justify-center  " -->
     <q-page-container>
       <!-- ROUTING -->
