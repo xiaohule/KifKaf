@@ -39,15 +39,15 @@
       </q-input>
     </q-card>
 
-    <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length === 0">No Moments found</div>
+    <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0">No Moments found</div>
     <q-list v-else>
-      <q-card class="bg-white q-mb-sm q-pa-xs rounded-borders-14" v-for="day in uniqueDays" :key="day" flat>
+      <q-card class="bg-white q-mb-sm q-pa-xs rounded-borders-14" v-for="day in computedUniqueDays" :key="day" flat>
         <q-card-section class="text-subtitle1 q-pb-none">
           {{ day }}
         </q-card-section>
 
         <q-list>
-          <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="moment in momentsOfTheDay(day)" :key="moment.id">
+          <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="moment in getMomentsOfTheDay(day)" :key="moment.id">
             <q-item class="q-px-none">
               <q-item-section>
                 <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
@@ -106,11 +106,10 @@ const formatLikeUniqueDays = (moment) => {
   return date.formatDate(dt, "MMMM D, YYYY")
 };
 
-const uniqueDays = computed(() => {
+const computedUniqueDays = computed(() => {
   return momentsStore.uniqueDays || []
 })
-
-const momentsOfTheDay = (day) => {
+const getMomentsOfTheDay = (day) => {
   const moments = computed(() => momentsStore.moments.value)
   const ul = moments.value.filter(m => formatLikeUniqueDays(m) === day)
   // sort array ul per descending moments.value.date.seconds
@@ -146,7 +145,7 @@ const recognitionName = window.webkitSpeechRecognition || window.SpeechRecogniti
 let recognition;
 if ('webkitSpeechRecognition' in window) {
   recognition = new recognitionName();
-  recognition.continuous = false;
+  recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = "fr-FR"; //TODO: make this dynamic based on user's language
   recognition.onerror = function (event) {
@@ -256,7 +255,7 @@ const onSubmit = (event) => {
     tags: newTags.value,
     // id: uniqueId('moment_') //removed bec. already generated in store and wasn't used
   })
-  console.log('New Moment added:', newDate.value, newIntensity.value, newText.value, newTags.value,)
+  // console.log('New Moment added:', newDate.value, newIntensity.value, newText.value, newTags.value,)
 
   newIntensity.value = 0
   rawNewText.value = ''
