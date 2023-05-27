@@ -26,14 +26,13 @@
       </q-card-section>
 
       <!-- // TODO: make the btn align with the end of the text area when it grows -->
-
       <q-input ref="inputRef" class="q-mx-sm q-mb-md" bg-color="white" color="white" type="text" rounded outlined autogrow
         v-model="rawNewText" placeholder="Feeling ... when/at/to ...  #mytag">
         <template v-slot:append>
           <q-btn v-if="rawNewText !== '' && !isRecognizing" round dense color="primary" icon="arrow_forward"
             @click="onSubmit" />
-          <q-btn v-else :color="isRecognizing ? 'primary' : null" :flat=!isRecognizing dense round icon="mic"
-            @click="toggleSpeechRecognition" />
+          <q-btn v-else-if="showSpeechRecognitionButton" :color="isRecognizing ? 'primary' : null" :flat=!isRecognizing
+            dense round icon="mic" @click="toggleSpeechRecognition" />
           <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
         </template>
       </q-input>
@@ -41,14 +40,15 @@
 
     <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0">No Moments found</div>
     <q-list v-else>
-      <q-card class="bg-white q-mb-sm q-pa-xs rounded-borders-14" v-for="day in computedUniqueDays" :key="day" flat>
+      <q-card class="bg-white q-mb-sm q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
+        :key="day" flat>
         <q-card-section class="text-subtitle1 q-pb-none">
           {{ day }}
         </q-card-section>
 
         <q-list>
           <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="moment in getMomentsOfTheDay(day)" :key="moment.id">
-            <q-item class="q-px-none">
+            <q-item class="q-px-none q-pb-none">
               <q-item-section>
                 <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
                   disabled></vue-slider>
@@ -59,10 +59,11 @@
               </q-item-section>
             </q-item>
 
-            <q-item class="q-py-none" dense>{{ moment.text }}</q-item>
-            <q-item v-if="moment.tags && moment.tags.length > 0" class="tags q-py-none" dense>{{ moment.tags.map(tag =>
-              '#' +
-              tag).join(' ') }}</q-item>
+            <q-item class="q-py-none" style="min-height: 0px;" dense>{{ moment.text }}</q-item>
+            <q-item v-if="moment.tags && moment.tags.length > 0" class="tags q-py-none" style="min-height: 0px;" dense>{{
+              moment.tags.map(tag =>
+                '#' +
+                tag).join(' ') }}</q-item>
           </q-card-section>
         </q-list>
       </q-card>
@@ -76,12 +77,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onDeactivated, onBeforeUnmount, computed } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
+import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js'
+
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
@@ -137,56 +140,26 @@ function trackProcess(dotsPos) {
   return [[50, dotsPos[0]]]
 }
 
-//TODO: move to composable bec. used elsewhere?
-//TODO: doesn't work in ios safari pwa yet as explained in https://bugs.webkit.org/show_bug.cgi?id=225298 graceful fallback needed
+const {
+  showSpeechRecognitionButton,
+  toggleSpeechRecognition,
+} = useSpeechRecognition(rawNewText)
 
-// Create a new instance of the API outside the function
-const recognitionName = window.webkitSpeechRecognition || window.SpeechRecognition
-let recognition;
-if ('webkitSpeechRecognition' in window) {
-  recognition = new recognitionName();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = "fr-FR"; //TODO: make this dynamic based on user's language
-  recognition.onerror = function (event) {
-    console.error(event);
-  };
-}
-
-// Create a flag to track whether speech recognition is active
-const isRecognizing = ref(false);
-
-const toggleSpeechRecognition = () => {
-  if (!recognition) {
-    return; // return early if the API is not available
-  }
-
-  if (!isRecognizing.value) {
-    recognition.onresult = (event) => {
-
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      for (let i = 0; i < event.results.length; i++) {
-        const result = event.results[i];
-
-        if (result.isFinal) {
-          finalTranscript += result[0].transcript;
-        } else {
-          interimTranscript += result[0].transcript;
-        }
-      }
-
-      rawNewText.value = finalTranscript + interimTranscript;
-    };
-
-    recognition.start(); // Start listening
-    isRecognizing.value = true;
-  } else {
-    recognition.stop(); // Stop listening
+onDeactivated(() => {
+  console.log('onDeactivate recog fired');
+  if (recognition) {
+    recognition.stop();
     isRecognizing.value = false;
   }
-}
+})
+
+onBeforeUnmount(() => {
+  console.log('onBeforeUnmount recog fired');
+  if (recognition) {
+    recognition.stop();
+    isRecognizing.value = false;
+  }
+})
 
 const inputRef = ref(null)
 const appendHashtag = () => {
@@ -196,12 +169,14 @@ const appendHashtag = () => {
   // })
 }
 
+let viewportHandler;
+
 onMounted(() => { //TODO: move to a composition function bec. will be used elsewhere, for example when updating?
   var bottomBar = document.getElementById('bottombar');
-  var viewport = window.visualViewport;
+  // var viewport = window.visualViewport;
   let pendingUpdate = false;
 
-  function viewportHandler(event) {
+  viewportHandler = (event) => {
     if (pendingUpdate) return;
     pendingUpdate = true;
 
@@ -228,6 +203,17 @@ onMounted(() => { //TODO: move to a composition function bec. will be used elsew
   window.visualViewport.addEventListener("scroll", viewportHandler);
   window.visualViewport.addEventListener("resize", viewportHandler);
 })
+
+onDeactivated(() => {
+  window.visualViewport.removeEventListener("scroll", viewportHandler);
+  window.visualViewport.removeEventListener("resize", viewportHandler);
+})
+
+onBeforeUnmount(() => {
+  window.visualViewport.removeEventListener("scroll", viewportHandler);
+  window.visualViewport.removeEventListener("resize", viewportHandler);
+})
+
 
 const onSubmit = (event) => {
   event.preventDefault()

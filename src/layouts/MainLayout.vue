@@ -5,18 +5,23 @@
       <q-toolbar class="text-dark">
         <q-toolbar-title>KifKaf</q-toolbar-title>
         <router-link to="/profile">
-          <q-avatar><img src="https://cdn.quasar.dev/img/avatar.png"></q-avatar>
+          <q-avatar icon="account_circle" size="32px" font-size="32px" color="" text-color="grey-8">
+            <!-- <img src="https://cdn.quasar.dev/img/avatar.png"> -->
+            <!-- or put initials like JD? -->
+          </q-avatar>
         </router-link>
       </q-toolbar>
     </q-header>
 
     <!-- TODO: set max-width direclty here an not in pages -->
-    <!-- class="column items-center justify-center  " -->
     <q-page-container>
       <!-- ROUTING -->
-      <router-view />
-      <!-- IMPORT -->
-      <!--  <HomeTab /> -->
+      <!-- <router-view /> -->
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </q-page-container>
 
     <q-footer class="bg-transparent" bordered>
