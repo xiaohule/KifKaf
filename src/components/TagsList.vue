@@ -3,12 +3,12 @@
     <template v-if="items.length">
       <button class="item" :class="{ 'is-selected': index === selectedIndex }" v-for="(item, index) in items" :key="index"
         @click="selectItem(index)">
-        {{ item }}
+        #{{ item }}
       </button>
     </template>
-    <div class="item" v-else>
+    <!-- <div class="item" v-else>
       No result
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -106,8 +106,8 @@ export default {
   border: 1px solid transparent;
   padding: 0.2rem 0.4rem;
 
-  &.is-selected {
-    border-color: #000;
-  }
+  // &.is-selected {
+  //   border-color: #000;
+  // }
 }
 </style>

@@ -84,15 +84,21 @@ import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js'
-
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
 const momentsStore = useMomentsStore()
-// Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
+
 onMounted(async () => {
-  await momentsStore.fetchMoments();
+  if (!momentsStore.initialized) {
+    await momentsStore.fetchMoments();
+  }
 })
+
+// Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
+// onMounted(async () => {
+//   await momentsStore.fetchMoments();
+// })
 
 //TODO: change to a reactive object
 const newIntensity = ref(0)

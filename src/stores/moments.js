@@ -11,6 +11,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const user = ref(null);
   const momentsRef = ref(null);
   const moments = ref([]);
+  const initialized = ref(false);
 
   //TODO: separate betw local state and firestore?
   const fetchMoments = async () => {
@@ -24,10 +25,29 @@ export const useMomentsStore = defineStore("moments", () => {
 
       momentsRef.value = collection(db, `users/${user.value.uid}/moments`);
       moments.value = useCollection(momentsRef);
+      initialized.value = true;
     } catch (error) {
       console.log("Could not get  current user", error);
     }
   };
+
+  //TODO: improve perf
+  const uniqueTags = computed(() => {
+    if (
+      !moments.value ||
+      !moments.value.data ||
+      moments.value.data.length === 0
+    )
+      return [];
+
+    const uniqueTagsSet = new Set();
+    moments.value.data.forEach((moment) => {
+      moment.tags.forEach((tag) => {
+        uniqueTagsSet.add(tag);
+      });
+    });
+    return [...uniqueTagsSet];
+  });
 
   //TODO: improve perf
   const uniqueDays = computed(() => {
@@ -86,5 +106,13 @@ export const useMomentsStore = defineStore("moments", () => {
   //   }
   // },
   // define other actions like addMoment, updateMoment etc.
-  return { user, momentsRef, moments, uniqueDays, addMoment, fetchMoments };
+  return {
+    user,
+    momentsRef,
+    moments,
+    uniqueTags,
+    uniqueDays,
+    addMoment,
+    fetchMoments,
+  };
 });

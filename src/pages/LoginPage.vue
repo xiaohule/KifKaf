@@ -37,7 +37,7 @@ const uiConfig = {
     // This function will be called when a sign-in flow successfully completes
     signInSuccessWithAuthResult: function (authResult, redirectUrl) {
       // User successfully signed in.
-      console.log("Sign in successful, redirecting...");
+      console.log("Sign in successful, redirecting...", authResult, redirectUrl);
       // redirecting back to the intended page after login
       const to =
         route.query.redirect && typeof route.query.redirect === 'string'
