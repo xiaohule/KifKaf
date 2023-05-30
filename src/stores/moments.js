@@ -12,6 +12,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const momentsRef = ref(null);
   const moments = ref([]);
   const initialized = ref(false);
+  const isEditorFocused = ref(false);
 
   //TODO: separate betw local state and firestore?
   const fetchMoments = async () => {
@@ -106,13 +107,20 @@ export const useMomentsStore = defineStore("moments", () => {
   //   }
   // },
   // define other actions like addMoment, updateMoment etc.
+  const setIsEditorFocused = (isFocused) => {
+    isEditorFocused.value = isFocused;
+    console.log("isEditorFocused set to", isEditorFocused.value);
+  };
+
   return {
     user,
     momentsRef,
     moments,
+    isEditorFocused,
     uniqueTags,
     uniqueDays,
     addMoment,
     fetchMoments,
+    setIsEditorFocused,
   };
 });

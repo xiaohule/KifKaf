@@ -11,6 +11,9 @@ import Mention from '@tiptap/extension-mention'
 import Placeholder from '@tiptap/extension-placeholder'
 import suggestion from './../composables/suggestion'
 import { ref, onMounted, onBeforeUnmount, watch, watchEffect } from 'vue';
+import { useMomentsStore } from './../stores/moments.js'
+
+const momentsStore = useMomentsStore()
 
 const props = defineProps({
   modelValue: {
@@ -29,20 +32,6 @@ watchEffect(() => {
     }
   }
 });
-
-
-// watch(props.modelValue, (value) => {
-//   //Text
-//   // const isSame = editor.value.getText() === value; TODO:
-//   //HTML
-//   // const isSame = editor.value.getHTML() === value;
-//   // JSON
-//   // const isSame = JSON.stringify(this.editor.getJSON()) === JSON.stringify(value)
-//   // if (!isSame) {
-//   console.log('props.modelValue watcher fired', value)
-//   editor.value.commands.setContent(value, false);
-//   // }
-// });
 
 onMounted(() => {
   editor.value = new Editor({
@@ -77,21 +66,27 @@ onMounted(() => {
       //TODO: make rolling placeholders to avoid boredom
     ],
     content: props.modelValue,
+    onCreate: () => {
+      // The editor is ready.
+      emits('create:editor', editor.value);
+    },
     onUpdate: () => {
       emits('update:modelValue', editor.value.getText());
     },
+    onFocus: () => {
+      // The editor is focused.
+      momentsStore.setIsEditorFocused(true)
+    },
+    onBlur: () => {
+      // The editor isn’t focused anymore.
+      momentsStore.setIsEditorFocused(false)
+    },
   })
-  console.log('editor.value', editor.value)
 });
 
 onBeforeUnmount(() => {
   editor.value.destroy();
 });
-
-// editor.isEmpty
-// Remove all content from the document
-// editor.commands.clearContent()
-
 </script>
 
 <style lang="scss">

@@ -29,7 +29,7 @@
       <q-field rounded outlined bg-color="white" color="transparent" class="q-ma-md">
         <template v-slot:control>
           <!-- class="no-outline" -->
-          <new-moment-editor v-model="rawNewText" class="full-width" />
+          <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="editorInstance = $event" />
         </template>
         <template v-slot:append>
           <q-btn v-if="rawNewText !== '' && !isRecognizing" round dense color="primary" icon="arrow_forward"
@@ -71,7 +71,9 @@
       </q-card>
     </q-list>
 
-    <div id="bottombar" class="bg-grey-4 q-pa-xs">
+    <!-- TODO: hide bar when keyboard isn't open/when no input element is focused -->
+    <!-- v-show="momentsStore.isEditorFocused"  -->
+    <div v-show="momentsStore.isEditorFocused" id="bottomBar" class="bg-grey-4 q-pa-xs">
       <q-btn class="text-primary" flat round icon="tag" @click.prevent="appendHashtag" />
     </div>
     <div id="layoutViewport"></div>
@@ -167,19 +169,19 @@ onBeforeUnmount(() => {
 
 
 // # BOTTOM BAR
-let viewportHandler;
+let viewportHandler, layoutViewport, bottomBar;
+let pendingUpdate = false;
+
 onMounted(() => { //TODO: move to a composition function bec. will be used elsewhere, for example when updating?
-  var bottomBar = document.getElementById('bottombar');
-  // var viewport = window.visualViewport;
-  let pendingUpdate = false;
+  bottomBar = document.getElementById('bottomBar');
+  layoutViewport = document.getElementById("layoutViewport");
 
   viewportHandler = (event) => {
-    if (pendingUpdate) return;
-    pendingUpdate = true;
+    if (pendingUpdate) return; //Needed?
 
+    pendingUpdate = true;
     requestAnimationFrame(() => {
-      pendingUpdate = false;
-      const layoutViewport = document.getElementById("layoutViewport");
+      pendingUpdate = false; //TODO: move to end?
 
       // Since the bar is position: fixed we need to offset it by the
       // visual viewport's offset from the layout viewport origin.
@@ -189,17 +191,16 @@ onMounted(() => { //TODO: move to a composition function bec. will be used elsew
         viewport.height -
         layoutViewport.getBoundingClientRect().height +
         viewport.offsetTop;
-
       // You could also do this by setting style.left and style.top if you
       // use width: 100% instead.
       bottomBar.style.transform = `translate(${offsetLeft}px, ${offsetTop}px) scale(${1 / viewport.scale
         })`;
     });
-  }
-
-  window.visualViewport.addEventListener("scroll", viewportHandler);
-  window.visualViewport.addEventListener("resize", viewportHandler);
+  };
+  window.visualViewport.addEventListener("scroll", viewportHandler, { passive: true });
+  window.visualViewport.addEventListener("resize", viewportHandler, { passive: true });
 })
+
 onDeactivated(() => {
   window.visualViewport.removeEventListener("scroll", viewportHandler);
   window.visualViewport.removeEventListener("resize", viewportHandler);
@@ -209,12 +210,11 @@ onBeforeUnmount(() => {
   window.visualViewport.removeEventListener("resize", viewportHandler);
 })
 
-const inputRef = ref(null)
+//TODO: do not lose focus when # is tapped
+const editorInstance = ref(null)
 const appendHashtag = () => {
+  editorInstance.value.commands.focus()
   rawNewText.value += '#'
-  // nextTick(() => {
-  inputRef.value.focus()
-  // })
 }
 
 // ADD MOMENT
@@ -270,7 +270,8 @@ const onSubmit = (event) => {
   visibility: hidden;
 }
 
-#bottombar {
+#bottomBar {
+  will-change: transform;
   position: fixed;
   left: 0px;
   right: 0px;
