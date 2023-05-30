@@ -10,28 +10,39 @@ import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
 import Placeholder from '@tiptap/extension-placeholder'
 import suggestion from './../composables/suggestion'
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, watchEffect } from 'vue';
 
 const props = defineProps({
   modelValue: {
     type: String,
-    default: ''
+    default: '',
   }
 });
 const emits = defineEmits(['update:modelValue']);
 const editor = ref(null);
 
-watch(props.modelValue, (value) => {
-  //Text
-  const isSame = editor.value.getText() === value;
-  //HTML
-  // const isSame = editor.value.getHTML() === value;
-  // JSON
-  // const isSame = JSON.stringify(this.editor.getJSON()) === JSON.stringify(value)
-  if (!isSame) {
-    editor.value.commands.setContent(value, false);
+watchEffect(() => {
+  if (editor.value) {
+    const isSame = editor.value.getText() === props.modelValue;
+    if (!isSame) {
+      editor.value.commands.setContent(props.modelValue, false);
+    }
   }
 });
+
+
+// watch(props.modelValue, (value) => {
+//   //Text
+//   // const isSame = editor.value.getText() === value; TODO:
+//   //HTML
+//   // const isSame = editor.value.getHTML() === value;
+//   // JSON
+//   // const isSame = JSON.stringify(this.editor.getJSON()) === JSON.stringify(value)
+//   // if (!isSame) {
+//   console.log('props.modelValue watcher fired', value)
+//   editor.value.commands.setContent(value, false);
+//   // }
+// });
 
 onMounted(() => {
   editor.value = new Editor({
@@ -115,9 +126,22 @@ onBeforeUnmount(() => {
   opacity: 0.5;
 }
 
-// .ProseMirror p {
-//   margin: 1em 0;
-// }
+.ProseMirror {
+  padding: 10px;
+
+  // border: 1px solid #ddd;
+  // border-radius: 4px;
+  // margin-bottom: 10px;
+  // min-height: 100px;
+  p {
+    margin: 0 0;
+
+  }
+}
+
+.ProseMirror:focus-visible {
+  outline: none;
+}
 
 // .placeholder {
 //   color: #961f1f;

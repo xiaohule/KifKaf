@@ -20,22 +20,24 @@
 
           <q-item-section side class="col text-subtitle1 text-dark">
             {{ newIntensity }}
-            <!-- {{ newIntensity > 0 ? `+${newIntensity}` : newIntensity }} -->
           </q-item-section>
         </q-item>
       </q-card-section>
 
       <!-- // TODO: make the btn align with the end of the text area when it grows -->
-      <q-input ref="inputRef" class="q-mx-sm q-mb-md" bg-color="white" color="white" type="text" rounded outlined autogrow
-        v-model="rawNewText" placeholder="Feeling ... when/at/to ...  #mytag">
+      <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
+      <q-field rounded outlined bg-color="white" color="transparent" class="q-ma-md">
+        <template v-slot:control>
+          <!-- class="no-outline" -->
+          <new-moment-editor v-model="rawNewText" class="full-width" />
+        </template>
         <template v-slot:append>
           <q-btn v-if="rawNewText !== '' && !isRecognizing" round dense color="primary" icon="arrow_forward"
-            @click="onSubmit" />
+            @click="onSubmit" class="" />
           <q-btn v-else-if="showSpeechRecognitionButton" :color="isRecognizing ? 'primary' : null" :flat=!isRecognizing
-            dense round icon="mic" @click="toggleSpeechRecognition" />
-          <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
+            dense round icon="mic" @click="toggleSpeechRecognition" class="" />
         </template>
-      </q-input>
+      </q-field>
     </q-card>
 
     <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0">No Moments found</div>
@@ -77,36 +79,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onDeactivated, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, nextTick } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js'
+import NewMomentEditor from './../components/NewMomentEditor.vue'
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
+//STORE INITIALIZATION
 const momentsStore = useMomentsStore()
-
+// Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
   if (!momentsStore.initialized) {
     await momentsStore.fetchMoments();
   }
 })
 
-// Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
-// onMounted(async () => {
-//   await momentsStore.fetchMoments();
-// })
-
-//TODO: change to a reactive object
+//TODO: change to a reactive object?
 const newIntensity = ref(0)
 const rawNewText = ref('')
 const newText = ref('')
 const newTags = ref([])
 const newDate = ref(null)
 
+// DISPLAY PREVIOUS MOMENTS
 const formatLikeUniqueDays = (moment) => {
   const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
   const dt = ts.toDate();
@@ -114,7 +114,6 @@ const formatLikeUniqueDays = (moment) => {
   dt.getTime();
   return date.formatDate(dt, "MMMM D, YYYY")
 };
-
 const computedUniqueDays = computed(() => {
   return momentsStore.uniqueDays || []
 })
@@ -126,6 +125,7 @@ const getMomentsOfTheDay = (day) => {
   return ol;
 }
 
+//SLIDER
 const marksEmoji = {
   '-4.7': '😭',
   '-4': '',
@@ -139,18 +139,17 @@ const marksEmoji = {
   '4': '',
   '4.7': '😆'
 }
-
 function trackProcess(dotsPos) {
   //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.
   // cf. https://nightcatsama.github.io/vue-slider-component/#/basics/process
   return [[50, dotsPos[0]]]
 }
 
+//SPEECH RECOGNITION
 const {
   showSpeechRecognitionButton,
   toggleSpeechRecognition,
 } = useSpeechRecognition(rawNewText)
-
 onDeactivated(() => {
   console.log('onDeactivate recog fired');
   if (recognition) {
@@ -158,7 +157,6 @@ onDeactivated(() => {
     isRecognizing.value = false;
   }
 })
-
 onBeforeUnmount(() => {
   console.log('onBeforeUnmount recog fired');
   if (recognition) {
@@ -167,16 +165,9 @@ onBeforeUnmount(() => {
   }
 })
 
-const inputRef = ref(null)
-const appendHashtag = () => {
-  rawNewText.value += '#'
-  // nextTick(() => {
-  inputRef.value.focus()
-  // })
-}
 
+// # BOTTOM BAR
 let viewportHandler;
-
 onMounted(() => { //TODO: move to a composition function bec. will be used elsewhere, for example when updating?
   var bottomBar = document.getElementById('bottombar');
   // var viewport = window.visualViewport;
@@ -209,18 +200,24 @@ onMounted(() => { //TODO: move to a composition function bec. will be used elsew
   window.visualViewport.addEventListener("scroll", viewportHandler);
   window.visualViewport.addEventListener("resize", viewportHandler);
 })
-
 onDeactivated(() => {
   window.visualViewport.removeEventListener("scroll", viewportHandler);
   window.visualViewport.removeEventListener("resize", viewportHandler);
 })
-
 onBeforeUnmount(() => {
   window.visualViewport.removeEventListener("scroll", viewportHandler);
   window.visualViewport.removeEventListener("resize", viewportHandler);
 })
 
+const inputRef = ref(null)
+const appendHashtag = () => {
+  rawNewText.value += '#'
+  // nextTick(() => {
+  inputRef.value.focus()
+  // })
+}
 
+// ADD MOMENT
 const onSubmit = (event) => {
   event.preventDefault()
   newDate.value = Timestamp.now() //Date.now()
@@ -245,9 +242,7 @@ const onSubmit = (event) => {
     intensity: newIntensity.value,
     text: newText.value,
     tags: newTags.value,
-    // id: uniqueId('moment_') //removed bec. already generated in store and wasn't used
   })
-  // console.log('New Moment added:', newDate.value, newIntensity.value, newText.value, newTags.value,)
 
   newIntensity.value = 0
   rawNewText.value = ''
