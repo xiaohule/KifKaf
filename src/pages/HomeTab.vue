@@ -72,9 +72,10 @@
     </q-list>
 
     <!-- TODO: hide bar when keyboard isn't open/when no input element is focused -->
-    <!-- v-show="momentsStore.isEditorFocused"  -->
+    <!-- && !isScrolling -->
+    <!-- v-show="momentsStore.isEditorFocused" -->
     <div v-show="momentsStore.isEditorFocused" id="bottomBar" class="bg-grey-4 q-pa-xs">
-      <q-btn class="text-primary" flat round icon="tag" @click.prevent="appendHashtag" />
+      <q-btn class="text-primary" flat round icon="tag" @touchstart.prevent="appendHashtag" />
     </div>
     <div id="layoutViewport"></div>
   </q-page>
@@ -167,10 +168,27 @@ onBeforeUnmount(() => {
   }
 })
 
-
 // # BOTTOM BAR
-let viewportHandler, layoutViewport, bottomBar;
+let viewportHandler, layoutViewport, bottomBar, viewportHandler2, scrollTimeout;
 let pendingUpdate = false;
+// const isScrolling = ref(false);
+
+// onMounted(() => {
+//   viewportHandler2 = () => {
+//     isScrolling.value = true;
+//     clearTimeout(scrollTimeout);
+//     scrollTimeout = setTimeout(() => {
+//       isScrolling.value = false;
+//     }, 200);
+//   }
+//   window.addEventListener('scroll', viewportHandler2, { passive: true });
+//   window.addEventListener('resize', viewportHandler2, { passive: true });
+// });
+
+// onBeforeUnmount(() => {
+//   window.removeEventListener("scroll", viewportHandler2);
+//   window.removeEventListener("resize", viewportHandler2);
+// })
 
 onMounted(() => { //TODO: move to a composition function bec. will be used elsewhere, for example when updating?
   bottomBar = document.getElementById('bottomBar');
@@ -210,11 +228,19 @@ onBeforeUnmount(() => {
   window.visualViewport.removeEventListener("resize", viewportHandler);
 })
 
-//TODO: do not lose focus when # is tapped
 const editorInstance = ref(null)
 const appendHashtag = () => {
-  editorInstance.value.commands.focus()
+  console.log('appendHashtag fired');
+  console.log('editorInstance.value', editorInstance.value);
+  console.log('momentsStore.isEditorFocused Before calling focus', momentsStore.isEditorFocused);
+  console.log('rawNewText.value Before calling focus', rawNewText.value);
+  // editorInstance.value.commands.focus()
+  // console.log('momentsStore.isEditorFocused after calling focus', momentsStore.isEditorFocused);
+  // console.log('rawNewText.value After calling focus', rawNewText.value);
   rawNewText.value += '#'
+  console.log('rawNewText.value After concat', rawNewText.value);
+  console.log('momentsStore.isEditorFocused after concat', momentsStore.isEditorFocused);
+
 }
 
 // ADD MOMENT
@@ -273,6 +299,7 @@ const onSubmit = (event) => {
 #bottomBar {
   will-change: transform;
   position: fixed;
+  // z-index: 1000;
   left: 0px;
   right: 0px;
   bottom: 0px;

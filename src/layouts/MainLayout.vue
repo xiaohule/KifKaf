@@ -39,24 +39,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-
-// // hide tab bar when keyboard is shown -> TODO: creates pb in desktop mode?
-// const isKeyboardHidden = ref(true); // Initially, the keyboard is hidden
-// let initialWindowHeight = 0; // Initial height of the window
-// onMounted(() => {
-//   initialWindowHeight = window.innerHeight;
-//   window.addEventListener('resize', () => {
-//     // If the window's height decreases significantly, it's likely that the keyboard is shown
-//     isKeyboardHidden.value = window.innerHeight > initialWindowHeight - 30;
-//   });
-// });
-// onBeforeUnmount(() => {
-//   // Clean up the event listener
-//   window.removeEventListener('resize', () => {
-//     isKeyboardHidden.value = window.innerHeight > initialWindowHeight - 30;
-//   });
-// });
+import { ref } from 'vue'
 
 const tab = ref('home')
 /*The reason why using {} allows you to call the ref function directly is because it is a named import.
