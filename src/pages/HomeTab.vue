@@ -73,7 +73,6 @@
 
     <!-- TODO: hide bar when keyboard isn't open/when no input element is focused -->
     <!-- && !isScrolling -->
-    <!-- v-show="momentsStore.isEditorFocused" -->
     <div v-show="momentsStore.isEditorFocused" id="bottomBar" class="bg-grey-4 q-pa-xs">
       <q-btn class="text-primary" flat round icon="tag" @touchstart.prevent="appendHashtag" />
     </div>
@@ -169,10 +168,11 @@ onBeforeUnmount(() => {
 })
 
 // # BOTTOM BAR
-let viewportHandler, layoutViewport, bottomBar, viewportHandler2, scrollTimeout;
+let viewportHandler, layoutViewport, bottomBar;
 let pendingUpdate = false;
-// const isScrolling = ref(false);
 
+// let viewportHandler2, scrollTimeout;
+// const isScrolling = ref(false);
 // onMounted(() => {
 //   viewportHandler2 = () => {
 //     isScrolling.value = true;
@@ -217,11 +217,6 @@ onMounted(() => { //TODO: move to a composition function bec. will be used elsew
   };
   window.visualViewport.addEventListener("scroll", viewportHandler, { passive: true });
   window.visualViewport.addEventListener("resize", viewportHandler, { passive: true });
-})
-
-onDeactivated(() => {
-  window.visualViewport.removeEventListener("scroll", viewportHandler);
-  window.visualViewport.removeEventListener("resize", viewportHandler);
 })
 onBeforeUnmount(() => {
   window.visualViewport.removeEventListener("scroll", viewportHandler);
