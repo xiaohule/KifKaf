@@ -29,7 +29,7 @@
       <q-field rounded outlined bg-color="white" color="transparent" class="q-ma-md">
         <template v-slot:control>
           <!-- class="no-outline" -->
-          <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="editorInstance = $event" />
+          <new-moment-editor v-model="rawNewText" class="full-width" />
         </template>
         <template v-slot:append>
           <q-btn v-if="rawNewText !== '' && !isRecognizing" round dense color="primary" icon="arrow_forward"
@@ -71,12 +71,8 @@
       </q-card>
     </q-list>
 
-    <!-- TODO: hide bar when keyboard isn't open/when no input element is focused -->
     <!-- && !isScrolling -->
-    <div v-show="momentsStore.isEditorFocused" id="bottomBar" class="bg-grey-4 q-pa-xs">
-      <q-btn class="text-primary" flat round icon="tag" @touchstart.prevent="appendHashtag" />
-    </div>
-    <div id="layoutViewport"></div>
+    <virtual-keyboard-bar v-show="momentsStore.isEditorFocused" @append-hashtag="rawNewText += '#'" />
   </q-page>
 </template>
 
@@ -89,6 +85,7 @@ import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js'
 import NewMomentEditor from './../components/NewMomentEditor.vue'
+import VirtualKeyboardBar from './../components/VirtualKeyboardBar.vue'
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
@@ -167,77 +164,6 @@ onBeforeUnmount(() => {
   }
 })
 
-// # BOTTOM BAR
-let viewportHandler, layoutViewport, bottomBar;
-let pendingUpdate = false;
-
-// let viewportHandler2, scrollTimeout;
-// const isScrolling = ref(false);
-// onMounted(() => {
-//   viewportHandler2 = () => {
-//     isScrolling.value = true;
-//     clearTimeout(scrollTimeout);
-//     scrollTimeout = setTimeout(() => {
-//       isScrolling.value = false;
-//     }, 200);
-//   }
-//   window.addEventListener('scroll', viewportHandler2, { passive: true });
-//   window.addEventListener('resize', viewportHandler2, { passive: true });
-// });
-
-// onBeforeUnmount(() => {
-//   window.removeEventListener("scroll", viewportHandler2);
-//   window.removeEventListener("resize", viewportHandler2);
-// })
-
-onMounted(() => { //TODO: move to a composition function bec. will be used elsewhere, for example when updating?
-  bottomBar = document.getElementById('bottomBar');
-  layoutViewport = document.getElementById("layoutViewport");
-
-  viewportHandler = (event) => {
-    if (pendingUpdate) return; //Needed?
-
-    pendingUpdate = true;
-    requestAnimationFrame(() => {
-      pendingUpdate = false; //TODO: move to end?
-
-      // Since the bar is position: fixed we need to offset it by the
-      // visual viewport's offset from the layout viewport origin.
-      const viewport = event.target;
-      const offsetLeft = viewport.offsetLeft;
-      const offsetTop =
-        viewport.height -
-        layoutViewport.getBoundingClientRect().height +
-        viewport.offsetTop;
-      // You could also do this by setting style.left and style.top if you
-      // use width: 100% instead.
-      bottomBar.style.transform = `translate(${offsetLeft}px, ${offsetTop}px) scale(${1 / viewport.scale
-        })`;
-    });
-  };
-  window.visualViewport.addEventListener("scroll", viewportHandler, { passive: true });
-  window.visualViewport.addEventListener("resize", viewportHandler, { passive: true });
-})
-onBeforeUnmount(() => {
-  window.visualViewport.removeEventListener("scroll", viewportHandler);
-  window.visualViewport.removeEventListener("resize", viewportHandler);
-})
-
-const editorInstance = ref(null)
-const appendHashtag = () => {
-  console.log('appendHashtag fired');
-  console.log('editorInstance.value', editorInstance.value);
-  console.log('momentsStore.isEditorFocused Before calling focus', momentsStore.isEditorFocused);
-  console.log('rawNewText.value Before calling focus', rawNewText.value);
-  // editorInstance.value.commands.focus()
-  // console.log('momentsStore.isEditorFocused after calling focus', momentsStore.isEditorFocused);
-  // console.log('rawNewText.value After calling focus', rawNewText.value);
-  rawNewText.value += '#'
-  console.log('rawNewText.value After concat', rawNewText.value);
-  console.log('momentsStore.isEditorFocused after concat', momentsStore.isEditorFocused);
-
-}
-
 // ADD MOMENT
 const onSubmit = (event) => {
   event.preventDefault()
@@ -282,24 +208,6 @@ const onSubmit = (event) => {
 .tags {
   font-size: 0.9rem;
   color: $primary;
-}
-
-#layoutViewport {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  visibility: hidden;
-}
-
-#bottomBar {
-  will-change: transform;
-  position: fixed;
-  // z-index: 1000;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  transform-origin: left bottom;
-  transform: translate(0px, 0px) scale(1);
 }
 </style>
 

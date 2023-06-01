@@ -10,10 +10,8 @@ import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
 import Placeholder from '@tiptap/extension-placeholder'
 import suggestion from './../composables/suggestion'
-import { ref, onMounted, onBeforeUnmount, watch, watchEffect } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watchEffect } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
-
-const momentsStore = useMomentsStore()
 
 const props = defineProps({
   modelValue: {
@@ -21,8 +19,12 @@ const props = defineProps({
     default: '',
   }
 });
-const emits = defineEmits(['update:modelValue', 'create:editor']);
+const emits = defineEmits(['update:modelValue',
+  //  'create:editor'
+]);
 const editor = ref(null);
+
+const momentsStore = useMomentsStore()
 
 watchEffect(() => {
   if (editor.value) {
@@ -66,10 +68,10 @@ onMounted(() => {
       //TODO: make rolling placeholders to avoid boredom
     ],
     content: props.modelValue,
-    onCreate: () => {
-      // The editor is ready.
-      emits('create:editor', editor.value);
-    },
+    // onCreate: () => {
+    //   // The editor is ready.
+    //   emits('create:editor', editor.value);
+    // },
     onUpdate: () => {
       emits('update:modelValue', editor.value.getText());
     },
