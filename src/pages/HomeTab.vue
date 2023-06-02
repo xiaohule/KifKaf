@@ -29,7 +29,7 @@
       <q-field rounded outlined bg-color="white" color="transparent" class="q-ma-md">
         <template v-slot:control>
           <!-- class="no-outline" -->
-          <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="editorInstance = $event" />
+          <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="initializeEditor" />
         </template>
         <template v-slot:append>
           <q-btn v-if="rawNewTextValid && !isRecognizing" round dense color="primary" icon="arrow_forward"
@@ -101,7 +101,7 @@ onMounted(async () => {
 
 //TODO: change to a reactive object?
 const newIntensity = ref(0)
-const rawNewText = ref('')
+const rawNewText = ref('') //<p></p>
 const newText = ref('')
 const newTags = ref([])
 const newDate = ref(null)
@@ -173,17 +173,16 @@ const rawNewTextValid = computed(() => {
 })
 
 const editorInstance = ref(null)
+const initializeEditor = (editor) => {
+  editorInstance.value = editor
+  //Hack to fix the issue of Mentionlist shutting down on first tap on # button
+  rawNewText.value += '#'
+  setTimeout(() => {
+    rawNewText.value = ''
+  }, 1)
+}
 const appendHashtag = () => {
-  // console.log('appendHashtag fired');
-  // console.log('editorInstance.value', editorInstance.value);
-  // console.log('momentsStore.isEditorFocused Before calling focus', momentsStore.isEditorFocused);
-  // console.log('rawNewText.value Before calling focus', rawNewText.value);
-  // console.log('momentsStore.isEditorFocused after calling focus', momentsStore.isEditorFocused);
-  // console.log('rawNewText.value After calling focus', rawNewText.value);
-  // editorInstance.value.commands.focus()
-  editorInstance.value.commands.insertContent('#')
-  // rawNewText.value += '#'
-  // console.log('rawNewText.value After concat', rawNewText.value);
+  editorInstance.value.commands.insertContent('#')  // console.log('rawNewText.value After concat', rawNewText.value);
   // console.log('momentsStore.isEditorFocused after concat', momentsStore.isEditorFocused);
 }
 

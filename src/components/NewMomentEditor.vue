@@ -29,10 +29,12 @@ watchEffect(() => {
     const isSame = editor.value.getHTML() === props.modelValue;
     if (!isSame) {
       editor.value.commands.setContent(props.modelValue, false);
+      // console.log('watchEffect Fired setted:', props.modelValue)
     }
   }
 });
 
+// TODO: extend behaviour of Mention extension to inline highlight/style/decorate new hashtags too
 onMounted(() => {
   editor.value = new Editor({
     // editorProps: {

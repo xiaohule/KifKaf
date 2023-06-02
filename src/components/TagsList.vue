@@ -106,7 +106,7 @@ export default {
   border: 1px solid transparent;
   padding: 0.2rem 0.4rem;
 
-  // &.is-selected {
+  // &.is-selected { //TODO:keep on desktop?
   //   border-color: #000;
   // }
 }
