@@ -3,7 +3,8 @@
 
     <q-header class="bg-transparent" bordered reveal>
       <q-toolbar class="text-dark">
-        <q-toolbar-title class="absolute-center">KifKaf</q-toolbar-title>
+        <q-btn flat round icon="arrow_back" @click="goBack" />
+        <q-toolbar-title class="absolute-center">Settings</q-toolbar-title>
       </q-toolbar>
     </q-header>
 
@@ -22,6 +23,12 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const goBack = () => {
+  router.go(-1)
+}
 </script>
 
 <style lang="scss">

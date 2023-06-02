@@ -15,8 +15,6 @@
 
     <!-- TODO: set max-width direclty here an not in pages -->
     <q-page-container>
-      <!-- ROUTING -->
-      <!-- <router-view /> -->
       <router-view v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />

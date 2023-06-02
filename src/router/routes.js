@@ -26,9 +26,9 @@ const routes = [
   {
     path: "/profile",
     //TODO: make profile layout with no tabs
-    component: () => import("layouts/AuthLayout.vue"),
+    component: () => import("layouts/ProfileLayout.vue"),
     meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/ProfilePage.vue") }],
+    children: [{ path: "", component: () => import("pages/SettingsPage.vue") }],
   },
   {
     path: "/login",

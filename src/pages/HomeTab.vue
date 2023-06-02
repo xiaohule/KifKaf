@@ -5,7 +5,7 @@
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
 
-    <q-card class="bg-blue-2 q-mb-sm q-pa-xs rounded-borders-14" flat>
+    <q-card class="bg-blue-2 q-mb-md q-pa-xs rounded-borders-14" flat>
       <q-card-section class="text-subtitle1 q-pb-none">
         Add a new Moment
       </q-card-section>
@@ -42,7 +42,7 @@
 
     <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0">No Moments found</div>
     <q-list v-else>
-      <q-card class="bg-white q-mb-sm q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
+      <q-card class="bg-white q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
         :key="day" flat>
         <q-card-section class="text-subtitle1 q-pb-none">
           {{ day }}
@@ -235,10 +235,6 @@ const onSubmit = (event) => {
 </script>
 
 <style lang="scss">
-.rounded-borders-14 {
-  border-radius: 14px;
-}
-
 .tags {
   font-size: 0.9rem;
   color: $primary;
