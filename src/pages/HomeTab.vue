@@ -29,10 +29,10 @@
       <q-field rounded outlined bg-color="white" color="transparent" class="q-ma-md">
         <template v-slot:control>
           <!-- class="no-outline" -->
-          <new-moment-editor v-model="rawNewText" class="full-width" />
+          <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="editorInstance = $event" />
         </template>
         <template v-slot:append>
-          <q-btn v-if="rawNewText !== '' && !isRecognizing" round dense color="primary" icon="arrow_forward"
+          <q-btn v-if="rawNewTextValid && !isRecognizing" round dense color="primary" icon="arrow_forward"
             @click="onSubmit" class="" />
           <q-btn v-else-if="showSpeechRecognitionButton" :color="isRecognizing ? 'primary' : null" :flat=!isRecognizing
             dense round icon="mic" @click="toggleSpeechRecognition" class="" />
@@ -72,12 +72,13 @@
     </q-list>
 
     <!-- && !isScrolling -->
-    <virtual-keyboard-bar v-show="momentsStore.isEditorFocused" @append-hashtag="rawNewText += '#'" />
+    <!-- TODO: append inside the p of <p><span data-type="mention" class="mention" data-id="mam">#mam</span> is likely #</p> -->
+    <virtual-keyboard-bar v-show="momentsStore.isEditorFocused" @append-hashtag="appendHashtag" />
   </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, nextTick } from 'vue'
+import { ref, onMounted, onDeactivated, onBeforeUnmount, computed } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
@@ -148,7 +149,7 @@ function trackProcess(dotsPos) {
 const {
   showSpeechRecognitionButton,
   toggleSpeechRecognition,
-} = useSpeechRecognition(rawNewText)
+} = useSpeechRecognition(rawNewText) //TODO: fix this
 onDeactivated(() => {
   console.log('onDeactivate recog fired');
   if (recognition) {
@@ -164,21 +165,52 @@ onBeforeUnmount(() => {
   }
 })
 
+const rawNewTextValid = computed(() => {
+  // Return true if there's at least one character that is neither a space nor a '#'
+  if (!editorInstance.value) return false
+  return [...editorInstance.value.getText()].some(c => c !== ' ' && c !== '#');
+
+})
+
+const editorInstance = ref(null)
+const appendHashtag = () => {
+  // console.log('appendHashtag fired');
+  // console.log('editorInstance.value', editorInstance.value);
+  // console.log('momentsStore.isEditorFocused Before calling focus', momentsStore.isEditorFocused);
+  // console.log('rawNewText.value Before calling focus', rawNewText.value);
+  // console.log('momentsStore.isEditorFocused after calling focus', momentsStore.isEditorFocused);
+  // console.log('rawNewText.value After calling focus', rawNewText.value);
+  // editorInstance.value.commands.focus()
+  editorInstance.value.commands.insertContent('#')
+  // rawNewText.value += '#'
+  // console.log('rawNewText.value After concat', rawNewText.value);
+  // console.log('momentsStore.isEditorFocused after concat', momentsStore.isEditorFocused);
+}
+
 // ADD MOMENT
 const onSubmit = (event) => {
   event.preventDefault()
-  newDate.value = Timestamp.now() //Date.now()
-
+  newDate.value = Timestamp.now()
   // Split the text by space to get all words
-  const words = rawNewText.value.split(' ')
+  const words = editorInstance.value.getText().split(' ')
   // Iterate over each word
   words.forEach((word) => {
-    if (word.startsWith('#')) {
-      // If the word starts with a '#', remove the '#' and add it to the tags array
-      newTags.value.push(word.slice(1))
-    } else {
+    // If the word starts with a '#' and it's not entirely made of '#' chars, remove the '#' and add it to the tags array
+    if (word.startsWith('#') && !/^#+$/.test(word)) {
+      const wordParts = word.split('#')
+      wordParts.forEach((part) => {
+        if (part !== '') {
+          // check if it already exists in the tags
+          if (!newTags.value.includes(part)) {
+            // If not, add it to the tags array
+            newTags.value.push(part)
+          }
+        }
+      })
+    } else if (!word.startsWith('#')) {
       // Otherwise, add it to the parsed text
-      newText.value += word + ' '
+      const cleanedWord = word.endsWith('#') ? word.replace('#', '') : word // this removes '# ' from the word, for example 'cool# ' becomes 'cool '
+      newText.value += cleanedWord + ' '
     }
   })
   // Trim the trailing space off the parsed text
@@ -192,10 +224,13 @@ const onSubmit = (event) => {
   })
 
   newIntensity.value = 0
-  rawNewText.value = ''
+  // rawNewText.value = ''
+  editorInstance.value.commands.clearContent(true)
   newText.value = ''
   newTags.value = []
   newDate.value = null
+
+  console.log('CHECK NO DUPLICATES in unitque tags', momentsStore.uniqueTags);
 }
 
 </script>

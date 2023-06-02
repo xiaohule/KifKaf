@@ -84,5 +84,8 @@ onBeforeUnmount(() => {
   bottom: 0px;
   transform-origin: left bottom;
   transform: translate(0px, 0px) scale(1);
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
 }
 </style>

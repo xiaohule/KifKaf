@@ -19,16 +19,14 @@ const props = defineProps({
     default: '',
   }
 });
-const emits = defineEmits(['update:modelValue',
-  //  'create:editor'
-]);
+const emits = defineEmits(['update:modelValue', 'create:editor']);
 const editor = ref(null);
 
 const momentsStore = useMomentsStore()
 
 watchEffect(() => {
   if (editor.value) {
-    const isSame = editor.value.getText() === props.modelValue;
+    const isSame = editor.value.getHTML() === props.modelValue;
     if (!isSame) {
       editor.value.commands.setContent(props.modelValue, false);
     }
@@ -68,12 +66,13 @@ onMounted(() => {
       //TODO: make rolling placeholders to avoid boredom
     ],
     content: props.modelValue,
-    // onCreate: () => {
-    //   // The editor is ready.
-    //   emits('create:editor', editor.value);
-    // },
+    onCreate: () => {
+      // The editor is ready.
+      emits('create:editor', editor.value);
+    },
     onUpdate: () => {
-      emits('update:modelValue', editor.value.getText());
+      emits('update:modelValue', editor.value.getHTML());
+      console.log('Editor updated! editor.value.getHTML() gives:', editor.value.getHTML())
     },
     onFocus: () => {
       // The editor is focused.
@@ -94,7 +93,7 @@ onBeforeUnmount(() => {
 <style lang="scss">
 .ProseMirror {
   background: white;
-  padding: 10px 10px 0.5px 10px;
+  padding: 10px;
   border-radius: 14px;
   // border: 3px solid #0D0D0D;
   // border-radius: 0.5rem;
@@ -102,45 +101,46 @@ onBeforeUnmount(() => {
   // >*+* {
   //   margin-top: 0.75em;
   // }
+  // min-height: 100px;
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: #000000;
+    pointer-events: none;
+    height: 0;
+    opacity: 0.5;
+  }
 }
 
 .mention {
   color: $primary;
   padding: 0.1rem 0.3rem;
-  box-decoration-break: clone;
+  // box-decoration-break: clone;
+  // -webkit-box-decoration-break: clone;
   // border: 1px solid $primary;
   // border-radius: 0.4rem;
   // background-color: #a6bfff;
-}
-
-/* Placeholder (at the top) */
-.ProseMirror p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  float: left;
-  color: #000000;
-  pointer-events: none;
-  height: 0;
-  opacity: 0.5;
-}
-
-.ProseMirror {
-  padding: 10px;
-
-  // border: 1px solid #ddd;
-  // border-radius: 4px;
-  // margin-bottom: 10px;
-  // min-height: 100px;
-  p {
-    margin: 0 0;
-
-  }
-}
-
-.ProseMirror:focus-visible {
-  outline: none;
 }
 
 // .placeholder {
 //   color: #961f1f;
 // }
 </style>
+
+<!-- <style lang="scss" scoped>
+span {
+  color: $primary;
+  padding: 0.1rem 0.3rem;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+</style> -->
