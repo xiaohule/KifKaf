@@ -64,11 +64,25 @@ const uiConfig = {
   // privacyPolicyUrl: '<your-privacy-policy-url>'
 };
 
+// onMounted(() => {
+//   // Initialize the FirebaseUI Widget using Firebase.
+//   ui = new firebaseui.auth.AuthUI(auth); // Instantiate Firebase UI with the Firebase auth instance
+//   ui.start('#firebaseui-auth-container', uiConfig);  // Start the Firebase UI widget in the specified container with the given configuration
+// });
+
 onMounted(() => {
-  // Initialize the FirebaseUI Widget using Firebase.
-  ui = new firebaseui.auth.AuthUI(auth); // Instantiate Firebase UI with the Firebase auth instance
-  ui.start('#firebaseui-auth-container', uiConfig);  // Start the Firebase UI widget in the specified container with the given configuration
+  // Check if a FirebaseUI instance already exists. If not, create one.
+  if (!firebaseui.auth.AuthUI.getInstance()) {
+    ui = new firebaseui.auth.AuthUI(auth);
+  } else {
+    // If an instance already exists, use it.
+    ui = firebaseui.auth.AuthUI.getInstance();
+  }
+
+  // Start the Firebase UI widget.
+  ui.start('#firebaseui-auth-container', uiConfig);
 });
+
 
 onUnmounted(() => {
   ui.delete(); // Clean up the Firebase UI instance when the component is unmounted

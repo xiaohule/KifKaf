@@ -151,14 +151,14 @@ const {
   toggleSpeechRecognition,
 } = useSpeechRecognition(rawNewText) //TODO: fix this
 onDeactivated(() => {
-  console.log('onDeactivate recog fired');
+  // console.log('HomeTab onDeactivate recog fired');
   if (recognition) {
     recognition.stop();
     isRecognizing.value = false;
   }
 })
 onBeforeUnmount(() => {
-  console.log('onBeforeUnmount recog fired');
+  // console.log('onBeforeUnmount recog fired');
   if (recognition) {
     recognition.stop();
     isRecognizing.value = false;
