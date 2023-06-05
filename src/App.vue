@@ -1,8 +1,11 @@
 <template>
   <router-view v-slot="{ Component }">
-    <keep-alive>
-      <component :is="Component" />
-    </keep-alive>
+    <!-- <router-view v-slot="{ Component, route }"> -->
+    <!-- <transition :name="route.meta.transition"> -->
+    <!-- <keep-alive> -->
+    <component :is="Component" />
+    <!-- </keep-alive> -->
+    <!-- </transition> -->
   </router-view>
 </template>
 
@@ -22,3 +25,29 @@ onMounted(async () => {
 })
 
 </script>
+
+<!-- <style lang="scss">
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 1.5s;
+}
+
+.slide-right-enter,
+.slide-right-leave-to {
+  transform: translateX(-100%);
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+</style> -->

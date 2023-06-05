@@ -14,9 +14,9 @@
     <q-page-container>
       <!-- ROUTING -->
       <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
+        <!-- <keep-alive> -->
+        <component :is="Component" />
+        <!-- </keep-alive> -->
       </router-view>
 
     </q-page-container>

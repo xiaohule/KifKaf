@@ -24,21 +24,20 @@ const routes = [
     children: [{ path: "", component: () => import("pages/SearchTab.vue") }],
   },
   {
-    path: "/profile",
-    //TODO: make profile layout with no tabs
-    component: () => import("layouts/ProfileLayout.vue"),
+    path: "/settings",
+    component: () => import("layouts/SettingsLayout.vue"),
+    // meta: { requiresAuth: true, transition: "slide-right" },
     meta: { requiresAuth: true },
     children: [{ path: "", component: () => import("pages/SettingsPage.vue") }],
   },
   {
     path: "/login",
-    //TODO: make login layout with no tabs
     component: () => import("layouts/AuthLayout.vue"),
     children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
   },
   {
     path: "/register",
-    //TODO: make login layout with no tabs
+    //TODO: not used?
     component: () => import("layouts/AuthLayout.vue"),
     children: [{ path: "", component: () => import("pages/RegisterPage.vue") }],
   },

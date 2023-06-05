@@ -104,9 +104,9 @@ module.exports = configure(function (/* ctx */) {
       // plugins: ["Firebase", "VueFire"],
     },
 
-    // animations: 'all', // --- includes all animations
+    animations: "all", // --- includes all animations
     // https://v2.quasar.dev/options/animations
-    animations: [],
+    // animations: [], /TODO: use this instead, for ex. animations: ['bounceInLeft','bounceOutRight']
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#property-sourcefiles
     // sourceFiles: {

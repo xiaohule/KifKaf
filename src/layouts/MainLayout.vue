@@ -4,7 +4,7 @@
     <q-header class="bg-transparent" bordered reveal>
       <q-toolbar class="text-dark">
         <q-toolbar-title>KifKaf</q-toolbar-title>
-        <router-link to="/profile">
+        <router-link to="/settings">
           <q-avatar icon="account_circle" size="32px" font-size="32px" color="" text-color="grey-8">
             <!-- <img src="https://cdn.quasar.dev/img/avatar.png"> -->
             <!-- or put initials like JD? -->
