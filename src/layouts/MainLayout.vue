@@ -1,14 +1,16 @@
 <template>
   <q-layout view="hHh lpr fFf" class="bg-background">
 
-    <q-header class="bg-transparent" bordered reveal>
-      <q-toolbar class="text-on-surface">
-        <q-toolbar-title>KifKaf</q-toolbar-title>
-        <router-link to="/settings">
-          <q-avatar icon="account_circle" size="32px" font-size="32px" class="text-on-surface">
-            <!-- <img src="https://cdn.quasar.dev/img/avatar.png"> -->
-            <!-- or put initials like JD? -->
-          </q-avatar>
+    <q-header class="bg-transparent" bordered reveal :reveal-offset="150">
+      <q-toolbar>
+        <q-toolbar-title class="text-on-surface">KifKaf</q-toolbar-title>
+        <router-link to="/settings" style="text-decoration: none;">
+          <q-btn flat round dense icon="account_circle" size="20px" class="text-on-surface">
+            <!-- TODO: or put initials like JD? -->
+          </q-btn>
+          <!-- TODO: or put initials like JD? -->
+          <!-- <q-avatar icon="account_circle" size="32px" font-size="32px" class="text-on-surface">
+          </q-avatar> -->
         </router-link>
       </q-toolbar>
     </q-header>
@@ -50,7 +52,7 @@ This makes your code more efficient and easier to read. The behavior of using na
 <style lang="scss">
 .q-header,
 .q-footer {
-  backdrop-filter: blur(25px);
+  backdrop-filter: blur(30px);
 }
 </style>
 

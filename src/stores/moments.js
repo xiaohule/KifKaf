@@ -1,9 +1,19 @@
 import { defineStore } from "pinia";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { useCollection, getCurrentUser } from "vuefire";
+import {
+  useCollection,
+  getCurrentUser,
+  updateCurrentUserProfile,
+} from "vuefire";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed } from "vue";
 import { date } from "quasar";
+import {
+  updateEmail,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
@@ -28,36 +38,30 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const updateUser = async (changes) => {
-    if (changes.displayName) {
-      updateProfile(user.value, {
-        displayName: changes.displayName,
-      })
-        .then(() => {
-          console.log("Profile updated!");
-        })
-        .catch((error) => {
-          console.log("Error updating profile", error);
+    try {
+      if (changes.displayName) {
+        await updateCurrentUserProfile({
+          displayName: changes.displayName,
         });
-    }
+        console.log("displayName updated!");
+      }
 
-    if (changes.email) {
-      updateEmail(user.value, changes.email)
-        .then(() => {
-          console.log("Email updated!");
-        })
-        .catch((error) => {
-          console.log("Error updating email", error);
-        });
-    }
-
-    if (changes.password) {
-      updatePassword(user.value, changes.password)
-        .then(() => {
-          console.log("Password updated!");
-        })
-        .catch((error) => {
-          console.log("Error updating password", error);
-        });
+      if (changes.email || changes.password) {
+        const cred = EmailAuthProvider.credential(
+          user.value.email,
+          changes.oldPassword
+        );
+        await reauthenticateWithCredential(user.value, cred);
+        if (changes.email) {
+          await updateEmail(user.value, changes.email);
+          console.log("email updated!");
+        } else if (changes.password) {
+          await updatePassword(user.value, changes.password);
+          console.log("password updated!");
+        }
+      }
+    } catch (error) {
+      console.log("Error occurred:", error);
     }
   };
 

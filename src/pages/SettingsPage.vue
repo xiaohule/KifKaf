@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-mx-auto" style="max-width: 600px" padding>
+  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
     <q-list padding>
       <q-item-label header>Account details</q-item-label>
 
@@ -9,7 +9,7 @@
             <q-item-label caption>
               Name
             </q-item-label>
-            <q-item-label>{{ displayName }}</q-item-label>
+            <q-item-label>{{ momentsStore.user.displayName }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -18,7 +18,7 @@
             <q-item-label caption>
               Email
             </q-item-label>
-            <q-item-label>{{ email }}</q-item-label>
+            <q-item-label>{{ momentsStore.user.email }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -77,48 +77,6 @@
         </q-item>
       </q-card>
 
-      <q-dialog v-model="editDialogOpen" persistent>
-        <q-card>
-          <q-card-section>
-            <div class="text-h6" v-if="currentSetting === 'displayName'">Name</div>
-            <div class="text-h6" v-else-if="currentSetting === 'email'">Email</div>
-            <div class="text-h6" v-else-if="currentSetting === 'password'">Change Password</div>
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-section>
-            <q-input v-if="currentSetting === 'password'" v-model="oldPassword" label="Old Password" type="password" />
-            <!-- bg-color="white" color="white" :label=currentSetting -->
-            <q-input class="q-mx-sm q-mb-md" clearable rounded outlined autofocus v-model="newSettingValue"
-              :type="currentSetting === 'password' ? 'password' : currentSetting === 'displayName' ? 'text' : 'email'" />
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-actions align="right">
-            <q-btn flat label="Cancel" v-close-popup />
-            <q-btn color="primary" @click="updateSetting">Save</q-btn>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-
-
-      <q-dialog v-model="confirmLogout">
-        <q-card>
-          <q-card-section class="row items-center">
-            <q-avatar icon="signal_wifi_off" class="bg-primary text-on-primary" />
-            <!-- TODO: remove wifi -->
-            <span class="q-ml-sm">Your login details will be deleted once you log out.</span>
-          </q-card-section>
-
-          <q-card-actions align="right">
-            <q-btn flat label="Cancel" color="primary" v-close-popup />
-            <q-btn flat label="Log out" color="primary" v-close-popup @click="logOut" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-
       <q-item>
         <q-item-section>
           <q-item-label>KifKaf version 1.0.0</q-item-label>
@@ -126,60 +84,91 @@
       </q-item>
 
     </q-list>
+
+    <!--TODO: class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>  @show="focusFirstInput" -->
+    <q-dialog v-model="editDialogOpen">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6" v-if="currentSetting === 'displayName'">Change name</div>
+          <div class="text-h6" v-else-if="currentSetting === 'email'">Change email</div>
+          <div class="text-h6" v-else-if="currentSetting === 'password'">Change Password</div>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section>
+          <q-input v-if="currentSetting === 'password' || 'email'" ref="oldPwdInput" class="q-mx-sm q-mb-md" clearable
+            rounded outlined v-model="oldPassword" label="Current Password" type="password" bg-color="surface-variant" />
+          <!-- bg-color="white" color="white" :label=currentSetting -->
+          <q-input ref="mainInput" class="q-mx-sm q-mb-md" clearable rounded outlined v-model="newSettingValue"
+            :type="currentSetting === 'password' ? 'password' : currentSetting === 'displayName' ? 'text' : 'email'"
+            bg-color="surface-variant" />
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-actions align="right">
+          <q-btn flat rounded label="Cancel" v-close-popup />
+          <q-btn rounded color="primary" @click="updateSetting" padding="5px 25px">Save</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
+    <q-dialog v-model="confirmLogout">
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="signal_wifi_off" class="bg-primary text-on-primary" />
+          <!-- TODO: remove wifi -->
+          <span class="q-ml-sm">Your login details will be deleted once you log out.</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn flat label="Log out" color="primary" v-close-popup @click="logOut" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
   </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, nextTick } from 'vue'
 import { auth } from "../boot/firebaseBoot.js";
 import { signOut } from "firebase/auth";
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
 
 const momentsStore = useMomentsStore()
-
-const user = ref(null)
-const displayName = ref("")
-const email = ref("")
 const password = "*********"
 const oldPassword = ref('')
-
-
-onMounted(async () => {
-  user.value = await momentsStore.user;
-  displayName.value = user.value.displayName;
-  email.value = user.value.email;
-})
 
 const currentSetting = ref("")
 const newSettingValue = ref("")
 const editDialogOpen = ref(false)
+const oldPwdInput = ref(null)
+const mainInput = ref(null)
 
 const openEditDialog = (setting) => {
   currentSetting.value = setting
-  newSettingValue.value = setting === 'password' ? password : user.value[setting]
+  newSettingValue.value = setting === 'password' ? password : momentsStore.user[setting]
   editDialogOpen.value = true
-}
-
-const reauthenticate = async (password) => {
-  const cred = firebase.auth.EmailAuthProvider.credential(user.value.email, password)
-  return user.value.reauthenticateWithCredential(cred)
+  nextTick(() => {
+    if (setting === 'password') oldPwdInput.value.$el.querySelector('input').focus();
+    else mainInput.value.$el.querySelector('input').focus();
+  })
 }
 
 const updateSetting = async () => {
-  if (currentSetting.value === 'password') {
-    try {
-      await reauthenticate(oldPassword.value)
-      await userStore.updateUser({ [currentSetting.value]: newSettingValue.value })
-      dialogOpen.value = false
-      oldPassword.value = ''
-    } catch (error) {
-      // Handle authentication error
-      console.log(error)
-    }
-  } else {
-    await userStore.updateUser({ [currentSetting.value]: newSettingValue.value })
+  try {
+    momentsStore.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
     editDialogOpen.value = false
+    oldPassword.value = ''
+  } catch (error) {
+    // Handle authentication error
+    console.log(error)
   }
 }
 

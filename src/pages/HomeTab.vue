@@ -1,74 +1,85 @@
 <template >
-  <q-page class="q-mx-auto" style="max-width: 600px" padding>
-    <!-- TODO: welcome user -->
-    <!-- <template>
+  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+    <q-list>
+
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Add a new Moment</q-item-label>
+      <!-- TODO: welcome user -->
+      <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
 
-    <q-card class="bg-surface q-mb-md q-pa-xs rounded-borders-14" flat>
-      <q-card-section class="text-subtitle1 q-pb-none">
+      <q-card class="bg-surface q-mb-lg q-px-xs q-py-md rounded-borders-14" flat>
+        <!-- <q-card-section class="text-subtitle1 q-pb-none">
         Add a new Moment
-      </q-card-section>
+      </q-card-section> -->
 
-      <q-card-section class="q-mb-sm q-pt-sm">
-        <q-item class="q-px-none">
-          <q-item-section class="col-11">
-            <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1" drag-on-click
-              adsorb :marks="marksEmoji">
-            </vue-slider>
-          </q-item-section>
+        <q-card-section class="q-mb-md q-pt-sm">
+          <q-item class="q-px-none">
+            <q-item-section class="col-11">
+              <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1" drag-on-click
+                adsorb :marks="marksEmoji">
+              </vue-slider>
+            </q-item-section>
 
-          <q-item-section side class="col text-subtitle1 text-on-surface">
-            {{ newIntensity }}
-          </q-item-section>
-        </q-item>
-      </q-card-section>
-
-      <!-- // TODO: make the btn align with the end of the text area when it grows -->
-      <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
-      <q-field rounded outlined bg-color="surface-variant" color="transparent" class="q-ma-md">
-        <template v-slot:control>
-          <!-- class="no-outline" -->
-          <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="initializeEditor" />
-        </template>
-        <template v-slot:append>
-          <q-btn v-if="rawNewTextValid && !isRecognizing" round dense color="primary" icon="arrow_forward"
-            @click="onSubmit" class="" />
-          <q-btn v-else-if="showSpeechRecognitionButton" color="primary" :flat=!isRecognizing dense round icon="mic"
-            @click="toggleSpeechRecognition" class="" />
-        </template>
-      </q-field>
-    </q-card>
-
-    <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0">No Moments found</div>
-    <q-list v-else>
-      <q-card class="bg-surface q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
-        :key="day" flat>
-        <q-card-section class="text-subtitle1 q-pb-none">
-          {{ day }}
+            <q-item-section side class="col text-subtitle1 text-on-surface">
+              {{ newIntensity }}
+            </q-item-section>
+          </q-item>
         </q-card-section>
 
-        <q-list>
-          <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="moment in getMomentsOfTheDay(day)" :key="moment.id">
-            <q-item class="q-px-none q-pb-none">
-              <q-item-section>
-                <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                  disabled></vue-slider>
-              </q-item-section>
-
-              <q-item-section side>
-                {{ moment.intensity }}
-              </q-item-section>
-            </q-item>
-
-            <q-item class="q-py-none" style="min-height: 0px;" dense>{{ moment.text }}</q-item>
-            <q-item v-if="moment.tags && moment.tags.length > 0" class="tags q-py-none" style="min-height: 0px;" dense>{{
-              moment.tags.map(tag =>
-                '#' +
-                tag).join(' ') }}</q-item>
-          </q-card-section>
-        </q-list>
+        <!-- // TODO: make the btn align with the end of the text area when it grows -->
+        <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
+        <q-field rounded outlined bg-color="surface-variant" color="transparent" class="q-ma-md q-mt-lg">
+          <template v-slot:control>
+            <!-- class="no-outline" -->
+            <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="initializeEditor" />
+          </template>
+          <template v-slot:append>
+            <q-btn v-if="rawNewTextValid && !isRecognizing" round dense color="primary" icon="arrow_forward"
+              @click="onSubmit" class="" />
+            <q-btn v-else-if="showSpeechRecognitionButton" color="primary" :flat=!isRecognizing dense round icon="mic"
+              @click="toggleSpeechRecognition" class="" />
+          </template>
+        </q-field>
       </q-card>
+
+
+      <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0"></div>
+      <div v-else>
+        <q-item-label class="text-body1 text-weight-medium q-my-sm">Moments</q-item-label>
+        <q-list>
+          <q-card class="bg-surface q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
+            :key="day" flat>
+            <q-card-section class="text-subtitle1 q-pb-none">
+              {{ day }}
+            </q-card-section>
+
+            <q-list>
+              <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="moment in getMomentsOfTheDay(day)"
+                :key="moment.id">
+                <q-item class="q-px-none q-pb-none">
+                  <q-item-section>
+                    <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
+                      disabled></vue-slider>
+                  </q-item-section>
+
+                  <q-item-section side>
+                    {{ moment.intensity }}
+                  </q-item-section>
+                </q-item>
+
+                <q-item class="q-py-none" style="min-height: 0px;" dense>{{ moment.text }}</q-item>
+                <q-item v-if="moment.tags && moment.tags.length > 0" class="tags q-py-none" style="min-height: 0px;"
+                  dense>{{
+                    moment.tags.map(tag =>
+                      '#' +
+                      tag).join(' ') }}</q-item>
+              </q-card-section>
+            </q-list>
+          </q-card>
+        </q-list>
+      </div>
+
     </q-list>
 
     <!-- && !isScrolling -->
