@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="bottomBar" class="bg-grey-4 q-pa-xs">
+    <div id="bottomBar" class="bg-surface-variant q-pa-xs">
       <q-btn class="text-primary" flat round icon="tag" @touchstart.prevent="$emit('appendHashtag')" />
     </div>
     <div id="layoutViewport"></div>

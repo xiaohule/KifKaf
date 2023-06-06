@@ -1,11 +1,11 @@
 <template>
-  <q-layout view="hHh lpr fFf" class="bg-grey-4">
+  <q-layout view="hHh lpr fFf" class="bg-background">
 
     <q-header class="bg-transparent" bordered reveal>
-      <q-toolbar class="text-dark">
+      <q-toolbar class="text-on-surface">
         <q-toolbar-title>KifKaf</q-toolbar-title>
         <router-link to="/settings">
-          <q-avatar icon="account_circle" size="32px" font-size="32px" color="" text-color="grey-8">
+          <q-avatar icon="account_circle" size="32px" font-size="32px" class="text-on-surface">
             <!-- <img src="https://cdn.quasar.dev/img/avatar.png"> -->
             <!-- or put initials like JD? -->
           </q-avatar>
@@ -24,7 +24,7 @@
 
     <!-- TODO: v-show="isKeyboardHidden" -->
     <q-footer class="bg-transparent" bordered>
-      <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-grey-8"
+      <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-secondary"
         :breakpoint="0">
         <q-route-tab name="home" icon="home" label="Home" to="/" />
         <q-route-tab name="learn" icon="insights" label="Learn" to="/learn" />

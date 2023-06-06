@@ -14,8 +14,8 @@
     <br />
     <at-ta at="#" :members="issues">
       <at-ta at="@" :members="members">
-        <q-input class="q-mx-sm q-mb-md" bg-color="white" color="white" type="text" rounded outlined autogrow
-          v-model="myText" placeholder="Feeling ... when/at/to ...  #mytag">
+        <q-input class="q-mx-sm q-mb-md bg-surface" type="text" rounded outlined autogrow v-model="myText"
+          placeholder="Feeling ... when/at/to ...  #mytag">
         </q-input>
       </at-ta>
     </at-ta>
@@ -51,7 +51,7 @@ const myText = ref('')
   // display: none;
   margin-top: 18px;
   // background: white;
-  color: black;
+  color: color(on-surface);
   // border: 1px solid #DDD;
   border-radius: 3px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);

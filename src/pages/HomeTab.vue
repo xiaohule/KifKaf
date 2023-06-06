@@ -5,7 +5,7 @@
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
 
-    <q-card class="bg-blue-2 q-mb-md q-pa-xs rounded-borders-14" flat>
+    <q-card class="bg-surface q-mb-md q-pa-xs rounded-borders-14" flat>
       <q-card-section class="text-subtitle1 q-pb-none">
         Add a new Moment
       </q-card-section>
@@ -18,7 +18,7 @@
             </vue-slider>
           </q-item-section>
 
-          <q-item-section side class="col text-subtitle1 text-dark">
+          <q-item-section side class="col text-subtitle1 text-on-surface">
             {{ newIntensity }}
           </q-item-section>
         </q-item>
@@ -26,7 +26,7 @@
 
       <!-- // TODO: make the btn align with the end of the text area when it grows -->
       <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
-      <q-field rounded outlined bg-color="white" color="transparent" class="q-ma-md">
+      <q-field rounded outlined bg-color="surface-variant" color="transparent" class="q-ma-md">
         <template v-slot:control>
           <!-- class="no-outline" -->
           <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="initializeEditor" />
@@ -34,15 +34,15 @@
         <template v-slot:append>
           <q-btn v-if="rawNewTextValid && !isRecognizing" round dense color="primary" icon="arrow_forward"
             @click="onSubmit" class="" />
-          <q-btn v-else-if="showSpeechRecognitionButton" :color="isRecognizing ? 'primary' : null" :flat=!isRecognizing
-            dense round icon="mic" @click="toggleSpeechRecognition" class="" />
+          <q-btn v-else-if="showSpeechRecognitionButton" color="primary" :flat=!isRecognizing dense round icon="mic"
+            @click="toggleSpeechRecognition" class="" />
         </template>
       </q-field>
     </q-card>
 
     <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0">No Moments found</div>
     <q-list v-else>
-      <q-card class="bg-white q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
+      <q-card class="bg-surface q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
         :key="day" flat>
         <q-card-section class="text-subtitle1 q-pb-none">
           {{ day }}
@@ -237,7 +237,49 @@ const onSubmit = (event) => {
 <style lang="scss">
 .tags {
   font-size: 0.9rem;
-  color: $primary;
+  color: color(primary);
+}
+
+.q-field--outlined .q-field__control:before {
+  border: none;
+}
+
+
+
+/* rail style */
+.vue-slider-rail {
+  background-color: color(primary-container);
+}
+
+/* process style */
+.vue-slider-process {
+  background-color: color(primary);
+}
+
+/* mark style */
+.vue-slider-mark {
+  @at-root &-step {
+    background-color: rgba(0, 0, 0, 0.16);
+  }
+}
+
+/* dot style */
+.vue-slider-dot {
+  @at-root &-handle {
+    background-color: color(primary);
+
+    @at-root &-disabled {
+      background-color: color(primary);
+    }
+  }
+
+  @at-root &-tooltip {
+    @at-root &-inner {
+      color: color(on-primary);
+      border-color: color(primary);
+      background-color: color(primary);
+    }
+  }
 }
 </style>
 

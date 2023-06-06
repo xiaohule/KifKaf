@@ -94,7 +94,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .ProseMirror {
-  background: white;
+  background: color(surface-variant);
   padding: 10px;
   border-radius: 14px;
   // border: 3px solid #0D0D0D;

@@ -1,8 +1,8 @@
 <template>
-  <q-layout view="hHh lpr fFf" class="bg-grey-4">
+  <q-layout view="hHh lpr fFf" class="bg-background">
 
     <q-header class="bg-transparent" bordered reveal>
-      <q-toolbar class="text-dark">
+      <q-toolbar class="text-on-surface">
         <q-toolbar-title class="absolute-center">KifKaf</q-toolbar-title>
       </q-toolbar>
     </q-header>

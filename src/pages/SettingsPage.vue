@@ -3,37 +3,37 @@
     <q-list padding>
       <q-item-label header>Account details</q-item-label>
 
-      <q-card class="bg-white q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-        <q-item clickable v-ripple>
+      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
+        <q-item clickable v-ripple @click="openEditDialog('displayName')">
           <q-item-section>
             <q-item-label caption>
               Name
             </q-item-label>
-            <q-item-label>Jules Douet</q-item-label>
+            <q-item-label>{{ displayName }}</q-item-label>
           </q-item-section>
         </q-item>
 
-        <q-item clickable v-ripple>
+        <q-item clickable v-ripple @click="openEditDialog('email')">
           <q-item-section>
             <q-item-label caption>
               Email
             </q-item-label>
-            <q-item-label>jules.douet@gmail.com</q-item-label>
+            <q-item-label>{{ email }}</q-item-label>
           </q-item-section>
         </q-item>
 
 
-        <q-item clickable v-ripple>
+        <q-item clickable v-ripple @click="openEditDialog('password')">
           <q-item-section>
             <q-item-label caption>
               Password
             </q-item-label>
-            <q-item-label>*******</q-item-label>
+            <q-item-label>{{ password }}</q-item-label>
           </q-item-section>
         </q-item>
       </q-card>
 
-      <q-card class="bg-white q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
+      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
         <q-item clickable v-ripple>
           <q-item-section>
 
@@ -45,7 +45,7 @@
         </q-item>
       </q-card>
 
-      <q-card class="bg-white q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
+      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
         <q-item clickable v-ripple>
           <q-item-section>
             <q-item-label>About us</q-item-label>
@@ -68,18 +68,47 @@
         </q-item>
       </q-card>
 
-      <q-card class="bg-white q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-        <q-item clickable v-ripple @click="confirm = true">
+      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
+        @click="confirmLogout = true">
+        <q-item>
           <q-item-section>
             <q-item-label>Log out</q-item-label>
           </q-item-section>
         </q-item>
       </q-card>
 
-      <q-dialog v-model="confirm">
+      <q-dialog v-model="editDialogOpen" persistent>
+        <q-card>
+          <q-card-section>
+            <div class="text-h6" v-if="currentSetting === 'displayName'">Name</div>
+            <div class="text-h6" v-else-if="currentSetting === 'email'">Email</div>
+            <div class="text-h6" v-else-if="currentSetting === 'password'">Change Password</div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-section>
+            <q-input v-if="currentSetting === 'password'" v-model="oldPassword" label="Old Password" type="password" />
+            <!-- bg-color="white" color="white" :label=currentSetting -->
+            <q-input class="q-mx-sm q-mb-md" clearable rounded outlined autofocus v-model="newSettingValue"
+              :type="currentSetting === 'password' ? 'password' : currentSetting === 'displayName' ? 'text' : 'email'" />
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right">
+            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn color="primary" @click="updateSetting">Save</q-btn>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+
+      <q-dialog v-model="confirmLogout">
         <q-card>
           <q-card-section class="row items-center">
-            <q-avatar icon="signal_wifi_off" color="primary" text-color="white" />
+            <q-avatar icon="signal_wifi_off" class="bg-primary text-on-primary" />
+            <!-- TODO: remove wifi -->
             <span class="q-ml-sm">Your login details will be deleted once you log out.</span>
           </q-card-section>
 
@@ -96,133 +125,76 @@
         </q-item-section>
       </q-item>
 
-      <!-- <q-item-label header>General</q-item-label>
-
-      <q-item tag="label" v-ripple>
-        <q-item-section side top>
-          <q-checkbox v-model="check1" />
-        </q-item-section>
-
-        <q-item-section>
-          <q-item-label>Notifications</q-item-label>
-          <q-item-label caption>
-            Notify me about updates to apps or games that I downloaded
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-
-      <q-item tag="label" v-ripple>
-        <q-item-section side top>
-          <q-checkbox v-model="check2" />
-        </q-item-section>
-
-        <q-item-section>
-          <q-item-label>Sound</q-item-label>
-          <q-item-label caption>
-            Auto-update apps at anytime. Data charges may apply
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-
-      <q-item tag="label" v-ripple>
-        <q-item-section side top>
-          <q-checkbox v-model="check3" />
-        </q-item-section>
-
-        <q-item-section>
-          <q-item-label>Auto-add widgets</q-item-label>
-          <q-item-label caption>
-            Automatically add home screen widgets
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-
-      <q-separator spaced />
-      <q-item-label header>Notifications</q-item-label>
-
-      <q-item tag="label" v-ripple>
-        <q-item-section>
-          <q-item-label>Battery too low</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-toggle color="blue" v-model="notif1" val="battery" />
-        </q-item-section>
-      </q-item>
-
-      <q-item tag="label" v-ripple>
-        <q-item-section>
-          <q-item-label>Friend request</q-item-label>
-          <q-item-label caption>Allow notification</q-item-label>
-        </q-item-section>
-        <q-item-section side top>
-          <q-toggle color="green" v-model="notif2" val="friend" />
-        </q-item-section>
-      </q-item>
-
-      <q-item tag="label" v-ripple>
-        <q-item-section>
-          <q-item-label>Picture uploaded</q-item-label>
-          <q-item-label caption>Allow notification when uploading images</q-item-label>
-        </q-item-section>
-        <q-item-section side top>
-          <q-toggle color="red" v-model="notif3" val="picture" />
-        </q-item-section>
-      </q-item>
-
-      <q-separator spaced />
-      <q-item-label header>Other settings</q-item-label>
-
-      <q-item>
-        <q-item-section side>
-          <q-icon color="teal" name="volume_down" />
-        </q-item-section>
-        <q-item-section>
-          <q-slider v-model="volume" :min="0" :max="10" label color="teal" />
-        </q-item-section>
-        <q-item-section side>
-          <q-icon color="teal" name="volume_up" />
-        </q-item-section>
-      </q-item>
-
-      <q-item>
-        <q-item-section side>
-          <q-icon color="deep-orange" name="brightness_medium" />
-        </q-item-section>
-        <q-item-section>
-          <q-slider v-model="brightness" :min="0" :max="10" label color="deep-orange" />
-        </q-item-section>
-      </q-item>
-
-      <q-item>
-        <q-item-section side>
-          <q-icon color="primary" name="mic" />
-        </q-item-section>
-        <q-item-section>
-          <q-slider v-model="mic" :min="0" :max="50" label />
-        </q-item-section>
-      </q-item> -->
     </q-list>
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { auth } from "../boot/firebaseBoot.js";
 import { signOut } from "firebase/auth";
 import { useRouter } from 'vue-router'
+import { useMomentsStore } from './../stores/moments.js'
+
+const momentsStore = useMomentsStore()
+
+const user = ref(null)
+const displayName = ref("")
+const email = ref("")
+const password = "*********"
+const oldPassword = ref('')
+
+
+onMounted(async () => {
+  user.value = await momentsStore.user;
+  displayName.value = user.value.displayName;
+  email.value = user.value.email;
+})
+
+const currentSetting = ref("")
+const newSettingValue = ref("")
+const editDialogOpen = ref(false)
+
+const openEditDialog = (setting) => {
+  currentSetting.value = setting
+  newSettingValue.value = setting === 'password' ? password : user.value[setting]
+  editDialogOpen.value = true
+}
+
+const reauthenticate = async (password) => {
+  const cred = firebase.auth.EmailAuthProvider.credential(user.value.email, password)
+  return user.value.reauthenticateWithCredential(cred)
+}
+
+const updateSetting = async () => {
+  if (currentSetting.value === 'password') {
+    try {
+      await reauthenticate(oldPassword.value)
+      await userStore.updateUser({ [currentSetting.value]: newSettingValue.value })
+      dialogOpen.value = false
+      oldPassword.value = ''
+    } catch (error) {
+      // Handle authentication error
+      console.log(error)
+    }
+  } else {
+    await userStore.updateUser({ [currentSetting.value]: newSettingValue.value })
+    editDialogOpen.value = false
+  }
+}
 
 const router = useRouter()
-const confirm = ref(false)
+const confirmLogout = ref(false)
 const logOut = () => {
-  // confirm.value = false
   signOut(auth).then(() => {
-    // Sign-out successful.
+    console.log('logged out')
+    setTimeout(() => {
+      router.push('/login')
+    }, 10)
   }).catch((error) => {
-    // An error happened.
+    console.log("Error logging out", error);
   });
-  setTimeout(() => {
-    router.push('/login')
-  }, 10)
+  confirmLogout.value = false
 }
 
 </script>

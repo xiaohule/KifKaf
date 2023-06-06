@@ -19,16 +19,45 @@ export const useMomentsStore = defineStore("moments", () => {
     try {
       user.value = await getCurrentUser();
       // console.log("User accessed from moments store", user.value);
-      // user.value.uid;
-      // user.value.displayName;
-      // user.value.email;
-      // user.value.photoURL;
-
       momentsRef.value = collection(db, `users/${user.value.uid}/moments`);
       moments.value = useCollection(momentsRef);
       initialized.value = true;
     } catch (error) {
       console.log("Could not get  current user", error);
+    }
+  };
+
+  const updateUser = async (changes) => {
+    if (changes.displayName) {
+      updateProfile(user.value, {
+        displayName: changes.displayName,
+      })
+        .then(() => {
+          console.log("Profile updated!");
+        })
+        .catch((error) => {
+          console.log("Error updating profile", error);
+        });
+    }
+
+    if (changes.email) {
+      updateEmail(user.value, changes.email)
+        .then(() => {
+          console.log("Email updated!");
+        })
+        .catch((error) => {
+          console.log("Error updating email", error);
+        });
+    }
+
+    if (changes.password) {
+      updatePassword(user.value, changes.password)
+        .then(() => {
+          console.log("Password updated!");
+        })
+        .catch((error) => {
+          console.log("Error updating password", error);
+        });
     }
   };
 
@@ -121,6 +150,7 @@ export const useMomentsStore = defineStore("moments", () => {
     uniqueDays,
     addMoment,
     fetchMoments,
+    updateUser,
     setIsEditorFocused,
   };
 });
