@@ -3,23 +3,94 @@
 // To customize the look and feel of this app, you can override
 // the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
 
-// Check documentation for full list of Quasar variables
+//Quasar colors: keep to avoid breaking the app and keep aligned with $colors
+$primary: #0666eb;
+$secondary: #585e71;
+$accent: #286c2a; //same as tertiary
 
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
+$dark: #1b1b1f; //same as surface-dark
+$dark-page: #1b1b1f; //same as background-dark
 
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
+$positive: #21ba45;
+$negative: #c10015;
+$info: #31ccec;
+$warning: #f2c037;
 
-$primary   : #1976D2;
-$secondary : #26A69A;
-$accent    : #9C27B0;
+//What we get from setting primary #0666EB, secondary #8a90a5, tertiary #7c9876 and neutral #919094 on https://m3.material.io/theme-builder#/custom
+$colors: (
+  /* light */ primary: #0666eb,
+  // #0057cd,
+  on-primary: #ffffff,
+  primary-container: #d9e2ff,
+  //E7EFFF
+  on-primary-container: #001946,
+  secondary: #585e71,
+  on-secondary: #ffffff,
+  secondary-container: #dce2f9,
+  on-secondary-container: #151b2c,
+  tertiary: #286c2a,
+  on-tertiary: #ffffff,
+  tertiary-container: #abf4a2,
+  on-tertiary-container: #002203,
+  error: #ba1a1a,
+  on-error: #ffffff,
+  error-container: #ffdad6,
+  on-error-container: #410002,
+  background: #f0f0f0,
+  on-background: #1b1b1f,
+  surface: #fefbff,
+  on-surface: #1b1b1f,
+  surface-variant: #e8ebef,
+  on-surface-variant: #44464f,
+  outline: #757780,
+  inverse-on-surface: #f2f0f4,
+  inverse-surface: #303034,
+  inverse-primary: #b1c6ff,
+  shadow: #000000,
+  surface-tint: #0057cd,
+  outline-variant: #c5c6d0,
+  scrim: #000000,
+  /* dark */ primary-dark: #b1c6ff,
+  on-primary-dark: #002c70,
+  primary-container-dark: #00419d,
+  on-primary-container-dark: #d9e2ff,
+  secondary-dark: #c0c6dc,
+  on-secondary-dark: #2a3042,
+  secondary-container-dark: #404659,
+  on-secondary-container-dark: #dce2f9,
+  tertiary-dark: #90d889,
+  on-tertiary-dark: #003909,
+  tertiary-container-dark: #095314,
+  on-tertiary-container-dark: #abf4a2,
+  error-dark: #ffb4ab,
+  error-container-dark: #93000a,
+  on-error-dark: #690005,
+  on-error-container-dark: #ffdad6,
+  background-dark: #1b1b1f,
+  on-background-dark: #e3e2e6,
+  surface-dark: #1b1b1f,
+  on-surface-dark: #e3e2e6,
+  surface-variant-dark: #44464f,
+  on-surface-variant-dark: #c5c6d0,
+  outline-dark: #8f9099,
+  inverse-on-surface-dark: #1b1b1f,
+  inverse-surface-dark: #e3e2e6,
+  inverse-primary-dark: #0057cd,
+  shadow-dark: #000000,
+  surface-tint-dark: #b1c6ff,
+  outline-variant-dark: #44464f,
+  scrim-dark: #000000
+);
 
-$dark      : #1D1D1D;
-$dark-page : #121212;
+@each $color-name, $color-value in $colors {
+  .text-#{$color-name} {
+    color: #{$color-value};
+  }
+  .bg-#{$color-name} {
+    background-color: #{$color-value};
+  }
+}
 
-$positive  : #21BA45;
-$negative  : #C10015;
-$info      : #31CCEC;
-$warning   : #F2C037;
+@function color($color-name) {
+  @return map-get($colors, $color-name);
+}
