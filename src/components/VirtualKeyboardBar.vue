@@ -15,25 +15,6 @@ defineEmits(['appendHashtag'])
 let viewportHandler, layoutViewport, bottomBar;
 let pendingUpdate = false;
 
-// let viewportHandler2, scrollTimeout;
-// const isScrolling = ref(false);
-// onMounted(() => {
-//   viewportHandler2 = () => {
-//     isScrolling.value = true;
-//     clearTimeout(scrollTimeout);
-//     scrollTimeout = setTimeout(() => {
-//       isScrolling.value = false;
-//     }, 200);
-//   }
-//   window.addEventListener('scroll', viewportHandler2, { passive: true });
-//   window.addEventListener('resize', viewportHandler2, { passive: true });
-// });
-
-// onBeforeUnmount(() => {
-//   window.removeEventListener("scroll", viewportHandler2);
-//   window.removeEventListener("resize", viewportHandler2);
-// })
-
 onMounted(() => {
   bottomBar = document.getElementById('bottomBar');
   layoutViewport = document.getElementById("layoutViewport");

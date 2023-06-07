@@ -28,7 +28,7 @@
             <q-item-label caption>
               Password
             </q-item-label>
-            <q-item-label>{{ password }}</q-item-label>
+            <q-item-label>*********</q-item-label>
           </q-item-section>
         </q-item>
       </q-card>
@@ -69,7 +69,7 @@
       </q-card>
 
       <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
-        @click="confirmLogout = true">
+        @click="logoutDialogOpen = true">
         <q-item>
           <q-item-section>
             <q-item-label>Log out</q-item-label>
@@ -85,87 +85,162 @@
 
     </q-list>
 
-    <!--TODO: class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>  @show="focusFirstInput" -->
-    <q-dialog v-model="editDialogOpen">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6" v-if="currentSetting === 'displayName'">Change name</div>
-          <div class="text-h6" v-else-if="currentSetting === 'email'">Change email</div>
-          <div class="text-h6" v-else-if="currentSetting === 'password'">Change Password</div>
-        </q-card-section>
+    <!--TODO: allow for not re-inputting email if not needed -->
+    <q-dialog v-model="editDialogOpen" position="top">
+      <q-card class="bg-surface">
+
+        <div v-if="currentSetting === 'displayName'">
+          <q-card-section>
+            <div class="text-h6">Change name</div>
+          </q-card-section>
+          <q-card-section>
+            <q-input ref="mainInputRef" class="q-mx-sm q-mb-md" clearable rounded outlined v-model="newSettingValue"
+              type="text" bg-color="surface-variant" label="First name Last name" />
+          </q-card-section>
+        </div>
+
+        <div v-else-if="currentSetting === 'email'">
+          <q-card-section class="text-h6">Change email</q-card-section>
+          <q-card-section>
+            Enter your email address
+          </q-card-section>
+          <q-input ref="mainInputRef" class="q-mx-md q-mb-md" clearable rounded outlined v-model="newSettingValue"
+            type='email' bg-color="surface-variant" placeholder="jane.doe@mail.com" />
+          <!-- //TODO: validate email -->
+          <q-card-section>
+            Enter your existing password to confirm
+          </q-card-section>
+          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="oldPassword"
+            label="Current Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant">
+            <template v-slot:append>
+              <q-icon :name="isPwdOld ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                @click="isPwdOld = !isPwdOld" />
+            </template>
+          </q-input>
+        </div>
+
+        <div v-else-if="currentSetting === 'password'">
+          <q-card-section class="text-h6">Change Password</q-card-section>
+          <q-card-section>
+            Enter your existing password
+          </q-card-section>
+          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="oldPassword"
+            label="Current Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant">
+            <template v-slot:append>
+              <q-icon :name="isPwdOld ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                @click="isPwdOld = !isPwdOld" />
+            </template>
+          </q-input>
+
+          <q-card-section>
+            Create a new password
+          </q-card-section>
+          <!-- TODO:for we should provide email guidelines (character, length) and have validation in place -->
+          <q-input ref="mainInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="newSettingValue"
+            label="New Password" :type="isPwd ? 'password' : 'text'" bg-color="surface-variant">
+            <template v-slot:append>
+              <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
+            </template>
+          </q-input>
+        </div>
 
         <q-separator />
-
-        <q-card-section>
-          <q-input v-if="currentSetting === 'password' || 'email'" ref="oldPwdInput" class="q-mx-sm q-mb-md" clearable
-            rounded outlined v-model="oldPassword" label="Current Password" type="password" bg-color="surface-variant" />
-          <!-- bg-color="white" color="white" :label=currentSetting -->
-          <q-input ref="mainInput" class="q-mx-sm q-mb-md" clearable rounded outlined v-model="newSettingValue"
-            :type="currentSetting === 'password' ? 'password' : currentSetting === 'displayName' ? 'text' : 'email'"
-            bg-color="surface-variant" />
-        </q-card-section>
-
-        <q-separator />
-
         <q-card-actions align="right">
           <q-btn flat rounded label="Cancel" v-close-popup />
           <q-btn rounded color="primary" @click="updateSetting" padding="5px 25px">Save</q-btn>
+          <!-- TODO:for email should be "verify" instead of save and we should have a verifying flow -->
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-
-    <q-dialog v-model="confirmLogout">
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="signal_wifi_off" class="bg-primary text-on-primary" />
-          <!-- TODO: remove wifi -->
-          <span class="q-ml-sm">Your login details will be deleted once you log out.</span>
+    <q-dialog v-model="logoutDialogOpen">
+      <q-card class="bg-surface">
+        <!-- <q-card> -->
+        <q-card-section>
+          <div class="text-h6">Log out</div>
         </q-card-section>
-
+        <q-card-section>
+          You will be returned to the login screen.
+        </q-card-section>
+        <q-separator />
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Log out" color="primary" v-close-popup @click="logOut" />
+          <q-btn flat rounded label="Cancel" color="primary" v-close-popup />
+          <q-btn flat rounded label="Log out" color="primary" v-close-popup @click="logOut" />
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-
   </q-page>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { auth } from "../boot/firebaseBoot.js";
 import { signOut } from "firebase/auth";
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
 
 const momentsStore = useMomentsStore()
-const password = "*********"
-const oldPassword = ref('')
 
-const currentSetting = ref("")
-const newSettingValue = ref("")
+const currentSetting = ref('')
+const newSettingValue = ref('')
+const oldPassword = ref('')
+const isPwdOld = ref(true)
+const isPwd = ref(true)
+
 const editDialogOpen = ref(false)
-const oldPwdInput = ref(null)
-const mainInput = ref(null)
+const logoutDialogOpen = ref(false)
+
+const oldPwdInputRef = ref(null)
+const mainInputRef = ref(null)
 
 const openEditDialog = (setting) => {
   currentSetting.value = setting
-  newSettingValue.value = setting === 'password' ? password : momentsStore.user[setting]
+  newSettingValue.value = setting === 'password' ? '' : momentsStore.user[setting]
   editDialogOpen.value = true
   nextTick(() => {
-    if (setting === 'password') oldPwdInput.value.$el.querySelector('input').focus();
-    else mainInput.value.$el.querySelector('input').focus();
+    if (setting === 'password') oldPwdInputRef.value.$el.querySelector('input').focus();
+    else mainInputRef.value.$el.querySelector('input').focus();
   })
 }
+
+watch(editDialogOpen, (val) => {
+  if (!val) {
+    currentSetting.value = ''
+    newSettingValue.value = ''
+    oldPassword.value = ''
+    isPwdOld.value = true
+    isPwd.value = true
+  }
+})
+
+// let keyboardOpen = false
+// onMounted(() => {
+//   window.visualViewport.addEventListener('resize', adjustDialogPosition)
+// })
+// onBeforeUnmount(() => {
+//   window.visualViewport.removeEventListener('resize', adjustDialogPosition)
+// })
+// const adjustDialogPosition = () => {
+//   // console.log('window.screen.height', window.screen.height) //844
+//   // console.log('viewportHeight', window.innerHeight) //664
+//   // console.log('window.visualViewport.height', window.visualViewport.height) //394.65625
+//   nextTick(() => {
+//     const dialogElement = document.querySelector('.q-dialog__inner>div')
+//     if (!keyboardOpen && window.visualViewport.height < window.innerHeight) {
+//       keyboardOpen = true
+//       dialogElement.style.top = '10%'
+//     } else if (keyboardOpen && window.visualViewport.height < window.innerHeight) {
+//       keyboardOpen = false
+//       dialogElement.style.top = '50%'
+//     }
+//   })
+// }
+
 
 const updateSetting = async () => {
   try {
     momentsStore.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
     editDialogOpen.value = false
-    oldPassword.value = ''
   } catch (error) {
     // Handle authentication error
     console.log(error)
@@ -173,7 +248,6 @@ const updateSetting = async () => {
 }
 
 const router = useRouter()
-const confirmLogout = ref(false)
 const logOut = () => {
   signOut(auth).then(() => {
     console.log('logged out')
@@ -183,9 +257,18 @@ const logOut = () => {
   }).catch((error) => {
     console.log("Error logging out", error);
   });
-  confirmLogout.value = false
+  logoutDialogOpen.value = false
 }
 
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.q-dialog__inner>div {
+  max-width: 400px;
+  width: 90%;
+  border-radius: 14px;
+  // position: fixed;
+  // top: 50%;
+  // transform: translateY(-50%);
+}
+</style>

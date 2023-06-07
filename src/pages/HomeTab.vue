@@ -255,8 +255,6 @@ const onSubmit = (event) => {
   border: none;
 }
 
-
-
 /* rail style */
 .vue-slider-rail {
   background-color: color(primary-container);
@@ -277,10 +275,10 @@ const onSubmit = (event) => {
 /* dot style */
 .vue-slider-dot {
   @at-root &-handle {
-    background-color: color(primary);
+    background-color: color(surface);
 
     @at-root &-disabled {
-      background-color: color(primary);
+      background-color: color(surface);
     }
   }
 

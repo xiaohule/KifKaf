@@ -24,7 +24,6 @@
       </router-view>
     </q-page-container>
 
-    <!-- TODO: v-show="isKeyboardHidden" -->
     <q-footer class="bg-transparent" bordered>
       <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-secondary"
         :breakpoint="0">
