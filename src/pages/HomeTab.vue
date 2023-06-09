@@ -1,5 +1,6 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+
     <q-list>
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Add a new Moment</q-item-label>
@@ -48,6 +49,7 @@
       <div v-else>
         <q-item-label class="text-body1 text-weight-medium q-my-sm">Moments</q-item-label>
         <q-list>
+
           <q-card class="bg-surface q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
             :key="day" flat>
             <q-card-section class="text-subtitle1 q-pb-none">
@@ -138,7 +140,7 @@ const getMomentsOfTheDay = (day) => {
 
 //SLIDER
 const marksEmoji = {
-  '-4.7': '😭',
+  '-4.7': '😭', //💔
   '-4': '',
   '-3': '',
   '-2': '',
@@ -148,7 +150,7 @@ const marksEmoji = {
   '2': '',
   '3': '',
   '4': '',
-  '4.7': '😆'
+  '4.7': '😃' //✨
 }
 function trackProcess(dotsPos) {
   //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.

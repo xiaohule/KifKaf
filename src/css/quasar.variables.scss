@@ -36,7 +36,8 @@ $colors: (
   on-error: #ffffff,
   error-container: #ffdad6,
   on-error-container: #410002,
-  background: #f0f0f0,
+  background: #f7f7f7,
+  //#F7F7F7 //#F0F0F0
   on-background: #1b1b1f,
   surface: #fefbff,
   on-surface: #1b1b1f,
@@ -50,6 +51,7 @@ $colors: (
   surface-tint: #0057cd,
   outline-variant: #c5c6d0,
   scrim: #000000,
+  button-on-background: #e0e3e7,
   /* dark */ primary-dark: #b1c6ff,
   on-primary-dark: #002c70,
   primary-container-dark: #00419d,

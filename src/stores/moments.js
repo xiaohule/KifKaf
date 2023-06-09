@@ -62,6 +62,7 @@ export const useMomentsStore = defineStore("moments", () => {
       }
     } catch (error) {
       console.log("Error occurred:", error);
+      throw error; // throw the error
     }
   };
 

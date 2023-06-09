@@ -90,12 +90,10 @@
       <q-card class="bg-surface">
 
         <div v-if="currentSetting === 'displayName'">
-          <q-card-section>
-            <div class="text-h6">Change name</div>
-          </q-card-section>
+          <q-card-section class="text-h6">Change name</q-card-section>
           <q-card-section>
             <q-input ref="mainInputRef" class="q-mx-sm q-mb-md" clearable rounded outlined v-model="newSettingValue"
-              type="text" bg-color="surface-variant" label="First name Last name" />
+              type="text" bg-color="surface-variant" label="First & last name" lazy-rules :rules="displayNameRules" />
           </q-card-section>
         </div>
 
@@ -105,13 +103,13 @@
             Enter your email address
           </q-card-section>
           <q-input ref="mainInputRef" class="q-mx-md q-mb-md" clearable rounded outlined v-model="newSettingValue"
-            type='email' bg-color="surface-variant" placeholder="jane.doe@mail.com" />
+            type='email' bg-color="surface-variant" placeholder="jane.doe@mail.com" lazy-rules :rules="emailRules" />
           <!-- //TODO: validate email -->
           <q-card-section>
-            Enter your existing password to confirm
+            Enter your password to confirm
           </q-card-section>
-          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="oldPassword"
-            label="Current Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant">
+          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="oldPassword" label="Password"
+            :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant" lazy-rules :rules="passwordRules">
             <template v-slot:append>
               <q-icon :name="isPwdOld ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                 @click="isPwdOld = !isPwdOld" />
@@ -125,7 +123,8 @@
             Enter your existing password
           </q-card-section>
           <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="oldPassword"
-            label="Current Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant">
+            label="Existing Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant" lazy-rules
+            :rules="passwordRules">
             <template v-slot:append>
               <q-icon :name="isPwdOld ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                 @click="isPwdOld = !isPwdOld" />
@@ -137,7 +136,8 @@
           </q-card-section>
           <!-- TODO:for we should provide email guidelines (character, length) and have validation in place -->
           <q-input ref="mainInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="newSettingValue"
-            label="New Password" :type="isPwd ? 'password' : 'text'" bg-color="surface-variant">
+            label="New Password" :type="isPwd ? 'password' : 'text'" bg-color="surface-variant" lazy-rules
+            :rules="passwordRules">
             <template v-slot:append>
               <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
             </template>
@@ -176,9 +176,11 @@
 import { ref, nextTick, watch } from 'vue'
 import { auth } from "../boot/firebaseBoot.js";
 import { signOut } from "firebase/auth";
+import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
-
+const $q = useQuasar()
+const router = useRouter()
 const momentsStore = useMomentsStore()
 
 const currentSetting = ref('')
@@ -186,6 +188,19 @@ const newSettingValue = ref('')
 const oldPassword = ref('')
 const isPwdOld = ref(true)
 const isPwd = ref(true)
+
+const displayNameRules = [
+  val => (val && val.length > 0) || 'Please type your name'
+]
+const emailRules = [
+  val => (val && val.length > 0) || 'Please type something',
+  val => /.+@.+\..+/.test(val) || 'E-mail must be valid',
+  // val => /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(val) || 'E-mail must be valid',
+]
+const passwordRules = [
+  val => (val && val.length > 0) || 'Please type something',
+  val => val.length >= 6 || 'Password must be at least 6 characters'
+]
 
 const editDialogOpen = ref(false)
 const logoutDialogOpen = ref(false)
@@ -236,18 +251,59 @@ watch(editDialogOpen, (val) => {
 //   })
 // }
 
-
 const updateSetting = async () => {
   try {
-    momentsStore.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
+    if (oldPwdInputRef.value) {
+      oldPwdInputRef.value.validate()
+      if (oldPwdInputRef.value.hasError) {
+        // form has error
+        console.log('oldPwdInputRef.value.hasError')
+        return
+      }
+    }
+    mainInputRef.value.validate()
+    if (mainInputRef.value.hasError) {
+      // form has error
+      console.log('mainInputRef.value.hasError')
+      return
+    }
+    await momentsStore.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
     editDialogOpen.value = false
+    $q.notify({
+      icon: 'done',
+      color: 'positive',
+      message: currentSetting.value === 'displayName' ? 'Name updated' : currentSetting.value === 'email' ? 'Email updated' : 'Password updated'
+    })
   } catch (error) {
     // Handle authentication error
     console.log(error)
+    if (error.code === 'auth/wrong-password') {
+      isPwdOld.value = false
+      oldPwdInputRef.value.$el.querySelector('input').focus();
+      $q.notify({
+        icon: 'error',
+        color: 'negative',
+        message: 'Wrong password'
+      })
+    } else if (error.code === 'auth/weak-password') {
+      isPwd.value = false
+      mainInputRef.value.$el.querySelector('input').focus();
+      $q.notify({
+        icon: 'error',
+        color: 'negative',
+        message: 'Password should be at least 6 characters'
+      })
+    } else {
+      $q.notify({
+        icon: 'error',
+        color: 'negative',
+        message: error.message
+      })
+    }
   }
+  //TODO: disable Save button when no change were made and when one validation is not passed
 }
 
-const router = useRouter()
 const logOut = () => {
   signOut(auth).then(() => {
     console.log('logged out')
