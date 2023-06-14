@@ -34,11 +34,13 @@
         <q-carousel-slide :name="10" class="column no-wrap">
 
           <q-card class="bg-surface q-mb-lg q-px-xs q-pt-md q-pb-none rounded-borders-14" flat>
-            <q-btn-group spread rounded unelevated style="border-radius: 28px" class="q-mx-sm">
+            <!-- <q-btn-group spread rounded unelevated style="border-radius: 28px" class="q-mx-sm">
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Intensity avg" no-caps
                 dense />
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="%" no-caps dense />
-            </q-btn-group>
+            </q-btn-group> -->
+            <iOS13SegmentedControl v-model="segIdKifs" :segments="segKifs" element-name='LearnTabSegKifs'
+              class="q-mx-lg q-mt-md q-mb-sm" />
 
             <q-list>
               <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in momentsStore.uniqueTags.slice(0, 5)"
@@ -82,16 +84,16 @@
             <q-card-section>Filtering the period will take into account only the moments that happened during the selected
               period. </q-card-section>
 
-            <q-btn-group spread rounded unelevated class="q-mx-lg q-mt-md q-mb-sm">
-              <!-- <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Weekly" no-caps dense
-                @click="selectedDateFilter = 'Calendar'" /> -->
+            <!-- <q-btn-group spread rounded unelevated class="q-mx-lg q-mt-md q-mb-sm">
+              <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Weekly" no-caps dense
+                @click="selectedDateFilter = 'Calendar'" />
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Monthly" no-caps dense
                 @click="selectedDateFilter = 'Months'" />
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Yearly" no-caps dense
                 @click="selectedDateFilter = 'Years'" />
-            </q-btn-group>
-
-            <iOS13SegmentedControl v-model="value" :segments="segments" />
+            </q-btn-group> -->
+            <iOS13SegmentedControl v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate'
+              class="q-mx-lg q-mt-md q-mb-sm" />
 
 
             <!-- <q-date v-if="selectedDateFilter === 'Calendar'" v-model="pickedRange" :options="optionsFn"
@@ -133,27 +135,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onDeactivated, onBeforeUnmount, computed } from 'vue'
+import { ref, computed } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import iOS13SegmentedControl from "./../components/vue-ios13-segmented-control.vue";
-
-const value = ref("1")
-const segments = ref([
-  {
-    title: "Apple Music",
-    id: "0"
-  },
-  {
-    title: "Spotify",
-    id: "1"
-  },
-  {
-    title: "Deezer",
-    id: "2"
-  },
-])
 
 // import { Timestamp } from 'firebase/firestore'
 // import { date } from "quasar";
@@ -177,6 +163,12 @@ const tappedFilter = ref('')
 const selectedDateFilter = ref('Months')
 // The default model mask is YYYY/MM/DD, however you can use custom ones too.
 // const pickedRange = ref({ from: '2023/04/08', to: '2023/06/03' })
+
+const segKifs = ref([{ title: "Intensity avg", id: "segKifs-0" }, { title: "%", id: "segKifs-1" }])
+const segIdKifs = ref("segKifs-0")
+
+const segDate = ref([{ title: "Monthly", id: "segDate-0" }, { title: "Yearly", id: "segDate-1" }])
+const segIdDate = ref("segDate-0")
 
 const pickedMonth = ref('06')
 const pickedYear = ref('2023')

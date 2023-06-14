@@ -1,95 +1,81 @@
+<!-- Be Careful this comp needs non-overlapping Ids when used multiple time in a given page -->
 <template>
-  <div>
-    <div class="vue-ios13-segmented-control">
-      <span class="selection-pill" :style="pillTransformStyles"></span>
-
-      <div v-for="segment of segments" :key="segment.id" class="option">
-        <input type="radio" :id="segment.id" :name="elementName" :value="segment.id" v-model="selectedSegmentId">
-        <label :for="segment.id">
-          <span>{{ segment.title }}</span>
-        </label>
-      </div>
+  <div class="vue-ios13-segmented-control">
+    <span class="selection-pill" :style="pillTransformStyles"></span>
+    <div v-for="segment of segments" :key="segment.id" class="option">
+      <input type="radio" :id="segment.id" :name="elementName" :value="segment.id" v-model="selectedSegmentId">
+      <label :for="segment.id">
+        <span>{{ segment.title }}</span>
+      </label>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watchEffect, onMounted, onBeforeUnmount, nextTick } from 'vue';
 
-// Taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
-
-export default {
-  name: 'iOS13SegmentedControl',
-  props: {
-    value: {
-      required: true,
-      type: [Number, String]
-    },
-    segments: {
-      required: true,
-      type: Array
-    },
-    elementName: {
-      type: String,
-      required: false,
-      default: () => '' + getRandomInt(100000)
-    }
+const props = defineProps({
+  modelValue: {
+    required: true,
+    type: [Number, String],
+    default: '0',
   },
-  data() {
-    return {
-      selectedSegmentWidth: 0,
-    };
+  segments: {
+    required: true,
+    type: Array
   },
-
-
-  mounted() {
-    window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('resize', this.recalculateSelectedSegmentWidth);
-  },
-
-  computed: {
-    selectedSegmentId: {
-      get() {
-        return this.value;
-      },
-      set(segmentId) {
-        this.$emit("input", segmentId);
-      }
-    },
-    selectedSegmentIndex() {
-      return this.segments.findIndex(segment => segment.id === this.value);
-    },
-    pillTransformStyles() {
-      return "transform:translateX(" + (this.selectedSegmentWidth * this.selectedSegmentIndex) + "px)";
-    }
-  },
-
-  methods: {
-    recalculateSelectedSegmentWidth() {
-      // Wait for UI to rerender before measuring
-      this.$nextTick(() => {
-        const segmentElement = document.querySelector(`input[type='radio'][value='${this.value}']`);
-        this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
-      })
-    }
-  },
-
-  watch: {
-    // If segments are added, edited, or removed
-    segments() {
-      this.recalculateSelectedSegmentWidth();
-    },
-    // If the segment is changed programmatically
-    value() {
-      this.recalculateSelectedSegmentWidth();
-    }
+  elementName: {
+    type: String,
+    required: true,
+    //default: () => uniqueId('segmented-control-')
   }
+});
+const emits = defineEmits(['update:modelValue']);
+
+const selectedSegmentId = computed({
+  get: () => {
+    console.log('get selectedSegmentId', props.modelValue, 'for', props.elementName)
+    return props.modelValue
+  },
+
+  set: (selectedSegmentId) => {
+    console.log('set selectedSegmentId', selectedSegmentId, 'for', props.elementName)
+    emits("update:modelValue", selectedSegmentId)
+  }
+});
+
+const selectedSegmentWidth = ref(0)
+const selectedSegmentIndex = computed(() =>
+  props.segments.findIndex(segment => segment.id === props.modelValue)
+);
+const pillTransformStyles = computed(() => {
+  return `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`;
+});
+
+const recalculateSelectedSegmentWidth = () => {
+  // Wait for UI to rerender before measuring
+  nextTick(() => {
+    const segmentElement = document.querySelector(`input[type='radio'][value='${props.modelValue}'][name='${props.elementName}']`);
+    console.log('recalculateSelectedSegmentWidth segmentElement: ', segmentElement)
+    selectedSegmentWidth.value = segmentElement && segmentElement.offsetWidth;
+  })
 }
+
+watchEffect(() => {
+  recalculateSelectedSegmentWidth();
+  // mentioning the properties to react to their changes
+  props.modelValue;
+  props.segments;
+});
+
+onMounted(() => {
+  window.addEventListener('resize', recalculateSelectedSegmentWidth);
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', recalculateSelectedSegmentWidth);
+})
+
 </script>
 
 <style lang="scss">
