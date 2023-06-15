@@ -56,7 +56,7 @@ const recalculateSelectedSegmentWidth = () => {
   // Wait for UI to rerender before measuring
   nextTick(() => {
     const segmentElement = document.querySelector(`input[type='radio'][value='${props.modelValue}'][name='${props.elementName}']`);
-    console.log('recalculateSelectedSegmentWidth segmentElement: ', segmentElement)
+    // console.log('recalculateSelectedSegmentWidth segmentElement: ', segmentElement)
     selectedSegmentWidth.value = segmentElement && segmentElement.offsetWidth;
   })
 }

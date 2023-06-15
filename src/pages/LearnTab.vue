@@ -21,62 +21,83 @@
 
       <!-- height="500px" -->
       <!-- TODO: need a better carousel that allow for more programmaticity for previous slides and auto height? -->
-      <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
+      <!-- <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
         control-color="button-on-background" navigation padding class="bg-transparent" height="480px">
-
         <q-carousel-slide :name="8" class="column no-wrap">
           test 8
         </q-carousel-slide>
         <q-carousel-slide :name="9" class="column no-wrap">
           test 9
         </q-carousel-slide>
+        <q-carousel-slide :name="10" class="column no-wrap"> -->
 
-        <q-carousel-slide :name="10" class="column no-wrap">
-
-          <q-card class="bg-surface q-px-md q-pt-md q-pb-none q-mb-lg rounded-borders-14" flat>
-            <!-- <q-btn-group spread rounded unelevated style="border-radius: 28px" class="q-mx-sm">
+      <q-card class="bg-surface q-px-md q-pt-md q-pb-none q-mb-lg rounded-borders-14" flat>
+        <!-- <q-btn-group spread rounded unelevated style="border-radius: 28px" class="q-mx-sm">
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Intensity avg" no-caps
                 dense />
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="%" no-caps dense />
             </q-btn-group> -->
-            <segmented-control v-model="segIdKifs" :segments="segKifs" element-name='LearnTabSegKifs' />
+        <segmented-control v-model="segIdKifs" :segments="segKifs" element-name='LearnTabSegKifs' />
 
-            <q-list>
-              <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in momentsStore.uniqueTags.slice(0, 5)"
-                :key="tag">
-                <q-item class="q-px-none q-pb-none">
-                  <q-item-section class="tags"> {{ '#' + tag }} </q-item-section>
-
-                  <q-item-section>
-                    <!-- <vue-slider v-model="tag.avg(period)" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                  disabled></vue-slider> -->
-                    <vue-slider v-model="avgPh" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                      disabled></vue-slider>
-                  </q-item-section>
-                  <q-item-section side>
-                    {{ avgPh }}
-                  </q-item-section>
+        <q-list v-if="segIdKifs === 'avgIntensity'">
+          <q-card-section class="q-pt-xs q-pb-xs" clickable
+            v-for="tag in momentsStore.avgIntensitySortedTags.slice(0, numDisplayedKifs)" :key="tag">
+            <q-item class="q-px-none q-pb-none row">
+              <q-item-section class="col-6">
+                <q-item class="q-px-none q-py-none tags" style="min-height: 0px;" dense>
+                  {{ '#' + tag.id }}
                 </q-item>
+                <q-item class="q-px-none q-py-none" style="min-height: 0px;" dense>
+                  {{ tag.count }} {{ tag.count === 1 ? 'moment' : 'moments' }}
+                </q-item>
+              </q-item-section>
 
-                <!-- <q-item class="q-py-none" style="min-height: 0px;" dense>{{ moment.text }}</q-item>
-            <q-item v-if="moment.tags && moment.tags.length > 0" class="tags q-py-none" style="min-height: 0px;" dense>{{
-              moment.tags.map(tag =>
-                '#' +
-                tag).join(' ') }}</q-item> -->
-              </q-card-section>
+              <q-item-section class="col-5">
+                <vue-slider v-model="tag.avgIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
+                  disabled></vue-slider>
+              </q-item-section>
+              <q-item-section class=" col-1 text-center">
+                {{ parseFloat(tag.avgIntensity.toFixed(1)) }}
+              </q-item-section>
+            </q-item>
+          </q-card-section>
+        </q-list>
 
-              <q-card-actions align="center">
-                <q-btn color="primary" @click="updateSetting" class="q-ma-sm full-width" no-caps flat>Show
-                  more</q-btn>
-                <!-- TODO:for email should be "verify" instead of save and we should have a verifying flow -->
-              </q-card-actions>
-            </q-list>
+        <q-list v-else-if="segIdKifs === 'pointsShare'">
+          <q-card-section class="q-pt-xs q-pb-xs" clickable
+            v-for="tag in momentsStore.pointsShareSortedTags.slice(0, numDisplayedKifs)" :key="tag">
+            <div> {{ console.log(tag) }}</div>
+            <q-item class="q-px-none q-pb-none row">
+              <q-item-section class="col-6">
+                <q-item class="q-px-none q-py-none tags" style="min-height: 0px;" dense>
+                  {{ '#' + tag.id }}
+                </q-item>
+                <q-item class="q-px-none q-py-none" style="min-height: 0px;" dense>
+                  {{ tag.count }} {{ tag.count === 1 ? 'moment' : 'moments' }}
+                </q-item>
+              </q-item-section>
 
-          </q-card>
-        </q-carousel-slide>
+              <!-- <q-item-section class="col-5">
+                <vue-slider v-model="tag.avgIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
+                  disabled></vue-slider>
+              </q-item-section> -->
+              <q-item-section class=" col-6 ">
+                {{ parseFloat(tag.posPointsShare.toFixed(2)) * 100 + "%" }} of your Kifs points
+              </q-item-section>
+            </q-item>
+          </q-card-section>
+        </q-list>
 
-      </q-carousel>
+        <q-card-actions align="center">
+          <q-btn color="primary"
+            @click="numDisplayedKifs === 5 ? numDisplayedKifs = momentsStore.avgIntensitySortedTags.length : numDisplayedKifs = 5"
+            class="q-ma-sm full-width" no-caps flat>{{ numDisplayedKifs === 5 ? 'Show more' : 'Show less' }}</q-btn>
+          <!-- TODO:for email should be "verify" instead of save and we should have a verifying flow -->
+        </q-card-actions>
 
+      </q-card>
+      <!-- </q-carousel-slide>
+      </q-carousel> -->
 
       <q-dialog v-model="filterDialogOpen" position="bottom">
         <q-card class="bg-background">
@@ -159,16 +180,17 @@ const momentsStore = useMomentsStore()
 
 const dateRangeButtonLabel = ref('This month')
 const tagsButtonLabel = ref('All tags')
-const avgPh = ref(3.8)
 const slide = ref(10)
+const numDisplayedKifs = ref(5)
+
 const filterDialogOpen = ref(false)
 const tappedFilter = ref('')
 const selectedDateFilter = ref('Months')
 // The default model mask is YYYY/MM/DD, however you can use custom ones too.
 // const pickedRange = ref({ from: '2023/04/08', to: '2023/06/03' })
 
-const segKifs = ref([{ title: "Intensity avg", id: "segKifs-0" }, { title: "%", id: "segKifs-1" }])
-const segIdKifs = ref("segKifs-0")
+const segKifs = ref([{ title: "Intensity avg", id: "avgIntensity" }, { title: "%", id: "pointsShare" }])
+const segIdKifs = ref("avgIntensity")
 
 const segDate = ref([{ title: "Monthly", id: "segDate-0" }, { title: "Yearly", id: "segDate-1" }])
 const segIdDate = ref("segDate-0")

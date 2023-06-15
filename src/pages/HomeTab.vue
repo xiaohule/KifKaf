@@ -131,7 +131,7 @@ const computedUniqueDays = computed(() => {
   return momentsStore.uniqueDays || []
 })
 const getMomentsOfTheDay = (day) => {
-  const moments = computed(() => momentsStore.moments.value)
+  const moments = computed(() => momentsStore.momentsColl.value)
   const ul = moments.value.filter(m => formatLikeUniqueDays(m) === day)
   // sort array ul per descending moments.value.date.seconds
   const ol = ul.sort((a, b) => b.date.seconds - a.date.seconds);
