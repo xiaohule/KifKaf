@@ -1,5 +1,12 @@
 import { defineStore } from "pinia";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  addDoc,
+  setDoc,
+  getDoc,
+  Timestamp,
+} from "firebase/firestore";
 import {
   useCollection,
   getCurrentUser,
@@ -14,6 +21,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
+import { set } from "firebase/database";
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
@@ -21,6 +29,8 @@ export const useMomentsStore = defineStore("moments", () => {
   const user = ref(null);
   const momentsRef = ref(null);
   const moments = ref([]);
+  const tagsCollRef = ref(null);
+  const tagsColl = ref({});
   const initialized = ref(false);
   const isEditorFocused = ref(false);
 
@@ -30,7 +40,9 @@ export const useMomentsStore = defineStore("moments", () => {
       user.value = await getCurrentUser();
       // console.log("User accessed from moments store", user.value);
       momentsRef.value = collection(db, `users/${user.value.uid}/moments`);
+      tagsCollRef.value = collection(db, `users/${user.value.uid}/tags`);
       moments.value = useCollection(momentsRef);
+      tagsColl.value = useCollection(tagsCollRef);
       initialized.value = true;
     } catch (error) {
       console.log("Could not get  current user", error);
@@ -66,22 +78,15 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
-  //TODO: improve perf
   const uniqueTags = computed(() => {
     if (
-      !moments.value ||
-      !moments.value.data ||
-      moments.value.data.length === 0
+      !tagsColl.value ||
+      !tagsColl.value.data ||
+      tagsColl.value.data.length === 0
     )
       return [];
 
-    const uniqueTagsSet = new Set();
-    moments.value.data.forEach((moment) => {
-      moment.tags.forEach((tag) => {
-        uniqueTagsSet.add(tag);
-      });
-    });
-    return [...uniqueTagsSet];
+    return tagsColl.value.data.map((doc) => doc.id);
   });
 
   //TODO: improve perf
@@ -117,9 +122,52 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const addMoment = async (moment) => {
     try {
+      //SCRIPT ONE-SHOT do catch up on tagsColl
+      // const tagsCollInit = {};
+      // moments.value.data.forEach((mom) => {
+      //   const intensity = mom.intensity;
+      //   const tags = mom.tags;
+      //   // Update tagStats.
+      //   tags.forEach((tag) => {
+      //     if (!tagsCollInit[tag]) {
+      //       tagsCollInit[tag] = { count: 0, totalIntensity: 0, tagMoments: [] };
+      //     }
+      //     tagsCollInit[tag].count += 1;
+      //     tagsCollInit[tag].totalIntensity += intensity;
+      //     tagsCollInit[tag].tagMoments.push(mom.id);
+      //   });
+      // });
+      // // Write tagStats to Firestore.
+      // for (const tag in tagsCollInit) {
+      //   await setDoc(
+      //     doc(db, `users/${user.value.uid}/tags`, tag),
+      //     tagsCollInit[tag]
+      //   );
+      //   // await tagsColl.value.set(tagsCollInit[tag]);
+      // }
+
+      // Add the new moment
       const docRef = await addDoc(momentsRef.value, moment);
-      // Add the new moment to the local state as well
-      // this.moments.push({ ...moment }); //removed because was creating a duplicate
+      // Update the tag statistics for the new moment only
+      moment.tags.forEach(async (tag) => {
+        const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
+        const tagDoc = await getDoc(tagDocRef);
+        let tagData;
+
+        if (tagDoc.exists()) {
+          tagData = tagDoc.data();
+          tagData.count += 1;
+          tagData.totalIntensity += moment.intensity;
+          tagData.tagMoments.push(docRef.id);
+        } else {
+          tagData = {
+            count: 1,
+            totalIntensity: moment.intensity,
+            tagMoments: [docRef.id],
+          };
+        }
+        await setDoc(tagDocRef, tagData);
+      });
     } catch (error) {
       console.log(error);
     }
@@ -141,6 +189,22 @@ export const useMomentsStore = defineStore("moments", () => {
   //   }
   // },
   // define other actions like addMoment, updateMoment etc.
+
+  const getTagStats = (tag) => {
+    if (tagStats.value[tag]) {
+      const { count, totalIntensity } = tagStats.value[tag];
+      return {
+        count,
+        averageIntensity: totalIntensity / count,
+      };
+    } else {
+      return {
+        count: 0,
+        averageIntensity: 0,
+      };
+    }
+  };
+
   const setIsEditorFocused = (isFocused) => {
     isEditorFocused.value = isFocused;
     console.log("isEditorFocused set to", isEditorFocused.value);
@@ -157,5 +221,6 @@ export const useMomentsStore = defineStore("moments", () => {
     fetchMoments,
     updateUser,
     setIsEditorFocused,
+    getTagStats,
   };
 });

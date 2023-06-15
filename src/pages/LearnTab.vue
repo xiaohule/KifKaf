@@ -33,25 +33,28 @@
 
         <q-carousel-slide :name="10" class="column no-wrap">
 
-          <q-card class="bg-surface q-mb-lg q-px-xs q-pt-md q-pb-none rounded-borders-14" flat>
+          <q-card class="bg-surface q-px-md q-pt-md q-pb-none q-mb-lg rounded-borders-14" flat>
             <!-- <q-btn-group spread rounded unelevated style="border-radius: 28px" class="q-mx-sm">
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Intensity avg" no-caps
                 dense />
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="%" no-caps dense />
             </q-btn-group> -->
-            <iOS13SegmentedControl v-model="segIdKifs" :segments="segKifs" element-name='LearnTabSegKifs'
-              class="q-mx-lg q-mt-md q-mb-sm" />
+            <segmented-control v-model="segIdKifs" :segments="segKifs" element-name='LearnTabSegKifs' />
 
             <q-list>
               <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in momentsStore.uniqueTags.slice(0, 5)"
                 :key="tag">
                 <q-item class="q-px-none q-pb-none">
-                  <q-item-section class="col-auto"> {{ tag }} </q-item-section>
-                  <q-item-section side>
+                  <q-item-section class="tags"> {{ '#' + tag }} </q-item-section>
+
+                  <q-item-section>
                     <!-- <vue-slider v-model="tag.avg(period)" :process="trackProcess" :min="-5" :max="5" :interval="1"
                   disabled></vue-slider> -->
                     <vue-slider v-model="avgPh" :process="trackProcess" :min="-5" :max="5" :interval="1"
                       disabled></vue-slider>
+                  </q-item-section>
+                  <q-item-section side>
+                    {{ avgPh }}
                   </q-item-section>
                 </q-item>
 
@@ -92,7 +95,7 @@
               <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Yearly" no-caps dense
                 @click="selectedDateFilter = 'Years'" />
             </q-btn-group> -->
-            <iOS13SegmentedControl v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate'
+            <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate'
               class="q-mx-lg q-mt-md q-mb-sm" />
 
 
@@ -139,7 +142,7 @@ import { ref, computed } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
-import iOS13SegmentedControl from "./../components/vue-ios13-segmented-control.vue";
+import SegmentedControl from "./../components/SegmentedControl.vue";
 
 // import { Timestamp } from 'firebase/firestore'
 // import { date } from "quasar";

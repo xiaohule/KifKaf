@@ -1,6 +1,6 @@
 <!-- Be Careful this comp needs non-overlapping Ids when used multiple time in a given page -->
 <template>
-  <div class="vue-ios13-segmented-control">
+  <div class="segmented-control">
     <span class="selection-pill" :style="pillTransformStyles"></span>
     <div v-for="segment of segments" :key="segment.id" class="option">
       <input type="radio" :id="segment.id" :name="elementName" :value="segment.id" v-model="selectedSegmentId">
@@ -80,7 +80,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 // Root CSS class
-.vue-ios13-segmented-control {
+.segmented-control {
   font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
@@ -92,7 +92,7 @@ onBeforeUnmount(() => {
   --background: rgba(239, 239, 240, 1);
   background: var(--background);
 
-  border-radius: 9px;
+  border-radius: 9px !important;
   margin: 0;
   padding: 2px;
   border: none;
