@@ -7,6 +7,7 @@ import {
   updateDoc,
   getDoc,
   Timestamp,
+  increment,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -42,96 +43,46 @@ export const useMomentsStore = defineStore("moments", () => {
   const fetchMoments = async () => {
     try {
       user.value = await getCurrentUser();
-      // console.log("User accessed from moments store", user.value);
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       userDoc.value = useDocument(userDocRef);
+
+      // Check if user doc exists, if not create & initialize it
+      const userDocCheck = await getDoc(userDocRef.value);
+      if (!userDocCheck.exists()) {
+        console.log("User doc does not exist, creating it");
+        await setDoc(userDocRef.value, {
+          sumTotalPosPoints: 0,
+          sumTotalNegPoints: 0,
+        });
+      }
+
       momentsCollRef.value = collection(db, `users/${user.value.uid}/moments`);
       momentsColl.value = useCollection(momentsCollRef);
       tagsCollRef.value = collection(db, `users/${user.value.uid}/tags`);
       tagsColl.value = useCollection(tagsCollRef);
       initialized.value = true;
     } catch (error) {
-      console.log("Could not get  current user", error);
+      console.log("Could not get current user", error);
     }
   };
 
   const addMoment = async (moment) => {
+    //TODO: make this an atomic transaction https://firebase.google.com/docs/firestore/manage-data/transactions#transactions?
     try {
-      //SCRIPT ONE-SHOT 1 do catch up on tagsColl
-      // const tagsCollInit = {};
-      // momentsColl.value.data.forEach((mom) => {
-      //   const intensity = mom.intensity;
-      //   const tags = mom.tags;
-      //   // Update tagStats.
-      //   tags.forEach((tag) => {
-      //     if (!tagsCollInit[tag]) {
-      //       tagsCollInit[tag] = { count: 0, totalIntensity: 0, tagMoments: [] };
-      //     }
-      //     tagsCollInit[tag].count += 1;
-      //     tagsCollInit[tag].totalIntensity += intensity;
-      //     tagsCollInit[tag].tagMoments.push(mom.id);
-      //   });
-      // });
-      // // Write tagStats to Firestore.
-      // for (const tag in tagsCollInit) {
-      //   await setDoc(
-      //     doc(db, `users/${user.value.uid}/tags`, tag),
-      //     tagsCollInit[tag]
-      //   );
-      //   // await tagsColl.value.set(tagsCollInit[tag]);
-      // }
-
-      //SCRIPT ONE-SHOT 2 do catch up on tagsColl
-      // let userData = {};
-      // userData.sumTotalPosPoints = 0;
-      // userData.sumTotalNegPoints = 0;
-      // // tagsColl.value.data.forEach(async (tag) => {
-      // for (let tag of tagsColl.value.data) {
-      //   const tagDocRef2 = doc(db, `users/${user.value.uid}/tags`, tag.id);
-      //   const tagDoc2 = await getDoc(tagDocRef2);
-      //   // console.log("tagDoc2", tagDoc2.id, tagDoc2.data());
-      //   let tagData2 = {};
-      //   if (tagDoc2.exists()) {
-      //     tagData2.totalPosPoints = 0;
-      //     tagData2.totalNegPoints = 0;
-      //     // tagDoc2.data().tagMoments.forEach(async (momentId) => {
-      //     for (const momentId of tagDoc2.data().tagMoments) {
-      //       const momDocRef = doc(
-      //         db,
-      //         `users/${user.value.uid}/moments`,
-      //         momentId
-      //       );
-      //       const mom = await getDoc(momDocRef);
-      //       // console.log("mom", mom.id, mom.data());
-      //       // console.log("mom intensity", mom.data().intensity);
-      //       tagData2.totalPosPoints +=
-      //         mom.data().intensity > 0 ? mom.data().intensity : 0;
-      //       tagData2.totalNegPoints +=
-      //         mom.data().intensity < 0 ? mom.data().intensity : 0;
-      //       // console.log("tagData2Iteration", tagData2);
-      //       // });
-      //     }
-      //     // console.log("tagDataPostUpdate", tagData2);
-      //     await updateDoc(tagDocRef2, tagData2);
-      //     userData.sumTotalPosPoints += tagData2.totalPosPoints;
-      //     userData.sumTotalNegPoints += tagData2.totalNegPoints;
-      //     console.log("userData", userData);
-      //   }
-      //   // });
-      // }
-
-      // console.log("userDataOUT", userData);
-      // console.log("userDocRef", userDocRef.value);
-      // await setDoc(userDocRef.value, userData);
-
-      // console.log("moment", moment);
-      // console.log("momentsCollRef", momentsCollRef);
-
-      //////////
-
-      // Add the new moment
+      // Add the new moment to momentsColl
       const docRef = await addDoc(momentsCollRef.value, moment);
-      // Update the tag statistics for the new moment only
+
+      // Update the user statistics in userDoc
+      await updateDoc(userDocRef.value, {
+        sumTotalPosPoints: increment(
+          moment.intensity > 0 ? moment.intensity : 0
+        ),
+        sumTotalNegPoints: increment(
+          moment.intensity < 0 ? moment.intensity : 0
+        ),
+      });
+
+      // Update the tag statistics in tagsColl for the tags of the new moment if any
       moment.tags.forEach(async (tag) => {
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
         const tagDoc = await getDoc(tagDocRef);
@@ -154,18 +105,12 @@ export const useMomentsStore = defineStore("moments", () => {
           };
           await setDoc(tagDocRef, tagData);
         }
-        let userDocData = {
-          sumTotalPosPoints: userDoc.value.data.sumTotalPosPoints,
-          sumTotalNegPoints: userDoc.value.data.sumTotalNegPoints,
-        };
-        userDocData.sumTotalPosPoints += tagData.totalPosPoints;
-        userDocData.sumTotalNegPoints += tagData.totalNegPoints;
-        await updateDoc(userDocRef.value, userDocData);
       });
     } catch (error) {
       console.log(error);
     }
   };
+
   // async updateMoment(momentId, moment) {
   //   try {
   //     const momentRef = doc(db, `users/${this.userId}/moments/${momentId}`);
@@ -249,11 +194,17 @@ export const useMomentsStore = defineStore("moments", () => {
       return {
         id: tagDoc.id,
         count: tagDoc.count,
-        avgIntensity: tagDoc.totalIntensity / tagDoc.count,
+        avgIntensity:
+          tagDoc.count != 0 ? tagDoc.totalIntensity / tagDoc.count : 0,
         posPointsShare:
-          tagDoc.totalPosPoints / userDoc.value.data.sumTotalPosPoints,
+          userDoc.value.data.sumTotalPosPoints != 0
+            ? tagDoc.totalPosPoints / userDoc.value.data.sumTotalPosPoints
+            : 0,
         negPointsShare:
-          -1 * (tagDoc.totalNegPoints / userDoc.value.data.sumTotalNegPoints),
+          userDoc.value.data.sumTotalNegPoints != 0
+            ? -1 *
+              (tagDoc.totalNegPoints / userDoc.value.data.sumTotalNegPoints)
+            : 0,
       };
     });
     return tagsWithAverageIntensity.sort(
@@ -298,14 +249,13 @@ export const useMomentsStore = defineStore("moments", () => {
       }
     } catch (error) {
       console.log("Error occurred:", error);
-      throw error; // throw the error
+      throw error;
     }
   };
 
   return {
     user,
     momentsColl,
-    userDoc,
     isEditorFocused,
     uniqueTags,
     avgIntensitySortedTags,

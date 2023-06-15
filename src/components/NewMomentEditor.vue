@@ -74,7 +74,7 @@ onMounted(() => {
     },
     onUpdate: () => {
       emits('update:modelValue', editor.value.getHTML());
-      console.log('Editor updated! editor.value.getHTML() gives:', editor.value.getHTML())
+      // console.log('Editor updated! editor.value.getHTML() gives:', editor.value.getHTML())
     },
     onFocus: () => {
       // The editor is focused.

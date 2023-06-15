@@ -29,6 +29,4 @@ export default boot(({ app }) => {
       VueFireAuth(),
     ],
   });
-
-  // app.use(store); //handled by quasar
 });
