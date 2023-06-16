@@ -18,86 +18,7 @@
       </q-item>
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
-
-      <!-- height="500px" -->
-      <!-- TODO: need a better carousel that allow for more programmaticity for previous slides and auto height? -->
-      <!-- <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
-        control-color="button-on-background" navigation padding class="bg-transparent" height="480px">
-        <q-carousel-slide :name="8" class="column no-wrap">
-          test 8
-        </q-carousel-slide>
-        <q-carousel-slide :name="9" class="column no-wrap">
-          test 9
-        </q-carousel-slide>
-        <q-carousel-slide :name="10" class="column no-wrap"> -->
-
-      <q-card class="bg-surface q-px-md q-pt-md q-pb-none q-mb-lg rounded-borders-14" flat>
-        <!-- <q-btn-group spread rounded unelevated style="border-radius: 28px" class="q-mx-sm">
-              <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Intensity avg" no-caps
-                dense />
-              <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="%" no-caps dense />
-            </q-btn-group> -->
-        <segmented-control v-model="segIdKifs" :segments="segKifs" element-name='LearnTabSegKifs' />
-
-        <q-list v-if="segIdKifs === 'avgIntensity'">
-          <q-card-section class="q-pt-xs q-pb-xs" clickable
-            v-for="tag in momentsStore.avgIntensitySortedTags.slice(0, numDisplayedKifs)" :key="tag">
-            <q-item class="q-px-none q-pb-none row">
-              <q-item-section class="col-6">
-                <q-item class="q-px-none q-py-none tags" style="min-height: 0px;" dense>
-                  {{ '#' + tag.id }}
-                </q-item>
-                <q-item class="q-px-none q-py-none" style="min-height: 0px;" dense>
-                  {{ tag.count }} {{ tag.count === 1 ? 'moment' : 'moments' }}
-                </q-item>
-              </q-item-section>
-
-              <q-item-section class="col-5">
-                <vue-slider v-model="tag.avgIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                  disabled></vue-slider>
-              </q-item-section>
-              <q-item-section class=" col-1 text-center">
-                {{ parseFloat(tag.avgIntensity.toFixed(1)) }}
-              </q-item-section>
-            </q-item>
-          </q-card-section>
-        </q-list>
-
-        <q-list v-else-if="segIdKifs === 'pointsShare'">
-          <q-card-section class="q-pt-xs q-pb-xs" clickable
-            v-for="tag in momentsStore.pointsShareSortedTags.slice(0, numDisplayedKifs)" :key="tag">
-            <div> {{ console.log(tag) }}</div>
-            <q-item class="q-px-none q-pb-none row">
-              <q-item-section class="col-6">
-                <q-item class="q-px-none q-py-none tags" style="min-height: 0px;" dense>
-                  {{ '#' + tag.id }}
-                </q-item>
-                <q-item class="q-px-none q-py-none" style="min-height: 0px;" dense>
-                  {{ tag.count }} {{ tag.count === 1 ? 'moment' : 'moments' }}
-                </q-item>
-              </q-item-section>
-
-              <!-- <q-item-section class="col-5">
-                <vue-slider v-model="tag.avgIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                  disabled></vue-slider>
-              </q-item-section> -->
-              <q-item-section class=" col-6 ">
-                {{ parseFloat(tag.posPointsShare.toFixed(2)) * 100 + "%" }} of your Kifs points
-              </q-item-section>
-            </q-item>
-          </q-card-section>
-        </q-list>
-
-        <q-card-actions align="center">
-          <q-btn color="primary"
-            @click="numDisplayedKifs === 5 ? numDisplayedKifs = momentsStore.avgIntensitySortedTags.length : numDisplayedKifs = 5"
-            class="q-ma-sm full-width" no-caps flat>{{ numDisplayedKifs === 5 ? 'Show more' : 'Show less' }}</q-btn>
-          <!-- TODO:for email should be "verify" instead of save and we should have a verifying flow -->
-        </q-card-actions>
-
-      </q-card>
-      <!-- </q-carousel-slide>
-      </q-carousel> -->
+      <learn-card></learn-card>
 
       <q-dialog v-model="filterDialogOpen" position="bottom">
         <q-card class="bg-background">
@@ -108,24 +29,14 @@
             <q-card-section>Filtering the period will take into account only the moments that happened during the selected
               period. </q-card-section>
 
-            <!-- <q-btn-group spread rounded unelevated class="q-mx-lg q-mt-md q-mb-sm">
-              <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Weekly" no-caps dense
-                @click="selectedDateFilter = 'Calendar'" />
-              <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Monthly" no-caps dense
-                @click="selectedDateFilter = 'Months'" />
-              <q-btn class="text-subtitle1 bg-button-on-background text-on-background" label="Yearly" no-caps dense
-                @click="selectedDateFilter = 'Years'" />
-            </q-btn-group> -->
             <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate'
               class="q-mx-lg q-mt-md q-mb-sm" />
-
 
             <!-- <q-date v-if="selectedDateFilter === 'Calendar'" v-model="pickedRange" :options="optionsFn"
               navigation-min-year-month="2023/01" navigation-max-year-month="2023/06" :default-view="selectedDateFilter"
               class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" today-btn flat range /> -->
 
             <!-- TODO: replace by smthg more inline with rvlt -->
-
             <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
             <q-date v-if="selectedDateFilter === 'Months'" v-model="pickedMonth" :options="optionsFn"
               navigation-min-year-month="2023/01" navigation-max-year-month="2023/06" :default-view="selectedDateFilter"
@@ -143,8 +54,6 @@
             </q-card-section>
             <q-card-section>Filtering the period will take into account only the moments that happened during the selected
               period. </q-card-section>
-
-
           </div>
 
           <q-card-actions align="center">
@@ -152,18 +61,15 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-
     </div>
-
   </q-page>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
+import LearnCard from "./../components/LearnCard.vue";
 
 // import { Timestamp } from 'firebase/firestore'
 // import { date } from "quasar";
@@ -180,17 +86,13 @@ const momentsStore = useMomentsStore()
 
 const dateRangeButtonLabel = ref('This month')
 const tagsButtonLabel = ref('All tags')
-const slide = ref(10)
-const numDisplayedKifs = ref(5)
+// const slide = ref(10)
 
 const filterDialogOpen = ref(false)
 const tappedFilter = ref('')
 const selectedDateFilter = ref('Months')
 // The default model mask is YYYY/MM/DD, however you can use custom ones too.
 // const pickedRange = ref({ from: '2023/04/08', to: '2023/06/03' })
-
-const segKifs = ref([{ title: "Intensity avg", id: "avgIntensity" }, { title: "%", id: "pointsShare" }])
-const segIdKifs = ref("avgIntensity")
 
 const segDate = ref([{ title: "Monthly", id: "segDate-0" }, { title: "Yearly", id: "segDate-1" }])
 const segIdDate = ref("segDate-0")
@@ -290,11 +192,6 @@ function trackProcess(dotsPos) {
 </script>
 
 <style lang="scss">
-.tags {
-  font-size: 0.9rem;
-  color: color(primary);
-}
-
 .bg-button-on-background .q-icon {
   margin-right: 8px;
   /* adjust the value as needed */
