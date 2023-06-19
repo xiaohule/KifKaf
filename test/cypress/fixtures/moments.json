@@ -1,0 +1,20 @@
+[
+  {
+    "date": "2023-05-13",
+    "intensity": 4,
+    "text": "Feeling proud of myself for working out today!",
+    "tags": ["workout", "self-esteem", "proud"]
+  },
+  {
+    "date": "2023-05-15",
+    "intensity": -3,
+    "text": "Feeling a little down today after calling mum",
+    "tags": ["phone", "mum"]
+  },
+  {
+    "date": "2023-05-16",
+    "intensity": 3,
+    "text": "Feeling grateful toward life when eating my fresh tomatoes",
+    "tags": ["food", "vegetables"]
+  }
+]

@@ -29,4 +29,6 @@ export default boot(({ app }) => {
       VueFireAuth(),
     ],
   });
+  // // Attach the application context to the global window object
+  // window.appContext = app._context
 });

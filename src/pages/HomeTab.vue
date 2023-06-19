@@ -17,8 +17,8 @@
         <q-card-section class="q-mb-md q-pt-sm">
           <q-item class="q-px-none">
             <q-item-section class="col-11">
-              <vue-slider v-model="newIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1" drag-on-click
-                adsorb :marks="marksEmoji">
+              <vue-slider data-cy="active-vue-slider" v-model="newIntensity" :process="trackProcess" :min="-5" :max="5"
+                :interval="1" drag-on-click adsorb :marks="marksEmoji">
               </vue-slider>
             </q-item-section>
 
@@ -33,7 +33,8 @@
         <q-field rounded outlined bg-color="surface-variant" color="transparent" class="q-ma-md q-mt-lg">
           <template v-slot:control>
             <!-- class="no-outline" -->
-            <new-moment-editor v-model="rawNewText" class="full-width" @create:editor="initializeEditor" />
+            <new-moment-editor data-cy="new-moment-editor" v-model="rawNewText" class="full-width"
+              @create:editor="initializeEditor" />
           </template>
           <template v-slot:append>
             <q-btn v-if="rawNewTextValid && !isRecognizing" round dense color="primary" icon="arrow_forward"

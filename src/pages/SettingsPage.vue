@@ -165,7 +165,7 @@
         <q-separator />
         <q-card-actions align="right">
           <q-btn flat rounded label="Cancel" color="primary" v-close-popup />
-          <q-btn flat rounded label="Log out" color="primary" v-close-popup @click="logOut" />
+          <q-btn flat rounded data-cy="logout-button" label="Log out" color="primary" v-close-popup @click="logOut" />
         </q-card-actions>
       </q-card>
     </q-dialog>
