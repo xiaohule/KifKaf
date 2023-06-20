@@ -7,7 +7,6 @@ import { generateRandomTestEmail } from "./../support/commands.js";
 describe.skip("Signing in and out", () => {
   before(() => {
     cy.toggleFirebasePersistence();
-    cy.wait(2000);
   });
   beforeEach(() => {
     cy.visit("/");
@@ -33,7 +32,6 @@ describe.skip("Signing in and out", () => {
 describe("Signing up > out > in", () => {
   before(() => {
     cy.toggleFirebasePersistence();
-    cy.wait(2000);
   });
   beforeEach(() => {
     cy.visit("/");

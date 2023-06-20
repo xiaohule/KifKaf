@@ -55,7 +55,7 @@ Cypress.Commands.add("signIn", (username, password) => {
   // cy.session(
   //   username,
   //   () => {
-  cy.url().should("include", "login");
+  cy.url({ timeout: 10000 }).should("include", "login");
   cy.get("input").type(username);
   cy.contains("Next").click();
   cy.get("[type='password']").type(password);
@@ -73,7 +73,7 @@ Cypress.Commands.add("signIn", (username, password) => {
 });
 
 Cypress.Commands.add("signUp", (username, password) => {
-  cy.url().should("include", "login");
+  cy.url({ timeout: 10000 }).should("include", "login");
   cy.get("input").type(username);
   cy.contains("Next").click();
   cy.get("[type='text'][name='name']").type("Jane Doe");
