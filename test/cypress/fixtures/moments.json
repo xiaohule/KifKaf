@@ -15,6 +15,30 @@
     "date": "2023-05-16",
     "intensity": 3,
     "text": "Feeling grateful toward life when eating my fresh tomatoes",
-    "tags": ["food", "vegetables"]
+    "tags": ["food"]
+  },
+  {
+    "date": "2023-05-23",
+    "intensity": -5,
+    "text": "Feeling so stressed out today when woking up",
+    "tags": [""]
+  },
+  {
+    "date": "2023-05-24",
+    "intensity": 4,
+    "text": "Feeling both empty and full after movement class",
+    "tags": ["workout"]
+  },
+  {
+    "date": "2023-05-24",
+    "intensity": 2,
+    "text": "Feeling excited when calling mum",
+    "tags": ["mum", "proud"]
+  },
+  {
+    "date": "2023-05-27",
+    "intensity": -3,
+    "text": "Felt so bad when running after eating spinach",
+    "tags": ["workout", "food"]
   }
 ]

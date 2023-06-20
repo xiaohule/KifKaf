@@ -1,7 +1,9 @@
 /// <reference types="cypress" />
 // Use `cy.dataCy` custom command for more robust tests
 // See https://docs.cypress.io/guides/references/best-practices.html#Selecting-Elements
-const seedData = require("./../fixtures/moments.json");
+const momentsData = require("./../fixtures/moments.json");
+const momentsStatsData = require("./../fixtures/momentsStats.json");
+
 import { generateRandomTestEmail } from "./../support/commands.js";
 
 describe.skip("Signing in and out", () => {
@@ -80,28 +82,16 @@ describe.skip("Checking basic screens", () => {
   });
 });
 
-describe("Moments inputting", () => {
+describe("Moments inputting and stats validation", () => {
   beforeEach(() => {
-    // const now = new Date(2023, 3, 14); // month is 0-indexed
-    // cy.clock(now, ["Date"]);
-
     cy.visit("/");
   });
 
-  it("should seed the database pageX2", () => {
-    // const now = new Date(2023, 3, 14); // month is 0-indexed
-
-    // cy.clock(now).setSystemTime(now)
-    // cy.clock(Date.UTC(2018, 10, 30), ['Date'])
-
-    // cy.visit("/");
-    // cy.get("#date").should("have.value", "04/14/2021");
-    for (const item of seedData) {
-      // const now = new Date(2023, 3, 14); // month is 0-indexed
-      // cy.clock(now, ["Date"]);
-
+  it("input moments", () => {
+    for (const item of momentsData) {
       const now = new Date(item.date);
       cy.clock(now.getTime(), ["Date"]);
+      // cy.clock(now).setSystemTime()
 
       expect(item.intensity).to.be.a("number").and.be.gte(-5).and.be.lte(5);
       cy.get(".vue-slider-rail").first().clickVSlider(item.intensity);
@@ -116,8 +106,20 @@ describe("Moments inputting", () => {
       cy.clock().then((clock) => {
         clock.restore();
       });
+    }
+  });
 
-      cy.wait(1000);
+  it("validate learn tab", () => {
+    cy.contains("Learn").click();
+    cy.url().should("include", "learn");
+
+    for (const item of momentsStatsData) {
+      cy.dataCy("learn-tab-tag-row")
+        .contains(item.tag)
+        .then(($div) => {
+          cy.wrap($div).contains(item.count);
+          cy.wrap($div).contains(item.avgIntensity);
+        });
     }
   });
 });

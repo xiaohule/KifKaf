@@ -1,0 +1,38 @@
+[
+  {
+    "tag": "workout",
+    "count": 3,
+    "avgIntensity": 1.66,
+    "percentShare": 0.43
+  },
+  {
+    "tag": "self-esteem",
+    "count": 1,
+    "avgIntensity": 4,
+    "percentShare": 0.14
+  },
+  {
+    "tag": "proud",
+    "count": 2,
+    "avgIntensity": 3,
+    "percentShare": 0.29
+  },
+  {
+    "tag": "phone",
+    "count": 1,
+    "avgIntensity": -3,
+    "percentShare": 0.14
+  },
+  {
+    "tag": "mum",
+    "count": 2,
+    "avgIntensity": -0.5,
+    "percentShare": 0.29
+  },
+  {
+    "tag": "food",
+    "count": 2,
+    "avgIntensity": 0,
+    "percentShare": 0.29
+  }
+]
