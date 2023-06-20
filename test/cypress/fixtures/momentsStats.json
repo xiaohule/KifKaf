@@ -18,12 +18,6 @@
     "percentShare": 0.29
   },
   {
-    "tag": "phone",
-    "count": 1,
-    "avgIntensity": -3,
-    "percentShare": 0.14
-  },
-  {
     "tag": "mum",
     "count": 2,
     "avgIntensity": -0.5,
@@ -34,5 +28,11 @@
     "count": 2,
     "avgIntensity": 0,
     "percentShare": 0.29
+  },
+  {
+    "tag": "phone",
+    "count": 1,
+    "avgIntensity": -3,
+    "percentShare": 0.14
   }
 ]

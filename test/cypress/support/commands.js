@@ -44,7 +44,10 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
 
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp);
-  setPersistence(auth, inMemoryPersistence); //set persistence to none
+  // chain the promises together with .then()
+  return auth.signOut().then(() => {
+    return setPersistence(auth, inMemoryPersistence); //set persistence to none
+  });
   // FYI
   //local (implemented by browserLocalPersistence in Firebase JS SDK) - This persists the user session even when the browser is closed.
   // session (implemented by browserSessionPersistence in Firebase JS SDK) - This persists the user session until the browser or tab is closed.

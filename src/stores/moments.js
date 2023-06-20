@@ -51,6 +51,7 @@ export const useMomentsStore = defineStore("moments", () => {
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
+          momentsCount: 0,
           sumTotalPosPoints: 0,
           sumTotalNegPoints: 0,
         });
@@ -71,9 +72,11 @@ export const useMomentsStore = defineStore("moments", () => {
     try {
       // Add the new moment to momentsColl
       const docRef = await addDoc(momentsCollRef.value, moment);
-
+      console.log("BEFORE1.1 moment.text: ", moment.text);
+      console.log("BEFORE1.2 moment.tags: ", moment.tags);
       // Update the user statistics in userDoc
       await updateDoc(userDocRef.value, {
+        momentsCount: increment(1),
         sumTotalPosPoints: increment(
           moment.intensity > 0 ? moment.intensity : 0
         ),
@@ -81,13 +84,18 @@ export const useMomentsStore = defineStore("moments", () => {
           moment.intensity < 0 ? moment.intensity : 0
         ),
       });
+      console.log("BEFORE2.1 moment.text: ", moment.text);
+      console.log("BEFORE2.2 moment.tags: ", moment.tags);
 
       // Update the tag statistics in tagsColl for the tags of the new moment if any
       moment.tags.forEach(async (tag) => {
+        console.log("STARTING loop for tag: ", tag);
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
         const tagDoc = await getDoc(tagDocRef);
         let tagData;
+        console.log("CONTINUING loop let see if tagDoc exist for tag: ", tag);
         if (tagDoc.exists()) {
+          console.log("GOOD Yes apparently tagDoc does exist for tag: ", tag);
           tagData = tagDoc.data();
           tagData.count += 1;
           tagData.totalIntensity += moment.intensity;
@@ -95,6 +103,7 @@ export const useMomentsStore = defineStore("moments", () => {
           tagData.totalNegPoints += moment.intensity < 0 ? moment.intensity : 0;
           tagData.tagMoments.push(docRef.id);
           await updateDoc(tagDocRef, tagData);
+          console.log("FINISHING loop tagDoc for tag: ", tag, "updated!");
         } else {
           tagData = {
             count: 1,
@@ -162,7 +171,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const setIsEditorFocused = (isFocused) => {
     isEditorFocused.value = isFocused;
-    console.log("isEditorFocused set to", isEditorFocused.value);
+    // console.log("isEditorFocused set to", isEditorFocused.value);
   };
 
   const uniqueTags = computed(() => {
@@ -185,17 +194,21 @@ export const useMomentsStore = defineStore("moments", () => {
       return [];
 
     let tagsWithAverageIntensity = tagsColl.value.data.map((tagDoc) => {
-      console.log("tagDocBefore", tagDoc);
-      console.log(
-        "userDoc.value.data.totalPosPoints",
-        userDoc.value.data.sumTotalPosPoints
-      );
-      console.log("tagDoc.totalPosPoints", tagDoc.totalPosPoints);
+      // console.log("tagDocBefore", tagDoc);
+      // console.log(
+      //   "userDoc.value.data.totalPosPoints",
+      //   userDoc.value.data.sumTotalPosPoints
+      // );
+      // console.log("tagDoc.totalPosPoints", tagDoc.totalPosPoints);
       return {
         id: tagDoc.id,
         count: tagDoc.count,
         avgIntensity:
           tagDoc.count != 0 ? tagDoc.totalIntensity / tagDoc.count : 0,
+        percentShare:
+          userDoc.value.data.momentsCount != 0
+            ? tagDoc.count / userDoc.value.data.momentsCount
+            : 0,
         posPointsShare:
           userDoc.value.data.sumTotalPosPoints != 0
             ? tagDoc.totalPosPoints / userDoc.value.data.sumTotalPosPoints
@@ -212,7 +225,7 @@ export const useMomentsStore = defineStore("moments", () => {
     );
   });
 
-  const pointsShareSortedTags = computed(() => {
+  const percentShareSortedTags = computed(() => {
     if (
       !avgIntensitySortedTags.value ||
       avgIntensitySortedTags.value.length === 0
@@ -221,7 +234,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
     return avgIntensitySortedTags.value
       .slice()
-      .sort((a, b) => b.posPointsShare - a.posPointsShare);
+      .sort((a, b) => b.percentShare - a.percentShare);
   });
 
   const updateUser = async (changes) => {
@@ -259,7 +272,7 @@ export const useMomentsStore = defineStore("moments", () => {
     isEditorFocused,
     uniqueTags,
     avgIntensitySortedTags,
-    pointsShareSortedTags,
+    percentShareSortedTags,
     uniqueDays,
     addMoment,
     fetchMoments,

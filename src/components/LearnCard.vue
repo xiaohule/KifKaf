@@ -45,7 +45,7 @@
 
     <q-list v-else-if="segIdKifs === 'pointsShare'">
       <q-card-section class="q-pt-xs q-pb-xs" clickable
-        v-for="tag in momentsStore.pointsShareSortedTags.slice(0, numDisplayedKifs)" :key="tag">
+        v-for="tag in momentsStore.percentShareSortedTags.slice(0, numDisplayedKifs)" :key="tag">
         <div> {{ console.log(tag) }}</div>
         <q-item class="q-px-none q-pb-none row">
 
@@ -63,7 +63,7 @@
                   disabled></vue-slider>
               </q-item-section> -->
           <q-item-section class=" col-6 ">
-            Present in {{ (tag.posPointsShare * 100).toFixed(0) + "%" }} of your Kifs points
+            {{ (tag.percentShare * 100).toFixed(0) + "%" }} of your moments
           </q-item-section>
 
         </q-item>
@@ -87,6 +87,13 @@ import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
+
+const props = defineProps({
+  flag: {
+    type: String,
+    default: 'Kifs',
+  }
+});
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()

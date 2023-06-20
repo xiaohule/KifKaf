@@ -18,7 +18,10 @@
       </q-item>
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
-      <learn-card></learn-card>
+      <learn-card flag="Kifs"></learn-card>
+
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
+      <learn-card flag="Kafs"></learn-card>
 
       <q-dialog v-model="filterDialogOpen" position="bottom">
         <q-card class="bg-background">

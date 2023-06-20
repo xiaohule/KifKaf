@@ -196,8 +196,7 @@ const initializeEditor = (editor) => {
   }, 1)
 }
 const appendHashtag = () => {
-  editorInstance.value.commands.insertContent('#')  // console.log('rawNewText.value After concat', rawNewText.value);
-  // console.log('momentsStore.isEditorFocused after concat', momentsStore.isEditorFocused);
+  editorInstance.value.commands.insertContent('#')
 }
 
 // ADD MOMENT
@@ -237,13 +236,11 @@ const onSubmit = (event) => {
   })
 
   newIntensity.value = 0
-  // rawNewText.value = ''
   editorInstance.value.commands.clearContent(true)
   newText.value = ''
   newTags.value = []
   newDate.value = null
-
-  console.log('CHECK NO DUPLICATES in unitque tags', momentsStore.uniqueTags);
+  // console.log('CHECK NO DUPLICATES in unitque tags', momentsStore.uniqueTags);
 }
 
 </script>

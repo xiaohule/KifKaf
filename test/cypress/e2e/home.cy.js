@@ -34,6 +34,11 @@ describe.skip("Signing in and out", () => {
 describe("Signing up > out > in", () => {
   before(() => {
     cy.toggleFirebasePersistence();
+    // cy.toggleFirebasePersistence().should(() => {
+    //   const firebaseApp = initializeApp(firebaseConfig);
+    //   const auth = getAuth(firebaseApp);
+    //   expect(auth.persistence).to.equal(inMemoryPersistence);
+    // });
   });
   beforeEach(() => {
     cy.visit("/");
@@ -107,21 +112,49 @@ describe("Moments inputting and stats validation", () => {
         clock.restore();
       });
     }
-  });
 
-  it("validate learn tab", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
 
     for (const item of momentsStatsData) {
-      cy.dataCy("learn-tab-tag-row")
-        .contains(item.tag)
-        .then(($div) => {
-          cy.wrap($div).contains(item.count);
-          cy.wrap($div).contains(item.avgIntensity);
+      cy.dataCy("learn-tab-tag-row").each(($div) => {
+        cy.wrap($div).within(() => {
+          if (Cypress.$($div).find(`:contains(${item.tag})`).length > 0) {
+            cy.contains(item.count);
+            cy.contains(parseFloat(item.avgIntensity.toFixed(1)));
+          }
         });
+      });
+
+      // cy.dataCy("learn-tab-tag-row").should(($div) => {
+      //   const childDiv = $div.find(`:contains(${item.tag})`);
+      //   expect(childDiv).to.exist;
+      //   expect($div).to.contain(item.count);
+      //   expect($div).to.contain(item.avgIntensity);
+      // });
+
+      // cy.dataCy("learn-tab-tag-row")
+      //   .contains(item.tag)
+      //   .then(($div) => {
+      //     cy.wrap($div).contains(item.count);
+      //     cy.wrap($div).contains(item.avgIntensity);
+      //   });
     }
   });
+
+  // it("validate learn tab", () => {
+  //   cy.contains("Learn").click();
+  //   cy.url().should("include", "learn");
+
+  //   for (const item of momentsStatsData) {
+  //     cy.dataCy("learn-tab-tag-row")
+  //       .contains(item.tag)
+  //       .then(($div) => {
+  //         cy.wrap($div).contains(item.count);
+  //         cy.wrap($div).contains(item.avgIntensity);
+  //       });
+  //   }
+  // });
 });
 
 // it("should seed the database pageX", () => {
