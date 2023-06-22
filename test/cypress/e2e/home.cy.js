@@ -72,8 +72,8 @@ describe.skip("Checking basic screens", () => {
   it("contain the expected 4 Tabs", () => {
     cy.contains("Home");
     cy.contains("Learn");
-    cy.contains("Timeline");
-    cy.contains("Search");
+    // cy.contains("Timeline");
+    // cy.contains("Search");
   });
   it("navigate to Learn>Home>Settings>Home", () => {
     cy.contains("Learn").click();

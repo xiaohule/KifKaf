@@ -11,6 +11,8 @@ module.exports = defineConfig({
   screenshotsFolder: "test/cypress/screenshots",
   videosFolder: "test/cypress/videos",
   video: true,
+  viewportWidth: 390,
+  viewportHeight: 844,
   e2e: {
     setupNodeEvents(on, config) {
       // registerCodeCoverageTasks(on, config); //TODO: re-enable when ready

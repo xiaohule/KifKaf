@@ -1,6 +1,4 @@
 <template >
-  <!-- <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label> -->
-
   <!-- height="500px" -->
   <!-- TODO: need a better carousel that allow for more programmaticity for previous slides and auto height? -->
   <!-- <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
@@ -13,12 +11,12 @@
         </q-carousel-slide>
         <q-carousel-slide :name="10" class="column no-wrap"> -->
 
-  <q-card class="bg-surface q-px-md q-pt-md q-pb-none q-mb-lg rounded-borders-14" flat>
-    <segmented-control v-model="segIdKifs" :segments="segKifs" element-name='LearnTabSegKifs' />
+  <q-card class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
+    <segmented-control v-model="segId" :segments="seg" :element-name="segName" />
 
-    <q-list v-if="segIdKifs === 'avgIntensity'">
+    <q-list v-if="segId.includes('avgIntensity')">
       <q-card-section class="q-pt-xs q-pb-xs" clickable
-        v-for="tag in momentsStore.avgIntensitySortedTags.slice(0, numDisplayedKifs)" :key="tag">
+        v-for="tag in filteredAvgIntensitySortedTags.slice(0, numDisplayed)" :key="tag">
         <q-item data-cy="learn-tab-tag-row" class="q-px-none q-pb-none row">
 
           <q-item-section class="col-6">
@@ -35,7 +33,7 @@
               disabled></vue-slider>
           </q-item-section>
 
-          <q-item-section class=" col-1 text-center">
+          <q-item-section class="col-1 text-center">
             {{ parseFloat(tag.avgIntensity.toFixed(1)) }}
           </q-item-section>
 
@@ -43,9 +41,9 @@
       </q-card-section>
     </q-list>
 
-    <q-list v-else-if="segIdKifs === 'pointsShare'">
+    <q-list v-else-if="segId.includes('percentShare')">
       <q-card-section class="q-pt-xs q-pb-xs" clickable
-        v-for="tag in momentsStore.percentShareSortedTags.slice(0, numDisplayedKifs)" :key="tag">
+        v-for="tag in filteredPercentShareSortedTags.slice(0, numDisplayed)" :key="tag">
         <div> {{ console.log(tag) }}</div>
         <q-item class="q-px-none q-pb-none row">
 
@@ -58,22 +56,23 @@
             </q-item>
           </q-item-section>
 
+
           <!-- <q-item-section class="col-5">
-                <vue-slider v-model="tag.avgIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                  disabled></vue-slider>
-              </q-item-section> -->
-          <q-item-section class=" col-6 ">
-            {{ (tag.percentShare * 100).toFixed(0) + "%" }} of your moments
+            <q-linear-progress :value="tag.percentShare" rounded color="primary" track-color="primary-container"
+              class="q-mt-sm" />
+          </q-item-section> -->
+          <q-item-section class="col-6 text-center">
+            In {{ (tag.percentShare * 100).toFixed(0) + "%" }} of moments
           </q-item-section>
 
         </q-item>
       </q-card-section>
     </q-list>
 
-    <q-card-actions align="center">
+    <q-card-actions v-if="filteredAvgIntensitySortedTags.length > 5" align="center">
       <q-btn color="primary"
-        @click="numDisplayedKifs === 5 ? numDisplayedKifs = momentsStore.avgIntensitySortedTags.length : numDisplayedKifs = 5"
-        class="q-ma-sm full-width" no-caps flat>{{ numDisplayedKifs === 5 ? 'Show more' : 'Show less' }}</q-btn>
+        @click="numDisplayed === 5 ? numDisplayed = filteredAvgIntensitySortedTags.length : numDisplayed = 5"
+        class="q-mx-sm q-mt-sm full-width" no-caps flat>{{ numDisplayed === 5 ? 'Show more' : 'Show less' }}</q-btn>
     </q-card-actions>
 
   </q-card>
@@ -82,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
@@ -103,9 +102,18 @@ const momentsStore = useMomentsStore()
 //   }
 // })
 
-const numDisplayedKifs = ref(5)
-const segKifs = ref([{ title: "Intensity avg", id: "avgIntensity" }, { title: "%", id: "pointsShare" }])
-const segIdKifs = ref("avgIntensity")
+const seg = ref([{ title: "Intensity average", id: `avgIntensity${props.flag}` }, { title: "Frequency", id: `percentShare${props.flag}` }])
+const segId = ref(`avgIntensity${props.flag}`)
+const segName = `LearnTabSeg${props.flag}`
+const numDisplayed = ref(5)
+
+const filteredAvgIntensitySortedTags = computed(() => {
+  const tempList = momentsStore.avgIntensitySortedTags.filter(tag => (props.flag === 'Kifs' ? tag.avgIntensity >= 0 : tag.avgIntensity < 0))
+  return props.flag === 'Kifs' ? tempList : tempList.sort((a, b) => a.avgIntensity - b.avgIntensity)
+})
+const filteredPercentShareSortedTags = computed(() => {
+  return momentsStore.percentShareSortedTags.filter(tag => (props.flag === 'Kifs' ? tag.avgIntensity >= 0 : tag.avgIntensity < 0))
+})
 
 function trackProcess(dotsPos) {
   //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.

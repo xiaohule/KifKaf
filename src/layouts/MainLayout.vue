@@ -29,8 +29,9 @@
         :breakpoint="0">
         <q-route-tab name="home" icon="home" label="Home" to="/" />
         <q-route-tab name="learn" icon="insights" label="Learn" to="/learn" />
-        <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
-        <q-route-tab name="search" icon="search" label="Search" to="/search" />
+        <!-- TODO: re-add tabs when ready -->
+        <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
+        <q-route-tab name="search" icon="search" label="Search" to="/search" /> -->
       </q-tabs>
     </q-footer>
 

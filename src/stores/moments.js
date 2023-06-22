@@ -24,7 +24,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
-import { set } from "firebase/database";
+// import { set } from "firebase/database";
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
