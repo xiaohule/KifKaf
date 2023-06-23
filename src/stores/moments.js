@@ -7,7 +7,7 @@ import {
   updateDoc,
   getDoc,
   Timestamp,
-  increment,
+  arrayUnion,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -51,9 +51,7 @@ export const useMomentsStore = defineStore("moments", () => {
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
-          momentsCount: 0,
-          sumTotalPosPoints: 0,
-          sumTotalNegPoints: 0,
+          momentsDates: [], //TODO: insted make it a list of {date, momentsCount} objects it will be faster to count for percentShare
         });
       }
 
@@ -72,48 +70,24 @@ export const useMomentsStore = defineStore("moments", () => {
     try {
       // Add the new moment to momentsColl
       const docRef = await addDoc(momentsCollRef.value, moment);
-      console.log("BEFORE1.1 moment.text: ", moment.text);
-      console.log("BEFORE1.2 moment.tags: ", moment.tags);
       // Update the user statistics in userDoc
       await updateDoc(userDocRef.value, {
-        momentsCount: increment(1),
-        sumTotalPosPoints: increment(
-          moment.intensity > 0 ? moment.intensity : 0
-        ),
-        sumTotalNegPoints: increment(
-          moment.intensity < 0 ? moment.intensity : 0
-        ),
+        momentsDates: arrayUnion(moment.date),
       });
-      console.log("BEFORE2.1 moment.text: ", moment.text);
-      console.log("BEFORE2.2 moment.tags: ", moment.tags);
-
       // Update the tag statistics in tagsColl for the tags of the new moment if any
       moment.tags.forEach(async (tag) => {
-        console.log("STARTING loop for tag: ", tag);
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
         const tagDoc = await getDoc(tagDocRef);
-        let tagData;
-        console.log("CONTINUING loop let see if tagDoc exist for tag: ", tag);
-        if (tagDoc.exists()) {
-          console.log("GOOD Yes apparently tagDoc does exist for tag: ", tag);
-          tagData = tagDoc.data();
-          tagData.count += 1;
-          tagData.totalIntensity += moment.intensity;
-          tagData.totalPosPoints += moment.intensity > 0 ? moment.intensity : 0;
-          tagData.totalNegPoints += moment.intensity < 0 ? moment.intensity : 0;
-          tagData.tagMoments.push(docRef.id);
-          await updateDoc(tagDocRef, tagData);
-          console.log("FINISHING loop tagDoc for tag: ", tag, "updated!");
-        } else {
-          tagData = {
-            count: 1,
-            totalIntensity: moment.intensity,
-            totalPosPoints: moment.intensity > 0 ? moment.intensity : 0,
-            totalNegPoints: moment.intensity < 0 ? moment.intensity : 0,
-            tagMoments: [docRef.id],
-          };
-          await setDoc(tagDocRef, tagData);
-        }
+        const tagData = {
+          id: docRef.id,
+          date: moment.date,
+          intensity: moment.intensity,
+          tags: moment.tags,
+          text: moment.text,
+        };
+        if (tagDoc.exists())
+          await updateDoc(tagDocRef, { tagMoments: arrayUnion(tagData) });
+        else await setDoc(tagDocRef, { tagMoments: [tagData] });
       });
     } catch (error) {
       console.log(error);
@@ -148,23 +122,17 @@ export const useMomentsStore = defineStore("moments", () => {
       return [];
 
     const days = momentsColl.value.data.map((moment) => {
-      // Convert Firestore Timestamp to JavaScript Date
-      // console.log("moment_i", moment.text + " - " + moment.date);
-      // FORMAT moment.date is like {seconds: 1678296892, nanoseconds: 210000000}
+      // Convert Firestore Timestamp to JavaScript Date, format of moment.date is like {seconds: 1678296892, nanoseconds: 210000000}
       const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-      // const date = Date(moment.date.seconds);
       const date = ts.toDate();
-      // Remove time
       date.setHours(0, 0, 0, 0);
-      // console.log("moment_i.getTime", date.getTime());
-      // FORMAT date.getTime() is like 1678230000000
+      // Format of date.getTime() is like 1678230000000
       return date.getTime();
     });
     //Make an array of unique dates
     const uniqueDaysTemp = [...new Set(days)];
     //Sort the array in descending order
     uniqueDaysTemp.sort((a, b) => b - a);
-    // console.log("uniqueDaysTemp", uniqueDaysTemp);
     // Convert to formatted Date objects
     return uniqueDaysTemp.map((day) => date.formatDate(day, "MMMM D, YYYY"));
   });
@@ -185,57 +153,73 @@ export const useMomentsStore = defineStore("moments", () => {
     return tagsColl.value.data.map((doc) => doc.id);
   });
 
-  const avgIntensitySortedTags = computed(() => {
-    if (
-      !tagsColl.value ||
-      !tagsColl.value.data ||
-      tagsColl.value.data.length === 0
-    )
-      return [];
+  //rewrite avgIntensitySortedTags as a method that takes a date range dateRange defined as /*const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date()])*/ as a parameter
+  const getTags = (
+    dateRange,
+    filterBy = "all",
+    sortBy = "avgIntensity",
+    descending = true
+  ) => {
+    return computed(() => {
+      if (
+        !tagsColl.value ||
+        !tagsColl.value.data ||
+        tagsColl.value.data.length === 0
+      )
+        return [];
 
-    let tagsWithAverageIntensity = tagsColl.value.data.map((tagDoc) => {
-      // console.log("tagDocBefore", tagDoc);
-      // console.log(
-      //   "userDoc.value.data.totalPosPoints",
-      //   userDoc.value.data.sumTotalPosPoints
-      // );
-      // console.log("tagDoc.totalPosPoints", tagDoc.totalPosPoints);
-      return {
-        id: tagDoc.id,
-        count: tagDoc.count,
-        avgIntensity:
-          tagDoc.count != 0 ? tagDoc.totalIntensity / tagDoc.count : 0,
-        percentShare:
-          userDoc.value.data.momentsCount != 0
-            ? tagDoc.count / userDoc.value.data.momentsCount
-            : 0,
-        posPointsShare:
-          userDoc.value.data.sumTotalPosPoints != 0
-            ? tagDoc.totalPosPoints / userDoc.value.data.sumTotalPosPoints
-            : 0,
-        negPointsShare:
-          userDoc.value.data.sumTotalNegPoints != 0
-            ? -1 *
-              (tagDoc.totalNegPoints / userDoc.value.data.sumTotalNegPoints)
-            : 0,
-      };
+      const momentsList = momentsColl.value.data.filter((moment) => {
+        const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
+        const date = ts.toDate();
+        date.setHours(0, 0, 0, 0);
+        return date >= dateRange[0] && date <= dateRange[1];
+      });
+
+      let tagList = tagsColl.value.data.map((tagDoc) => {
+        if (tagDoc.tagMoments.length === 0) return;
+        //return only the tagMoments that are within the date range
+        const tagMomentsInRange = tagDoc.tagMoments.filter((tagMoment) => {
+          const ts = new Timestamp(
+            tagMoment.date.seconds,
+            tagMoment.date.nanoseconds
+          );
+          const date = ts.toDate();
+          date.setHours(0, 0, 0, 0);
+          return date >= dateRange[0] && date <= dateRange[1];
+        });
+        //calculate the average intensity of the tagMoments in the date range
+        const totalIntensity = tagMomentsInRange.reduce(
+          (total, moment) => total + moment.intensity,
+          0
+        );
+
+        //return the tagDoc with the average intensity
+        return {
+          id: tagDoc.id,
+          count: tagMomentsInRange.length,
+          avgIntensity:
+            tagMomentsInRange.length != 0
+              ? totalIntensity / tagMomentsInRange.length
+              : 0,
+          percentShare:
+            momentsList.length != 0
+              ? tagMomentsInRange.length / momentsList.length
+              : 0,
+        };
+      });
+      tagList = tagList.filter((tag) => tag.count > 0); //keep only the tags that have at least one moment
+      if (filterBy === "positive")
+        tagList = tagList.filter((tag) => tag.avgIntensity >= 0);
+      else if (filterBy === "negative")
+        tagList = tagList.filter((tag) => tag.avgIntensity < 0);
+
+      //sort the array in descending or ascending order
+      descending
+        ? tagList.sort((a, b) => b[sortBy] - a[sortBy])
+        : tagList.sort((a, b) => a[sortBy] - b[sortBy]);
+      return tagList;
     });
-    return tagsWithAverageIntensity.sort(
-      (a, b) => b.avgIntensity - a.avgIntensity
-    );
-  });
-
-  const percentShareSortedTags = computed(() => {
-    if (
-      !avgIntensitySortedTags.value ||
-      avgIntensitySortedTags.value.length === 0
-    )
-      return [];
-
-    return avgIntensitySortedTags.value
-      .slice()
-      .sort((a, b) => b.percentShare - a.percentShare);
-  });
+  };
 
   const updateUser = async (changes) => {
     try {
@@ -271,9 +255,8 @@ export const useMomentsStore = defineStore("moments", () => {
     momentsColl,
     isEditorFocused,
     uniqueTags,
-    avgIntensitySortedTags,
-    percentShareSortedTags,
     uniqueDays,
+    getTags,
     addMoment,
     fetchMoments,
     updateUser,

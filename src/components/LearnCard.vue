@@ -11,12 +11,13 @@
         </q-carousel-slide>
         <q-carousel-slide :name="10" class="column no-wrap"> -->
 
-  <q-card class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
+  <q-card v-if="avgIntensitySortedTags.length > 0" class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14"
+    flat>
     <segmented-control v-model="segId" :segments="seg" :element-name="segName" />
 
     <q-list v-if="segId.includes('avgIntensity')">
-      <q-card-section class="q-pt-xs q-pb-xs" clickable
-        v-for="tag in filteredAvgIntensitySortedTags.slice(0, numDisplayed)" :key="tag">
+      <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in avgIntensitySortedTags.slice(0, numDisplayed)"
+        :key="tag">
         <q-item data-cy="learn-tab-tag-row" class="q-px-none q-pb-none row">
 
           <q-item-section class="col-6">
@@ -42,9 +43,8 @@
     </q-list>
 
     <q-list v-else-if="segId.includes('percentShare')">
-      <q-card-section class="q-pt-xs q-pb-xs" clickable
-        v-for="tag in filteredPercentShareSortedTags.slice(0, numDisplayed)" :key="tag">
-        <div> {{ console.log(tag) }}</div>
+      <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in percentShareSortedTags.slice(0, numDisplayed)"
+        :key="tag">
         <q-item class="q-px-none q-pb-none row">
 
           <q-item-section class="col-6">
@@ -69,12 +69,31 @@
       </q-card-section>
     </q-list>
 
-    <q-card-actions v-if="filteredAvgIntensitySortedTags.length > 5" align="center">
-      <q-btn color="primary"
-        @click="numDisplayed === 5 ? numDisplayed = filteredAvgIntensitySortedTags.length : numDisplayed = 5"
+    <q-card-actions v-if="avgIntensitySortedTags.length > 5" align="center">
+      <q-btn color="primary" @click="numDisplayed === 5 ? numDisplayed = avgIntensitySortedTags.length : numDisplayed = 5"
         class="q-mx-sm q-mt-sm full-width" no-caps flat>{{ numDisplayed === 5 ? 'Show more' : 'Show less' }}</q-btn>
     </q-card-actions>
+  </q-card>
 
+  <q-card v-else class="bg-surface q-px-md q-py-md q-mb-lg rounded-borders-14" flat>
+    <div v-if="props.flag === 'positive'">
+      <div
+        v-if="!momentsStore || !momentsStore.getTags(allTimeDateRange, props.flag).value.length || momentsStore.getTags(allTimeDateRange, props.flag).value.length === 0">
+        First add some Kifs in Home tab to learn about what energizes you!
+      </div>
+      <div v-else>
+        No Kifs for this period
+      </div>
+    </div>
+    <div v-else>
+      <div
+        v-if="!momentsStore || !momentsStore.getTags(allTimeDateRange, props.flag).value.length || momentsStore.getTags(allTimeDateRange, props.flag).value.length === 0">
+        First add some Kafs in Home tab to learn about what drains you!
+      </div>
+      <div v-else>
+        No Kafs for this period
+      </div>
+    </div>
   </q-card>
   <!-- </q-carousel-slide>
       </q-carousel> -->
@@ -90,29 +109,30 @@ import SegmentedControl from "./../components/SegmentedControl.vue";
 const props = defineProps({
   flag: {
     type: String,
-    default: 'Kifs',
-  }
+    default: 'positive',
+  },
+  dateRange: {
+    type: Array,
+    //set default to be the first day of the year to today
+    default: () => { [new Date(new Date().getFullYear(), 0, 1), new Date()] },
+  },
 });
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
-// onMounted(async () => {
-//   if (!momentsStore.initialized) {
-//     await momentsStore.fetchMoments();
-//   }
-// })
 
 const seg = ref([{ title: "Intensity average", id: `avgIntensity${props.flag}` }, { title: "Frequency", id: `percentShare${props.flag}` }])
 const segId = ref(`avgIntensity${props.flag}`)
 const segName = `LearnTabSeg${props.flag}`
 const numDisplayed = ref(5)
+const allTimeDateRange = ref([new Date(0), new Date()])
 
-const filteredAvgIntensitySortedTags = computed(() => {
-  const tempList = momentsStore.avgIntensitySortedTags.filter(tag => (props.flag === 'Kifs' ? tag.avgIntensity >= 0 : tag.avgIntensity < 0))
-  return props.flag === 'Kifs' ? tempList : tempList.sort((a, b) => a.avgIntensity - b.avgIntensity)
+const avgIntensitySortedTags = computed(() => {
+  return momentsStore.getTags(props.dateRange, props.flag, 'avgIntensity', props.flag === 'positive').value
 })
-const filteredPercentShareSortedTags = computed(() => {
-  return momentsStore.percentShareSortedTags.filter(tag => (props.flag === 'Kifs' ? tag.avgIntensity >= 0 : tag.avgIntensity < 0))
+
+const percentShareSortedTags = computed(() => {
+  return momentsStore.getTags(props.dateRange, props.flag, 'percentShare').value
 })
 
 function trackProcess(dotsPos) {
@@ -127,10 +147,6 @@ function trackProcess(dotsPos) {
   font-size: 0.9rem;
   color: color(primary);
 }
-
-// .bg-button-on-background .q-icon {
-//   margin-right: 8px;
-// }
 </style>
 
 

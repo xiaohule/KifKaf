@@ -113,6 +113,7 @@ describe("Moments inputting and stats validation", () => {
       });
     }
 
+    cy.wait(1000);
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
 

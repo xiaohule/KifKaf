@@ -1,11 +1,11 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
 
-    <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
-      <!-- TODO: add animation prompting user to come back after adding moments or showing an example of this screen -->
-    </div>
+    <!-- TODO: add animation prompting user to come back after adding moments or showing an example of this screen -->
+    <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
+    </div> -->
 
-    <div v-else>
+    <div>
       <q-item class="q-px-none q-pt-none">
         <!-- <q-item-section class="col-auto">
           <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
@@ -18,10 +18,10 @@
       </q-item>
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
-      <learn-card flag="Kifs"></learn-card>
+      <learn-card flag="positive" :dateRange="pickedDateRange"></learn-card>
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
-      <learn-card flag="Kafs"></learn-card>
+      <learn-card flag="negative" :dateRange="pickedDateRange"></learn-card>
 
       <q-dialog v-model="filterDialogOpen" position="bottom">
         <q-card class="bg-background q-px-sm">
@@ -37,10 +37,6 @@
               <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate' />
             </div>
 
-            <!-- <q-date v-if="selectedDateFilter === 'Calendar'" v-model="pickedRange" :options="optionsFn"
-              navigation-min-year-month="2023/01" navigation-max-year-month="2023/06" :default-view="selectedDateFilter"
-              class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" today-btn flat range /> -->
-
             <!-- TODO: replace by smthg more inline with rvlt -->
             <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
             <q-date v-if="segIdDate === 'Monthly'" v-model="pickedMonth" :options="optionsFn"
@@ -50,7 +46,8 @@
               emit-immediately @update:model-value="onUpdateMv" :key="monthsKey"></q-date>
 
             <q-date v-else-if="segIdDate === 'Yearly'" v-model="pickedYear" :options="optionsFn"
-              navigation-min-year-month="2023/01" navigation-max-year-month="2023/06" default-view="Years"
+              :navigation-min-year-month="oldestMomentDateFormatted"
+              :navigation-max-year-month="newestMomentDateFormatted" default-view="Years"
               class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal emit-immediately
               @update:model-value="onUpdateYv" :key="yearsKey"></q-date>
           </div>
@@ -74,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
@@ -89,8 +86,8 @@ const momentsStore = useMomentsStore()
 //   }
 // })
 
-const dateRangeButtonLabel = ref('This month')
-const tagsButtonLabel = ref('All tags')
+const dateRangeButtonLabel = ref('This year')
+// const tagsButtonLabel = ref('All tags')
 // const slide = ref(10)
 
 const filterDialogOpen = ref(false)
@@ -99,12 +96,13 @@ const tappedFilter = ref('')
 // const pickedRange = ref({ from: '2023/04/08', to: '2023/06/03' })
 
 const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
-const segIdDate = ref("Monthly")
+const segIdDate = ref("Yearly")
 
-const pickedMonth = ref('06')
-const pickedYear = ref('2023')
+const pickedMonth = ref("")
+const pickedYear = ref("")
 const monthsKey = ref(Date.now())
 const yearsKey = ref(Date.now())
+const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date()])
 function onUpdateMv(v) {
   monthsKey.value = Date.now()
   // hideYearRow()
@@ -112,6 +110,42 @@ function onUpdateMv(v) {
 function onUpdateYv(v) {
   yearsKey.value = Date.now()
 }
+
+watch(pickedMonth, (newVal, oldVal) => {
+  if (newVal) {
+    const year = newVal.split('/')[0]
+    const month = newVal.split('/')[1]
+    // pickedDateRange.value = [new Date(year, month, 1), new Date(year, month + 1, 0)]
+    let nextMonthFirstDay = new Date(year, parseInt(month), 1);
+    nextMonthFirstDay.setDate(nextMonthFirstDay.getDate() - 1);
+    pickedDateRange.value = [new Date(year, parseInt(month) - 1, 1), nextMonthFirstDay];
+    //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
+    if (year === new Date().getFullYear().toString()) {
+      if (month === (new Date().getMonth() + 1).toString()) {
+        dateRangeButtonLabel.value = 'This month'
+      } else {
+        dateRangeButtonLabel.value = formatDate(pickedDateRange.value[0], 'MMMM')
+      }
+    } else {
+      dateRangeButtonLabel.value = formatDate(pickedDateRange.value[0], 'MMMM') + ' ' + year
+    }
+  }
+})
+
+//watch pickedYear and whenever it changes make pickedDateRange be the whole year. Note that pickedYear is formatted as YYYY/MM/DD
+watch(pickedYear, (newVal, oldVal) => {
+  if (newVal) {
+    const year = newVal.split('/')[0]
+    pickedDateRange.value = [new Date(year, 0, 1), new Date(year, 11, 31)]
+    //dateRangeButtonLabel should be the 'This year' if in current year and the year if not
+    if (year === new Date().getFullYear().toString()) {
+      dateRangeButtonLabel.value = 'This year'
+    } else {
+      dateRangeButtonLabel.value = year
+    }
+  }
+})
+
 // onMounted(() => {
 //   hideYearRow()
 // })
@@ -122,7 +156,7 @@ function onUpdateYv(v) {
 //   yearRow.style.display = 'none'
 // }
 const optionsFn = (date) => {
-  return date >= computedUniqueDays.value[computedUniqueDays.value.length - 1];
+  return date >= computedUniqueDays.value[computedUniqueDays.value.length - 1]; //TODO: make selecting a date with no kifs nor kafs impossible
 }
 
 const oldestMomentDateFormatted = computed(() => {

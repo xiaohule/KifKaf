@@ -40,5 +40,35 @@
     "intensity": -3,
     "text": "Felt so bad when running after eating spinach",
     "tags": ["workout", "food"]
+  },
+  {
+    "date": "2022-12-08",
+    "intensity": 4,
+    "text": "Feeling grateful to have the sun on my face while walking down from Montmarte bec. it felt warm and natural",
+    "tags": ["sun", "nature", "self-esteem"]
+  },
+  {
+    "date": "2022-12-10",
+    "intensity": -4,
+    "text": "Feeling like I am losing my time at the playfight workshop bec. I am not learning anything",
+    "tags": ["impatience"]
+  },
+  {
+    "date": "2022-12-10",
+    "intensity": 4,
+    "text": "Feeling smart and useful when discussing with Thomas about his project and mine, bec. I felt less of a failure",
+    "tags": ["self-esteem"]
+  },
+  {
+    "date": "2022-12-10",
+    "intensity": 2,
+    "text": "Feeling content and proud when theorizing about office locking and my chance bec. I like feeling different and free",
+    "tags": ["autonomy", "proud"]
+  },
+  {
+    "date": "2021-08-29",
+    "intensity": -4,
+    "text": "Feeling incapable to help mam when she tells me she’s not going well on phone call bec. hard to see loved ones struggle",
+    "tags": ["mum", "phone"]
   }
 ]

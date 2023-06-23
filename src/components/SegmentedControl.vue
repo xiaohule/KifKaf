@@ -34,12 +34,12 @@ const emits = defineEmits(['update:modelValue']);
 
 const selectedSegmentId = computed({
   get: () => {
-    console.log('get selectedSegmentId', props.modelValue, 'for', props.elementName)
+    // console.log('get selectedSegmentId', props.modelValue, 'for', props.elementName)
     return props.modelValue
   },
 
   set: (selectedSegmentId) => {
-    console.log('set selectedSegmentId', selectedSegmentId, 'for', props.elementName)
+    // console.log('set selectedSegmentId', selectedSegmentId, 'for', props.elementName)
     emits("update:modelValue", selectedSegmentId)
   }
 });
