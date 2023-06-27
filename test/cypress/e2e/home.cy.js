@@ -2,7 +2,8 @@
 // Use `cy.dataCy` custom command for more robust tests
 // See https://docs.cypress.io/guides/references/best-practices.html#Selecting-Elements
 const momentsData = require("./../fixtures/moments.json");
-const momentsStatsData = require("./../fixtures/momentsStats.json");
+const momentsStats2023Data = require("./../fixtures/momentsStats2023.json");
+const momentsStats2022Data = require("./../fixtures/momentsStats2022.json");
 
 import { generateRandomTestEmail } from "./../support/commands.js";
 
@@ -61,7 +62,7 @@ describe("Signing up > out > in", () => {
   });
 });
 
-describe.skip("Checking basic screens", () => {
+describe("Checking basic screens", () => {
   beforeEach(() => {
     cy.visit("/");
   });
@@ -69,7 +70,7 @@ describe.skip("Checking basic screens", () => {
     cy.title().should("include", "Quasar");
     cy.contains("KifKaf");
   });
-  it("contain the expected 4 Tabs", () => {
+  it("contain the expected tabs", () => {
     cy.contains("Home");
     cy.contains("Learn");
     // cy.contains("Timeline");
@@ -78,7 +79,11 @@ describe.skip("Checking basic screens", () => {
   it("navigate to Learn>Home>Settings>Home", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-    cy.contains("Home").click();
+    cy.contains("Kifs").should("exist");
+    cy.contains(
+      "First add some Kafs in Home tab to learn about what drains you!"
+    ).should("exist");
+    cy.get("footer").contains("Home").click();
     cy.url().should("not.include", "learn");
     cy.contains("account_circle").click();
     cy.url().should("include", "settings");
@@ -92,11 +97,10 @@ describe("Moments inputting and stats validation", () => {
     cy.visit("/");
   });
 
-  it("input moments", () => {
+  it("input moments in Home and validate in Learn", () => {
     for (const item of momentsData) {
       const now = new Date(item.date);
       cy.clock(now.getTime(), ["Date"]);
-      // cy.clock(now).setSystemTime()
 
       expect(item.intensity).to.be.a("number").and.be.gte(-5).and.be.lte(5);
       cy.get(".vue-slider-rail").first().clickVSlider(item.intensity);
@@ -113,11 +117,10 @@ describe("Moments inputting and stats validation", () => {
       });
     }
 
-    cy.wait(1000);
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
 
-    for (const item of momentsStatsData) {
+    for (const item of momentsStats2023Data) {
       cy.dataCy("learn-tab-tag-row").each(($div) => {
         cy.wrap($div).within(() => {
           if (Cypress.$($div).find(`:contains(${item.tag})`).length > 0) {
@@ -126,132 +129,59 @@ describe("Moments inputting and stats validation", () => {
           }
         });
       });
+    }
 
-      // cy.dataCy("learn-tab-tag-row").should(($div) => {
-      //   const childDiv = $div.find(`:contains(${item.tag})`);
-      //   expect(childDiv).to.exist;
-      //   expect($div).to.contain(item.count);
-      //   expect($div).to.contain(item.avgIntensity);
-      // });
+    cy.contains("Kifs").parent().contains("Frequency").click();
+    cy.contains("Kafs").parent().contains("Frequency").click();
 
-      // cy.dataCy("learn-tab-tag-row")
-      //   .contains(item.tag)
-      //   .then(($div) => {
-      //     cy.wrap($div).contains(item.count);
-      //     cy.wrap($div).contains(item.avgIntensity);
-      //   });
+    for (const item of momentsStats2023Data) {
+      cy.dataCy("learn-tab-tag-row-percentShare").each(($div) => {
+        cy.wrap($div).within(() => {
+          if (Cypress.$($div).find(`:contains(${item.tag})`).length > 0) {
+            cy.contains(parseFloat((item.percentShare * 100).toFixed(0)));
+          }
+        });
+      });
     }
   });
 
-  // it("validate learn tab", () => {
-  //   cy.contains("Learn").click();
-  //   cy.url().should("include", "learn");
+  it("validate monthly picker and learn tab 2022", () => {
+    cy.contains("Learn").click();
+    cy.url().should("include", "learn");
+    cy.contains("This year").click();
+    cy.withinDialog((el) => {
+      // cy.wrap(el).should("contain", "screen");
+      cy.contains("Monthly").click();
+      cy.contains("May").should("exist");
+      cy.contains("Yearly").click();
+      cy.contains("2023").should("exist");
+      cy.contains("2022").click();
+      cy.contains("Done").click();
+    });
+    cy.contains("2022").should("exist");
 
-  //   for (const item of momentsStatsData) {
-  //     cy.dataCy("learn-tab-tag-row")
-  //       .contains(item.tag)
-  //       .then(($div) => {
-  //         cy.wrap($div).contains(item.count);
-  //         cy.wrap($div).contains(item.avgIntensity);
-  //       });
-  //   }
-  // });
+    for (const item of momentsStats2022Data) {
+      cy.dataCy("learn-tab-tag-row").each(($div) => {
+        cy.wrap($div).within(() => {
+          if (Cypress.$($div).find(`:contains(${item.tag})`).length > 0) {
+            cy.contains(item.count);
+            cy.contains(parseFloat(item.avgIntensity.toFixed(1)));
+          }
+        });
+      });
+    }
+  });
+
+  it("validate learn tab 2021", () => {
+    cy.contains("Learn").click();
+    cy.url().should("include", "learn");
+    cy.contains("This year").click();
+    cy.contains("2021").click();
+    cy.contains("Done").click();
+    cy.contains("No Kifs for this period").should("exist");
+  });
 });
 
-// it("should seed the database pageX", () => {
-//   for (const item of seedData) {
-//     let offset = null;
-//     cy.get(".vue-slider-dot")
-//       .first()
-//       .then(($el) => {
-//         offset = $el[0].getBoundingClientRect();
-//         cy.log("offset.left", offset.left);
-//         cy.log("offset.top", offset.top);
-//         cy.get(".vue-slider-dot")
-//           .first()
-//           .trigger("mousedown", "center", { which: 1 })
-//           .trigger("mousemove", {
-//             which: 1,
-//             pageX: offset.left - 100,
-//             // pageY: offset.top - 100,
-//           })
-//           .trigger("mouseup", { which: 1, force: true });
-//       });
-//     cy.dataCy("new-moment-editor").type(item.text);
-//     cy.contains("arrow_forward").click();
-//     cy.contains(item.text);
-//     cy.wait(2000);
-//   }
-// });
-
-//   it.only("should seed the database 5", () => {
-//     for (const item of seedData) {
-//       const formattedDate = new Date(item.date);
-
-//       // cy.window()
-//       //   .its("pinia")
-//       //   .invoke("_pStores")
-//       //   .its("moments")
-//       //   .invoke("addMoment", {
-//       //     date: formattedDate,
-//       //     intensity: item.intensity,
-//       //     text: item.text,
-//       //     tags: item.tags,
-//       //   });
-
-//       cy.window().its("testStoreActions").invoke("addMoment", {
-//         date: formattedDate,
-//         intensity: item.intensity,
-//         text: item.text,
-//         tags: item.tags,
-//       });
-
-//       // cy.window()
-//       //   .its("pinia")
-//       //   .invoke("useMomentsStore")
-//       //   .its("moments")
-//       //   .invoke("addMoment", {
-//       //     date: formattedDate,
-//       //     intensity: item.intensity,
-//       //     text: item.text,
-//       //     tags: item.tags,
-//       //   });
-
-//       // cy.window()
-//       //   .its("appContext")
-//       //   .invoke("useMomentsStore")
-//       //   .invoke("addMoment", {
-//       //     date: formattedDate,
-//       //     intensity: item.intensity,
-//       //     text: item.text,
-//       //     tags: item.tags,
-//       //   });
-//       // momentsStore.addMoment({
-//       //   date: formattedDate,
-//       //   intensity: item.intensity,
-//       //   text: item.text,
-//       //   tags: item.tags,
-//       // });
-//     }
-//   });
-// });
-
-/////////
-
-// describe("QuasarDialog", () => {
-//   it("should show a dialog with a message", () => {
-//     cy.withinDialog((el) => {
-//       cy.wrap(el).should("contain", message);
-//       cy.dataCy("ok-button").click();
-//     });
-//   });
-// });
-
-// describe('Loading single fixture', () => {
-//   it('loads', () => {
-//     cy.fixture('moments').should('deep.equal', { name: 'Atlanta' })
-//   })
-// })
 // https://github.com/cypress-io/cypress-example-recipes/blob/master/examples/fundamentals__fixtures/cypress/e2e/list-spec.cy.js
 
 // ** The following code is an example to show you how to write some tests for your home page **

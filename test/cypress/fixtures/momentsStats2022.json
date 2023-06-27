@@ -1,0 +1,38 @@
+[
+  {
+    "tag": "sun",
+    "count": 1,
+    "avgIntensity": 4,
+    "percentShare": 0.25
+  },
+  {
+    "tag": "nature",
+    "count": 1,
+    "avgIntensity": 4,
+    "percentShare": 0.25
+  },
+  {
+    "tag": "self-esteem",
+    "count": 2,
+    "avgIntensity": 3.5,
+    "percentShare": 0.5
+  },
+  {
+    "tag": "impatience",
+    "count": 1,
+    "avgIntensity": -4,
+    "percentShare": 0.25
+  },
+  {
+    "tag": "autonomy",
+    "count": 1,
+    "avgIntensity": 2,
+    "percentShare": 0.25
+  },
+  {
+    "tag": "proud",
+    "count": 1,
+    "avgIntensity": 2,
+    "percentShare": 0.25
+  }
+]

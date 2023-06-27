@@ -17,11 +17,15 @@
         </q-item-section>
       </q-item>
 
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
-      <learn-card flag="positive" :dateRange="pickedDateRange"></learn-card>
+      <div>
+        <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
+        <learn-card flag="positive" :dateRange="pickedDateRange"></learn-card>
+      </div>
 
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
-      <learn-card flag="negative" :dateRange="pickedDateRange"></learn-card>
+      <div>
+        <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
+        <learn-card flag="negative" :dateRange="pickedDateRange"></learn-card>
+      </div>
 
       <q-dialog v-model="filterDialogOpen" position="bottom">
         <q-card class="bg-background q-px-sm">
@@ -44,6 +48,9 @@
               :navigation-max-year-month="newestMomentDateFormatted" default-view="Months"
               class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal years-in-month-view
               emit-immediately @update:model-value="onUpdateMv" :key="monthsKey"></q-date>
+
+            <!-- <q-date v-model="date" years-in-month-view default-view="Months" emit-immediately
+              @update:model-value="onUpdateMv" :key="dpKey" minimal mask="MM" class="myDate"></q-date> -->
 
             <q-date v-else-if="segIdDate === 'Yearly'" v-model="pickedYear" :options="optionsFn"
               :navigation-min-year-month="oldestMomentDateFormatted"
@@ -98,12 +105,13 @@ const tappedFilter = ref('')
 const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
 const segIdDate = ref("Yearly")
 
-const now = formatDate(new Date(), "YYYY/MM/DD"); //TODO:3 this attempt to fix "Monthly opens in year" failed
-const pickedMonth = ref(now) //ref("")
-const pickedYear = ref(now)
+const today = new Date()
+const formattedToday = formatDate(today, "YYYY/MM/DD");
+const pickedMonth = ref(formattedToday) //ref("")
+const pickedYear = ref(formattedToday)
 const monthsKey = ref(Date.now())
 const yearsKey = ref(Date.now())
-const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date()])
+const pickedDateRange = ref([new Date(today.getFullYear(), 0, 1), today])
 function onUpdateMv(v) {
   monthsKey.value = Date.now()
   // hideYearRow()
@@ -121,8 +129,8 @@ watch(pickedMonth, (newVal, oldVal) => {
     nextMonthFirstDay.setDate(nextMonthFirstDay.getDate() - 1);
     pickedDateRange.value = [new Date(year, parseInt(month) - 1, 1), nextMonthFirstDay];
     //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
-    if (year === new Date().getFullYear().toString()) {
-      if (month === (new Date().getMonth() + 1).toString()) {
+    if (year === today.getFullYear().toString()) {
+      if (month === (today.getMonth() + 1).toString()) {
         dateRangeButtonLabel.value = 'This month'
       } else {
         dateRangeButtonLabel.value = formatDate(pickedDateRange.value[0], 'MMMM')
@@ -139,7 +147,7 @@ watch(pickedYear, (newVal, oldVal) => {
     const year = newVal.split('/')[0]
     pickedDateRange.value = [new Date(year, 0, 1), new Date(year, 11, 31)]
     //dateRangeButtonLabel should be the 'This year' if in current year and the year if not
-    if (year === new Date().getFullYear().toString()) {
+    if (year === today.getFullYear().toString()) {
       dateRangeButtonLabel.value = 'This year'
     } else {
       dateRangeButtonLabel.value = year
@@ -157,16 +165,16 @@ watch(pickedYear, (newVal, oldVal) => {
 //   yearRow.style.display = 'none'
 // }
 const optionsFn = (date) => {
-  return date >= computedUniqueDays.value[computedUniqueDays.value.length - 1]; //TODO:2 make selecting a date with no kifs nor kafs impossible
+  return date >= computedUniqueDays.value[computedUniqueDays.value.length - 1] ?? today; //TODO:2 make selecting a date with no kifs nor kafs impossible
 }
 
 const oldestMomentDateFormatted = computed(() => {
-  const oldestMomentDate = computedUniqueDays.value[computedUniqueDays.value.length - 1]
-  return date.formatDate(oldestMomentDate, "YYYY/MM")
+  const oldestMomentDate = computedUniqueDays.value[computedUniqueDays.value.length - 1] ?? today
+  return formatDate(oldestMomentDate, "YYYY/MM")
 })
 
 const newestMomentDateFormatted = computed(() => {
-  return date.formatDate(computedUniqueDays.value[0], "YYYY/MM")
+  return formatDate(computedUniqueDays.value[0] ?? today, "YYYY/MM")
 })
 
 const computedUniqueTags = computed(() => {

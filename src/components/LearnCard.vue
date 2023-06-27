@@ -45,7 +45,7 @@
     <q-list v-else-if="segId.includes('percentShare')">
       <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in percentShareSortedTags.slice(0, numDisplayed)"
         :key="tag">
-        <q-item class="q-px-none q-pb-none row">
+        <q-item data-cy="learn-tab-tag-row-percentShare" class="q-px-none q-pb-none row">
 
           <q-item-section class="col-6">
             <q-item class="q-px-none q-py-none tags" style="min-height: 0px;" dense>

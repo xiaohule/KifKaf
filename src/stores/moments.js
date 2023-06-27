@@ -51,7 +51,8 @@ export const useMomentsStore = defineStore("moments", () => {
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
-          momentsDates: [], //TODO:3 insted make it a list of {date, momentsCount} objects it will be faster to count for percentShare
+          momentsDates: [], //TODO:3 instead make it a list of {date, momentsCount} objects it will be faster to count for percentShare
+          //TODO:3 here we can persevere user's da
         });
       }
 
