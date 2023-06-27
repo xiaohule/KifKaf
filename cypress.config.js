@@ -15,7 +15,7 @@ module.exports = defineConfig({
   viewportHeight: 844,
   e2e: {
     setupNodeEvents(on, config) {
-      // registerCodeCoverageTasks(on, config); //TODO: re-enable when ready
+      // registerCodeCoverageTasks(on, config); //TODO:1 re-enable when ready
       const options = {
         webpackOptions: {
           resolve: {

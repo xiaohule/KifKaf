@@ -35,12 +35,11 @@ const routes = [
     component: () => import("layouts/AuthLayout.vue"),
     children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
   },
-  {
-    path: "/register",
-    //TODO: not used?
-    component: () => import("layouts/AuthLayout.vue"),
-    children: [{ path: "", component: () => import("pages/RegisterPage.vue") }],
-  },
+  // {
+  //   path: "/register",
+  //   component: () => import("layouts/AuthLayout.vue"),
+  //   children: [{ path: "", component: () => import("pages/RegisterPage.vue") }],
+  // },
   // Always leave this as last one,
   // but you can also remove it
   {

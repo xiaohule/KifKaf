@@ -85,7 +85,7 @@
 
     </q-list>
 
-    <!--TODO: allow for not re-inputting email if not needed -->
+    <!--TODO:1 allow for not re-inputting email if not needed -->
     <q-dialog v-model="editDialogOpen" position="top">
       <q-card class="bg-surface">
 
@@ -104,7 +104,6 @@
           </q-card-section>
           <q-input ref="mainInputRef" class="q-mx-md q-mb-md" clearable rounded outlined v-model="newSettingValue"
             type='email' bg-color="surface-variant" placeholder="jane.doe@mail.com" lazy-rules :rules="emailRules" />
-          <!-- //TODO: validate email -->
           <q-card-section>
             Enter your password to confirm
           </q-card-section>
@@ -134,7 +133,7 @@
           <q-card-section>
             Create a new password
           </q-card-section>
-          <!-- TODO:for we should provide email guidelines (character, length) and have validation in place -->
+          <!-- TODO:2 for we should provide pwd guidelines (character, length) and have validation in place -->
           <q-input ref="mainInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="newSettingValue"
             label="New Password" :type="isPwd ? 'password' : 'text'" bg-color="surface-variant" lazy-rules
             :rules="passwordRules">
@@ -148,7 +147,7 @@
         <q-card-actions align="right">
           <q-btn flat rounded label="Cancel" v-close-popup />
           <q-btn rounded color="primary" @click="updateSetting" padding="5px 25px">Save</q-btn>
-          <!-- TODO:for email should be "verify" instead of save and we should have a verifying flow -->
+          <!-- TODO:2 for email should be "verify" instead of save and we should have a verifying flow -->
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -301,7 +300,7 @@ const updateSetting = async () => {
       })
     }
   }
-  //TODO: disable Save button when no change were made and when one validation is not passed
+  //TODO:2 disable Save button when no change were made and when one validation is not passed
 }
 
 const logOut = () => {

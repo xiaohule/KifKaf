@@ -57,7 +57,7 @@ const uiConfig = {
     EmailAuthProvider.PROVIDER_ID,
     // GoogleAuthProvider.PROVIDER_ID,
   ],
-  //TODO: add terms of service and privacy policy
+  //TODO:3 add terms of service and privacy policy
   // // Terms of service url.
   // tosUrl: '<your-tos-url>',
   // // Privacy policy url.
@@ -75,7 +75,7 @@ onMounted(() => {
 
   // Start the Firebase UI widget.
   ui.start('#firebaseui-auth-container', uiConfig);
-  //TODO: set up email link auth https://firebase.google.com/docs/auth/web/firebaseui#email_link_authentication
+  //TODO:1 set up email link auth https://firebase.google.com/docs/auth/web/firebaseui#email_link_authentication
 });
 
 

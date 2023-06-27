@@ -1,7 +1,7 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
 
-    <!-- TODO: add animation prompting user to come back after adding moments or showing an example of this screen -->
+    <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
     <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
     </div> -->
 
@@ -37,7 +37,7 @@
               <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate' />
             </div>
 
-            <!-- TODO: replace by smthg more inline with rvlt -->
+            <!-- TODO:1 replace by smthg more inline with rvlt -->
             <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
             <q-date v-if="segIdDate === 'Monthly'" v-model="pickedMonth" :options="optionsFn"
               :navigation-min-year-month="oldestMomentDateFormatted"
@@ -98,8 +98,9 @@ const tappedFilter = ref('')
 const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
 const segIdDate = ref("Yearly")
 
-const pickedMonth = ref("")
-const pickedYear = ref("")
+const now = formatDate(new Date(), "YYYY/MM/DD"); //TODO:3 this attempt to fix "Monthly opens in year" failed
+const pickedMonth = ref(now) //ref("")
+const pickedYear = ref(now)
 const monthsKey = ref(Date.now())
 const yearsKey = ref(Date.now())
 const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date()])
@@ -156,7 +157,7 @@ watch(pickedYear, (newVal, oldVal) => {
 //   yearRow.style.display = 'none'
 // }
 const optionsFn = (date) => {
-  return date >= computedUniqueDays.value[computedUniqueDays.value.length - 1]; //TODO: make selecting a date with no kifs nor kafs impossible
+  return date >= computedUniqueDays.value[computedUniqueDays.value.length - 1]; //TODO:2 make selecting a date with no kifs nor kafs impossible
 }
 
 const oldestMomentDateFormatted = computed(() => {

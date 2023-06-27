@@ -6,16 +6,12 @@
         <q-toolbar-title class="text-on-surface">KifKaf</q-toolbar-title>
         <router-link to="/settings" style="text-decoration: none;">
           <q-btn flat round dense icon="account_circle" size="20px" class="text-on-surface">
-            <!-- TODO: or put initials like JD? -->
           </q-btn>
-          <!-- TODO: or put initials like JD? -->
-          <!-- <q-avatar icon="account_circle" size="32px" font-size="32px" class="text-on-surface">
-          </q-avatar> -->
         </router-link>
       </q-toolbar>
     </q-header>
 
-    <!-- TODO: set max-width direclty here an not in pages -->
+    <!-- TODO:1 set max-width direclty here an not in pages -->
     <q-page-container>
       <router-view v-slot="{ Component }">
         <keep-alive>
@@ -29,7 +25,7 @@
         :breakpoint="0">
         <q-route-tab name="home" icon="home" label="Home" to="/" />
         <q-route-tab name="learn" icon="insights" label="Learn" to="/learn" />
-        <!-- TODO: re-add tabs when ready -->
+        <!-- TODO:1 re-add tabs when ready -->
         <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
         <q-route-tab name="search" icon="search" label="Search" to="/search" /> -->
       </q-tabs>

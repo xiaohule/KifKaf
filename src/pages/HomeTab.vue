@@ -4,7 +4,7 @@
     <q-list>
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Add a new Moment</q-item-label>
-      <!-- TODO: welcome user -->
+      <!-- TODO:1 welcome user -->
       <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
@@ -28,8 +28,9 @@
           </q-item>
         </q-card-section>
 
-        <!-- // TODO: make the btn align with the end of the text area when it grows -->
-        <!-- TODO: add a signal that speech recognition is on, TODO: maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
+        <!-- // TODO:2 make the btn align with the end of the text area when it grows -->
+        <!-- TODO:3 add a signal that speech recognition is on,
+          TODO:1 maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
         <q-field rounded outlined bg-color="surface-variant" color="transparent" class="q-ma-md q-mt-lg">
           <template v-slot:control>
             <!-- class="no-outline" -->
@@ -86,7 +87,7 @@
     </q-list>
 
     <!-- && !isScrolling -->
-    <!-- TODO: append inside the p of <p><span data-type="mention" class="mention" data-id="mam">#mam</span> is likely #</p> -->
+    <!-- append inside the p of <p><span data-type="mention" class="mention" data-id="mam">#mam</span> is likely #</p> -->
     <virtual-keyboard-bar v-show="momentsStore.isEditorFocused" @append-hashtag="appendHashtag" />
   </q-page>
 </template>
@@ -113,7 +114,6 @@ onMounted(async () => {
   }
 })
 
-//TODO: change to a reactive object?
 const newIntensity = ref(0)
 const rawNewText = ref('') //<p></p>
 const newText = ref('')

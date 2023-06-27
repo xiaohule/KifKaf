@@ -39,7 +39,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const initialized = ref(false);
   const isEditorFocused = ref(false);
 
-  //TODO: separate betw local state and firestore?
+  //TODO:3 separate betw local state and firestore?
   const fetchMoments = async () => {
     try {
       user.value = await getCurrentUser();
@@ -51,7 +51,7 @@ export const useMomentsStore = defineStore("moments", () => {
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
-          momentsDates: [], //TODO: insted make it a list of {date, momentsCount} objects it will be faster to count for percentShare
+          momentsDates: [], //TODO:3 insted make it a list of {date, momentsCount} objects it will be faster to count for percentShare
         });
       }
 
@@ -66,7 +66,7 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const addMoment = async (moment) => {
-    //TODO: make this an atomic transaction https://firebase.google.com/docs/firestore/manage-data/transactions#transactions?
+    //TODO:2 make this an atomic transaction https://firebase.google.com/docs/firestore/manage-data/transactions#transactions?
     try {
       // Add the new moment to momentsColl
       const docRef = await addDoc(momentsCollRef.value, moment);
@@ -112,7 +112,7 @@ export const useMomentsStore = defineStore("moments", () => {
   // },
   // define other actions like addMoment, updateMoment etc.
 
-  //TODO: improve perf
+  //TODO:1 improve perf
   const uniqueDays = computed(() => {
     if (
       !momentsColl.value ||

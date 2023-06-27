@@ -34,7 +34,7 @@ watchEffect(() => {
   }
 });
 
-// TODO: extend behaviour of Mention extension to inline highlight/style/decorate new hashtags too
+// TODO:1 extend behaviour of Mention extension to inline highlight/style/decorate new hashtags too
 onMounted(() => {
   editor.value = new Editor({
     // editorProps: {
@@ -65,7 +65,7 @@ onMounted(() => {
       //   }
       //   return 'Can you add some further context?'
       // },
-      //TODO: make rolling placeholders to avoid boredom
+      //TODO:1 make rolling placeholders to avoid boredom?
     ],
     content: props.modelValue,
     onCreate: () => {

@@ -1,6 +1,6 @@
 <template >
   <!-- height="500px" -->
-  <!-- TODO: need a better carousel that allow for more programmaticity for previous slides and auto height? -->
+  <!-- TODO:3 need a better carousel that allow for more programmaticity for previous slides and auto height? -->
   <!-- <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
         control-color="button-on-background" navigation padding class="bg-transparent" height="480px">
         <q-carousel-slide :name="8" class="column no-wrap">

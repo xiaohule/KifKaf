@@ -165,7 +165,7 @@ onMounted(() => {
   }
 
   // use lodash debounce to stop flicker
-  // const debounceMargin = debounce(setMargin, 150); //TODO:
+  // const debounceMargin = debounce(setMargin, 150);
   const debounceMargin = debounce(setMargin, 10);
 
 
@@ -222,7 +222,7 @@ body {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   // transition-duration: 10ms;
-  transition-duration: 500ms; //TODO:
+  transition-duration: 500ms;
 }
 
 .button {
