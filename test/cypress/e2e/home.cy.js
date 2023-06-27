@@ -110,11 +110,16 @@ describe("Moments inputting and stats validation", () => {
       cy.dataCy("new-moment-editor").type(fullText);
 
       cy.contains("arrow_forward").click();
-      cy.contains(item.text);
 
       cy.clock().then((clock) => {
         clock.restore();
       });
+    }
+
+    cy.wait(1000);
+
+    for (const item of momentsData) {
+      cy.contains(item.text);
     }
 
     cy.contains("Learn").click();

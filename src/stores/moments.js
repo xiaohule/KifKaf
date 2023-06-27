@@ -39,7 +39,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const initialized = ref(false);
   const isEditorFocused = ref(false);
 
-  //TODO:3 separate betw local state and firestore?
+  //TODO:2 separate betw local state and firestore?
   const fetchMoments = async () => {
     try {
       user.value = await getCurrentUser();
@@ -51,8 +51,8 @@ export const useMomentsStore = defineStore("moments", () => {
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
-          momentsDates: [], //TODO:3 instead make it a list of {date, momentsCount} objects it will be faster to count for percentShare
-          //TODO:3 here we can persevere user's da
+          momentsDates: [], //TODO:2 instead make it a list of {date, momentsCount} objects it will be faster to count for percentShare
+          //2 here we can persevere user's da
         });
       }
 
