@@ -17,24 +17,42 @@
 
     <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
 
-    <!-- TODO:2 if ever unsatisfied there is also q-carousel -->
-    <!-- <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
-        control-color="button-on-background" navigation padding class="bg-transparent" height="480px">
-        <q-carousel-slide :name="8" class="column no-wrap">test 8</q-carousel-slide>-->
-    <carousel ref="myCarousel" v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
+    <!-- <carousel ref="myCarousel" v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
       <slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range"
         :style="{ height: 'fit-content' }">
         <div>
           <learn-card flag="positive" :dateRange="range"></learn-card>
         </div>
       </slide>
-
       <template #addons="{ slidesCount }">
-        <!-- <navigation /> -->
         <pagination v-if="slidesCount > 1" />
       </template>
+    </carousel> -->
 
-    </carousel>
+    <!-- css-mode="true" virtual="true" :space-between="spaceBetween"
+      :centered-slides="true" pagination-clickable="true" init="false" @slidechange="onSliding" slides-per-view="1" pagination="true" auto-height="true"-->
+    <swiper-container auto-height="true">
+      <swiper-slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
+        <learn-card flag="positive" :dateRange="range"></learn-card>
+        <!-- <swiper-slide>
+        <learn-card flag="negative" :dateRange="dateRangesYears[2]"></learn-card>
+      </swiper-slide>
+      <swiper-slide>
+        <learn-card flag="negative" :dateRange="dateRangesYears[2]"></learn-card> -->
+      </swiper-slide>
+    </swiper-container>
+
+    <!-- <swiper-container class="mySwiper">
+      <swiper-slide>Slide 1</swiper-slide>
+      <swiper-slide>Slide 2</swiper-slide>
+      <swiper-slide>Slide 3</swiper-slide>
+      <swiper-slide>Slide 4</swiper-slide>
+      <swiper-slide>Slide 5</swiper-slide>
+      <swiper-slide>Slide 6</swiper-slide>
+      <swiper-slide>Slide 7</swiper-slide>
+      <swiper-slide>Slide 8</swiper-slide>
+      <swiper-slide>Slide 9</swiper-slide>
+    </swiper-container> -->
 
     <!-- TODO:3 add when ready -->
     <div>
@@ -96,13 +114,48 @@ import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
 import { date } from "quasar";
-import 'vue3-carousel/dist/carousel.css'
-import { Carousel, Slide, Pagination } from 'vue3-carousel'
+// import 'vue3-carousel/dist/carousel.css'
+// import { Carousel, Slide, Pagination } from 'vue3-carousel'
+// import function to register Swiper custom elements
+// import { register, SwiperContainer, SwiperSlide } from "swiper/element/bundle";
+// // // register Swiper custom elements
+// register();
+// import styles bundle
+// import 'swiper/css/bundle';
+// import Swiper core and required modules
+//  import SwiperCore, { Pagination } from 'swiper';
+// import Swiper Vue 3 components
+// import { Swiper, SwiperSlide } from 'swiper/vue';
+// // import Swiper styles
+// import 'swiper/swiper-bundle.css';
+// import swiper-slide and swiper-container from swiper element bundle
+// import { SwiperSlide, Swiper } from 'swiper/element';
+
+// // import { Swiper, SwiperSlide } from 'swiper/vue';
+// // import Swiper bundle with all modules installed
+
+// // import Swiper from 'swiper/bundle';
+// const swiper = new Swiper('.swiper', {
+//   // Optional parameters
+//   direction: 'horizontal',
+//   loop: false,
+
+//   // If we need pagination
+//   pagination: {
+//     el: '.swiper-pagination',
+//   },
+// });
+// // const SwiperContainer = new SwiperContainer();
+
+// const swiperC = ref(null);
+// onMounted(() => {
+//   swiperC.value = new SwiperContainer({});
+// });
 
 const momentsStore = useMomentsStore()
 const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
-const myCarousel = ref(null)
+// const myCarousel = ref(null)
 const currentSlide = ref(0)
 
 const computedUniqueDays = computed(() => {
