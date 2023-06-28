@@ -30,6 +30,7 @@
     "lodash.uniqueid": "^4.0.1",
     "pinia": "^2.0.36",
     "quasar": "^2.6.0",
+    "swiper": "^9.4.1",
     "tippy.js": "^6.3.7",
     "vue": "^3.0.0",
     "vue-at": "^3.0.0-alpha.2",

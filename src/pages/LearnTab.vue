@@ -3,86 +3,90 @@
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
     <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
     </div> -->
-
-    <div>
-      <q-item class="q-px-none q-pt-none">
-        <!-- <q-item-section class="col-auto">
+    <!-- <div> -->
+    <q-item class="q-px-none q-pt-none">
+      <!-- <q-item-section class="col-auto">
           <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
             @click="openFilterDialog('tags')">{{ tagsButtonLabel }}</q-btn>
         </q-item-section> -->
-        <q-item-section class=" col-auto">
-          <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background"
-            icon="calendar_today" no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
-        </q-item-section>
-      </q-item>
+      <q-item-section class=" col-auto">
+        <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="calendar_today"
+          no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
+      </q-item-section>
+    </q-item>
 
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
+    <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
 
-      <carousel ref="myCarousel" v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
-        <slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-          <div>
-            <learn-card flag="positive" :dateRange="range"></learn-card>
-          </div>
-        </slide>
+    <!-- TODO:2 if ever unsatisfied there is also q-carousel -->
+    <!-- <q-carousel v-model="slide" transition-prev="slide-right" transition-next="slide-left" swipeable animated
+        control-color="button-on-background" navigation padding class="bg-transparent" height="480px">
+        <q-carousel-slide :name="8" class="column no-wrap">test 8</q-carousel-slide>-->
+    <carousel ref="myCarousel" v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
+      <slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range"
+        :style="{ height: 'fit-content' }">
+        <div>
+          <learn-card flag="positive" :dateRange="range"></learn-card>
+        </div>
+      </slide>
 
-        <template #addons="{ slidesCount }">
-          <!-- <navigation /> -->
-          <pagination v-if="slidesCount > 1" />
-        </template>
+      <template #addons="{ slidesCount }">
+        <!-- <navigation /> -->
+        <pagination v-if="slidesCount > 1" />
+      </template>
 
-      </carousel>
+    </carousel>
 
-      <!-- TODO:3 add when ready -->
-      <!-- <div>
-        <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
-        <learn-card flag="negative" :dateRange="pickedDateRange"></learn-card>
-      </div> -->
-
-      <q-dialog v-model="filterDialogOpen" position="bottom">
-        <q-card class="bg-background q-px-sm">
-
-          <div v-if="tappedFilter === 'date'">
-            <q-card-section class="text-h5 text-weight-medium">Filter period
-            </q-card-section>
-            <q-card-section class="q-pt-xs text-outline">Filtering the period will take into account only the
-              moments that happened
-              during the selected period. </q-card-section>
-
-            <div class="q-px-md">
-              <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate' />
-            </div>
-
-            <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
-            <!-- <q-date v-model="date" years-in-month-view default-view="Months" emit-immediately
-              @update:model-value="onUpdateMv" :key="dpKey" minimal mask="MM" class="myDate"></q-date> -->
-            <q-date v-if="segIdDate === 'Monthly'" v-model="pickedDate" :options="optionsFn"
-              :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
-              default-view="Months" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
-              years-in-month-view emit-immediately @update:model-value="onUpdatePickedDate" :key="monthsKey"></q-date>
-            <!-- @navigation="onNavigationMv" -->
-
-            <q-date v-else-if="segIdDate === 'Yearly'" v-model="pickedDate" :options="optionsFn"
-              :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
-              default-view="Years" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
-              emit-immediately @update:model-value="onUpdatePickedDate" :key="yearsKey"></q-date>
-            <!-- @navigation="onNavigationYv" -->
-          </div>
-
-          <div v-else-if="tappedFilter === 'tags'">
-            <q-card-section class="text-h6">Filter period
-            </q-card-section>
-            <q-card-section>Filtering the period will take into account only the moments that happened during the
-              selected
-              period. </q-card-section>
-          </div>
-
-          <q-card-actions align="center">
-            <q-btn rounded color="primary" @click="filterDialogOpen = false" padding="10px"
-              class="text-body1 q-ma-sm full-width" no-caps>Done</q-btn>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+    <!-- TODO:3 add when ready -->
+    <div>
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
+      <learn-card flag="negative" :dateRange="dateRangesYears[2]"></learn-card>
     </div>
+
+    <q-dialog v-model="filterDialogOpen" position="bottom">
+      <q-card class="bg-background q-px-sm">
+
+        <div v-if="tappedFilter === 'date'">
+          <q-card-section class="text-h5 text-weight-medium">Filter period
+          </q-card-section>
+          <q-card-section class="q-pt-xs text-outline">Filtering the period will take into account only the
+            moments that happened
+            during the selected period. </q-card-section>
+
+          <div class="q-px-md">
+            <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate' />
+          </div>
+
+          <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
+          <!-- <q-date v-model="date" years-in-month-view default-view="Months" emit-immediately
+              @update:model-value="onUpdateMv" :key="dpKey" minimal mask="MM" class="myDate"></q-date> -->
+          <q-date v-if="segIdDate === 'Monthly'" v-model="pickedDate" :options="optionsFn"
+            :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
+            default-view="Months" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
+            years-in-month-view emit-immediately @update:model-value="onUpdatePickedDate" :key="monthsKey"></q-date>
+          <!-- @navigation="onNavigationMv" -->
+
+          <q-date v-else-if="segIdDate === 'Yearly'" v-model="pickedDate" :options="optionsFn"
+            :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
+            default-view="Years" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
+            emit-immediately @update:model-value="onUpdatePickedDate" :key="yearsKey"></q-date>
+          <!-- @navigation="onNavigationYv" -->
+        </div>
+
+        <div v-else-if="tappedFilter === 'tags'">
+          <q-card-section class="text-h6">Filter period
+          </q-card-section>
+          <q-card-section>Filtering the period will take into account only the moments that happened during the
+            selected
+            period. </q-card-section>
+        </div>
+
+        <q-card-actions align="center">
+          <q-btn rounded color="primary" @click="filterDialogOpen = false" padding="10px"
+            class="text-body1 q-ma-sm full-width" no-caps>Done</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <!-- </div> -->
   </q-page>
 </template>
 
@@ -232,6 +236,7 @@ watch(segIdDate, (newVal, oldVal) => {
     onUpdatePickedDate(pickedDate.value)
   }
   //TODO:1 ensure that when yearly (2023) > monthly selecting May (2023) > yearly (2023) > monthly the carousel has kept May and is not showing Jan as current
+  //TODO:2 ensure that when yearly (2023) > monthly, the carousel is showing current month and not Jan
 });
 
 const onSliding = ({ currentSlideIndex, prevSlideIndex }) => {
@@ -243,7 +248,6 @@ const onSliding = ({ currentSlideIndex, prevSlideIndex }) => {
     pickedDate.value = date.formatDate(dateRangesYears.value[currentSlideIndex][0], "YYYY/MM/DD")
   }
 }
-
 </script>
 
 <style lang="scss">
@@ -252,10 +256,16 @@ const onSliding = ({ currentSlideIndex, prevSlideIndex }) => {
   /* adjust the value as needed */
 }
 
+.carousel__slide {
+  align-items: flex-start
+}
+
+.carousel__pagination {
+  margin: 0;
+  padding: 0;
+}
+
 // .myDate>.row~.row {
 //   display: none !important;
 // }
 </style>
-
-
-
