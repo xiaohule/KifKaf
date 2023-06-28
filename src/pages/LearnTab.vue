@@ -1,6 +1,5 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
-
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
     <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
     </div> -->
@@ -19,10 +18,8 @@
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
 
-      <carousel ref="myCarousel" v-model="currentSlide" :items-to-show="1">
-        <slide v-for="range in (periodicity === 'years' ? dateRangesYears : dateRangesMonths) " :key="range">
-          <!-- Index:{{ index }}, range: {{ range }} -->
-          <!-- TODO2: fix time zone issue -->
+      <carousel ref="myCarousel" v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
+        <slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
           <div>
             <learn-card flag="positive" :dateRange="range"></learn-card>
           </div>
@@ -35,10 +32,11 @@
 
       </carousel>
 
-      <div>
+      <!-- TODO:3 add when ready -->
+      <!-- <div>
         <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
         <learn-card flag="negative" :dateRange="pickedDateRange"></learn-card>
-      </div>
+      </div> -->
 
       <q-dialog v-model="filterDialogOpen" position="bottom">
         <q-card class="bg-background q-px-sm">
@@ -54,21 +52,20 @@
               <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate' />
             </div>
 
-            <!-- TODO:1 replace by smthg more inline with rvlt -->
             <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
-            <q-date v-if="segIdDate === 'Monthly'" v-model="pickedMonth" :options="optionsFn"
-              :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
-              default-view="Months" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
-              years-in-month-view emit-immediately @update:model-value="onUpdateMv" :key="monthsKey"
-              @navigation="onNavigationMv"></q-date>
-
             <!-- <q-date v-model="date" years-in-month-view default-view="Months" emit-immediately
               @update:model-value="onUpdateMv" :key="dpKey" minimal mask="MM" class="myDate"></q-date> -->
+            <q-date v-if="segIdDate === 'Monthly'" v-model="pickedDate" :options="optionsFn"
+              :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
+              default-view="Months" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
+              years-in-month-view emit-immediately @update:model-value="onUpdatePickedDate" :key="monthsKey"></q-date>
+            <!-- @navigation="onNavigationMv" -->
 
-            <q-date v-else-if="segIdDate === 'Yearly'" v-model="pickedYear" :options="optionsFn"
+            <q-date v-else-if="segIdDate === 'Yearly'" v-model="pickedDate" :options="optionsFn"
               :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
               default-view="Years" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
-              emit-immediately @update:model-value="onUpdateYv" :key="yearsKey" @navigation="onNavigationYv"></q-date>
+              emit-immediately @update:model-value="onUpdatePickedDate" :key="yearsKey"></q-date>
+            <!-- @navigation="onNavigationYv" -->
           </div>
 
           <div v-else-if="tappedFilter === 'tags'">
@@ -110,14 +107,18 @@ const computedUniqueDays = computed(() => {
 const oldestMomentDate = computed(() => {
   return computedUniqueDays.value[computedUniqueDays.value.length - 1] ?? new Date();
 })
-
-const countMonths = computed(() => {
+const oldestMomentDateFormatted = computed(() => {
+  return date.formatDate(oldestMomentDate.value, "YYYY/MM")
+})
+const currentDateFormatted = computed(() => {
+  return date.formatDate(new Date(), "YYYY/MM")
+})
+const monthsSinceOldestMoment = computed(() => {
   return Math.max(1, date.getDateDiff(new Date(), oldestMomentDate.value, 'months'))
 })
-const countYears = computed(() => {
+const yearsSinceOldestMoment = computed(() => {
   return Math.max(1, date.getDateDiff(new Date(), oldestMomentDate.value, 'years'))
 })
-
 const currentMonthFirstDay = computed(() => {
   return date.startOfDate(new Date(), 'month')
 })
@@ -134,7 +135,7 @@ const currentYearLastDay = computed(() => {
 const dateRangesMonths = computed(() => {
   //return an array made of all the subarrays [beginningOfMonth date, endOfMonth date] between oldestMomentDate and today
   const dateRanges = [];
-  for (let i = countMonths.value; i >= 0; i--) {
+  for (let i = monthsSinceOldestMoment.value; i >= 0; i--) {
     dateRanges.push([
       date.subtractFromDate(new Date(currentMonthFirstDay.value), { months: i }),
       date.subtractFromDate(new Date(currentMonthLastDay.value), { months: i })
@@ -142,11 +143,10 @@ const dateRangesMonths = computed(() => {
   }
   return dateRanges;
 });
-
 const dateRangesYears = computed(() => {
   //return an array made of all the subarrays [beginningOfMonth date, endOfMonth date] between oldestMomentDate and today
   const dateRanges = [];
-  for (let i = countYears.value; i >= 0; i--) {
+  for (let i = yearsSinceOldestMoment.value; i >= 0; i--) {
     dateRanges.push([
       date.subtractFromDate(new Date(currentYearFirstDay.value), { years: i }),
       date.subtractFromDate(new Date(currentYearLastDay.value), { years: i })
@@ -161,30 +161,8 @@ watch(dateRangesYears, (newValue) => {
   console.log('in watch dateRangesYears updated currentSlide to', currentSlide.value)
 }, { immediate: true });
 
-watch(currentSlide, (newValue, oldValue) => {
-  myCarousel.value.slideTo(newValue) //TODO:2 to keep or useless?
-  console.log('currentSlide updated from', oldValue, 'to', newValue)
-  if (periodicity.value === 'years') {
-    if (date.isBetweenDates(new Date(), dateRangesYears.value[newValue][0], dateRangesYears.value[newValue][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
-      dateRangeButtonLabel.value = 'This year'
-    } else {
-      dateRangeButtonLabel.value = dateRangesYears.value[newValue][0].getFullYear().toString()
-    }
-  }
-  else {
-    //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
-    if (date.isBetweenDates(new Date(), dateRangesMonths.value[newValue][0], dateRangesMonths.value[newValue][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
-      dateRangeButtonLabel.value = 'This month'
-    } else if (dateRangesMonths.value[newValue][0].getFullYear() === new Date().getFullYear()) {
-      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[newValue][0], 'MMMM')
-    } else {
-      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[newValue][0], 'MMMM YYYY')
-    }
-  }
-});
-
 const filterDialogOpen = ref(false)
-const tappedFilter = ref('')
+const tappedFilter = ref('date')
 const openFilterDialog = (filter) => {
   tappedFilter.value = filter
   filterDialogOpen.value = true
@@ -193,101 +171,79 @@ const openFilterDialog = (filter) => {
 const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
 const segIdDate = ref("Yearly")
 
-const formattedToday = date.formatDate(new Date(), "YYYY/MM/DD");
-const periodicity = ref("years")
-const pickedMonth = ref(formattedToday) //ref("")
-const pickedYear = ref(formattedToday)
-const monthsKey = ref(Date.now())
+// initialize pickedDate as the first day of the current year with format YYYY/MM/DD
+const pickedDate = ref(date.formatDate(date.startOfDate(new Date(), 'year'), "YYYY/MM/DD"))
+const monthsKey = ref(Date.now()) //TODO:1 reduce to only one of those keys?
 const yearsKey = ref(Date.now())
-const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date(new Date().getFullYear(), 11, 31)]) //TODO:2 to delete when carouselized
-
-const oldestMomentDateFormatted = computed(() => {
-  return date.formatDate(oldestMomentDate.value, "YYYY/MM")
-})
-// const newestMomentDateFormatted = computed(() => {
-//   return date.formatDate(computedUniqueDays.value[0] ?? new Date(), "YYYY/MM")
-// })
-const currentDateFormatted = computed(() => {
-  return date.formatDate(new Date(), "YYYY/MM")
-})
 const optionsFn = (date) => {
-  return date >= oldestMomentDate.value; //TODO:2 make selecting a date with no kifs nor kafs impossible
+  return date >= oldestMomentDate.value;
 }
 
-function onUpdateMv(v) {
-  monthsKey.value = Date.now()
-  // hideYearRow()
-}
-function onUpdateYv(v) {
-  yearsKey.value = Date.now()
-}
-function onNavigationMv(v) {
-  console.log("view", v)
-  console.log("pickedMonth", pickedMonth.value)
-}
-function onNavigationYv(v) {
-  console.log("view", v)
-  console.log("pickedYear", pickedYear.value)
-}
-
-watch(pickedMonth, (newVal, oldVal) => {
-  if (newVal) {
-    const year = newVal.split('/')[0]
-    const month = newVal.split('/')[1]
-    let nextMonthFirstDay = new Date(year, parseInt(month), 1);
-    nextMonthFirstDay.setDate(nextMonthFirstDay.getDate() - 1);
-    let currentMonthFirstDay = new Date(year, parseInt(month) - 1, 1);
-    pickedDateRange.value = [currentMonthFirstDay, nextMonthFirstDay];
-    periodicity.value = 'months'
-    //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
-    if (year === new Date().getFullYear().toString()) {
-      if (month === (new Date().getMonth() + 1).toString()) {
-        dateRangeButtonLabel.value = 'This month'
-      } else {
-        dateRangeButtonLabel.value = date.formatDate(pickedDateRange.value[0], 'MMMM')
-      }
-    } else {
-      dateRangeButtonLabel.value = date.formatDate(pickedDateRange.value[0], 'MMMM') + ' ' + year
-    }
-    // Update currentSlide to the correct index in dateRangesMonths
-    currentSlide.value = date.getDateDiff(currentMonthFirstDay, oldestMomentDate.value, 'months');
-    console.log('in watch pickedMonth updated currentSlide to', currentSlide.value)
-  }
-})
-
-//watch pickedYear and whenever it changes make pickedDateRange be the whole year. Note that pickedYear is formatted as YYYY/MM/DD
-watch(pickedYear, (newVal, oldVal) => {
-  if (newVal) {
-    const year = newVal.split('/')[0]
-    pickedDateRange.value = [new Date(year, 0, 1), new Date(year, 11, 31)]
-    periodicity.value = 'years'
-    //dateRangeButtonLabel should be the 'This year' if in current year and the year if not
-    if (year === new Date().getFullYear().toString()) {
+const updateDateButtonLabel = () => {
+  if (segIdDate.value === 'Yearly') {
+    if (date.isBetweenDates(new Date(), dateRangesYears.value[currentSlide.value][0], dateRangesYears.value[currentSlide.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
       dateRangeButtonLabel.value = 'This year'
     } else {
-      dateRangeButtonLabel.value = year
+      dateRangeButtonLabel.value = dateRangesYears.value[currentSlide.value][0].getFullYear().toString()
     }
-    // Update currentSlide
-    currentSlide.value = date.getDateDiff(year, oldestMomentDate.value, 'years');
-    console.log('in watch pickedYear updated currentSlide to', currentSlide.value)
   }
-})
+  else if (segIdDate.value === 'Monthly') {
+    //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
+    if (date.isBetweenDates(new Date(), dateRangesMonths.value[currentSlide.value][0], dateRangesMonths.value[currentSlide.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
+      dateRangeButtonLabel.value = 'This month'
+    } else if (dateRangesMonths.value[currentSlide.value][0].getFullYear() === new Date().getFullYear()) {
+      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[currentSlide.value][0], 'MMMM')
+    } else {
+      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[currentSlide.value][0], 'MMMM YYYY')
+    }
+  }
+}
 
-watch(segIdDate, (newValue, oldValue) => {
-  if (newValue === 'Monthly') {
-    periodicity.value = 'months'
-    currentSlide.value = dateRangesMonths.value.length - 1
-  } else if (newValue === 'Yearly') {
-    periodicity.value = 'years'
-    currentSlide.value = dateRangesYears.value.length - 1
+const onUpdatePickedDate = (newVal) => {
+  console.log('onUpdatePickedDate newVal', newVal)
+  if (newVal) {
+    const year = newVal.split('/')[0]
+    if (segIdDate.value === 'Monthly') {
+      monthsKey.value = Date.now()
+      const month = newVal.split('/')[1]
+      let nextMonthFirstDay = new Date(year, parseInt(month), 1);
+      nextMonthFirstDay.setDate(nextMonthFirstDay.getDate() - 1);
+      let currentMonthFirstDay = new Date(year, parseInt(month) - 1, 1);
+      // Update currentSlide to the correct index in dateRangesMonths
+      currentSlide.value = date.getDateDiff(currentMonthFirstDay, oldestMomentDate.value, 'months');
+      console.log('currentMonthFirstDay', currentMonthFirstDay)
+      console.log('oldestMomentDate.value', oldestMomentDate.value)
+    } else if (segIdDate.value === 'Yearly') {
+      yearsKey.value = Date.now()
+      currentSlide.value = date.getDateDiff(year, oldestMomentDate.value, 'years');
+    }
+    console.log('onUpdatePickedDate triggered currentSlide update to', currentSlide.value)
+    updateDateButtonLabel()
   }
-  myCarousel.value.restartCarousel()
-  console.log('in watch segIdDate updated currentSlide to', currentSlide.value)
+}
+
+//i.e. onSegmentControlChange
+watch(segIdDate, (newVal, oldVal) => {
+  console.log('watch(segIdDate) triggered with newVal', newVal)
+  if (newVal) {
+    let max = date.getMaxDate(new Date(pickedDate.value), new Date(oldestMomentDate.value))
+    pickedDate.value = date.formatDate(max, "YYYY/MM/DD")
+    console.log('watch(segIdDate) pickedDate.value', pickedDate.value)
+    onUpdatePickedDate(pickedDate.value)
+  }
+  //TODO:1 ensure that when yearly (2023) > monthly selecting May (2023) > yearly (2023) > monthly the carousel has kept May and is not showing Jan as current
 });
 
-// const computedUniqueTags = computed(() => {
-//   return momentsStore.uniqueTags || []
-// })
+const onSliding = ({ currentSlideIndex, prevSlideIndex }) => {
+  console.log('In onSliding, currentSlide updated from', prevSlideIndex, 'to', currentSlideIndex)
+  updateDateButtonLabel()
+  if (segIdDate.value === 'Monthly') {
+    pickedDate.value = date.formatDate(dateRangesMonths.value[currentSlideIndex][0], "YYYY/MM/DD")
+  } else if (segIdDate.value === 'Yearly') {
+    pickedDate.value = date.formatDate(dateRangesYears.value[currentSlideIndex][0], "YYYY/MM/DD")
+  }
+}
+
 </script>
 
 <style lang="scss">
