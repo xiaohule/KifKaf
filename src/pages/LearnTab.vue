@@ -17,7 +17,7 @@
 
     <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
 
-    <!-- <carousel ref="myCarousel" v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
+    <!-- <carousel v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
       <slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range"
         :style="{ height: 'fit-content' }">
         <div>
@@ -29,30 +29,12 @@
       </template>
     </carousel> -->
 
-    <!-- css-mode="true" virtual="true" :space-between="spaceBetween"
-      :centered-slides="true" pagination-clickable="true" init="false" @slidechange="onSliding" slides-per-view="1" pagination="true" auto-height="true"-->
-    <swiper-container auto-height="true">
+    <swiper-container init="false" auto-height="true" pagination="true" @slidechange="onSliding" observer="true"
+      observe-slide-children="true">
       <swiper-slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
         <learn-card flag="positive" :dateRange="range"></learn-card>
-        <!-- <swiper-slide>
-        <learn-card flag="negative" :dateRange="dateRangesYears[2]"></learn-card>
-      </swiper-slide>
-      <swiper-slide>
-        <learn-card flag="negative" :dateRange="dateRangesYears[2]"></learn-card> -->
       </swiper-slide>
     </swiper-container>
-
-    <!-- <swiper-container class="mySwiper">
-      <swiper-slide>Slide 1</swiper-slide>
-      <swiper-slide>Slide 2</swiper-slide>
-      <swiper-slide>Slide 3</swiper-slide>
-      <swiper-slide>Slide 4</swiper-slide>
-      <swiper-slide>Slide 5</swiper-slide>
-      <swiper-slide>Slide 6</swiper-slide>
-      <swiper-slide>Slide 7</swiper-slide>
-      <swiper-slide>Slide 8</swiper-slide>
-      <swiper-slide>Slide 9</swiper-slide>
-    </swiper-container> -->
 
     <!-- TODO:3 add when ready -->
     <div>
@@ -109,54 +91,28 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
 import { date } from "quasar";
 // import 'vue3-carousel/dist/carousel.css'
 // import { Carousel, Slide, Pagination } from 'vue3-carousel'
-// import function to register Swiper custom elements
-// import { register, SwiperContainer, SwiperSlide } from "swiper/element/bundle";
-// // // register Swiper custom elements
-// register();
+
 // import styles bundle
-// import 'swiper/css/bundle';
-// import Swiper core and required modules
-//  import SwiperCore, { Pagination } from 'swiper';
-// import Swiper Vue 3 components
-// import { Swiper, SwiperSlide } from 'swiper/vue';
-// // import Swiper styles
-// import 'swiper/swiper-bundle.css';
-// import swiper-slide and swiper-container from swiper element bundle
-// import { SwiperSlide, Swiper } from 'swiper/element';
+import 'swiper/css/bundle';
 
-// // import { Swiper, SwiperSlide } from 'swiper/vue';
-// // import Swiper bundle with all modules installed
-
-// // import Swiper from 'swiper/bundle';
-// const swiper = new Swiper('.swiper', {
-//   // Optional parameters
-//   direction: 'horizontal',
-//   loop: false,
-
-//   // If we need pagination
-//   pagination: {
-//     el: '.swiper-pagination',
-//   },
-// });
-// // const SwiperContainer = new SwiperContainer();
-
-// const swiperC = ref(null);
-// onMounted(() => {
-//   swiperC.value = new SwiperContainer({});
-// });
+let swiperEl
+onMounted(() => {
+  swiperEl = document.querySelector('swiper-container');
+  swiperEl.initialize();
+  swiperEl.swiper.activeIndex = dateRangesYears.value.length - 1;
+  console.log('in watch onMounted updated activeIndex to', swiperEl.swiper.activeIndex)
+});
 
 const momentsStore = useMomentsStore()
 const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
-// const myCarousel = ref(null)
-const currentSlide = ref(0)
 
 const computedUniqueDays = computed(() => {
   return momentsStore.uniqueDays || []
@@ -212,12 +168,6 @@ const dateRangesYears = computed(() => {
   return dateRanges;
 });
 
-//initialization of currentSlide
-watch(dateRangesYears, (newValue) => {
-  currentSlide.value = newValue.length - 1;
-  console.log('in watch dateRangesYears updated currentSlide to', currentSlide.value)
-}, { immediate: true });
-
 const filterDialogOpen = ref(false)
 const tappedFilter = ref('date')
 const openFilterDialog = (filter) => {
@@ -238,20 +188,20 @@ const optionsFn = (date) => {
 
 const updateDateButtonLabel = () => {
   if (segIdDate.value === 'Yearly') {
-    if (date.isBetweenDates(new Date(), dateRangesYears.value[currentSlide.value][0], dateRangesYears.value[currentSlide.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
+    if (date.isBetweenDates(new Date(), dateRangesYears.value[swiperEl.swiper.activeIndex][0], dateRangesYears.value[swiperEl.swiper.activeIndex][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
       dateRangeButtonLabel.value = 'This year'
     } else {
-      dateRangeButtonLabel.value = dateRangesYears.value[currentSlide.value][0].getFullYear().toString()
+      dateRangeButtonLabel.value = dateRangesYears.value[swiperEl.swiper.activeIndex][0].getFullYear().toString()
     }
   }
   else if (segIdDate.value === 'Monthly') {
     //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
-    if (date.isBetweenDates(new Date(), dateRangesMonths.value[currentSlide.value][0], dateRangesMonths.value[currentSlide.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
+    if (date.isBetweenDates(new Date(), dateRangesMonths.value[swiperEl.swiper.activeIndex][0], dateRangesMonths.value[swiperEl.swiper.activeIndex][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
       dateRangeButtonLabel.value = 'This month'
-    } else if (dateRangesMonths.value[currentSlide.value][0].getFullYear() === new Date().getFullYear()) {
-      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[currentSlide.value][0], 'MMMM')
+    } else if (dateRangesMonths.value[swiperEl.swiper.activeIndex][0].getFullYear() === new Date().getFullYear()) {
+      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[swiperEl.swiper.activeIndex][0], 'MMMM')
     } else {
-      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[currentSlide.value][0], 'MMMM YYYY')
+      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[swiperEl.swiper.activeIndex][0], 'MMMM YYYY')
     }
   }
 }
@@ -267,14 +217,14 @@ const onUpdatePickedDate = (newVal) => {
       nextMonthFirstDay.setDate(nextMonthFirstDay.getDate() - 1);
       let currentMonthFirstDay = new Date(year, parseInt(month) - 1, 1);
       // Update currentSlide to the correct index in dateRangesMonths
-      currentSlide.value = date.getDateDiff(currentMonthFirstDay, oldestMomentDate.value, 'months');
+      swiperEl.swiper.activeIndex = date.getDateDiff(currentMonthFirstDay, oldestMomentDate.value, 'months');
       console.log('currentMonthFirstDay', currentMonthFirstDay)
       console.log('oldestMomentDate.value', oldestMomentDate.value)
     } else if (segIdDate.value === 'Yearly') {
       yearsKey.value = Date.now()
-      currentSlide.value = date.getDateDiff(year, oldestMomentDate.value, 'years');
+      swiperEl.swiper.activeIndex = date.getDateDiff(year, oldestMomentDate.value, 'years');
     }
-    console.log('onUpdatePickedDate triggered currentSlide update to', currentSlide.value)
+    console.log('onUpdatePickedDate triggered currentSlide update to', swiperEl.swiper.activeIndex)
     updateDateButtonLabel()
   }
 }
@@ -292,15 +242,17 @@ watch(segIdDate, (newVal, oldVal) => {
   //TODO:2 ensure that when yearly (2023) > monthly, the carousel is showing current month and not Jan
 });
 
-const onSliding = ({ currentSlideIndex, prevSlideIndex }) => {
-  console.log('In onSliding, currentSlide updated from', prevSlideIndex, 'to', currentSlideIndex)
+const onSliding = () => {
+  console.log('In onSliding, swiperEl.swiper ', swiperEl.swiper)
+  console.log('In onSliding, slide updated from', swiperEl.swiper.previousIndex, 'to', swiperEl.swiper.activeIndex)
   updateDateButtonLabel()
   if (segIdDate.value === 'Monthly') {
-    pickedDate.value = date.formatDate(dateRangesMonths.value[currentSlideIndex][0], "YYYY/MM/DD")
+    pickedDate.value = date.formatDate(dateRangesMonths.value[swiperEl.swiper.activeIndex][0], "YYYY/MM/DD")
   } else if (segIdDate.value === 'Yearly') {
-    pickedDate.value = date.formatDate(dateRangesYears.value[currentSlideIndex][0], "YYYY/MM/DD")
+    pickedDate.value = date.formatDate(dateRangesYears.value[swiperEl.swiper.activeIndex][0], "YYYY/MM/DD")
   }
 }
+
 </script>
 
 <style lang="scss">
@@ -309,14 +261,14 @@ const onSliding = ({ currentSlideIndex, prevSlideIndex }) => {
   /* adjust the value as needed */
 }
 
-.carousel__slide {
-  align-items: flex-start
-}
+// swiper-container {
+//   height: auto;
+// }
 
-.carousel__pagination {
-  margin: 0;
-  padding: 0;
-}
+// .carousel__pagination {
+//   margin: 0;
+//   padding: 0;
+// }
 
 // .myDate>.row~.row {
 //   display: none !important;

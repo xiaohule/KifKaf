@@ -134,9 +134,9 @@ function trackProcess(dotsPos) {
   color: color(primary);
 }
 
-.carousel .vue-slider {
-  box-sizing: content-box !important;
-}
+// .carousel .vue-slider {
+//   box-sizing: content-box !important;
+// }
 
 // .carousel .segmented-control {
 //   box-sizing: inherit !important;
