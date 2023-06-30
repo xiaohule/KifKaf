@@ -1,9 +1,9 @@
 <template >
   <q-card class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
-    <segmented-control v-model="segId" :segments="seg" :element-name="segName" />
+    <segmented-control v-model="segStatsId" :segments="segStats" :element-name="segStatsName" />
 
     <div v-if="avgIntensitySortedTags.length > 0">
-      <q-list v-if="segId.includes('avgIntensity')">
+      <q-list v-if="segStatsId.includes('avgIntensity')">
         <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in avgIntensitySortedTags.slice(0, numDisplayed)"
           :key="tag">
           <q-item data-cy="learn-tab-tag-row" class="q-px-none q-pb-none row">
@@ -30,7 +30,7 @@
         </q-card-section>
       </q-list>
 
-      <q-list v-else-if="segId.includes('percentShare')">
+      <q-list v-else-if="segStatsId.includes('percentShare')">
         <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="tag in percentShareSortedTags.slice(0, numDisplayed)"
           :key="tag">
           <q-item data-cy="learn-tab-tag-row-percentShare" class="q-px-none q-pb-none row">
@@ -80,14 +80,14 @@
     </div>
 
     <q-card-actions v-if="avgIntensitySortedTags.length > 5" align="center">
-      <q-btn color="primary" @click="showButtonClicked" class="q-mx-sm q-mt-sm full-width" no-caps flat>{{ numDisplayed
-        === 5 ? 'Show more' : 'Show less' }}</q-btn>
+      <q-btn color="primary" @click="showButtonClicked" class="q-mx-sm q-mt-sm full-width" no-caps flat>{{
+        props.learnCardExpanded ? 'Show less' : 'Show more' }}</q-btn>
     </q-card-actions>
   </q-card>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
@@ -103,16 +103,20 @@ const props = defineProps({
     //set default to be the first day of the year to today
     default: () => { [new Date(new Date().getFullYear(), 0, 1), new Date()] },
   },
+  learnCardExpanded: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emits = defineEmits(['click:showButton'])
+const emits = defineEmits(['click:showButton'],)
 
 const momentsStore = useMomentsStore()
 
-const seg = ref([{ title: "Intensity average", id: `avgIntensity${props.flag}` }, { title: "Frequency", id: `percentShare${props.flag}` }])
-const segId = ref(`avgIntensity${props.flag}`)
-const segName = `LearnTabSeg${props.flag}`
-const numDisplayed = ref(5)
+const segStats = ref([{ title: "Intensity average", id: `avgIntensity${props.flag}` }, { title: "Frequency", id: `percentShare${props.flag}` }])
+const segStatsId = ref(`avgIntensity${props.flag}`)
+const segStatsName = `LearnTabSeg${props.flag}`
+
 const allTimeDateRange = ref([new Date(0), new Date()])
 
 const avgIntensitySortedTags = computed(() => {
@@ -129,9 +133,17 @@ function trackProcess(dotsPos) {
   return [[50, dotsPos[0]]]
 }
 
+const numDisplayed = computed(() => {
+  if (props.learnCardExpanded) {
+    return avgIntensitySortedTags.value.length
+  }
+  else {
+    return 5
+  }
+})
+
 const showButtonClicked = () => {
-  numDisplayed.value === 5 ? numDisplayed.value = avgIntensitySortedTags.value.length : numDisplayed.value = 5
-  emits('click:showButton');
+  props.learnCardExpanded ? emits('click:showButton', false) : emits('click:showButton', true);
 }
 
 </script>

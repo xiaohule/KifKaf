@@ -15,15 +15,22 @@
     </q-item>
 
     <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
+
+    <!-- <q-card class="stats-card bg-surface q-px-md q-pt-md q-pb-sm q-mb-xl rounded-borders-14" flat>
+      <segmented-control v-model="segStatsPosId" :segments="segStatsPos" element-name='LearnTabSegStatsPos' /> -->
+
     <swiper-container ref="swiperEl" init="false" auto-height="true" observer="true" observe-slide-children="true"
       grab-cursor="true" pagination-dynamic-bullets="true" @slidechange="onSliding"
       @observerUpdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
       @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
       @init="console.log('SWIPER init fired')">
-      <swiper-slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-        <learn-card flag="positive" :dateRange="range" @click:show-button="swiperUpdateAutoHeight"></learn-card>
+      <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
+        <learn-card flag="positive" :date-range="range" :learn-card-expanded="learnCardExpanded"
+          @click:show-button="showButtonClicked"></learn-card>
       </swiper-slide>
     </swiper-container>
+    <!-- </q-card> -->
+
 
     <!-- TODO:3 add when ready -->
     <div>
@@ -42,19 +49,19 @@
             during the selected period. </q-card-section>
 
           <div class="q-px-md">
-            <segmented-control v-model="segIdDate" :segments="segDate" element-name='LearnTabSegDate' />
+            <segmented-control v-model="segDateId" :segments="segDate" element-name='LearnTabSegDate' />
           </div>
 
           <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
           <!-- <q-date v-model="date" years-in-month-view default-view="Months" emit-immediately
               @update:model-value="onUpdateMv" :key="dpKey" minimal mask="MM" class="myDate"></q-date> -->
-          <q-date v-if="segIdDate === 'Monthly'" v-model="pickedDate" :options="optionsFn"
+          <q-date v-if="segDateId === 'Monthly'" v-model="pickedDate" :options="optionsFn"
             :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
             default-view="Months" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
             years-in-month-view emit-immediately @update:model-value="onUpdatePickedDate" :key="monthsKey"></q-date>
           <!-- @navigation="onNavigationMv" -->
 
-          <q-date v-else-if="segIdDate === 'Yearly'" v-model="pickedDate" :options="optionsFn"
+          <q-date v-else-if="segDateId === 'Yearly'" v-model="pickedDate" :options="optionsFn"
             :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
             default-view="Years" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
             emit-immediately @update:model-value="onUpdatePickedDate" :key="yearsKey"></q-date>
@@ -92,6 +99,8 @@ const momentsStore = useMomentsStore()
 const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
 
+const learnCardExpanded = ref(false)
+
 //SWIPER
 const swiperEl = ref(null)
 const swiperInitialized = ref(false)
@@ -118,13 +127,14 @@ watch(activeIndex, (newVal, oldVal) => {
   if (swiperInitialized.value) {
     if (swiperEl.value.swiper.activeIndex !== newVal) {
       console.log('activeIndex watcher changed wiperEl.swiper.activeIndex from', oldVal, 'to', newVal)
-      // swiperEl.value.swiper.activeIndex = newVal
+      swiperEl.value.swiper.activeIndex = newVal
       swiperEl.value.swiper.slideTo(newVal, 300)
       console.log('CHECK', swiperEl.value.swiper.activeIndex)
     }
   }
 })
-const swiperUpdateAutoHeight = () => {
+const showButtonClicked = (value) => {
+  learnCardExpanded.value = value
   nextTick(() => {
     swiperEl.value.swiper.updateAutoHeight(300);
   })
@@ -202,7 +212,7 @@ const openFilterDialog = (filter) => {
 }
 
 const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
-const segIdDate = ref("Yearly")
+const segDateId = ref("Yearly")
 
 // initialize pickedDate as the first day of the current year with format YYYY/MM/DD
 const pickedDate = ref(date.formatDate(date.startOfDate(new Date(), 'year'), "YYYY/MM/DD"))
@@ -213,14 +223,14 @@ const optionsFn = (date) => {
 }
 
 const updateDateButtonLabel = () => {
-  if (segIdDate.value === 'Yearly') {
+  if (segDateId.value === 'Yearly') {
     if (date.isBetweenDates(new Date(), dateRangesYears.value[activeIndex.value][0], dateRangesYears.value[activeIndex.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
       dateRangeButtonLabel.value = 'This year'
     } else {
       dateRangeButtonLabel.value = dateRangesYears.value[activeIndex.value][0].getFullYear().toString()
     }
   }
-  else if (segIdDate.value === 'Monthly') {
+  else if (segDateId.value === 'Monthly') {
     //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
     if (date.isBetweenDates(new Date(), dateRangesMonths.value[activeIndex.value][0], dateRangesMonths.value[activeIndex.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
       dateRangeButtonLabel.value = 'This month'
@@ -237,7 +247,7 @@ const onUpdatePickedDate = (newVal) => {
   console.log('onUpdatePickedDate newVal', newVal)
   if (newVal) {
     const year = newVal.split('/')[0]
-    if (segIdDate.value === 'Monthly') {
+    if (segDateId.value === 'Monthly') {
       monthsKey.value = Date.now()
       const month = newVal.split('/')[1]
       let nextMonthFirstDay = new Date(year, parseInt(month), 1);
@@ -247,7 +257,7 @@ const onUpdatePickedDate = (newVal) => {
       activeIndex.value = date.getDateDiff(currentMonthFirstDay, oldestMomentDate.value, 'months');
       console.log('currentMonthFirstDay', currentMonthFirstDay)
       console.log('oldestMomentDate.value', oldestMomentDate.value)
-    } else if (segIdDate.value === 'Yearly') {
+    } else if (segDateId.value === 'Yearly') {
       yearsKey.value = Date.now()
       activeIndex.value = date.getDateDiff(year, oldestMomentDate.value, 'years');
     }
@@ -257,12 +267,12 @@ const onUpdatePickedDate = (newVal) => {
 }
 
 //i.e. onSegmentControlChange
-watch(segIdDate, (newVal, oldVal) => {
-  console.log('watch(segIdDate) triggered with newVal', newVal)
+watch(segDateId, (newVal, oldVal) => {
+  console.log('watch(segDateId) triggered with newVal', newVal)
   if (newVal) {
     let max = date.getMaxDate(new Date(pickedDate.value), new Date(oldestMomentDate.value))
     pickedDate.value = date.formatDate(max, "YYYY/MM/DD")
-    console.log('watch(segIdDate) pickedDate.value', pickedDate.value)
+    console.log('watch(segDateId) pickedDate.value', pickedDate.value)
     onUpdatePickedDate(pickedDate.value)
   }
   //TODO:1 ensure that when yearly (2023) > monthly selecting May (2023) > yearly (2023) > monthly the carousel has kept May and is not showing Jan as current
@@ -274,9 +284,9 @@ const onSliding = () => {
   activeIndex.value = swiperEl.value.swiper.activeIndex;
   console.log('In onSliding, slide updated from', swiperEl.value.swiper.previousIndex, 'to', activeIndex.value)
   updateDateButtonLabel()
-  if (segIdDate.value === 'Monthly') {
+  if (segDateId.value === 'Monthly') {
     pickedDate.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], "YYYY/MM/DD")
-  } else if (segIdDate.value === 'Yearly') {
+  } else if (segDateId.value === 'Yearly') {
     pickedDate.value = date.formatDate(dateRangesYears.value[activeIndex.value][0], "YYYY/MM/DD")
   }
 }
@@ -288,13 +298,29 @@ const onSliding = () => {
   margin-right: 8px;
 }
 
-// swiper-container {
-//   height: auto;
+// .swiper-pagination-bullets {
+//   //   bottom: 100px !important;
+//   // position: absolute;
+
+//   // bottom: -50px; //TODO:3 faire marcher ac bon selector
+
+//   // margin-bottom: -50px;
+
+//   //   bottom: var(--swiper-pagination-bottom, 100px) !important;
+//   // transform: translateY(-50%);
+//   // margin-bottom: -20px; /* Adjust this as needed */
+
 // }
 
-// .carousel__pagination {
-//   margin: 0;
-//   padding: 0;
+// swiper-container {
+//   overflow: visible; //TODO:3 hide lateral overflow using swiper-container hide
+//   //   --add-bottom: 60px;
+//   //   padding-bottom: var(--add-bottom);
+//   //   margin-bottom: 30px;
+// }
+
+// .stats-card {
+//   overflow: visible;
 // }
 
 // .myDate>.row~.row {
