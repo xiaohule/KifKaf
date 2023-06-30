@@ -64,7 +64,7 @@
                 <q-item class="q-px-none q-pb-none">
                   <q-item-section>
                     <vue-slider v-model="moment.intensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                      disabled></vue-slider>
+                      disabled tooltip="none"></vue-slider>
                   </q-item-section>
 
                   <q-item-section side>

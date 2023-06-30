@@ -19,8 +19,8 @@
             </q-item-section>
 
             <q-item-section class="col-5">
-              <vue-slider v-model="tag.avgIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1"
-                disabled></vue-slider>
+              <vue-slider v-model="tag.avgIntensity" :process="trackProcess" :min="-5" :max="5" :interval="1" disabled
+                tooltip="none"></vue-slider>
             </q-item-section>
 
             <q-item-section class="col-1 text-center">

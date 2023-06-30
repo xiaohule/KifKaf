@@ -46,34 +46,26 @@
           <q-card-section class="q-pt-xs text-outline">Filtering the period will take into account only the
             moments that happened
             during the selected period. </q-card-section>
-
           <div class="q-px-md">
             <segmented-control v-model="segDateId" :segments="segDate" element-name='LearnTabSegDate' />
           </div>
-
-          <!-- minimal  mask="MM"  mask="MM-DD-YYYY"  -->
-          <!-- <q-date v-model="date" years-in-month-view default-view="Months" emit-immediately
-              @update:model-value="onUpdateMv" :key="dpKey" minimal mask="MM" class="myDate"></q-date> -->
           <q-date v-if="segDateId === 'Monthly'" v-model="pickedDate" :options="optionsFn"
             :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
             default-view="Months" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
             years-in-month-view emit-immediately @update:model-value="onUpdatePickedDate" :key="monthsKey"></q-date>
-          <!-- @navigation="onNavigationMv" -->
-
           <q-date v-else-if="segDateId === 'Yearly'" v-model="pickedDate" :options="optionsFn"
             :navigation-min-year-month="oldestMomentDateFormatted" :navigation-max-year-month="currentDateFormatted"
             default-view="Years" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
             emit-immediately @update:model-value="onUpdatePickedDate" :key="yearsKey"></q-date>
-          <!-- @navigation="onNavigationYv" -->
         </div>
 
-        <div v-else-if="tappedFilter === 'tags'">
+        <!-- <div v-else-if="tappedFilter === 'tags'">
           <q-card-section class="text-h6">Filter period
           </q-card-section>
           <q-card-section>Filtering the period will take into account only the moments that happened during the
             selected
             period. </q-card-section>
-        </div>
+        </div> -->
 
         <q-card-actions align="center">
           <q-btn rounded color="primary" @click="filterDialogOpen = false" padding="10px"
