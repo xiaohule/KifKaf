@@ -25,7 +25,8 @@
       @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
       @init="console.log('SWIPER init fired')">
       <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-        <learn-card flag="positive" :date-range="range" :learn-card-expanded="learnCardExpanded"
+        <learn-card flag="positive" :date-range="range" :frequency-selected="frequencySelected"
+          @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpanded"
           @click:show-button="showButtonClicked"></learn-card>
       </swiper-slide>
     </swiper-container>
@@ -99,8 +100,6 @@ const momentsStore = useMomentsStore()
 const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
 
-const learnCardExpanded = ref(false)
-
 //SWIPER
 const swiperEl = ref(null)
 const swiperInitialized = ref(false)
@@ -133,6 +132,12 @@ watch(activeIndex, (newVal, oldVal) => {
     }
   }
 })
+
+const frequencySelected = ref(false)
+const segmentedControlClicked = (value) => {
+  frequencySelected.value = value
+}
+const learnCardExpanded = ref(false)
 const showButtonClicked = (value) => {
   learnCardExpanded.value = value
   nextTick(() => {

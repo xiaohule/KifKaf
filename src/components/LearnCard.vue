@@ -1,6 +1,7 @@
 <template >
   <q-card class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
-    <segmented-control v-model="segStatsId" :segments="segStats" :element-name="segStatsName" />
+    <segmented-control :modelValue="segStatsId" @update:modelValue="newValue => segmentedControlClicked(newValue)"
+      :segments="segStats" :element-name="segStatsName" />
 
     <div v-if="avgIntensitySortedTags.length > 0">
       <q-list v-if="segStatsId.includes('avgIntensity')">
@@ -87,11 +88,14 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
+import { uid } from 'quasar'
+
+const momentsStore = useMomentsStore()
 
 const props = defineProps({
   flag: {
@@ -103,19 +107,27 @@ const props = defineProps({
     //set default to be the first day of the year to today
     default: () => { [new Date(new Date().getFullYear(), 0, 1), new Date()] },
   },
+  frequencySelected: {
+    type: Boolean,
+    default: false,
+  },
   learnCardExpanded: {
     type: Boolean,
     default: false,
   },
 });
 
-const emits = defineEmits(['click:showButton'],)
+const emits = defineEmits(['click:segmentedControl'], ['click:showButton'])
 
-const momentsStore = useMomentsStore()
+let segUid = uid()
+// Example: 501e7ae1-7e6f-b923-3e84-4e946bff31a8
+const segStats = ref([{ title: "Intensity average", id: "avgIntensity" + segUid }, { title: "Frequency", id: "percentShare" + segUid }])
+// const segStatsId = ref("avgIntensity" + segUid)
+const segStatsId = computed(() => {
+  return props.frequencySelected ? "percentShare" + segUid : "avgIntensity" + segUid
+})
 
-const segStats = ref([{ title: "Intensity average", id: `avgIntensity${props.flag}` }, { title: "Frequency", id: `percentShare${props.flag}` }])
-const segStatsId = ref(`avgIntensity${props.flag}`)
-const segStatsName = `LearnTabSeg${props.flag}`
+const segStatsName = "segStats" + segUid
 
 const allTimeDateRange = ref([new Date(0), new Date()])
 
@@ -134,17 +146,17 @@ function trackProcess(dotsPos) {
 }
 
 const numDisplayed = computed(() => {
-  if (props.learnCardExpanded) {
-    return avgIntensitySortedTags.value.length
-  }
-  else {
-    return 5
-  }
+  return props.learnCardExpanded ? avgIntensitySortedTags.value.length : 5
 })
 
+const segmentedControlClicked = () => {
+  props.frequencySelected ? emits('click:segmentedControl', false) : emits('click:segmentedControl', true);
+}
 const showButtonClicked = () => {
   props.learnCardExpanded ? emits('click:showButton', false) : emits('click:showButton', true);
 }
+
+
 
 </script>
 
