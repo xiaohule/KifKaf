@@ -150,10 +150,10 @@ const numDisplayed = computed(() => {
 })
 
 const segmentedControlClicked = () => {
-  props.frequencySelected ? emits('click:segmentedControl', false) : emits('click:segmentedControl', true);
+  props.frequencySelected ? emits('click:segmentedControl', { value: false, flag: props.flag }) : emits('click:segmentedControl', { value: true, flag: props.flag });
 }
 const showButtonClicked = () => {
-  props.learnCardExpanded ? emits('click:showButton', false) : emits('click:showButton', true);
+  props.learnCardExpanded ? emits('click:showButton', { value: false, flag: props.flag }) : emits('click:showButton', { value: true, flag: props.flag });
 }
 
 
