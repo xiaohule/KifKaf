@@ -3,7 +3,6 @@
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
     <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
     </div> -->
-    <!-- <div> -->
     <q-item class="q-px-none q-pt-none">
       <!-- <q-item-section class="col-auto">
           <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
@@ -16,23 +15,13 @@
     </q-item>
 
     <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
-
-    <!-- <carousel v-model="currentSlide" :items-to-show="1" @slide-end="onSliding">
-      <slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range"
-        :style="{ height: 'fit-content' }">
-        <div>
-          <learn-card flag="positive" :dateRange="range"></learn-card>
-        </div>
-      </slide>
-      <template #addons="{ slidesCount }">
-        <pagination v-if="slidesCount > 1" />
-      </template>
-    </carousel> -->
-
-    <swiper-container init="false" auto-height="true" pagination="true" @slidechange="onSliding" observer="true"
-      observe-slide-children="true">
+    <swiper-container ref="swiperEl" init="false" auto-height="true" observer="true" observe-slide-children="true"
+      grab-cursor="true" pagination-dynamic-bullets="true" @slidechange="onSliding"
+      @observerUpdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
+      @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
+      @init="console.log('SWIPER init fired')">
       <swiper-slide v-for="range in (segIdDate === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-        <learn-card flag="positive" :dateRange="range"></learn-card>
+        <learn-card flag="positive" :dateRange="range" @click:show-button="swiperUpdateAutoHeight"></learn-card>
       </swiper-slide>
     </swiper-container>
 
@@ -86,34 +75,62 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <!-- </div> -->
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, } from 'vue'
+import { ref, computed, watch, nextTick, onActivated, onDeactivated } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
 import { date } from "quasar";
-// import 'vue3-carousel/dist/carousel.css'
-// import { Carousel, Slide, Pagination } from 'vue3-carousel'
-
 // import styles bundle
 import 'swiper/css/bundle';
 
-let swiperEl
-onMounted(() => {
-  swiperEl = document.querySelector('swiper-container');
-  swiperEl.initialize();
-  swiperEl.swiper.activeIndex = dateRangesYears.value.length - 1;
-  console.log('in watch onMounted updated activeIndex to', swiperEl.swiper.activeIndex)
-});
-
 const momentsStore = useMomentsStore()
+
 const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
 
+//SWIPER
+const swiperEl = ref(null)
+const swiperInitialized = ref(false)
+const activeIndex = ref(0)
+// onMounted(() => { //TODO:1 keep only activated?
+//   console.log('ONMOUNTED')
+//   swiperEl.value.initialize();
+//   swiperEl.value.swiper.activeIndex = activeIndex.value
+//   swiperInitialized.value = true
+// });
+onActivated(() => {
+  console.log('ONACTIVATED')
+  if (!swiperInitialized.value) {
+    swiperEl.value.initialize();
+    swiperEl.value.swiper.activeIndex = activeIndex.value
+    swiperInitialized.value = true
+  }
+});
+onDeactivated(() => {
+  console.log('ONDEACTIVATED')
+  swiperInitialized.value = false
+});
+watch(activeIndex, (newVal, oldVal) => {
+  if (swiperInitialized.value) {
+    if (swiperEl.value.swiper.activeIndex !== newVal) {
+      console.log('activeIndex watcher changed wiperEl.swiper.activeIndex from', oldVal, 'to', newVal)
+      // swiperEl.value.swiper.activeIndex = newVal
+      swiperEl.value.swiper.slideTo(newVal, 300)
+      console.log('CHECK', swiperEl.value.swiper.activeIndex)
+    }
+  }
+})
+const swiperUpdateAutoHeight = () => {
+  nextTick(() => {
+    swiperEl.value.swiper.updateAutoHeight(300);
+  })
+}
+
+//DATES MANAGEMENT
 const computedUniqueDays = computed(() => {
   return momentsStore.uniqueDays || []
 })
@@ -130,6 +147,7 @@ const monthsSinceOldestMoment = computed(() => {
   return Math.max(1, date.getDateDiff(new Date(), oldestMomentDate.value, 'months'))
 })
 const yearsSinceOldestMoment = computed(() => {
+  console.log('in yearsSinceOldestMoment computed', date.getDateDiff(new Date(), oldestMomentDate.value, 'years'))
   return Math.max(1, date.getDateDiff(new Date(), oldestMomentDate.value, 'years'))
 })
 const currentMonthFirstDay = computed(() => {
@@ -165,9 +183,17 @@ const dateRangesYears = computed(() => {
       date.subtractFromDate(new Date(currentYearLastDay.value), { years: i })
     ]);
   }
+  console.log('in computed dateRangesYears, dateRanges is', dateRanges)
   return dateRanges;
 });
 
+watch(dateRangesYears, (newValue) => {
+  activeIndex.value = newValue.length - 1;
+  console.log('in watch dateRangesYears updated activeIndex to', activeIndex.value)
+}, { immediate: true }
+);
+
+//DIALOG
 const filterDialogOpen = ref(false)
 const tappedFilter = ref('date')
 const openFilterDialog = (filter) => {
@@ -188,24 +214,25 @@ const optionsFn = (date) => {
 
 const updateDateButtonLabel = () => {
   if (segIdDate.value === 'Yearly') {
-    if (date.isBetweenDates(new Date(), dateRangesYears.value[swiperEl.swiper.activeIndex][0], dateRangesYears.value[swiperEl.swiper.activeIndex][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
+    if (date.isBetweenDates(new Date(), dateRangesYears.value[activeIndex.value][0], dateRangesYears.value[activeIndex.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
       dateRangeButtonLabel.value = 'This year'
     } else {
-      dateRangeButtonLabel.value = dateRangesYears.value[swiperEl.swiper.activeIndex][0].getFullYear().toString()
+      dateRangeButtonLabel.value = dateRangesYears.value[activeIndex.value][0].getFullYear().toString()
     }
   }
   else if (segIdDate.value === 'Monthly') {
     //dateRangeButtonLabel should be the month name if in current year and the month name + year if not
-    if (date.isBetweenDates(new Date(), dateRangesMonths.value[swiperEl.swiper.activeIndex][0], dateRangesMonths.value[swiperEl.swiper.activeIndex][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
+    if (date.isBetweenDates(new Date(), dateRangesMonths.value[activeIndex.value][0], dateRangesMonths.value[activeIndex.value][1], { inclusiveFrom: true, inclusiveTo: true, onlyDate: true })) {
       dateRangeButtonLabel.value = 'This month'
-    } else if (dateRangesMonths.value[swiperEl.swiper.activeIndex][0].getFullYear() === new Date().getFullYear()) {
-      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[swiperEl.swiper.activeIndex][0], 'MMMM')
+    } else if (dateRangesMonths.value[activeIndex.value][0].getFullYear() === new Date().getFullYear()) {
+      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], 'MMMM')
     } else {
-      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[swiperEl.swiper.activeIndex][0], 'MMMM YYYY')
+      dateRangeButtonLabel.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], 'MMMM YYYY')
     }
   }
 }
 
+//EVENTS
 const onUpdatePickedDate = (newVal) => {
   console.log('onUpdatePickedDate newVal', newVal)
   if (newVal) {
@@ -217,14 +244,14 @@ const onUpdatePickedDate = (newVal) => {
       nextMonthFirstDay.setDate(nextMonthFirstDay.getDate() - 1);
       let currentMonthFirstDay = new Date(year, parseInt(month) - 1, 1);
       // Update currentSlide to the correct index in dateRangesMonths
-      swiperEl.swiper.activeIndex = date.getDateDiff(currentMonthFirstDay, oldestMomentDate.value, 'months');
+      activeIndex.value = date.getDateDiff(currentMonthFirstDay, oldestMomentDate.value, 'months');
       console.log('currentMonthFirstDay', currentMonthFirstDay)
       console.log('oldestMomentDate.value', oldestMomentDate.value)
     } else if (segIdDate.value === 'Yearly') {
       yearsKey.value = Date.now()
-      swiperEl.swiper.activeIndex = date.getDateDiff(year, oldestMomentDate.value, 'years');
+      activeIndex.value = date.getDateDiff(year, oldestMomentDate.value, 'years');
     }
-    console.log('onUpdatePickedDate triggered currentSlide update to', swiperEl.swiper.activeIndex)
+    console.log('onUpdatePickedDate triggered currentSlide update to', activeIndex.value)
     updateDateButtonLabel()
   }
 }
@@ -243,13 +270,14 @@ watch(segIdDate, (newVal, oldVal) => {
 });
 
 const onSliding = () => {
-  console.log('In onSliding, swiperEl.swiper ', swiperEl.swiper)
-  console.log('In onSliding, slide updated from', swiperEl.swiper.previousIndex, 'to', swiperEl.swiper.activeIndex)
+  // console.log('In onSliding, swiperEl.swiper ', swiperEl.swiper)
+  activeIndex.value = swiperEl.value.swiper.activeIndex;
+  console.log('In onSliding, slide updated from', swiperEl.value.swiper.previousIndex, 'to', activeIndex.value)
   updateDateButtonLabel()
   if (segIdDate.value === 'Monthly') {
-    pickedDate.value = date.formatDate(dateRangesMonths.value[swiperEl.swiper.activeIndex][0], "YYYY/MM/DD")
+    pickedDate.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], "YYYY/MM/DD")
   } else if (segIdDate.value === 'Yearly') {
-    pickedDate.value = date.formatDate(dateRangesYears.value[swiperEl.swiper.activeIndex][0], "YYYY/MM/DD")
+    pickedDate.value = date.formatDate(dateRangesYears.value[activeIndex.value][0], "YYYY/MM/DD")
   }
 }
 
@@ -258,7 +286,6 @@ const onSliding = () => {
 <style lang="scss">
 .bg-button-on-background .q-icon {
   margin-right: 8px;
-  /* adjust the value as needed */
 }
 
 // swiper-container {

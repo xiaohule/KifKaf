@@ -1,5 +1,5 @@
 <template >
-  <q-card class="bg-surface q-px-md q-pt-md q-pb-sm rounded-borders-14" flat>
+  <q-card class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
     <segmented-control v-model="segId" :segments="seg" :element-name="segName" />
 
     <div v-if="avgIntensitySortedTags.length > 0">
@@ -58,7 +58,7 @@
       </q-list>
     </div>
 
-    <div v-else class="bg-surface q-px-md q-py-md q-mb-lg rounded-borders-14" flat>
+    <div v-else class="bg-surface q-px-md q-py-md rounded-borders-14" flat>
       <div v-if="props.flag === 'positive'">
         <div
           v-if="!momentsStore || !momentsStore.getTags(allTimeDateRange, props.flag).value.length || momentsStore.getTags(allTimeDateRange, props.flag).value.length === 0">
@@ -80,8 +80,8 @@
     </div>
 
     <q-card-actions v-if="avgIntensitySortedTags.length > 5" align="center">
-      <q-btn color="primary" @click="numDisplayed === 5 ? numDisplayed = avgIntensitySortedTags.length : numDisplayed = 5"
-        class="q-mx-sm q-mt-sm full-width" no-caps flat>{{ numDisplayed === 5 ? 'Show more' : 'Show less' }}</q-btn>
+      <q-btn color="primary" @click="showButtonClicked" class="q-mx-sm q-mt-sm full-width" no-caps flat>{{ numDisplayed
+        === 5 ? 'Show more' : 'Show less' }}</q-btn>
     </q-card-actions>
   </q-card>
 </template>
@@ -105,6 +105,8 @@ const props = defineProps({
   },
 });
 
+const emits = defineEmits(['click:showButton'])
+
 const momentsStore = useMomentsStore()
 
 const seg = ref([{ title: "Intensity average", id: `avgIntensity${props.flag}` }, { title: "Frequency", id: `percentShare${props.flag}` }])
@@ -126,6 +128,12 @@ function trackProcess(dotsPos) {
   // cf. https://nightcatsama.github.io/vue-slider-component/#/basics/process
   return [[50, dotsPos[0]]]
 }
+
+const showButtonClicked = () => {
+  numDisplayed.value === 5 ? numDisplayed.value = avgIntensitySortedTags.value.length : numDisplayed.value = 5
+  emits('click:showButton');
+}
+
 </script>
 
 <style lang="scss">
