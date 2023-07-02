@@ -7,6 +7,7 @@ const momentsStats2022Data = require("./../fixtures/momentsStats2022.json");
 
 import { generateRandomTestEmail } from "./../support/commands.js";
 
+//workaround to GH actions failing
 describe("Do nothing", () => {
   beforeEach(() => {
     cy.visit("/");

@@ -14,11 +14,13 @@
       </q-item-section>
     </q-item>
 
+    <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
+        @slidechangetransitionend="console.log('SWIPER slidechangetransitionend fired', $event)"-->
     <div>
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
       <swiper-container ref="swiperElPositive" init="false" auto-height="true" observer="true"
         observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @slidechange="(event) => onSliding(event, 'positive')"
+        @activeindexchange="(event) => onSliding(event, 'positive')"
         @observerUpdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
         @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
         @init="console.log('SWIPER init fired')">
@@ -34,7 +36,7 @@
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
       <swiper-container ref="swiperElNegative" init="false" auto-height="true" observer="true"
         observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @slidechange="(event) => onSliding(event, 'negative')">
+        @activeindexchange="(event) => onSliding(event, 'negative')">
         <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
           <learn-card flag="negative" :date-range="range" :frequency-selected="frequencySelectedNegative"
             @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedNegative"
@@ -112,7 +114,8 @@ onActivated(() => {
   if (!swiperInitialized.value) {
     swiperElPositive.value.initialize();
     swiperElNegative.value.initialize();
-    swiperElPositive.value.swiper.activeIndex = swiperElNegative.value.swiper.activeIndex = activeIndex.value
+    swiperElPositive.value.swiper.activeIndex = activeIndex.value
+    swiperElNegative.value.swiper.activeIndex = activeIndex.value
     swiperInitialized.value = true
   }
 });
@@ -122,13 +125,31 @@ onDeactivated(() => {
 });
 watch(activeIndex, (newVal, oldVal) => {
   if (swiperInitialized.value) {
-    console.log('activeIndex watcher changed activeIndex from', oldVal, 'to', newVal)
-    swiperElPositive.value.swiper.activeIndex = swiperElNegative.value.swiper.activeIndex = newVal
+    console.log('in activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
+
     swiperElPositive.value.swiper.slideTo(newVal, 300)
+    console.log('in activeIndex watcher3, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
     swiperElNegative.value.swiper.slideTo(newVal, 300)
-    console.log('CHECK', swiperElPositive.value.swiper.activeIndex)
+
+    swiperElPositive.value.swiper.activeIndex = newVal
+    console.log('in activeIndex watcher2, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
+    swiperElNegative.value.swiper.activeIndex = newVal
+
+    console.log('CHECK POSITIVE', swiperElPositive.value.swiper)
+    console.log('CHECK NEGATIVE', swiperElNegative.value.swiper)
   }
 })
+
+// const onSliding = (event, flag) => {
+//   activeIndex.value = (flag === 'positive') ? swiperElPositive.value.swiper.activeIndex : swiperElNegative.value.swiper.activeIndex
+//   console.log('In onSliding with flag', flag, ' activeIndex updated to ', activeIndex.value)
+//   updateDateButtonLabel()
+//   if (segDateId.value === 'Monthly') {
+//     pickedDate.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], "YYYY/MM/DD")
+//   } else if (segDateId.value === 'Yearly') {
+//     pickedDate.value = date.formatDate(dateRangesYears.value[activeIndex.value][0], "YYYY/MM/DD")
+//   }
+// }
 
 const frequencySelectedPositive = ref(false)
 const frequencySelectedNegative = ref(false)
@@ -291,8 +312,9 @@ watch(segDateId, (newVal, oldVal) => {
 });
 
 const onSliding = (event, flag) => {
+  console.log('in onSliding 4, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
   activeIndex.value = (flag === 'positive') ? swiperElPositive.value.swiper.activeIndex : swiperElNegative.value.swiper.activeIndex
-  console.log('In onSliding, slide updated to', activeIndex.value)
+  console.log('In onSliding with flag', flag, ' activeIndex updated to ', activeIndex.value)
   updateDateButtonLabel()
   if (segDateId.value === 'Monthly') {
     pickedDate.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], "YYYY/MM/DD")
