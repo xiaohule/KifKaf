@@ -62,6 +62,7 @@ describe("Signing up > out > in", () => {
   });
 });
 
+//TODO:3 in all tests that aren't testing signing in and moments input we should log in programmatically on an existing account with good data and split those tests into separate files
 describe("Checking basic screens", () => {
   beforeEach(() => {
     cy.visit("/");
