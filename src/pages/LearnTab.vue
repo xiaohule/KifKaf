@@ -14,28 +14,34 @@
       </q-item-section>
     </q-item>
 
-    <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
-    <swiper-container ref="swiperElPositive" init="false" auto-height="true" observer="true" observe-slide-children="true"
-      grab-cursor="true" pagination-dynamic-bullets="true" @slidechange="(event) => onSliding(event, 'positive')"
-      @observerUpdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
-      @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
-      @init="console.log('SWIPER init fired')">
-      <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-        <learn-card flag="positive" :date-range="range" :frequency-selected="frequencySelectedPositive"
-          @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedPositive"
-          @click:show-button="showButtonClicked"></learn-card>
-      </swiper-slide>
-    </swiper-container>
+    <div>
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
+      <swiper-container ref="swiperElPositive" init="false" auto-height="true" observer="true"
+        observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
+        @slidechange="(event) => onSliding(event, 'positive')"
+        @observerUpdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
+        @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
+        @init="console.log('SWIPER init fired')">
+        <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
+          <learn-card flag="positive" :date-range="range" :frequency-selected="frequencySelectedPositive"
+            @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedPositive"
+            @click:show-button="showButtonClicked"></learn-card>
+        </swiper-slide>
+      </swiper-container>
+    </div>
 
-    <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
-    <swiper-container ref="swiperElNegative" init="false" auto-height="true" observer="true" observe-slide-children="true"
-      grab-cursor="true" pagination-dynamic-bullets="true" @slidechange="(event) => onSliding(event, 'negative')">
-      <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-        <learn-card flag="negative" :date-range="range" :frequency-selected="frequencySelectedNegative"
-          @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedNegative"
-          @click:show-button="showButtonClicked"></learn-card>
-      </swiper-slide>
-    </swiper-container>
+    <div>
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
+      <swiper-container ref="swiperElNegative" init="false" auto-height="true" observer="true"
+        observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
+        @slidechange="(event) => onSliding(event, 'negative')">
+        <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
+          <learn-card flag="negative" :date-range="range" :frequency-selected="frequencySelectedNegative"
+            @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedNegative"
+            @click:show-button="showButtonClicked"></learn-card>
+        </swiper-slide>
+      </swiper-container>
+    </div>
 
     <q-dialog v-model="filterDialogOpen" position="bottom">
       <q-card class="bg-background q-px-sm">

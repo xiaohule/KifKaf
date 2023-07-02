@@ -1,38 +1,68 @@
 [
   {
     "tag": "movement",
-    "count": 3,
-    "avgIntensity": 1.66,
-    "percentShare": 0.43
+    "count": 5,
+    "avgIntensity": 1.8,
+    "percentShare": 0.28
   },
   {
     "tag": "self-esteem",
-    "count": 1,
-    "avgIntensity": 4,
-    "percentShare": 0.14
+    "count": 3,
+    "avgIntensity": 0.3,
+    "percentShare": 0.17
   },
   {
     "tag": "proud",
-    "count": 2,
-    "avgIntensity": 3,
-    "percentShare": 0.29
-  },
-  {
-    "tag": "mum",
-    "count": 2,
-    "avgIntensity": -0.5,
-    "percentShare": 0.29
-  },
-  {
-    "tag": "food",
-    "count": 2,
-    "avgIntensity": 0,
-    "percentShare": 0.29
+    "count": 3,
+    "avgIntensity": 1.3,
+    "percentShare": 0.17
   },
   {
     "tag": "phone",
     "count": 1,
     "avgIntensity": -3,
-    "percentShare": 0.14
+    "percentShare": 0.06
+  },
+  {
+    "tag": "mum",
+    "count": 3,
+    "avgIntensity": -1.7,
+    "percentShare": 0.17
+  },
+  {
+    "tag": "food",
+    "count": 2,
+    "avgIntensity": 0,
+    "percentShare": 0.11
+  },
+  {
+    "tag": "impatience",
+    "count": 1,
+    "avgIntensity": -3,
+    "percentShare": 0.06
+  },
+  {
+    "tag": "autonomy",
+    "count": 3,
+    "avgIntensity": 0.3,
+    "percentShare": 0.17
+  },
+  {
+    "tag": "safety",
+    "count": 1,
+    "avgIntensity": 1,
+    "percentShare": 0.06
+  },
+  {
+    "tag": "rest",
+    "count": 2,
+    "avgIntensity": 2,
+    "percentShare": 0.11
+  },
+  {
+    "tag": "lettinggo",
+    "count": 1,
+    "avgIntensity": 2,
+    "percentShare": 0.06
   }
 ]

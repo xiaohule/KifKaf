@@ -70,13 +70,13 @@ describe("Checking basic screens", () => {
     cy.title().should("include", "Quasar");
     cy.contains("KifKaf");
   });
-  it("contain the expected tabs", () => {
+  it("contains the expected tabs", () => {
     cy.contains("Home");
     cy.contains("Learn");
     // cy.contains("Timeline");
     // cy.contains("Search");
   });
-  it("navigate to Learn>Home>Settings>Home", () => {
+  it("can navigate to Learn>Home>Settings>Home", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
     cy.contains("Kifs").should("exist");
@@ -97,12 +97,11 @@ describe("Moments inputting and stats validation", () => {
     cy.visit("/");
   });
 
-  it("input moments in Home and validate in Learn", () => {
+  it("can input moments in Home", () => {
     for (const item of momentsData) {
       const now = new Date(item.date);
       cy.clock(now.getTime(), ["Date"]);
 
-      expect(item.intensity).to.be.a("number").and.be.gte(-5).and.be.lte(5);
       cy.get(".vue-slider-rail").first().clickVSlider(item.intensity);
 
       const tagsString = item.tags.map((tag) => ` #${tag}`).join("");
@@ -121,36 +120,80 @@ describe("Moments inputting and stats validation", () => {
     for (const item of momentsData) {
       cy.contains(item.text);
     }
+  });
 
+  it("should have correct stats in Learn tab for 2023", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
 
-    for (const item of momentsStats2023Data) {
-      cy.dataCy("learn-tab-tag-row").each(($div) => {
-        cy.wrap($div).within(() => {
-          if (Cypress.$($div).find(`:contains(${item.tag})`).length > 0) {
-            cy.contains(item.count);
-            cy.contains(parseFloat(item.avgIntensity.toFixed(1)));
+    cy.contains("This year");
+    cy.contains("Kifs");
+    cy.contains("Kafs");
+
+    //expand Kifs section
+    cy.get(".swiper-slide-active").first().contains("Show more").click();
+
+    cy.get(".swiper-slide-active").then(($els) => {
+      for (const item of momentsStats2023Data) {
+        cy.wrap($els.first()).within(($el) => {
+          if ($el.text().includes(item.tag)) {
+            cy.contains(item.tag)
+              .parent()
+              .contains(item.count)
+              .parent()
+              .parent()
+              .contains(item.avgIntensity);
+          } else {
+            // If not found in the first .swiper-slide-active element, try the second one
+            cy.wrap($els.last()).within(() => {
+              cy.contains(item.tag)
+                .parent()
+                .contains(item.count)
+                .parent()
+                .parent()
+                .contains(item.avgIntensity);
+            });
           }
         });
-      });
-    }
+      }
+    });
 
-    cy.contains("Kifs").parent().contains("Frequency").click();
-    cy.contains("Kafs").parent().contains("Frequency").click();
+    cy.wait(1000);
 
-    for (const item of momentsStats2023Data) {
-      cy.dataCy("learn-tab-tag-row-percentShare").each(($div) => {
-        cy.wrap($div).within(() => {
-          if (Cypress.$($div).find(`:contains(${item.tag})`).length > 0) {
-            cy.contains(parseFloat((item.percentShare * 100).toFixed(0)));
+    // cy.contains("Frequency").each(($el) => {
+    //   cy.wrap($el).click({ force: true });
+    // });
+    cy.get(".swiper-slide-active").each(($el, index, $list) => {
+      cy.wrap($el).contains("Frequency").click();
+    });
+
+    cy.get(".swiper-slide-active").then(($els) => {
+      for (const item of momentsStats2023Data) {
+        cy.wrap($els.first()).within(($el) => {
+          if ($el.text().includes(item.tag)) {
+            cy.contains(item.tag)
+              .parent()
+              .contains(item.count)
+              .parent()
+              .parent()
+              .contains((item.percentShare * 100).toFixed(0));
+          } else {
+            // If not found in the first .swiper-slide-active element, try the second one
+            cy.wrap($els.last()).within(() => {
+              cy.contains(item.tag)
+                .parent()
+                .contains(item.count)
+                .parent()
+                .parent()
+                .contains((item.percentShare * 100).toFixed(0));
+            });
           }
         });
-      });
-    }
+      }
+    });
   });
 
-  it("validate monthly picker and learn tab 2022", () => {
+  it("should have a working monthly picker and correct stats in learn tab for 2022", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
     cy.contains("This year").click();
@@ -165,19 +208,33 @@ describe("Moments inputting and stats validation", () => {
     });
     cy.contains("2022").should("exist");
 
-    for (const item of momentsStats2022Data) {
-      cy.dataCy("learn-tab-tag-row").each(($div) => {
-        cy.wrap($div).within(() => {
-          if (Cypress.$($div).find(`:contains(${item.tag})`).length > 0) {
-            cy.contains(item.count);
-            cy.contains(parseFloat(item.avgIntensity.toFixed(1)));
+    cy.get(".swiper-slide-active").then(($els) => {
+      for (const item of momentsStats2022Data) {
+        cy.wrap($els.first()).within(($el) => {
+          if ($el.text().includes(item.tag)) {
+            cy.contains(item.tag)
+              .parent()
+              .contains(item.count)
+              .parent()
+              .parent()
+              .contains(item.avgIntensity);
+          } else {
+            // If not found in the first .swiper-slide-active element, try the second one
+            cy.wrap($els.last()).within(() => {
+              cy.contains(item.tag)
+                .parent()
+                .contains(item.count)
+                .parent()
+                .parent()
+                .contains(item.avgIntensity);
+            });
           }
         });
-      });
-    }
+      }
+    });
   });
 
-  it("validate learn tab 2021", () => {
+  it("should have the expected placeholder in learn tab for 2021", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
     cy.contains("This year").click();
