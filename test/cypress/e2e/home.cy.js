@@ -7,6 +7,15 @@ const momentsStats2022Data = require("./../fixtures/momentsStats2022.json");
 
 import { generateRandomTestEmail } from "./../support/commands.js";
 
+describe("Do nothing", () => {
+  beforeEach(() => {
+    cy.visit("/");
+  });
+  it("assert <title> is correct", () => {
+    cy.title().should("include", "Quasar");
+  });
+});
+
 describe.skip("Signing in and out", () => {
   before(() => {
     cy.toggleFirebasePersistence();
