@@ -68,21 +68,21 @@ describe("Checking basic screens", () => {
   });
   it("assert <title> and header title are correct", () => {
     cy.title().should("include", "Quasar");
-    cy.contains("KifKaf");
+    cy.contains("KifKaf").should("be.visible");
   });
   it("contains the expected tabs", () => {
-    cy.contains("Home");
-    cy.contains("Learn");
+    cy.contains("Home").should("be.visible");
+    cy.contains("Learn").should("be.visible");
     // cy.contains("Timeline");
     // cy.contains("Search");
   });
   it("can navigate to Learn>Home>Settings>Home", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-    cy.contains("Kifs").should("exist");
+    cy.contains("Kifs").should("be.visible");
     cy.contains(
       "First add some Kafs in Home tab to learn about what drains you!"
-    ).should("exist");
+    ).should("be.visible");
     cy.get("footer").contains("Home").click();
     cy.url().should("not.include", "learn");
     cy.contains("account_circle").click();
@@ -126,8 +126,8 @@ describe("Moments inputting and stats validation", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
 
-    cy.contains("This year");
-    cy.contains("Kifs");
+    cy.contains("This year").should("be.visible");
+    cy.contains("Kifs").should("be.visible");
     cy.contains("Kafs");
 
     //expand Kifs section
@@ -157,8 +157,6 @@ describe("Moments inputting and stats validation", () => {
         });
       }
     });
-
-    cy.wait(1000);
 
     // cy.contains("Frequency").each(($el) => {
     //   cy.wrap($el).click({ force: true });
@@ -196,17 +194,17 @@ describe("Moments inputting and stats validation", () => {
   it("should have a working monthly picker and correct stats in learn tab for 2022", () => {
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-    cy.contains("This year").click();
+    cy.contains("This year").should("be.visible").click();
     cy.withinDialog((el) => {
       // cy.wrap(el).should("contain", "screen");
-      cy.contains("Monthly").click();
-      cy.contains("May").should("exist");
-      cy.contains("Yearly").click();
-      cy.contains("2023").should("exist");
-      cy.contains("2022").click();
-      cy.contains("Done").click();
+      cy.contains("Monthly").should("be.visible").click();
+      cy.contains("May").should("be.visible");
+      cy.contains("Yearly").should("be.visible").click();
+      cy.contains("2023").should("be.visible");
+      cy.contains("2022").should("be.visible").click();
+      cy.contains("Done").should("be.visible").click();
     });
-    cy.contains("2022").should("exist");
+    cy.contains("2022").should("be.visible");
 
     cy.get(".swiper-slide-active").then(($els) => {
       for (const item of momentsStats2022Data) {
@@ -240,7 +238,7 @@ describe("Moments inputting and stats validation", () => {
     cy.contains("This year").click();
     cy.contains("2021").click();
     cy.contains("Done").click();
-    cy.contains("No Kifs for this period").should("exist");
+    cy.contains("No Kifs for this period").should("be.visible");
   });
 });
 

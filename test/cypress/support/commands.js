@@ -110,48 +110,6 @@ export const generateRandomTestEmail = (string_length) => {
   return random_string;
 };
 
-Cypress.Commands.add(
-  "isWithinViewportWidth",
-  { prevSubject: true },
-  (subject) => {
-    const rect = subject[0].getBoundingClientRect();
-    const windowInnerWidth = Cypress.config(`viewportWidth`);
-
-    console.log("isWithinViewportWidth rect", rect);
-    console.log("isWithinViewportWidth rect.left", rect.left);
-    console.log("isWithinViewportWidth rect.right", rect.right);
-    console.log("isWithinViewportWidth window.innerWidth", windowInnerWidth);
-
-    console.log(
-      "isWithinViewportWidth returned",
-      rect.left >= 0 && rect.right <= windowInnerWidth
-    );
-    return rect.left >= 0 && rect.right <= windowInnerWidth;
-  }
-);
-
-// Cypress.Commands.add("isWithinViewport", { prevSubject: true }, (subject) => {
-//   const rect = subject[0].getBoundingClientRect();
-
-//   expect(rect.top).to.be.within(0, window.innerHeight);
-//   expect(rect.right).to.be.within(0, window.innerWidth);
-//   expect(rect.bottom).to.be.within(0, window.innerHeight);
-//   expect(rect.left).to.be.within(0, window.innerWidth);
-
-//   return subject;
-// });
-
-// Cypress.Commands.add("isOutsideViewport", { prevSubject: true }, (subject) => {
-//   const rect = subject[0].getBoundingClientRect();
-
-//   expect(rect.top).not.to.be.within(0, window.innerHeight);
-//   expect(rect.right).not.to.be.within(0, window.innerWidth);
-//   expect(rect.bottom).not.to.be.within(0, window.innerHeight);
-//   expect(rect.left).not.to.be.within(0, window.innerWidth);
-
-//   return subject;
-// });
-
 // Cypress.Commands.add("seedDatabase", () => {
 //   setActivePinia(createPinia());
 //   const momentsStore = useMomentsStore();
