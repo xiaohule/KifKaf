@@ -128,28 +128,17 @@ watch(activeIndex, (newVal, oldVal) => {
     console.log('in activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
 
     swiperElPositive.value.swiper.slideTo(newVal, 300)
-    console.log('in activeIndex watcher3, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
+    console.log('in activeIndex watcher2, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
     swiperElNegative.value.swiper.slideTo(newVal, 300)
 
     swiperElPositive.value.swiper.activeIndex = newVal
-    console.log('in activeIndex watcher2, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
+    console.log('in activeIndex watcher3, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
     swiperElNegative.value.swiper.activeIndex = newVal
 
     console.log('CHECK POSITIVE', swiperElPositive.value.swiper)
-    console.log('CHECK NEGATIVE', swiperElNegative.value.swiper)
+    // console.log('CHECK NEGATIVE', swiperElNegative.value.swiper)
   }
 })
-
-// const onSliding = (event, flag) => {
-//   activeIndex.value = (flag === 'positive') ? swiperElPositive.value.swiper.activeIndex : swiperElNegative.value.swiper.activeIndex
-//   console.log('In onSliding with flag', flag, ' activeIndex updated to ', activeIndex.value)
-//   updateDateButtonLabel()
-//   if (segDateId.value === 'Monthly') {
-//     pickedDate.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], "YYYY/MM/DD")
-//   } else if (segDateId.value === 'Yearly') {
-//     pickedDate.value = date.formatDate(dateRangesYears.value[activeIndex.value][0], "YYYY/MM/DD")
-//   }
-// }
 
 const frequencySelectedPositive = ref(false)
 const frequencySelectedNegative = ref(false)
@@ -189,8 +178,8 @@ const monthsSinceOldestMoment = computed(() => {
   return Math.max(1, date.getDateDiff(new Date(), oldestMomentDate.value, 'months'))
 })
 const yearsSinceOldestMoment = computed(() => {
-  console.log('in yearsSinceOldestMoment computed', date.getDateDiff(new Date(), oldestMomentDate.value, 'years'))
-  return Math.max(1, date.getDateDiff(new Date(), oldestMomentDate.value, 'years'))
+  console.log('in yearsSinceOldestMoment computed, yearsSinceOldestMoment=', date.getDateDiff(new Date(), oldestMomentDate.value, 'years'))
+  return date.getDateDiff(new Date(), oldestMomentDate.value, 'years')
 })
 const currentMonthFirstDay = computed(() => {
   return date.startOfDate(new Date(), 'month')
