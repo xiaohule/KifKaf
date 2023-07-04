@@ -50,6 +50,11 @@ const uiConfig = {
       // Hide the loader.
       document.getElementById('loader').style.display = 'none';
     },
+    signInFailure: function (error) {
+      // Handle sign-in failure errors here
+      console.error('Sign-in failure:', error);
+      return Promise.resolve(); // Return a promise to avoid the default error message
+    },
   },
   signInFlow: 'popup',// Sign-in flow configuration (popup window)
   // signInSuccessUrl: '/',
