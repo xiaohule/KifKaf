@@ -24,9 +24,8 @@ export const analytics = getAnalytics(firebaseApp);
 //APP CHECK
 // Set FIREBASE_APPCHECK_DEBUG_TOKEN to the CI one if CI, true (to use the dev whitelisted ones) if no in CI but in dev and false otherwise
 self.FIREBASE_APPCHECK_DEBUG_TOKEN =
-  process.env.CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI ||
-  process.env.NODE_ENV === "development" ||
-  false;
+  // process.env.CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI ||
+  "B80567AE-00EF-4EF8-9500-7A484E421EA2";
 console.log(
   "FIREBASE_APPCHECK_DEBUG_TOKEN",
   self.FIREBASE_APPCHECK_DEBUG_TOKEN

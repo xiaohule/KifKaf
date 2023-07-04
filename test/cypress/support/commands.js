@@ -47,7 +47,9 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
 
   //APP CHECK
   self.FIREBASE_APPCHECK_DEBUG_TOKEN =
-    Cypress.env("CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI") || true;
+    // Cypress.env("CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI")
+    // ||
+    "B80567AE-00EF-4EF8-9500-7A484E421EA2";
   console.log(
     "FIREBASE_APPCHECK_DEBUG_TOKEN from commands.js",
     self.FIREBASE_APPCHECK_DEBUG_TOKEN
