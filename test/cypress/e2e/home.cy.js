@@ -14,7 +14,7 @@ describe("Do nothing", () => {
   });
   it("assert <title> is correct", () => {
     cy.title().should("include", "Quasar");
-    Cypress.env();
+    cy.log("Cypress.env()", Cypress.env());
   });
 });
 
