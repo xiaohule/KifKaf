@@ -24,7 +24,7 @@ Cypress.on("uncaught:exception", (err, runnable) => {
       "Failed to fetch dynamically imported module: http://localhost:9200/src/pages/HomeTab.vue"
     ) ||
     err.message.includes("ResizeObserver loop limit exceeded") ||
-    err.message.includes("Cancelled")
+    err.message.includes("cancelled")
   ) {
     return false;
   }
