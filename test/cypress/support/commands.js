@@ -32,6 +32,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, inMemoryPersistence, setPersistence } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
+// Cypress.Commands.add("getLogs", () => {
+//   return cy.task("getLogs").then((logs) => {
+//     cy.log("Console logs:", logs);
+//     return logs;
+//   });
+// });
+
 Cypress.Commands.add("toggleFirebasePersistence", () => {
   const firebaseConfig = {
     apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -47,7 +54,7 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
 
   //APP CHECK
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = Cypress.env(
-    "CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI"
+    "APP_CHECK_DEBUG_TOKEN_FROM_CI"
   );
   // ||
   // "B80567AE-00EF-4EF8-9500-7A484E421EA2";

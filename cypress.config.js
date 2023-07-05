@@ -80,10 +80,25 @@ module.exports = defineConfig({
         // whatever you return here becomes the launchOptions
         return launchOptions;
       });
+      // on("task", {
+      //   log({ message, type }) {
+      //     if (!Cypress.config("isInteractive")) {
+      //       cy.log("Console logs:", message);
+      //     }
+      //     return null; // No need to return a promise here
+      //   },
+      //   getLogs() {
+      //     return Cypress.log
+      //       .get()
+      //       .filter((log) => log.get("name") === "log")
+      //       .map((log) => log.get("message"));
+      //   },
+      // });
       return config;
     },
     baseUrl: "http://localhost:9200/",
     defaultCommandTimeout: 20000,
+    // taskTimeout: 60000,
     supportFile: "test/cypress/support/e2e.js",
     specPattern: "test/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
     experimentalWebKitSupport: true,

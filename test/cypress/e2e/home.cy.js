@@ -14,18 +14,15 @@ describe("Do nothing", () => {
     cy.log("Cypress.env()", JSON.stringify(Cypress.env(), null, 2));
     cy.log(
       "Cypress.env('CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI')",
-      Cypress.env("CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI")
+      Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI")
     );
-    cy.log(
-      "Cypress.env('CYPRESS_RECORD_KEY')",
-      Cypress.env("CYPRESS_RECORD_KEY")
-    );
-    cy.log("Cypress.env('GITHUB_TOKEN')", Cypress.env("GITHUB_TOKEN"));
-    cy.wait(10000);
+    cy.log("Cypress.env('CYPRESS_RECORD_KEY')", Cypress.env("RECORD_KEY"));
+    cy.wait(1000);
     cy.visit("/");
   });
   it("assert <title> is correct", () => {
     cy.title().should("include", "Quasar");
+    // cy.getLogs();
   });
 });
 
@@ -35,6 +32,11 @@ describe.skip("Signing in and out", () => {
   });
   beforeEach(() => {
     cy.visit("/");
+    // cy.getLogs();
+    // cy.task("getLogs").then((logs) => {
+    //   cy.log("Console logs:", logs);
+    //   return logs;
+    // });
   });
   it("should let the user sign in", () => {
     cy.signIn("a@yopmail.com", "yopyopyop2");
