@@ -15,6 +15,16 @@ describe("Do nothing", () => {
   it("assert <title> is correct", () => {
     cy.title().should("include", "Quasar");
     cy.log("Cypress.env()", Cypress.env());
+    cy.log("Cypress.env()", JSON.stringify(Cypress.env(), null, 2));
+    cy.log(
+      "Cypress.env('CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI')",
+      Cypress.env("CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI")
+    );
+    cy.log(
+      "Cypress.env('CYPRESS_RECORD_KEY')",
+      Cypress.env("CYPRESS_RECORD_KEY")
+    );
+    cy.log("Cypress.env('GITHUB_TOKEN')", Cypress.env("GITHUB_TOKEN"));
   });
 });
 
