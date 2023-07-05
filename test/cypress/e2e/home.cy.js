@@ -10,13 +10,11 @@ import { generateRandomTestEmail } from "./../support/commands.js";
 //workaround to GH actions failing
 describe("Do nothing", () => {
   beforeEach(() => {
-    cy.log("Cypress.env()", Cypress.env());
     cy.log("Cypress.env()", JSON.stringify(Cypress.env(), null, 2));
     cy.log(
       "Cypress.env('CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI')",
       Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI")
     );
-    cy.log("Cypress.env('CYPRESS_RECORD_KEY')", Cypress.env("RECORD_KEY"));
     cy.wait(1000);
     cy.visit("/");
   });
