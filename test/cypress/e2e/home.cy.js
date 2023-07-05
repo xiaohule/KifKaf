@@ -20,7 +20,6 @@ describe("Do nothing", () => {
   });
   it("assert <title> is correct", () => {
     cy.title().should("include", "Quasar");
-    // cy.getLogs();
   });
 });
 
@@ -30,11 +29,6 @@ describe.skip("Signing in and out", () => {
   });
   beforeEach(() => {
     cy.visit("/");
-    // cy.getLogs();
-    // cy.task("getLogs").then((logs) => {
-    //   cy.log("Console logs:", logs);
-    //   return logs;
-    // });
   });
   it("should let the user sign in", () => {
     cy.signIn("a@yopmail.com", "yopyopyop2");

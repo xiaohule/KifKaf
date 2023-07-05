@@ -32,13 +32,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth, inMemoryPersistence, setPersistence } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
-// Cypress.Commands.add("getLogs", () => {
-//   return cy.task("getLogs").then((logs) => {
-//     cy.log("Console logs:", logs);
-//     return logs;
-//   });
-// });
-
 Cypress.Commands.add("toggleFirebasePersistence", () => {
   const firebaseConfig = {
     apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -55,19 +48,13 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
   //APP CHECK
   self.FIREBASE_APPCHECK_DEBUG_TOKEN =
     Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI") || true;
-  // ||
-  // "B80567AE-00EF-4EF8-9500-7A484E421EA2";
-  console.log(
-    "FIREBASE_APPCHECK_DEBUG_TOKEN from commands.js",
-    self.FIREBASE_APPCHECK_DEBUG_TOKEN
-  );
   const appCheck = initializeAppCheck(firebaseApp, {
     provider: new ReCaptchaV3Provider(
       "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB"
     ),
     isTokenAutoRefreshEnabled: true,
   });
-  // chain the promises together with .then()
+
   return auth
     .signOut()
     .then(() => {

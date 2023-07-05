@@ -31,23 +31,3 @@ Cypress.on("uncaught:exception", (err, runnable) => {
   // we still want to ensure there are no other unexpected
   // errors, so we let them fail the test
 });
-
-// Cypress.on("window:before:load", (win) => {
-//   // Override console.log to capture logs
-//   cy.stub(win.console, "log").callsFake((...args) => {
-//     cy.task("log", { message: args.join(" "), type: "log" });
-//     console.log(...args);
-//   });
-
-//   // Override console.warn to capture warnings
-//   cy.stub(win.console, "warn").callsFake((...args) => {
-//     cy.task("log", { message: args.join(" "), type: "warn" });
-//     console.warn(...args);
-//   });
-
-//   // Override console.error to capture errors
-//   cy.stub(win.console, "error").callsFake((...args) => {
-//     cy.task("log", { message: args.join(" "), type: "error" });
-//     console.error(...args);
-//   });
-// });
