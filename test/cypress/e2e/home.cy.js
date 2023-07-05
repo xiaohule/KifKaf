@@ -19,7 +19,7 @@ describe("Do nothing", () => {
     cy.visit("/");
   });
   it("assert <title> is correct", () => {
-    cy.title().should("include", "Quasar");
+    cy.title().should("include", "KifKaf");
   });
 });
 
@@ -84,7 +84,7 @@ describe("Checking basic screens", () => {
     cy.visit("/");
   });
   it("assert <title> and header title are correct", () => {
-    cy.title().should("include", "Quasar");
+    cy.title().should("include", "KifKaf");
     cy.contains("KifKaf").should("be.visible");
   });
   it("contains the expected tabs", () => {
