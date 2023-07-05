@@ -40,20 +40,25 @@ export const useSpeechRecognition = (rawNewText) => {
 
     if (!isRecognizing.value) {
       recognition.onresult = (event) => {
-        let finalTranscript = "";
-        let interimTranscript = "";
+        try {
+          let finalTranscript = "";
+          let interimTranscript = "";
 
-        for (let i = 0; i < event.results.length; i++) {
-          const result = event.results[i];
+          for (let i = 0; i < event.results.length; i++) {
+            const result = event.results[i];
 
-          if (result.isFinal) {
-            finalTranscript += result[0].transcript;
-          } else {
-            interimTranscript += result[0].transcript;
+            if (result.isFinal) {
+              finalTranscript += result[0].transcript;
+            } else {
+              interimTranscript += result[0].transcript;
+            }
           }
-        }
 
-        rawNewText.value = finalTranscript + interimTranscript;
+          rawNewText.value = finalTranscript + interimTranscript;
+        } catch (error) {
+          // Handle the error, e.g., log or display an error message
+          console.error("Error in speech recognition:", error);
+        }
       };
 
       recognition.start(); // Start listening

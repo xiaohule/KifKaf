@@ -30,6 +30,7 @@ import { registerCommands } from "@quasar/quasar-app-extension-testing-e2e-cypre
 registerCommands();
 import { initializeApp } from "firebase/app";
 import { getAuth, inMemoryPersistence, setPersistence } from "firebase/auth";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 Cypress.Commands.add("toggleFirebasePersistence", () => {
   const firebaseConfig = {
@@ -41,13 +42,29 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
     appId: "1:296402111022:web:9e147ef8aa0fcb44822dbf",
     measurementId: "G-6KB3RTH5GX",
   };
-
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp);
-  // chain the promises together with .then()
-  return auth.signOut().then(() => {
-    return setPersistence(auth, inMemoryPersistence); //set persistence to none
+
+  //APP CHECK
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN =
+    Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI") || true;
+  const appCheck = initializeAppCheck(firebaseApp, {
+    provider: new ReCaptchaV3Provider(
+      "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB"
+    ),
+    isTokenAutoRefreshEnabled: true,
   });
+
+  return auth
+    .signOut()
+    .then(() => {
+      return setPersistence(auth, inMemoryPersistence); //set persistence to none
+    })
+    .catch((error) => {
+      // Handle the error here
+      console.error("Error occurred during persistence setting:", error);
+      throw error; // Rethrow the error to propagate it further
+    });
   // FYI
   //local (implemented by browserLocalPersistence in Firebase JS SDK) - This persists the user session even when the browser is closed.
   // session (implemented by browserSessionPersistence in Firebase JS SDK) - This persists the user session until the browser or tab is closed.
