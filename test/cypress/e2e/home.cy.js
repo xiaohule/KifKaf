@@ -25,6 +25,7 @@ describe("Do nothing", () => {
       Cypress.env("CYPRESS_RECORD_KEY")
     );
     cy.log("Cypress.env('GITHUB_TOKEN')", Cypress.env("GITHUB_TOKEN"));
+    cy.wait(10000);
   });
 });
 
