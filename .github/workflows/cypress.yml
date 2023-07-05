@@ -35,4 +35,3 @@ jobs:
           #make Firebase App Check token available to the firebaseBoot.js when in distant test
           #...made me think that the Firebase framework was looking for APP_CHECK_DEBUG_TOKEN
           CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI: ${{ secrets.CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI }}
-          APP_CHECK_DEBUG_TOKEN: ${{ secrets.CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI }}
