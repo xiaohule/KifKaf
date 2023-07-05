@@ -10,10 +10,6 @@ import { generateRandomTestEmail } from "./../support/commands.js";
 //workaround to GH actions failing
 describe("Do nothing", () => {
   beforeEach(() => {
-    cy.visit("/");
-  });
-  it("assert <title> is correct", () => {
-    cy.title().should("include", "Quasar");
     cy.log("Cypress.env()", Cypress.env());
     cy.log("Cypress.env()", JSON.stringify(Cypress.env(), null, 2));
     cy.log(
@@ -26,6 +22,10 @@ describe("Do nothing", () => {
     );
     cy.log("Cypress.env('GITHUB_TOKEN')", Cypress.env("GITHUB_TOKEN"));
     cy.wait(10000);
+    cy.visit("/");
+  });
+  it("assert <title> is correct", () => {
+    cy.title().should("include", "Quasar");
   });
 });
 
