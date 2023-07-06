@@ -37,6 +37,7 @@ export default {
           interactive: true,
           trigger: "manual",
           placement: "bottom-start",
+          hideOnClick: true,
         });
       },
 

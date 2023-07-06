@@ -94,16 +94,18 @@
 
 <script setup>
 import { ref, onMounted, onDeactivated, onBeforeUnmount, computed } from 'vue'
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
-import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js'
-import NewMomentEditor from './../components/NewMomentEditor.vue'
-import VirtualKeyboardBar from './../components/VirtualKeyboardBar.vue'
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
+import NewMomentEditor from './../components/NewMomentEditor.vue'
+
+// TODO:3 make below dynamic imports?
+import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js'
+import VirtualKeyboardBar from './../components/VirtualKeyboardBar.vue'
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
