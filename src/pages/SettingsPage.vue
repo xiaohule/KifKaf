@@ -51,12 +51,12 @@
             <q-item-label>About us</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple>
+        <q-item clickable v-ripple to="/settings/privacy-policy">
           <q-item-section>
             <q-item-label>Privacy policy</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple>
+        <q-item clickable v-ripple to="/settings/terms">
           <q-item-section>
             <q-item-label>Terms & conditions</q-item-label>
           </q-item-section>
@@ -79,7 +79,7 @@
 
       <q-item>
         <q-item-section>
-          <q-item-label>KifKaf version 1.0.0</q-item-label>
+          <q-item-label>KifKaf version {{ version }}</q-item-label>
         </q-item-section>
       </q-item>
 
@@ -178,6 +178,8 @@ import { signOut } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
+const version = process.env.__APP_VERSION__
+
 const $q = useQuasar()
 const router = useRouter()
 const momentsStore = useMomentsStore()

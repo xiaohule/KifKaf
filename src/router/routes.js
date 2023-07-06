@@ -28,7 +28,20 @@ const routes = [
     component: () => import("layouts/SettingsLayout.vue"),
     // meta: { requiresAuth: true, transition: "slide-right" },
     meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/SettingsPage.vue") }],
+    children: [
+      {
+        path: "",
+        component: () => import("pages/SettingsPage.vue"),
+      },
+      {
+        path: "/settings/privacy-policy",
+        component: () => import("pages/PrivacyPolicyPage.vue"),
+      },
+      {
+        path: "/settings/terms",
+        component: () => import("pages/TermsConditionsPage.vue"),
+      },
+    ],
   },
   {
     path: "/login",
