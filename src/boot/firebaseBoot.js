@@ -19,7 +19,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 export const db = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
-export const analytics = getAnalytics(firebaseApp);
+const analytics = getAnalytics(firebaseApp);
 
 //APP CHECK
 // Set FIREBASE_APPCHECK_DEBUG_TOKEN to the CI one if CI, true (to use the dev whitelisted ones) if no in CI but in dev and false otherwise

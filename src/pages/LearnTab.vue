@@ -90,8 +90,11 @@ import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
 import { date } from "quasar";
+// destructuring to keep only what is needed in date
+const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBetweenDates } = date;
+
 // import styles bundle
-import 'swiper/css/bundle';
+// import 'swiper/css/bundle';
 
 const momentsStore = useMomentsStore()
 
@@ -99,6 +102,7 @@ const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
 
 //SWIPER
+//TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
 const swiperElPositive = ref(null)
 const swiperElNegative = ref(null)
 const swiperInitialized = ref(false)

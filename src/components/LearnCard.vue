@@ -89,11 +89,11 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 
 const momentsStore = useMomentsStore()
 
