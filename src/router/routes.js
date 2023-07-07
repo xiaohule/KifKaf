@@ -26,20 +26,11 @@ const routes = [
   {
     path: "/settings",
     component: () => import("layouts/SettingsLayout.vue"),
-    // meta: { requiresAuth: true, transition: "slide-right" },
     meta: { requiresAuth: true },
     children: [
       {
         path: "",
         component: () => import("pages/SettingsPage.vue"),
-      },
-      {
-        path: "/settings/privacy-policy",
-        component: () => import("pages/PrivacyPolicyPage.vue"),
-      },
-      {
-        path: "/settings/terms",
-        component: () => import("pages/TermsConditionsPage.vue"),
       },
     ],
   },
@@ -48,13 +39,38 @@ const routes = [
     component: () => import("layouts/AuthLayout.vue"),
     children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
   },
+  //TODO:2 make only one layout for terms and privacy policy and auth that can take a title as param
+  {
+    path: "/privacy-policy",
+    component: () => import("layouts/PrivacyPolicyLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("pages/PrivacyPolicyPage.vue"),
+      },
+      // Redirect route
+      // { path: "/login", redirect: "/privacy-policy" },
+    ],
+  },
+  {
+    path: "/terms",
+    component: () => import("layouts/TermsLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("pages/TermsConditionsPage.vue"),
+      },
+      // Redirect route
+      // { path: "/login", redirect: "/terms" },
+    ],
+  },
+
   // {
   //   path: "/register",
   //   component: () => import("layouts/AuthLayout.vue"),
   //   children: [{ path: "", component: () => import("pages/RegisterPage.vue") }],
   // },
-  // Always leave this as last one,
-  // but you can also remove it
+  // Always leave this as last one, but you can also remove it
   {
     path: "/:catchAll(.*)*",
     component: () => import("pages/ErrorNotFound.vue"),

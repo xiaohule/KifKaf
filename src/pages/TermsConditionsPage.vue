@@ -5,14 +5,12 @@
       <q-item>
         <q-item-section>
           <q-item-label>
-            <h4>Terms and Conditions</h4>
-
-            <p>These Website Standard Terms and Conditions written on this webpage shall manage your use of our website,
+            <p>These Website Standard Terms of Service written on this webpage shall manage your use of our website,
               KifKaf accessible at www.kifkaf.app.</p>
 
             <p>These Terms will be applied fully and affect your use of this Website. By using this Website, you agreed to
               accept all terms and conditions written here. You must not use this Website if you disagree with any of
-              these Website Standard Terms and Conditions.</p>
+              these Website Standard Terms of Service.</p>
 
             <h5>Intellectual Property Rights</h5>
 
@@ -44,7 +42,7 @@
 
             <h5>Your Content</h5>
 
-            <p>In these Website Standard Terms and Conditions, "Your Content" shall mean any audio, video text, images or
+            <p>In these Website Standard Terms of Service, "Your Content" shall mean any audio, video text, images or
               other material you choose to display on this Website.</p>
             <!-- <p>By displaying Your Content, you grant KifKaf a
               non-exclusive, worldwide irrevocable, sub licensable license to use, reproduce, adapt, publish, translate

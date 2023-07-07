@@ -5,8 +5,6 @@
       <q-item>
         <q-item-section>
           <q-item-label>
-            <h4>Privacy Policy</h4>
-
             <p>Your privacy is important to us. It is KifKaf's policy to respect your privacy regarding any information we
               may collect from you through our app, KifKaf.</p>
 

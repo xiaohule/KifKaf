@@ -52,14 +52,14 @@
             <q-item-label>About us</q-item-label>
           </q-item-section>
         </q-item> -->
-        <q-item clickable v-ripple to="/settings/privacy-policy">
+        <q-item clickable v-ripple to="/privacy-policy">
           <q-item-section>
             <q-item-label>Privacy policy</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/settings/terms">
+        <q-item clickable v-ripple to="/terms">
           <q-item-section>
-            <q-item-label>Terms & conditions</q-item-label>
+            <q-item-label>Terms of Service</q-item-label>
           </q-item-section>
         </q-item>
         <!-- TODO:1 fail if no internet connection and ask user for connection -->
