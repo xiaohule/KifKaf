@@ -64,6 +64,18 @@ const routes = [
       // { path: "/login", redirect: "/terms" },
     ],
   },
+  {
+    path: "/contact",
+    component: () => import("layouts/ContactLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("pages/ContactUsPage.vue"),
+      },
+      // Redirect route
+      // { path: "/login", redirect: "/terms" },
+    ],
+  },
 
   // {
   //   path: "/register",

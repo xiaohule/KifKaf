@@ -1,13 +1,11 @@
 <template>
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
-    <q-list>
-      <q-item-label header class="text-center">Welcome to KifKaf app!</q-item-label>
-      <div class="rounded-borders-14" id="firebaseui-auth-container"></div>
-      <!-- TODO:1 add contact us -->
-      <!-- <q-item>
-        <q-item-label> <a href="">Contact us</a></q-item-label>
-      </q-item> -->
-    </q-list>
+    <div class="text-center">Welcome to KifKaf</div>
+    <div class="rounded-borders-14" id="firebaseui-auth-container"></div>
+    <!-- TODO:1 add contact us -->
+    <q-separator />
+
+    <div class="q-py-md text-caption text-outline text-center">Contact us</div>
     <q-spinner id="loader" color="primary" size="3em" />
   </q-page>
 </template>
@@ -18,7 +16,7 @@ import { useRoute, useRouter } from 'vue-router';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
 import { auth } from "../boot/firebaseBoot.js";
-import { EmailAuthProvider } from 'firebase/auth';
+import { EmailAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 import { getCurrentUser } from 'vuefire'
 
 const route = useRoute();
@@ -57,14 +55,12 @@ const uiConfig = {
   // signInSuccessUrl: '/',
   signInOptions: [
     EmailAuthProvider.PROVIDER_ID,
-    // GoogleAuthProvider.PROVIDER_ID,
+    GoogleAuthProvider.PROVIDER_ID,
+    // FacebookAuthProvider.PROVIDER_ID,
   ],
-  //TODO:3 add terms of service and privacy policy
-  // // Terms of service url.
   tosUrl: () => {
     window.location.assign('/#/terms/')
   },
-  // // Privacy policy url.
   privacyPolicyUrl: () => {
     window.location.assign('/#/privacy-policy/')
   }
@@ -112,8 +108,30 @@ onMounted(async () => {
   box-shadow: none
 }
 
-// .mdl-shadow--2dp {
-//   box-shadow: none
-// }
+.mdl-button {
+  border-radius: 50px;
+  box-shadow: none;
+
+}
+
+.firebaseui-id-idp-button {
+  background-color: color(surface) !important;
+  box-shadow: none;
+
+}
+
+.firebaseui-idp-text {
+  color: color(on-surface) !important;
+}
+
+.firebaseui-idp-icon {
+  // color: color(on-surface) !important;
+  // background-color: color(on-surface) !important;
+  // border-color: color(on-surface) !important;
+}
+
+#firebaseui-auth-container>div>div.firebaseui-card-content>form>ul>li:nth-child(1)>button>span.firebaseui-idp-icon-wrapper>img {
+  filter: invert(100%);
+}
 </style>
 
