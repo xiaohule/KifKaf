@@ -2,7 +2,7 @@
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
     <q-list>
       <q-item-label header class="text-center">Welcome to KifKaf app!</q-item-label>
-      <div id="firebaseui-auth-container"></div>
+      <div class="rounded-borders-14" id="firebaseui-auth-container"></div>
       <!-- TODO:1 add contact us -->
       <!-- <q-item>
         <q-item-label> <a href="">Contact us</a></q-item-label>
@@ -106,5 +106,14 @@ onMounted(async () => {
 
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.mdl-card {
+  border-radius: 14px;
+  box-shadow: none
+}
+
+// .mdl-shadow--2dp {
+//   box-shadow: none
+// }
+</style>
 
