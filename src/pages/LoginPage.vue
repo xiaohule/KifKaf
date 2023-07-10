@@ -3,13 +3,10 @@
     <q-list>
       <q-item-label header class="text-center">Welcome to KifKaf app!</q-item-label>
       <div id="firebaseui-auth-container"></div>
-      <q-item>
-        <q-item-label> <a href="">What is KifKaf?</a>
-          <span> | </span>
-          <a href="">Message support</a>
-          <span> | </span>
-          <a href="">Terms</a></q-item-label>
-      </q-item>
+      <!-- TODO:1 add contact us -->
+      <!-- <q-item>
+        <q-item-label> <a href="">Contact us</a></q-item-label>
+      </q-item> -->
     </q-list>
     <q-spinner id="loader" color="primary" size="3em" />
   </q-page>
@@ -64,9 +61,13 @@ const uiConfig = {
   ],
   //TODO:3 add terms of service and privacy policy
   // // Terms of service url.
-  // tosUrl: '<your-tos-url>',
+  tosUrl: () => {
+    window.location.assign('/#/terms/')
+  },
   // // Privacy policy url.
-  // privacyPolicyUrl: '<your-privacy-policy-url>'
+  privacyPolicyUrl: () => {
+    window.location.assign('/#/privacy-policy/')
+  }
 };
 
 onMounted(() => {
@@ -100,6 +101,8 @@ onMounted(async () => {
     router.push(to)
   }
 })
+
+// TODO:2 add rounded corners style
 
 </script>
 

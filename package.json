@@ -25,6 +25,7 @@
     "@tiptap/starter-kit": "^2.0.3",
     "@tiptap/suggestion": "^2.0.3",
     "@tiptap/vue-3": "^2.0.3",
+    "axios": "^1.4.0",
     "firebase": "^9.22.0",
     "firebaseui": "^6.0.2",
     "lodash.uniqueid": "^4.0.1",

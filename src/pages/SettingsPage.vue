@@ -46,26 +46,34 @@
       </q-card>
 
       <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-        <q-item clickable v-ripple>
+        <!-- TODO:1 later do About us section -->
+        <!-- <q-item clickable v-ripple>
           <q-item-section>
             <q-item-label>About us</q-item-label>
           </q-item-section>
-        </q-item>
-        <q-item clickable v-ripple>
+        </q-item> -->
+        <q-item clickable v-ripple to="/privacy-policy">
           <q-item-section>
             <q-item-label>Privacy policy</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple>
+        <q-item clickable v-ripple to="/terms">
           <q-item-section>
-            <q-item-label>Terms & conditions</q-item-label>
+            <q-item-label>Terms of Service</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple>
+        <!-- TODO:1 fail if no internet connection and ask user for connection -->
+        <q-item clickable v-ripple @click="contactUsDialogOpen = true">
+          <q-item-section>
+            <q-item-label>Contact us</q-item-label>
+          </q-item-section>
+        </q-item>
+        <!-- TODO:1 later allow to Close account -->
+        <!-- <q-item clickable v-ripple>
           <q-item-section>
             <q-item-label>Close account</q-item-label>
           </q-item-section>
-        </q-item>
+        </q-item> -->
       </q-card>
 
       <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
@@ -79,11 +87,30 @@
 
       <q-item>
         <q-item-section>
-          <q-item-label>KifKaf version 1.0.0</q-item-label>
+          <q-item-label>KifKaf version {{ version }}</q-item-label>
         </q-item-section>
       </q-item>
 
     </q-list>
+
+    <q-dialog v-model="contactUsDialogOpen" position="top">
+      <q-card class="bg-surface">
+        <q-card-section>
+          <div class="text-h6">Contact Us</div>
+        </q-card-section>
+        <!-- TODO:1 add name and email and possibility to edit them -->
+        <q-card-section>
+          <q-input v-model="contactUsMessage" class="q-mx-sm q-mb-md" clearable rounded outlined type="textarea" rows="15"
+            autogrow bg-color="surface-variant" label="Your message" />
+        </q-card-section>
+        <q-separator />
+        <q-card-actions align="right">
+          <q-btn flat rounded label="Cancel" v-close-popup />
+          <q-btn flat rounded label="Send" color="primary" v-close-popup @click="sendContactUsMessage"
+            padding="5px 25px" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!--TODO:1 allow for not re-inputting email if not needed -->
     <q-dialog v-model="editDialogOpen" position="top">
@@ -178,6 +205,8 @@ import { signOut } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
+const version = process.env.__APP_VERSION__
+
 const $q = useQuasar()
 const router = useRouter()
 const momentsStore = useMomentsStore()
@@ -301,6 +330,58 @@ const updateSetting = async () => {
     }
   }
   //TODO:2 disable Save button when no change were made and when one validation is not passed
+}
+
+const contactUsDialogOpen = ref(false)
+const contactUsMessage = ref('')
+
+const sendContactUsMessage = async () => {
+  // Here you can send the message to your backend
+  try {
+    const axiosModule = await import('axios');
+    const axios = axiosModule.default;
+    await axios.post('https://us-central1-kifkaf-d4850.cloudfunctions.net/sendEmail', {
+      senderEmail: momentsStore.user.email,
+      message: "Message sent by user " + momentsStore.user.displayName + "(" + momentsStore.user.email + ") : " + contactUsMessage.value
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    contactUsMessage.value = ''
+    $q.notify({
+      icon: 'done',
+      color: 'positive',
+      message: 'Message sent'
+    })
+  } catch (error) {
+    // Handle authentication error
+    console.error(error)
+    // if (error.code === 'auth/wrong-password') {
+    //   isPwdOld.value = false
+    //   oldPwdInputRef.value.$el.querySelector('input').focus();
+    //   $q.notify({
+    //     icon: 'error',
+    //     color: 'negative',
+    //     message: 'Wrong password'
+    //   })
+    // } else if (error.code === 'auth/weak-password') {
+    //   isPwd.value = false
+    //   mainInputRef.value.$el.querySelector('input').focus();
+    //   $q.notify({
+    //     icon: 'error',
+    //     color: 'negative',
+    //     message: 'Password should be at least 6 characters'
+    //   })
+    // } else {
+    $q.notify({
+      icon: 'error',
+      color: 'negative',
+      message: error.message
+    })
+  }
+  contactUsDialogOpen.value = false;
+
 }
 
 const logOut = () => {
