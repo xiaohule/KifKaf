@@ -23,14 +23,44 @@ describe("Do nothing", () => {
   });
 });
 
-describe.skip("Signing in and out", () => {
+describe("Navigating sign in screens", () => {
   before(() => {
     cy.toggleFirebasePersistence();
   });
   beforeEach(() => {
     cy.visit("/");
   });
-  it("should let the user sign in", () => {
+  it("Verifying sign in options, ToS and Contact", () => {
+    cy.contains("Sign in with email").should("be.visible").click();
+    cy.contains("Cancel").should("be.visible").click();
+    cy.contains("Sign in with Google").should("be.visible");
+    cy.contains("Terms of Service").should("be.visible").click();
+    cy.contains(
+      "These Terms will be applied fully and affect your use of this Website. By using this Website, you agreed to accept all terms and conditions written here."
+    );
+    cy.contains("arrow_back").click();
+
+    cy.contains("Privacy Policy").should("be.visible").click();
+    cy.contains(
+      "Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy without your explicit consent."
+    );
+    cy.contains("arrow_back").click();
+    cy.contains("Contact us").should("be.visible").click();
+    cy.contains("hello@kifkaf.app");
+    cy.contains("Send");
+    cy.contains("arrow_back").click();
+  });
+});
+
+describe("Signing in and out", () => {
+  before(() => {
+    cy.toggleFirebasePersistence();
+  });
+  beforeEach(() => {
+    cy.visit("/");
+  });
+  it("should let the user sign in with email", () => {
+    cy.contains("Sign in with email").click();
     cy.signIn("a@yopmail.com", "yopyopyop2");
   });
   it("should allow for tapping Log out and cancel", () => {
@@ -51,31 +81,27 @@ describe.skip("Signing in and out", () => {
 describe("Signing up > out > in", () => {
   before(() => {
     cy.toggleFirebasePersistence();
-    // cy.toggleFirebasePersistence().should(() => {
-    //   const firebaseApp = initializeApp(firebaseConfig);
-    //   const auth = getAuth(firebaseApp);
-    //   expect(auth.persistence).to.equal(inMemoryPersistence);
-    // });
   });
   beforeEach(() => {
     cy.visit("/");
   });
   const username = generateRandomTestEmail(4) + "@yopmail.com";
   const password = "yopyopyop";
-  it("should let a user sign up", () => {
+  it("should let a user sign up with email", () => {
+    cy.contains("Sign in with email").click();
     cy.signUp(username, password);
   });
-  it.skip("should allow for tapping Log out and confirming", () => {
-    cy.contains("account_circle").click();
-    cy.contains("Log out").click();
-    cy.withinDialog((el) => {
-      cy.wrap(el).should("contain", "screen");
-      cy.dataCy("logout-button").click();
-    });
-  });
-  it.skip("should let the newly created user sign in", () => {
-    cy.signIn(username, password);
-  });
+  // it.skip("should allow for tapping Log out and confirming", () => {
+  //   cy.contains("account_circle").click();
+  //   cy.contains("Log out").click();
+  //   cy.withinDialog((el) => {
+  //     cy.wrap(el).should("contain", "screen");
+  //     cy.dataCy("logout-button").click();
+  //   });
+  // });
+  // it.skip("should let the newly created user sign in", () => {
+  //   cy.signIn(username, password);
+  // });
 });
 
 //TODO:3 in all tests that aren't testing signing in and moments input we should log in programmatically on an existing account with good data and split those tests into separate files
