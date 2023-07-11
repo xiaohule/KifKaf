@@ -5,7 +5,16 @@
     <!-- TODO:1 add contact us -->
     <q-separator />
 
-    <div class="q-py-md text-caption text-outline text-center">Contact us</div>
+    <!-- make hyperlink to /contact page using vue router -->
+    <div class="q-py-md text-center"><a class="text-caption text-outline" href="/#/contact"
+        style="text-decoration: none">Contact us</a>
+    </div>
+    <!-- <div to="/contact" class="q-py-md text-caption text-outline text-center">Contact us</div> -->
+    <!-- <q-item clickable v-ripple to="/contact">
+      <q-item-section>
+        <q-item-label>Contact us</q-item-label>
+      </q-item-section>
+    </q-item> -->
     <q-spinner id="loader" color="primary" size="3em" />
   </q-page>
 </template>
