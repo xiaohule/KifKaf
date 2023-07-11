@@ -81,11 +81,6 @@ describe("Signing in and out", () => {
 describe("Signing up > out > in", () => {
   before(() => {
     cy.toggleFirebasePersistence();
-    // cy.toggleFirebasePersistence().should(() => {
-    //   const firebaseApp = initializeApp(firebaseConfig);
-    //   const auth = getAuth(firebaseApp);
-    //   expect(auth.persistence).to.equal(inMemoryPersistence);
-    // });
   });
   beforeEach(() => {
     cy.visit("/");
@@ -96,17 +91,17 @@ describe("Signing up > out > in", () => {
     cy.contains("Sign in with email").click();
     cy.signUp(username, password);
   });
-  it.skip("should allow for tapping Log out and confirming", () => {
-    cy.contains("account_circle").click();
-    cy.contains("Log out").click();
-    cy.withinDialog((el) => {
-      cy.wrap(el).should("contain", "screen");
-      cy.dataCy("logout-button").click();
-    });
-  });
-  it.skip("should let the newly created user sign in", () => {
-    cy.signIn(username, password);
-  });
+  // it.skip("should allow for tapping Log out and confirming", () => {
+  //   cy.contains("account_circle").click();
+  //   cy.contains("Log out").click();
+  //   cy.withinDialog((el) => {
+  //     cy.wrap(el).should("contain", "screen");
+  //     cy.dataCy("logout-button").click();
+  //   });
+  // });
+  // it.skip("should let the newly created user sign in", () => {
+  //   cy.signIn(username, password);
+  // });
 });
 
 //TODO:3 in all tests that aren't testing signing in and moments input we should log in programmatically on an existing account with good data and split those tests into separate files

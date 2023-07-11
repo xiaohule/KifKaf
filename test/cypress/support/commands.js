@@ -75,7 +75,7 @@ Cypress.Commands.add("signIn", (username, password) => {
   // cy.session(
   //   username,
   //   () => {
-  cy.url({ timeout: 40000 }).should("include", "login");
+  cy.url({ timeout: 20000 }).should("include", "login");
   cy.get("input").type(username);
   cy.contains("Next").click();
   cy.get("[type='password']").type(password);
