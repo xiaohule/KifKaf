@@ -5,32 +5,70 @@ const momentsData = require("./../fixtures/moments.json");
 const momentsStats2023Data = require("./../fixtures/momentsStats2023.json");
 const momentsStats2022Data = require("./../fixtures/momentsStats2022.json");
 
-import { generateRandomTestEmail } from "./../support/commands.js";
+// import { generateRandomTestEmail } from "./../support/commands.js";
 
 //workaround to GH actions failing
-describe("Do nothing", () => {
-  beforeEach(() => {
-    // cy.log("Cypress.env()", JSON.stringify(Cypress.env(), null, 2));
-    // cy.log(
-    //   "Cypress.env('CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI')",
-    //   Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI")
-    // );
-    // cy.wait(1000);
-    cy.visit("/");
-  });
+describe("Workaround GH actions", () => {
+  // beforeEach(() => {
+  // cy.log("Cypress.env()", JSON.stringify(Cypress.env(), null, 2));
+  // cy.log(
+  //   "Cypress.env('CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI')",
+  //   Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI")
+  // );
+  // cy.wait(1000);
+  // });
   it("assert <title> is correct", () => {
+    cy.visit("/");
     cy.title().should("include", "KifKaf");
   });
 });
 
-describe("Navigating sign in screens", () => {
+describe.skip("Signing in and out", () => {
   before(() => {
     cy.toggleFirebasePersistence();
   });
-  beforeEach(() => {
+  it("should let the user sign in with email & log out", () => {
+    cy.visit("/");
+
+    cy.contains("Sign in with email").click();
+    cy.signIn("a@yopmail.com", "yopyopyop2");
+
+    cy.contains("account_circle").click();
+    cy.contains("Log out").click();
+    cy.contains("Cancel").click();
+
+    cy.contains("Log out").click();
+    cy.withinDialog((el) => {
+      cy.wrap(el).should("contain", "screen");
+      cy.dataCy("logout-button").click();
+    });
+  });
+});
+
+describe("Navigating sign in screens & Signing up > out > in", () => {
+  before(() => {
+    cy.toggleFirebasePersistence();
     cy.visit("/");
   });
-  it("Verifying sign in options, ToS and Contact", () => {
+
+  // const username = generateRandomTestEmail(4) + "@yopmail.com";
+  let username;
+  const password = "yopyopyop";
+
+  it("has diff. sign in options, ToS and Contact fields & let a user sign up with email, log out and sign in again", () => {
+    cy.task("getUserEmail")
+      .then((account) => {
+        expect(account).to.be.a("string");
+        console.log("EMAIL is:", account.user);
+        // username = email;
+        return account.user;
+      })
+      .as("username");
+    cy.get("@username").then((username) => {
+      cy.log("USERNAME", username);
+    });
+
+    //should have sign in options, ToS and Contact us
     cy.contains("Sign in with email").should("be.visible").click();
     cy.contains("Cancel").should("be.visible").click();
     cy.contains("Sign in with Google").should("be.visible");
@@ -39,7 +77,6 @@ describe("Navigating sign in screens", () => {
       "These Terms will be applied fully and affect your use of this Website. By using this Website, you agreed to accept all terms and conditions written here."
     );
     cy.contains("arrow_back").click();
-
     cy.contains("Privacy Policy").should("be.visible").click();
     cy.contains(
       "Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy without your explicit consent."
@@ -49,77 +86,47 @@ describe("Navigating sign in screens", () => {
     cy.contains("hello@kifkaf.app");
     cy.contains("Send");
     cy.contains("arrow_back").click();
-  });
-});
 
-describe("Signing in and out", () => {
-  before(() => {
-    cy.toggleFirebasePersistence();
-  });
-  beforeEach(() => {
-    cy.visit("/");
-  });
-  it("should let the user sign in with email", () => {
+    //should let a user sign up with email, log out and sign in again
+
     cy.contains("Sign in with email").click();
-    cy.signIn("a@yopmail.com", "yopyopyop2");
-  });
-  it("should allow for tapping Log out and cancel", () => {
-    cy.contains("account_circle").click();
-    cy.contains("Log out").click();
-    cy.contains("Cancel").click();
-  });
-  it("should allow for tapping Log out and confirming", () => {
+    cy.get("@username").then((username) => {
+      cy.signUp(username, password);
+    });
+    // cy.contains("Sign in with email").click();
+    // cy.get("@username").then((username) => {
+    //   cy.signIn(username, password);
+    // });
+
     cy.contains("account_circle").click();
     cy.contains("Log out").click();
     cy.withinDialog((el) => {
       cy.wrap(el).should("contain", "screen");
       cy.dataCy("logout-button").click();
     });
-  });
-});
 
-describe("Signing up > out > in", () => {
-  before(() => {
-    cy.toggleFirebasePersistence();
-  });
-  beforeEach(() => {
-    cy.visit("/");
-  });
-  const username = generateRandomTestEmail(4) + "@yopmail.com";
-  const password = "yopyopyop";
-  it("should let a user sign up with email", () => {
+    // cy.visit("/login");
+
     cy.contains("Sign in with email").click();
-    cy.signUp(username, password);
+    cy.get("@username").then((username) => {
+      cy.signIn(username, password);
+    });
   });
-  // it.skip("should allow for tapping Log out and confirming", () => {
-  //   cy.contains("account_circle").click();
-  //   cy.contains("Log out").click();
-  //   cy.withinDialog((el) => {
-  //     cy.wrap(el).should("contain", "screen");
-  //     cy.dataCy("logout-button").click();
-  //   });
-  // });
-  // it.skip("should let the newly created user sign in", () => {
-  //   cy.signIn(username, password);
-  // });
 });
 
 //TODO:3 in all tests that aren't testing signing in and moments input we should log in programmatically on an existing account with good data and split those tests into separate files
-describe("Checking basic screens", () => {
-  beforeEach(() => {
+describe("Checking main screens & Moments inputting", () => {
+  it("contain expected header, tabs, can navigate to Learn>Home>Settings>Home & can input moments in Home", () => {
     cy.visit("/");
-  });
-  it("assert <title> and header title are correct", () => {
+    //assert <title> and header title are correct
     cy.title().should("include", "KifKaf");
     cy.contains("KifKaf").should("be.visible");
-  });
-  it("contains the expected tabs", () => {
+    //contains the expected tabs
     cy.contains("Home").should("be.visible");
     cy.contains("Learn").should("be.visible");
     // cy.contains("Timeline");
     // cy.contains("Search");
-  });
-  it("can navigate to Learn>Home>Settings>Home", () => {
+    //can navigate to Learn>Home>Settings>Home
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
     cy.contains("Kifs").should("be.visible");
@@ -132,50 +139,40 @@ describe("Checking basic screens", () => {
     cy.url().should("include", "settings");
     cy.contains("arrow_back").click();
     cy.url().should("not.include", "settings");
-  });
-});
 
-describe("Moments inputting and stats validation", () => {
-  beforeEach(() => {
+    //can input moments in Home
     cy.visit("/");
-  });
-
-  it("can input moments in Home", () => {
     for (const item of momentsData) {
       const now = new Date(item.date);
       cy.clock(now.getTime(), ["Date"]);
-
       cy.get(".vue-slider-rail").first().clickVSlider(item.intensity);
-
       const tagsString = item.tags.map((tag) => ` #${tag}`).join("");
       const fullText = `${item.text}${tagsString}`;
       cy.dataCy("new-moment-editor").type(fullText);
-
       cy.contains("arrow_forward").click();
-
       cy.clock().then((clock) => {
         clock.restore();
       });
     }
-
     cy.wait(1000);
-
     for (const item of momentsData) {
       cy.contains(item.text);
     }
   });
+});
 
-  it("should have correct stats in Learn tab for 2023", () => {
+describe("Stats validation", () => {
+  it("has correct stats in Learn tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
+    //should have correct stats in Learn tab for 2023
+    cy.visit("/");
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-
     cy.contains("This year").should("be.visible");
     cy.contains("Kifs").should("be.visible");
     cy.contains("Kafs");
 
     //expand Kifs section
     cy.get(".swiper-slide-active").first().contains("Show more").click();
-
     cy.get(".swiper-slide-active").then(($els) => {
       for (const item of momentsStats2023Data) {
         cy.wrap($els.first()).within(($el) => {
@@ -232,9 +229,9 @@ describe("Moments inputting and stats validation", () => {
         });
       }
     });
-  });
 
-  it("should have a working monthly picker and correct stats in learn tab for 2022", () => {
+    //should have a working monthly picker and correct stats in learn tab for 2022
+    cy.visit("/");
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
     cy.contains("This year").should("be.visible").click();
@@ -248,7 +245,6 @@ describe("Moments inputting and stats validation", () => {
       cy.contains("Done").should("be.visible").click();
     });
     cy.contains("2022").should("be.visible");
-
     cy.get(".swiper-slide-active").then(($els) => {
       for (const item of momentsStats2022Data) {
         cy.wrap($els.first()).within(($el) => {
@@ -273,9 +269,9 @@ describe("Moments inputting and stats validation", () => {
         });
       }
     });
-  });
 
-  it("should have the expected placeholder in learn tab for 2021", () => {
+    //should have the expected placeholder in learn tab for 2021
+    cy.visit("/");
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
     cy.contains("This year").click();

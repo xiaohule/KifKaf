@@ -7,7 +7,7 @@ export default boot(({ router }) => {
     if (to.meta.requiresAuth) {
       const currentUser = await getCurrentUser();
       // if the user is not logged in, redirect to the login page
-      if (!currentUser) {
+      if (!currentUser || !currentUser.emailVerified) {
         return {
           path: "/login",
           query: {

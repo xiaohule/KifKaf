@@ -4,7 +4,7 @@
     <q-list>
 
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Add a new Moment</q-item-label>
-      <!-- TODO:1 welcome user -->
+      <!-- TODO:2 welcome user -->
       <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
@@ -103,7 +103,7 @@ import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 import NewMomentEditor from './../components/NewMomentEditor.vue'
 
-// TODO:3 make below dynamic imports?
+// TODO:2 make below dynamic imports?
 import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js'
 import VirtualKeyboardBar from './../components/VirtualKeyboardBar.vue'
 
@@ -169,7 +169,7 @@ function trackProcess(dotsPos) {
 const {
   showSpeechRecognitionButton,
   toggleSpeechRecognition,
-} = useSpeechRecognition(rawNewText) //TODO: fix this
+} = useSpeechRecognition(rawNewText)
 onDeactivated(() => {
   // console.log('HomeTab onDeactivate recog fired');
   if (recognition) {
