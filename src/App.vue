@@ -17,11 +17,10 @@ import { getCurrentUser } from "vuefire";
 const momentsStore = useMomentsStore()
 
 onMounted(async () => {
-  const currentUser = await getCurrentUser();
-  if (currentUser) {
-    await momentsStore.fetchMoments();
-  }
-
+  // const currentUser = await getCurrentUser(); //TODO4: is this needed since already done in moments.js?
+  // if (currentUser) {
+  await momentsStore.fetchMoments();
+  // }
 })
 
 </script>

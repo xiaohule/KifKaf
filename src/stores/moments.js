@@ -31,7 +31,7 @@ const { formatDate } = date;
 export const useMomentsStore = defineStore("moments", () => {
   const user = ref(null);
   const userDocRef = ref(null);
-  const userDoc = ref(null);
+  // const userDoc = ref(null);
   const momentsCollRef = ref(null);
   const momentsColl = ref([]);
   const tagsCollRef = ref(null);
@@ -44,7 +44,7 @@ export const useMomentsStore = defineStore("moments", () => {
     try {
       user.value = await getCurrentUser();
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
-      userDoc.value = useDocument(userDocRef);
+      // userDoc.value = useDocument(userDocRef);
 
       // Check if user doc exists, if not create & initialize it
       const userDocCheck = await getDoc(userDocRef.value);
@@ -71,10 +71,6 @@ export const useMomentsStore = defineStore("moments", () => {
     try {
       // Add the new moment to momentsColl
       const docRef = await addDoc(momentsCollRef.value, moment);
-      // Update the user statistics in userDoc
-      await updateDoc(userDocRef.value, {
-        momentsDates: arrayUnion(moment.date),
-      });
       // Update the tag statistics in tagsColl for the tags of the new moment if any
       moment.tags.forEach(async (tag) => {
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
@@ -89,6 +85,11 @@ export const useMomentsStore = defineStore("moments", () => {
         if (tagDoc.exists())
           await updateDoc(tagDocRef, { tagMoments: arrayUnion(tagData) });
         else await setDoc(tagDocRef, { tagMoments: [tagData] });
+      });
+
+      // Update the user statistics in userDoc
+      await updateDoc(userDocRef.value, {
+        momentsDates: arrayUnion(moment.date),
       });
     } catch (error) {
       console.log(error);

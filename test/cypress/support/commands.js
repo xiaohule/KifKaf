@@ -81,8 +81,9 @@ Cypress.Commands.add("signIn", (username, password) => {
   cy.get("[type='password']").type(password);
   //click on the button of type submit that contains "Sign in" text, be careful there is another element that contains text "Sign in" but it is not a button
   cy.get("button[type='submit']").click();
-  cy.url({ timeout: 20000 }).should("not.include", "login");
-  cy.log("Signed in as" + username + " " + password);
+  // cy.url({ timeout: 20000 }).should("not.include", "login");
+  cy.contains("Home").should("be.visible");
+  cy.log("Signed in as " + username + " " + password);
   // },
   //   {
   //     validate: () => {
@@ -99,8 +100,32 @@ Cypress.Commands.add("signUp", (username, password) => {
   cy.get("[type='text'][name='name']").type("Jane Doe");
   cy.get("[type='password']").type(password);
   cy.get("button[type='submit']").click();
-  cy.url({ timeout: 20000 }).should("not.include", "login");
-  cy.log("Signed up as" + username + " " + password);
+  cy.contains(
+    "A verification email has been sent. Please check your inbox and click on the link in the email to verify your account."
+  ).should("be.visible");
+  cy.log("Verification email sent for " + username + " " + password);
+  cy.wait(5000);
+  cy.task("getLastEmail")
+    .its("html")
+    .then((html) => {
+      cy.document({ log: false }).invoke({ log: false }, "write", html);
+    });
+  //visit the link in the email by using cy.visit() command and not clicking on the link in the email
+  cy.get("a[href*='verifyEmail']").then((element) => {
+    const link = element.prop("href");
+    const url = new URL(link);
+    const origin = url.origin; // for cy.origin
+    // cy.visit(link);
+    cy.origin(origin, { args: { link } }, ({ link }) => {
+      cy.visit(link);
+      cy.contains("Your email has been verified").should("be.visible");
+    });
+  });
+  // This does not work returning error Error encountered - The page is displayed in a cross origin iframe.
+  // cy.get("a[href*='verifyEmail']").click();
+  // cy.wait(3000);
+  // cy.contains("Your email has been verified").should("be.visible");
+  cy.visit("/login");
 });
 
 Cypress.Commands.add(
