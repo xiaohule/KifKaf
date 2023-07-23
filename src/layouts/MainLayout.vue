@@ -22,7 +22,7 @@
 
     <q-footer class="bg-transparent" bordered>
       <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-secondary"
-        :breakpoint="0">
+        :breakpoint="0" :ripple="false">
         <q-route-tab name="home" icon="home" label="Home" to="/" />
         <q-route-tab name="learn" icon="insights" label="Learn" to="/learn" />
         <!-- TODO:1 re-add tabs when ready -->

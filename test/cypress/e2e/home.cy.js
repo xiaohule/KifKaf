@@ -57,16 +57,13 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
   it("has diff. sign in options, ToS and Contact fields & let a user sign up with email, log out and sign in again", () => {
     cy.task("getUserEmail")
-      .then((account) => {
-        expect(account).to.be.a("string");
-        console.log("EMAIL is:", account.user);
+      .then((email) => {
+        expect(email).to.be.a("string");
+        console.log("EMAIL is:", email);
         // username = email;
-        return account.user;
+        return email;
       })
       .as("username");
-    cy.get("@username").then((username) => {
-      cy.log("USERNAME", username);
-    });
 
     //should have sign in options, ToS and Contact us
     cy.contains("Sign in with email").should("be.visible").click();
