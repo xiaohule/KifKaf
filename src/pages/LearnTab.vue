@@ -14,6 +14,8 @@
       </q-item-section>
     </q-item>
 
+
+    <div>Here is open ai result: {{ prediction }}</div>
     <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
         @slidechangetransitionend="console.log('SWIPER slidechangetransitionend fired', $event)"-->
     <div>
@@ -91,7 +93,17 @@ import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
 import { date } from "quasar";
 // destructuring to keep only what is needed in date
-const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBetweenDates } = date;
+const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBetweenDates } = date; //TODO:3 fix this import destructuring if unused
+
+import axios from 'axios';
+const prediction = ref(null)
+axios.get('http://localhost:3000/openai') //TODO:4 fix so that it work locally and also on prod
+  .then(response => {
+    prediction.value = response.data;
+  })
+  .catch(error => {
+    console.error(error);
+  });
 
 // import styles bundle
 // import 'swiper/css/bundle';
