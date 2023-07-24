@@ -54,4 +54,4 @@ jobs:
           app-name: "kifkaf-backend"
           slot-name: "Production"
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_73D4CD14AD764340AC44639288E00D37 }}
-          package: ./backend
+          package: .
