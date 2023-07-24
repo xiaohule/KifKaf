@@ -19,15 +19,15 @@ app.use(cors()); // Enable All CORS Requests
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+app.use("/api", indexRouter);
+app.use("/api/users", usersRouter);
 
 const { OpenAI } = require("langchain/llms/openai"); // use require instead of import
 const llm = new OpenAI({
   openAIApiKey: process.env.OPENAI_API_KEY,
 });
 
-app.get("/openai", async (req, res) => {
+app.get("/api/openai", async (req, res) => {
   // Add an async route for OpenAI predictions
   try {
     const result = await llm.predict(
