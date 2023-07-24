@@ -97,7 +97,7 @@ const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBet
 
 import axios from 'axios';
 const prediction = ref(null)
-axios.get('http://localhost:3000/openai')
+axios.get('http://localhost:3000/openai') //TODO:4 fix so that it work locally and also on prod
   .then(response => {
     prediction.value = response.data;
   })
