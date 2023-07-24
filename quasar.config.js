@@ -90,6 +90,13 @@ module.exports = configure(function (/* ctx */) {
     devServer: {
       // https: true, //TODO:3 enable so that Workbox will load your service workers during quasar dev
       open: true, // opens browser window automatically
+      // proxy all calls to /api to http://localhost:3000/api
+      proxy: {
+        "/api": {
+          target: "http://localhost:3000",
+          changeOrigin: true,
+        },
+      },
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
