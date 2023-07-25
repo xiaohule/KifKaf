@@ -15,7 +15,9 @@
     </q-item>
 
 
-    <div>Here is open ai result: {{ prediction }}</div>
+    <div>Here is openai result: {{ prediction }}</div>
+    <div>Here is openai2 result: {{ prediction2 }}</div>
+
     <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
         @slidechangetransitionend="console.log('SWIPER slidechangetransitionend fired', $event)"-->
     <div>
@@ -97,9 +99,17 @@ const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBet
 
 import axios from 'axios';
 const prediction = ref(null)
-axios.get('/api/openai') //TODO:4 fix so that it work locally and also on prod
+axios.get('/api/learn/openai')
   .then(response => {
     prediction.value = response.data;
+  })
+  .catch(error => {
+    console.error(error);
+  });
+const prediction2 = ref(null)
+axios.get('/api/learn/openai2')
+  .then(response => {
+    prediction2.value = response.data;
   })
   .catch(error => {
     console.error(error);
