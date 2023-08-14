@@ -1,10 +1,16 @@
 import { boot } from "quasar/wrappers";
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  // getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  // persistentMultipleTabManager,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 // import { getAnalytics } from "firebase/analytics";
 import { VueFire, VueFireAuth } from "vuefire";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { markRaw } from "vue";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -17,12 +23,18 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-export const db = getFirestore(firebaseApp);
+// Use IndexedDb persistence. Cf. https://github.com/firebase/firebase-js-sdk/issues/6087#issuecomment-1233478793 for markRaw
+export const db = markRaw(
+  initializeFirestore(firebaseApp, {
+    localCache: persistentLocalCache(/*settings*/ {}),
+  })
+);
+
 export const auth = getAuth(firebaseApp);
 // const analytics = getAnalytics(firebaseApp);
 
 // console.log("firebaseApp", firebaseApp);
-// console.log("db", db);
+console.log("db", db);
 
 //APP CHECK
 // Set FIREBASE_APPCHECK_DEBUG_TOKEN to the CI one if CI, true (to use the dev whitelisted ones) if no in CI but in dev and false otherwise
