@@ -1,0 +1,22 @@
+[
+  {
+    "moment": "Feeling like I am wasting my time at the playfight workshop because I'm not learning anything",
+    "needs_importance": {
+      "Physical Movement": 0.5,
+      "Physical Touch": 0.3,
+      "Sexual Expression": 0.1,
+      "Social Connection": 0.5,
+      "Belongingness & Community": 0.1,
+      "Personal Autonomy": 0.2,
+      "Competence": 0.2,
+      "Efficiency": 0.7,
+      "Personal Expression & Creativity": 0.3,
+      "Exploration": 0.3,
+      "Challenge": 0.2,
+      "Novelty": 0.4,
+      "Learning": 0.9,
+      "Self-Actualization": 0.2,
+      "Play": 0.5
+    }
+  }
+]
