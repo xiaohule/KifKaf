@@ -3,7 +3,8 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
-const learnTabRouter = require("./routes/learnTab");
+const chatRouter = require("./routes/chat");
+const learnRouter = require("./routes/learn");
 
 const app = express();
 app.use(logger("dev"));
@@ -16,6 +17,7 @@ app.use(cors()); // Enable All CORS Requests
 // app.use(cors({
 //   origin: 'http://your-domain.com'
 // }));
-app.use("/api/learn", learnTabRouter);
+app.use("/api/chat", chatRouter);
+app.use("/api/learn", learnRouter);
 
 module.exports = app;

@@ -20,7 +20,6 @@ const llm = new OpenAI({
 //   llm,
 //   prompt,
 // });
-// // /api/learn/openai route
 // router.get("/openai", async (req, res) => {
 //   console.log("IN OPENAI ROUTE");
 //   // Add an async route for OpenAI predictions
@@ -48,8 +47,8 @@ const memory = new VectorStoreRetrieverMemory({
   memoryKey: "loadedMoments",
 });
 
-// /api/learn/openai2 route
-router.get("/openai2", async (req, res) => {
+// /api/chat/langchain1 route
+router.get("/langchain1", async (req, res) => {
   try {
     // First let's save some information to memory, as it would happen when used inside a chain.
     await memory.saveContext(
@@ -227,19 +226,15 @@ AI:`);
     { res3: { text: ' Your name is Perry.' } }
     */
 
-    // res.send(res2);
+    res.send(res3);
   } catch (err) {
     console.error(err);
     res.status(500).send("An error occurred while making the prediction");
   }
 });
 
-// // /api/learn/ route
+// // /api/chat/ route
 // router.get("/", function (req, res, next) {
-//   res.render("index", { title: "Express" });
-// });
-// // /api/learn/needs route
-// router.get("/needs", function (req, res, next) {
 //   res.render("index", { title: "Express" });
 // });
 
