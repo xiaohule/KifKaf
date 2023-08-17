@@ -108,17 +108,17 @@ export const useMomentsStore = defineStore("moments", () => {
       tagsColl.value = useCollection(tagsCollRef);
       aggregateMonthlyCollRef.value = collection(
         db,
-        `users/${user.value.uid}/aggregateMonthly`
+        `users/${user.value.uid}/aggregateMonthly`,
       );
       aggregateMonthlyColl.value = useCollection(aggregateMonthlyCollRef);
       aggregateYearlyCollRef.value = collection(
         db,
-        `users/${user.value.uid}/aggregateYearly`
+        `users/${user.value.uid}/aggregateYearly`,
       );
       aggregateYearlyColl.value = useCollection(aggregateYearlyCollRef);
       aggregateAllTimeCollRef.value = collection(
         db,
-        `users/${user.value.uid}/aggregateAllTime`
+        `users/${user.value.uid}/aggregateAllTime`,
       );
       aggregateAllTimeColl.value = useCollection(aggregateAllTimeCollRef);
 
@@ -135,7 +135,10 @@ export const useMomentsStore = defineStore("moments", () => {
       // Add the new moment to momentsColl
       const docRef = await addDoc(momentsCollRef.value, moment);
       // Update the tag statistics in tagsColl for the tags of the new moment if any
-      moment.tags.forEach(async (tag) => {
+      console.log("XXX in addMoment, moment:", moment);
+
+      for (const tag of moment.tags) {
+        console.log("XXX in for (const tag of moment.tags), tag:", tag);
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
         const tagDoc = await getDoc(tagDocRef);
         const tagData = {
@@ -145,20 +148,21 @@ export const useMomentsStore = defineStore("moments", () => {
           tags: moment.tags,
           text: moment.text,
         };
+        // console.log("XXX in moment.tags.forEach, tagDocRef", tagDocRef);
+        // console.log("XXX in moment.tags.forEach, tagDoc", tagDoc);
+        // console.log("XXX in moment.tags.forEach, tagData", tagData);
+
         if (tagDoc.exists())
           await updateDoc(tagDocRef, { tagMoments: arrayUnion(tagData) });
         else await setDoc(tagDocRef, { tagMoments: [tagData] });
-      });
+      }
 
       // Update the user statistics in userDoc
       await updateDoc(userDocRef.value, {
         momentsDates: arrayUnion(moment.date),
       });
 
-      const user = await getCurrentUser();
-      // console.log("user", user);
-
-      user
+      user.value
         .getIdToken(/* forceRefresh */ true)
         .then((idToken) => {
           // console.log("idToken", idToken);
@@ -176,7 +180,7 @@ export const useMomentsStore = defineStore("moments", () => {
             "SUCCESSFUL LLM RESPONSE for moment '",
             moment.text,
             "' :",
-            response.data
+            response.data,
           );
           //returns {'Physical Movement': 0.8, 'Self-Esteem & Social Recognition': 0.9, ...}
         })
@@ -247,20 +251,21 @@ export const useMomentsStore = defineStore("moments", () => {
     return tagsColl.value.data.map((doc) => doc.id);
   });
 
-  //rewrite avgIntensitySortedTags as a method that takes a date range dateRange defined as /*const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date()])*/ as a parameter
+  //TODO: 2 rewrite avgIntensitySortedTags as a method that takes a date range dateRange defined as /*const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date()])*/ as a parameter
   const getTags = (
     dateRange,
     filterBy = "all",
     sortBy = "avgIntensity",
-    descending = true
+    descending = true,
   ) => {
     return computed(() => {
       if (
         !tagsColl.value ||
         !tagsColl.value.data ||
         tagsColl.value.data.length === 0
-      )
+      ) {
         return [];
+      }
 
       const momentsList = momentsColl.value.data.filter((moment) => {
         const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
@@ -275,7 +280,7 @@ export const useMomentsStore = defineStore("moments", () => {
         const tagMomentsInRange = tagDoc.tagMoments.filter((tagMoment) => {
           const ts = new Timestamp(
             tagMoment.date.seconds,
-            tagMoment.date.nanoseconds
+            tagMoment.date.nanoseconds,
           );
           const date = ts.toDate();
           date.setHours(0, 0, 0, 0);
@@ -284,7 +289,7 @@ export const useMomentsStore = defineStore("moments", () => {
         //calculate the average intensity of the tagMoments in the date range
         const totalIntensity = tagMomentsInRange.reduce(
           (total, moment) => total + moment.intensity,
-          0
+          0,
         );
 
         //return the tagDoc with the average intensity
@@ -327,7 +332,7 @@ export const useMomentsStore = defineStore("moments", () => {
       if (changes.email || changes.password) {
         const cred = EmailAuthProvider.credential(
           user.value.email,
-          changes.oldPassword
+          changes.oldPassword,
         );
         await reauthenticateWithCredential(user.value, cred);
         if (changes.email) {
