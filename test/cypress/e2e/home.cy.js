@@ -71,12 +71,12 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.contains("Sign in with Google").should("be.visible");
     cy.contains("Terms of Service").should("be.visible").click();
     cy.contains(
-      "These Terms will be applied fully and affect your use of this Website. By using this Website, you agreed to accept all terms and conditions written here."
+      "These Terms will be applied fully and affect your use of this Website. By using this Website, you agreed to accept all terms and conditions written here.",
     );
     cy.contains("arrow_back").click();
     cy.contains("Privacy Policy").should("be.visible").click();
     cy.contains(
-      "Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy without your explicit consent."
+      "Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy without your explicit consent.",
     );
     cy.contains("arrow_back").click();
     cy.contains("Contact us").should("be.visible").click();
@@ -128,7 +128,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.url().should("include", "learn");
     cy.contains("Kifs").should("be.visible");
     cy.contains(
-      "First add some Kafs in Home tab to learn about what drains you!"
+      "First add some Kafs in Home tab to learn about what drains you!",
     ).should("be.visible");
     cy.get("footer").contains("Home").click();
     cy.url().should("not.include", "learn");

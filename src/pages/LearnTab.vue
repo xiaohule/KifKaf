@@ -1,8 +1,7 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
-    <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
-    </div> -->
+    <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0"></div> -->
     <q-item class="q-px-none q-pt-none">
       <!-- <q-item-section class="col-auto">
           <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
@@ -14,16 +13,8 @@
       </q-item-section>
     </q-item>
 
-
-    <!-- <div>Here is openai2 result: {{ respChatLangchain1 }}</div> -->
-    <!-- <div>Here is respLearnOpenai1 result: {{ respLearnOpenai1 }}</div>
-    <div>Here is respLearnOpenai12 result: {{ respLearnOpenai12 }}</div>
-    <div>Here is respLearnOpenai1NoEmoji result: {{ respLearnOpenai1NoEmoji }}</div>
-    <div>Here is respLearnOpenai2 result: {{ respLearnOpenai2 }}</div>
-    the good one:
-    <div>Here is respLearnOpenai2NoEmoji result: {{ respLearnOpenai2NoEmoji }}</div>
-    <div>Here is respLearnDummy result: {{ respLearnDummy }}</div> -->
-
+    <!-- <div>Here is openai2 result: {{ respChatLangchain1 }}</div>
+    <div>Here is respLearnDummy result: {{ respLearnDummy }}</div>-->
 
     <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
         @slidechangetransitionend="console.log('SWIPER slidechangetransitionend fired', $event)"-->
@@ -104,51 +95,11 @@ import { date } from "quasar";
 // destructuring to keep only what is needed in date
 const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBetweenDates } = date; //TODO:3 fix this import destructuring if unused
 
-import axios from 'axios';
+// import axios from 'axios';
 // const respChatLangchain1 = ref(null)
 // axios.get('/api/chat/langchain1')
 //   .then(response => {
 //     respChatLangchain1.value = response.data;
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
-// const respLearnOpenai1 = ref(null)
-// axios.get('/api/learn/openai1')
-//   .then(response => {
-//     respLearnOpenai1.value = response.data;
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
-// const respLearnOpenai12 = ref(null)
-// axios.get('/api/learn/openai1_2')
-//   .then(response => {
-//     respLearnOpenai12.value = response.data;
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
-// const respLearnOpenai1NoEmoji = ref(null)
-// axios.get('/api/learn/openai1_no_emoji')
-//   .then(response => {
-//     respLearnOpenai1NoEmoji.value = response.data;
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
-// const respLearnOpenai2 = ref(null)
-// axios.get('/api/learn/openai2')
-//   .then(response => {
-//     respLearnOpenai2.value = response.data;
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
-// const respLearnOpenai2NoEmoji = ref(null)
-// axios.get('/api/learn/openai2_no_emoji')
-//   .then(response => {
-//     respLearnOpenai2NoEmoji.value = response.data;
 //   })
 //   .catch(error => {
 //     console.error(error);
