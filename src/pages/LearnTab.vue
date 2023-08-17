@@ -1,8 +1,7 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
-    <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0">
-    </div> -->
+    <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0"></div> -->
     <q-item class="q-px-none q-pt-none">
       <!-- <q-item-section class="col-auto">
           <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
@@ -14,9 +13,7 @@
       </q-item-section>
     </q-item>
 
-
     <!-- <div>Here is openai2 result: {{ respChatLangchain1 }}</div>
-    <div>Here is respLearnOpenai2NoEmoji result: {{ respLearnOpenai2NoEmoji }}</div>
     <div>Here is respLearnDummy result: {{ respLearnDummy }}</div>-->
 
     <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
@@ -103,14 +100,6 @@ const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBet
 // axios.get('/api/chat/langchain1')
 //   .then(response => {
 //     respChatLangchain1.value = response.data;
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
-// const respLearnOpenai2NoEmoji = ref(null)
-// axios.get('/api/learn/openai2_no_emoji')
-//   .then(response => {
-//     respLearnOpenai2NoEmoji.value = response.data;
 //   })
 //   .catch(error => {
 //     console.error(error);
