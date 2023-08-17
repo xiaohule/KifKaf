@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import {
   useCollection,
-  useDocument,
+  // useDocument,
   getCurrentUser,
   updateCurrentUserProfile,
 } from "vuefire";
@@ -24,20 +24,67 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
-// import { set } from "firebase/database";
+import axios from "axios";
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
 export const useMomentsStore = defineStore("moments", () => {
   const user = ref(null);
   const userDocRef = ref(null);
-  // const userDoc = ref(null);
   const momentsCollRef = ref(null);
   const momentsColl = ref([]);
   const tagsCollRef = ref(null);
   const tagsColl = ref({});
+  const aggregateMonthlyCollRef = ref(null);
+  const aggregateMonthlyColl = ref({});
+  const aggregateYearlyCollRef = ref(null);
+  const aggregateYearlyColl = ref({});
+  const aggregateAllTimeCollRef = ref(null);
+  const aggregateAllTimeColl = ref({});
   const initialized = ref(false);
   const isEditorFocused = ref(false);
+  const needsList = [
+    "Physical Safety",
+    "Food",
+    "Shelter",
+    "Financial Security",
+    "Rest & Relaxation",
+    "Comfort",
+    "Physical Movement",
+    "Physical Touch",
+    "Sexual Expression",
+    "Contact with Nature",
+    "Social Connection",
+    "Belongingness & Community",
+    "Empathy, Understanding & Validation",
+    "Affection, Love & Intimacy",
+    "Emotional Safety & Well-Being",
+    "Personal Privacy",
+    "Personal Autonomy",
+    "Self-Esteem & Social Recognition",
+    "Competence",
+    "Efficiency",
+    "Societal Contribution",
+    "Personal Expression & Creativity",
+    "Exploration",
+    "Inspiration",
+    "Learning",
+    "Self-Actualization",
+    "Challenge",
+    "Novelty",
+    "Entertainment",
+    "Humor",
+    "Play",
+    "Moral Integrity",
+    "Social Justice",
+    "Order & Structure",
+    "Altruism",
+    "Life's Meaning & Purpose",
+    "Joyful Celebration",
+    "Grieving & Mourning",
+    "Inner Peace",
+    "Spiritual Transcendence",
+  ];
 
   //TODO:2 separate betw local state and firestore?
   const fetchMoments = async () => {
@@ -52,7 +99,6 @@ export const useMomentsStore = defineStore("moments", () => {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
           momentsDates: [], //TODO:2 instead make it a list of {date, momentsCount} objects it will be faster to count for percentShare
-          //2 here we can persevere user's da
         });
       }
 
@@ -60,14 +106,31 @@ export const useMomentsStore = defineStore("moments", () => {
       momentsColl.value = useCollection(momentsCollRef);
       tagsCollRef.value = collection(db, `users/${user.value.uid}/tags`);
       tagsColl.value = useCollection(tagsCollRef);
+      aggregateMonthlyCollRef.value = collection(
+        db,
+        `users/${user.value.uid}/aggregateMonthly`
+      );
+      aggregateMonthlyColl.value = useCollection(aggregateMonthlyCollRef);
+      aggregateYearlyCollRef.value = collection(
+        db,
+        `users/${user.value.uid}/aggregateYearly`
+      );
+      aggregateYearlyColl.value = useCollection(aggregateYearlyCollRef);
+      aggregateAllTimeCollRef.value = collection(
+        db,
+        `users/${user.value.uid}/aggregateAllTime`
+      );
+      aggregateAllTimeColl.value = useCollection(aggregateAllTimeCollRef);
+
       initialized.value = true;
     } catch (error) {
-      console.log("Could not get current user", error);
+      console.log("Error in fetchMoments", error);
     }
   };
 
   const addMoment = async (moment) => {
     //TODO:2 make this an atomic transaction https://firebase.google.com/docs/firestore/manage-data/transactions#transactions?
+    //TODO: 3 make it so those various call are simultaneous and not sequential and so that mom can be created either here or in express
     try {
       // Add the new moment to momentsColl
       const docRef = await addDoc(momentsCollRef.value, moment);
@@ -91,6 +154,35 @@ export const useMomentsStore = defineStore("moments", () => {
       await updateDoc(userDocRef.value, {
         momentsDates: arrayUnion(moment.date),
       });
+
+      const user = await getCurrentUser();
+      // console.log("user", user);
+
+      user
+        .getIdToken(/* forceRefresh */ true)
+        .then((idToken) => {
+          // console.log("idToken", idToken);
+          // Now, we use Axios to send the request with the token in the headers.
+          return axios.get(`/api/learn/needs/${moment.text}`, {
+            headers: {
+              authorization: `Bearer ${idToken}`,
+              momentdate: moment.date,
+              momentid: docRef.id,
+            },
+          });
+        })
+        .then((response) => {
+          console.log(
+            "SUCCESSFUL LLM RESPONSE for moment '",
+            moment.text,
+            "' :",
+            response.data
+          );
+          //returns {'Physical Movement': 0.8, 'Self-Esteem & Social Recognition': 0.9, ...}
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     } catch (error) {
       console.log(error);
     }
@@ -255,6 +347,7 @@ export const useMomentsStore = defineStore("moments", () => {
   return {
     user,
     momentsColl,
+    needsList,
     isEditorFocused,
     uniqueTags,
     uniqueDays,

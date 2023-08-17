@@ -4,7 +4,7 @@ import {
   // getFirestore,
   initializeFirestore,
   persistentLocalCache,
-  // persistentMultipleTabManager,
+  persistentMultipleTabManager,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 // import { getAnalytics } from "firebase/analytics";
@@ -26,15 +26,16 @@ const firebaseApp = initializeApp(firebaseConfig);
 // Use IndexedDb persistence. Cf. https://github.com/firebase/firebase-js-sdk/issues/6087#issuecomment-1233478793 for markRaw
 export const db = markRaw(
   initializeFirestore(firebaseApp, {
-    localCache: persistentLocalCache(/*settings*/ {}),
+    localCache: persistentLocalCache(
+      /*settings*/ { tabManager: persistentMultipleTabManager() }
+    ),
   })
 );
+// console.log("firebaseApp", firebaseApp);
+// console.log("db", db);
 
 export const auth = getAuth(firebaseApp);
 // const analytics = getAnalytics(firebaseApp);
-
-// console.log("firebaseApp", firebaseApp);
-console.log("db", db);
 
 //APP CHECK
 // Set FIREBASE_APPCHECK_DEBUG_TOKEN to the CI one if CI, true (to use the dev whitelisted ones) if no in CI but in dev and false otherwise
