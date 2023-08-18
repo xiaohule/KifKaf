@@ -17,7 +17,6 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 const db = getFirestore();
-// console.log("db", db);
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -97,8 +96,7 @@ const createOpenAIRequestOptions = (moment) => {
       },
       {
         role: "user",
-        content: JSON.stringify(moment),
-        // content: '{"moment": "Feeling aroused and capable when playfight jamming with penelope and new ppl"}',
+        content: JSON.stringify(moment), // content: '{"moment": "Feeling aroused and capable when playfight jamming with penelope and new ppl"}',
       },
     ],
     temperature: 0,
@@ -113,7 +111,7 @@ const createOpenAIRequestOptions = (moment) => {
 router.get("/needs/:moment", async (req, res) => {
   try {
     // console.log("req.headers", req.headers);
-    console.log("req.params", req.params); //returns req.params { moment:'Feeling sad to be working so much' }
+    console.log("req.params", req.params); //returns { moment:'Feeling sad to be working so much' }
 
     // LLM CALL
     const request_options = createOpenAIRequestOptions(req.params);
@@ -133,6 +131,7 @@ router.get("/needs/:moment", async (req, res) => {
       "HERE parsedContent",
       parsedContent,
     );
+    /* returns {"Emotional Safety & Well-Being": 0.8, "Personal Autonomy": 0.2, "Self-Esteem & Social Recognition": 0.2, "Exploration": 0.1, "Learning": 0.1, "Inner Peace": 0.1}*/
     if (!parsedContent || parsedContent.error) {
       console.log(
         "Error: parsedContent empty or erroneous, for mom",
@@ -142,10 +141,9 @@ router.get("/needs/:moment", async (req, res) => {
       );
     }
 
-    /* returns {"Emotional Safety & Well-Being": 0.8, "Personal Autonomy": 0.2, "Self-Esteem & Social Recognition": 0.2, "Exploration": 0.1, "Learning": 0.1, "Inner Peace": 0.1}*/
-
-    // PROCESS LLM RESPONSE
-    //TODO:3 make this more robust and make sure to only do a retry ONCE
+    // PROCESS LLM RESPONSE, RETRYING IF NECESSARY
+    //TODO:3 make this more robust
+    //TODO: 2 factorize those checks
 
     // Check if all values are zero or if the sum is less than a threshold (0.1 in this case)
     const sumOfAllValues = Object.values(parsedContent).reduce(
@@ -203,17 +201,12 @@ router.get("/needs/:moment", async (req, res) => {
         response.data.choices[0].message,
       );
 
-      // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
-      request_options.messages.push(
-        response.data.choices[0].message, // This adds the last response from the assistant
-        {
-          role: "user",
-          content:
-            "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
-        },
-      );
+      request_options.messages.push(response.data.choices[0].message, {
+        role: "user",
+        content:
+          "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+      });
       const retryResponse = await openai.createChatCompletion(request_options);
-      // Update the 'parsedContent' from the new response
       parsedContent = JSON.parse(retryResponse.data.choices[0].message.content);
       console.log(
         "HERE req.params",
@@ -230,8 +223,6 @@ router.get("/needs/:moment", async (req, res) => {
         );
       }
     }
-
-    //TODO: 1 add other checks? like if no value >0.2?
 
     // Check if parsedContent is empty
     if (Object.keys(parsedContent).length === 0) {
@@ -245,17 +236,12 @@ router.get("/needs/:moment", async (req, res) => {
         response.data.choices[0].message,
       );
 
-      // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
-      request_options.messages.push(
-        response.data.choices[0].message, // This adds the last response from the assistant
-        {
-          role: "user",
-          content:
-            "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
-        },
-      );
+      request_options.messages.push(response.data.choices[0].message, {
+        role: "user",
+        content:
+          "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+      });
       const retryResponse = await openai.createChatCompletion(request_options);
-      // Update the 'parsedContent' from the new response
       parsedContent = JSON.parse(retryResponse.data.choices[0].message.content);
       console.log(
         "HERE req.params",
@@ -272,11 +258,9 @@ router.get("/needs/:moment", async (req, res) => {
         );
       }
     }
-    //TODO: 2 factorize the 3 retry code
 
     const momentNeedsImportanceResp = parsedContent;
     const momentNeedsArray = new Array(needsList.length * 2).fill(0);
-    // console.log("momentNeedsImportanceResp", momentNeedsImportanceResp);
     for (let need in momentNeedsImportanceResp) {
       const index = needsList.indexOf(need);
       if (index !== -1) {
@@ -295,7 +279,6 @@ router.get("/needs/:moment", async (req, res) => {
         );
       }
     }
-    // console.log("momentNeedsArray", momentNeedsArray);
 
     // ENRICH MOMENT DOC & UPDATE AGGREGATE DOCS
     const momentDocRef = db
@@ -304,6 +287,7 @@ router.get("/needs/:moment", async (req, res) => {
       .collection("moments")
       .doc(req.headers.momentid);
 
+    //create aggregateAllTime doc if it doesn't exist
     let updatedSumNeedsArray = new Array(needsList.length * 2).fill(0);
     const aggregateAllTimeDocRef = db
       .collection("users")
@@ -319,6 +303,8 @@ router.get("/needs/:moment", async (req, res) => {
       });
       console.log("aggregateAllTime>all_time doc created");
     }
+
+    // transctionally persist llm data in firestore
     try {
       await db.runTransaction(async (t) => {
         //update aggregate doc, starting with re-reading it bec. this is a transaction
@@ -353,15 +339,6 @@ router.get("/needs/:moment", async (req, res) => {
           "Internal server error when updating moment needs or aggregate data",
         );
     }
-
-    //   const aggregateMonthlyCollRef = collection(
-    //   db,
-    //   `users/${req.uid}/aggregateMonthly`
-    // );
-    // const aggregateYearlyCollRef = collection(
-    //   db,
-    //   `users/${req.uid}/aggregateYearly`
-    // );
 
     res.json(parsedContent);
   } catch (err) {

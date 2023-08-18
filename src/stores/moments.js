@@ -83,24 +83,23 @@ export const useMomentsStore = defineStore("moments", () => {
     "Spiritual Transcendence",
   ];
 
-  //TODO:2 separate betw local state and firestore?
+  //TODO:2 separate betw local state and firestore so that directly after mom insertion the state is updated and only if fs save is failed is it reverted? I.e. "Optimistic UI Update with Revert" ?
   const fetchMoments = async () => {
     try {
       user.value = await getCurrentUser();
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
-      // userDoc.value = useDocument(userDocRef);
 
       // Check if user doc exists, if not create & initialize it
       const userDocCheck = await getDoc(userDocRef.value);
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
-          momentsDates: [], //TODO:2 instead make it a list of {date, momentsCount} objects it will be faster to count for percentShare
+          momentsDates: [], //TODO:1 instead make it a list of {date, momentsCount} objects it will be faster to count for percentShare
         });
       }
 
       momentsCollRef.value = collection(db, `users/${user.value.uid}/moments`);
-      momentsColl.value = useCollection(momentsCollRef); //TODO:2 rename all useCollection to  momentsCollReactive
+      momentsColl.value = useCollection(momentsCollRef);
       tagsColl.value = useCollection(
         collection(db, `users/${user.value.uid}/tags`),
       );
@@ -121,19 +120,17 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const addMoment = async (moment) => {
-    //TODO:2 make this an atomic transaction https://firebase.google.com/docs/firestore/manage-data/transactions#transactions?
-    //TODO: 3 make it so those various call are simultaneous and not sequential and so that mom can be created either here or in express
+    //TODO: 1 make it so fs storing and llm enriching are parallel (by defining a mom id first and doing both after for ex. so that whoever is ready first can create the mom?)
+    console.log("XXX in addMoment, moment:", moment);
     try {
+      //FIRESTORE BATCH WRITE
       const batch = writeBatch(db);
 
-      // Add the new moment to momentsColl
-      // Add a new document with a generated id
-      // bec. addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401
+      // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
       const docRef = doc(momentsCollRef.value);
       batch.set(docRef, moment);
-      // Update the tag statistics in tagsColl for the tags of the new moment if any
-      console.log("XXX in addMoment, moment:", moment);
 
+      // Update the tag statistics in tagsColl for the tags of the new moment
       for (const tag of moment.tags) {
         console.log("XXX in for (const tag of moment.tags), tag:", tag);
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
@@ -145,23 +142,21 @@ export const useMomentsStore = defineStore("moments", () => {
           tags: moment.tags,
           text: moment.text,
         };
-        // console.log("XXX in moment.tags.forEach, tagDocRef", tagDocRef);
-        // console.log("XXX in moment.tags.forEach, tagDoc", tagDoc);
-        // console.log("XXX in moment.tags.forEach, tagData", tagData);
-
         if (tagDoc.exists())
           batch.update(tagDocRef, { tagMoments: arrayUnion(tagData) });
         else batch.set(tagDocRef, { tagMoments: [tagData] });
       }
 
-      // Update the user statistics in userDoc
+      // Update the momentsDates list
       batch.update(userDocRef.value, {
         momentsDates: arrayUnion(moment.date),
       });
 
       await batch.commit();
 
-      //TRIGGER LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
+      //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
+      //WARNING the following may take up to 30s to complete if bad connection, retries, llm hallucinations OR never complete
+      //TODO: 3 robustify and track whether need retry or not
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
       console.log("TRIGGERING CALL TO LLM FOR moment '", moment.text);
       const response = await axios.get(`/api/learn/needs/${moment.text}`, {
@@ -177,7 +172,6 @@ export const useMomentsStore = defineStore("moments", () => {
         "' :",
         response.data,
       );
-      //returns {'Physical Movement': 0.8, 'Self-Esteem & Social Recognition': 0.9, ...}
     } catch (error) {
       console.log(error);
     }
@@ -242,7 +236,6 @@ export const useMomentsStore = defineStore("moments", () => {
     return tagsColl.value.data.map((doc) => doc.id);
   });
 
-  //TODO: 2 rewrite avgIntensitySortedTags as a method that takes a date range dateRange defined as /*const pickedDateRange = ref([new Date(new Date().getFullYear(), 0, 1), new Date()])*/ as a parameter
   const getTags = (
     dateRange,
     filterBy = "all",
