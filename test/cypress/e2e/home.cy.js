@@ -257,7 +257,9 @@ describe("Stats validation", () => {
       cy.wrap($el).click({ force: true });
     });
     cy.get(".swiper-slide-active").each(($el, index, $list) => {
-      cy.wrap($el).contains("Frequency").click();
+      cy.wrap($el).as("swiper");
+      cy.get("@swiper").contains("Frequency").as("frequency");
+      cy.get("@frequency").click();
     });
 
     cy.get(".swiper-slide-active").then(($els) => {

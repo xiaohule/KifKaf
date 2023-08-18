@@ -8,6 +8,7 @@ import {
   getDoc,
   Timestamp,
   arrayUnion,
+  writeBatch,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -132,11 +133,13 @@ export const useMomentsStore = defineStore("moments", () => {
     //TODO:2 make this an atomic transaction https://firebase.google.com/docs/firestore/manage-data/transactions#transactions?
     //TODO: 3 make it so those various call are simultaneous and not sequential and so that mom can be created either here or in express
     try {
+      const batch = writeBatch(db);
+
       // Add the new moment to momentsColl
       // Add a new document with a generated id
       // bec. addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401
       const docRef = doc(momentsCollRef.value);
-      await setDoc(docRef, moment);
+      batch.set(docRef, moment);
       // Update the tag statistics in tagsColl for the tags of the new moment if any
       console.log("XXX in addMoment, moment:", moment);
 
@@ -156,40 +159,33 @@ export const useMomentsStore = defineStore("moments", () => {
         // console.log("XXX in moment.tags.forEach, tagData", tagData);
 
         if (tagDoc.exists())
-          await updateDoc(tagDocRef, { tagMoments: arrayUnion(tagData) });
-        else await setDoc(tagDocRef, { tagMoments: [tagData] });
+          batch.update(tagDocRef, { tagMoments: arrayUnion(tagData) });
+        else batch.set(tagDocRef, { tagMoments: [tagData] });
       }
 
       // Update the user statistics in userDoc
-      await updateDoc(userDocRef.value, {
+      batch.update(userDocRef.value, {
         momentsDates: arrayUnion(moment.date),
       });
 
-      user.value
-        .getIdToken(/* forceRefresh */ true)
-        .then((idToken) => {
-          // console.log("idToken", idToken);
-          // Now, we use Axios to send the request with the token in the headers.
-          return axios.get(`/api/learn/needs/${moment.text}`, {
-            headers: {
-              authorization: `Bearer ${idToken}`,
-              momentdate: moment.date,
-              momentid: docRef.id,
-            },
-          });
-        })
-        .then((response) => {
-          console.log(
-            "SUCCESSFUL LLM RESPONSE for moment '",
-            moment.text,
-            "' :",
-            response.data,
-          );
-          //returns {'Physical Movement': 0.8, 'Self-Esteem & Social Recognition': 0.9, ...}
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      await batch.commit();
+
+      //TRIGGER LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
+      const idToken = await user.value.getIdToken(/* forceRefresh */ true);
+      const response = await axios.get(`/api/learn/needs/${moment.text}`, {
+        headers: {
+          authorization: `Bearer ${idToken}`,
+          momentdate: moment.date,
+          momentid: docRef.id,
+        },
+      });
+      console.log(
+        "SUCCESSFUL LLM RESPONSE for moment '",
+        moment.text,
+        "' :",
+        response.data,
+      );
+      //returns {'Physical Movement': 0.8, 'Self-Esteem & Social Recognition': 0.9, ...}
     } catch (error) {
       console.log(error);
     }
