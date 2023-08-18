@@ -172,32 +172,90 @@ describe("Stats validation", () => {
     cy.get(".swiper-slide-active").first().contains("Show more").click();
     cy.get(".swiper-slide-active").then(($els) => {
       for (const item of momentsStats2023Data) {
-        cy.wrap($els.first()).within(($el) => {
-          if ($el.text().includes(item.tag)) {
-            cy.contains(item.tag)
-              .parent()
-              .contains(item.count)
-              .parent()
-              .parent()
-              .contains(item.avgIntensity);
-          } else {
-            // If not found in the first .swiper-slide-active element, try the second one
-            cy.wrap($els.last()).within(() => {
-              cy.contains(item.tag)
-                .parent()
-                .contains(item.count)
-                .parent()
-                .parent()
-                .contains(item.avgIntensity);
-            });
-          }
-        });
+        if ($els.first().text().includes(item.tag)) {
+          // Create alias for the first swiper-slide-active
+          cy.wrap($els.first()).as("firstSwiper");
+
+          cy.get("@firstSwiper").contains(item.tag).as("firstTag");
+          cy.get("@firstTag").parent().as("firstTagParent");
+          cy.get("@firstTagParent").contains(item.count).as("firstCount");
+          cy.get("@firstCount").parent().as("firstCountParent");
+          cy.get("@firstCountParent").parent().as("firstCountGrandParent");
+          cy.get("@firstCountGrandParent").contains(item.avgIntensity);
+        } else {
+          // Create alias for the last swiper-slide-active
+          cy.wrap($els.last()).as("lastSwiper");
+
+          cy.get("@lastSwiper").contains(item.tag).as("lastTag");
+          cy.get("@lastTag").parent().as("lastTagParent");
+          cy.get("@lastTagParent").contains(item.count).as("lastCount");
+          cy.get("@lastCount").parent().as("lastCountParent");
+          cy.get("@lastCountParent").parent().as("lastCountGrandParent");
+          cy.get("@lastCountGrandParent").contains(item.avgIntensity);
+        }
       }
     });
 
-    // cy.contains("Frequency").each(($el) => {
-    //   cy.wrap($el).click({ force: true });
+    // cy.get(".swiper-slide-active").then(($els) => {
+    //   for (const item of momentsStats2023Data) {
+    //     // Check if the tag exists in the first .swiper-slide-active element
+    //     const foundInFirstSlide = $els.first().text().includes(item.tag);
+
+    //     if (foundInFirstSlide) {
+    //       cy.wrap($els.first())
+    //         .contains(item.tag)
+    //         .as("foundTag")
+    //         .parent()
+    //         .as("tagParent")
+    //         .contains(item.count)
+    //         .as("countElement")
+    //         .parent()
+    //         .parent()
+    //         .contains(item.avgIntensity);
+    //     } else {
+    //       // If not found in the first .swiper-slide-active element, try the second one
+    //       cy.wrap($els.last())
+    //         .contains(item.tag)
+    //         .as("foundTagLast")
+    //         .parent()
+    //         .as("tagParentLast")
+    //         .contains(item.count)
+    //         .as("countElementLast")
+    //         .parent()
+    //         .parent()
+    //         .contains(item.avgIntensity);
+    //     }
+    //   }
     // });
+
+    // cy.get(".swiper-slide-active").then(($els) => {
+    //   for (const item of momentsStats2023Data) {
+    //     cy.wrap($els.first()).within(($el) => {
+    //       if ($el.text().includes(item.tag)) {
+    //         cy.contains(item.tag)
+    //           .parent()
+    //           .contains(item.count)
+    //           .parent()
+    //           .parent()
+    //           .contains(item.avgIntensity);
+    //       } else {
+    //         // If not found in the first .swiper-slide-active element, try the second one
+    //         cy.wrap($els.last()).within(() => {
+    //           cy.contains(item.tag)
+    //             .parent()
+    //             .contains(item.count)
+    //             .parent()
+    //             .parent()
+    //             .contains(item.avgIntensity);
+    //         });
+    //       }
+    //     });
+    //   }
+    // });
+
+    cy.contains("Frequency").each(($el) => {
+      cy.wrap($el).click({ force: true });
+    });
     cy.get(".swiper-slide-active").each(($el, index, $list) => {
       cy.wrap($el).contains("Frequency").click();
     });

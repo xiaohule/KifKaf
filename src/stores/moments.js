@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import {
   collection,
   doc,
-  addDoc,
+  // addDoc,
   setDoc,
   updateDoc,
   getDoc,
@@ -103,7 +103,7 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       momentsCollRef.value = collection(db, `users/${user.value.uid}/moments`);
-      momentsColl.value = useCollection(momentsCollRef);
+      momentsColl.value = useCollection(momentsCollRef); //TODO:2 rename all useCollection to  momentsCollReactive
       tagsCollRef.value = collection(db, `users/${user.value.uid}/tags`);
       tagsColl.value = useCollection(tagsCollRef);
       aggregateMonthlyCollRef.value = collection(
@@ -133,7 +133,10 @@ export const useMomentsStore = defineStore("moments", () => {
     //TODO: 3 make it so those various call are simultaneous and not sequential and so that mom can be created either here or in express
     try {
       // Add the new moment to momentsColl
-      const docRef = await addDoc(momentsCollRef.value, moment);
+      // Add a new document with a generated id
+      // bec. addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401
+      const docRef = doc(momentsCollRef.value);
+      await setDoc(docRef, moment);
       // Update the tag statistics in tagsColl for the tags of the new moment if any
       console.log("XXX in addMoment, moment:", moment);
 
