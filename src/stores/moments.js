@@ -2,12 +2,13 @@ import { defineStore } from "pinia";
 import {
   collection,
   doc,
-  addDoc,
+  // addDoc,
   setDoc,
-  updateDoc,
+  // updateDoc,
   getDoc,
   Timestamp,
   arrayUnion,
+  writeBatch,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -33,13 +34,9 @@ export const useMomentsStore = defineStore("moments", () => {
   const userDocRef = ref(null);
   const momentsCollRef = ref(null);
   const momentsColl = ref([]);
-  const tagsCollRef = ref(null);
   const tagsColl = ref({});
-  const aggregateMonthlyCollRef = ref(null);
   const aggregateMonthlyColl = ref({});
-  const aggregateYearlyCollRef = ref(null);
   const aggregateYearlyColl = ref({});
-  const aggregateAllTimeCollRef = ref(null);
   const aggregateAllTimeColl = ref({});
   const initialized = ref(false);
   const isEditorFocused = ref(false);
@@ -103,24 +100,19 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       momentsCollRef.value = collection(db, `users/${user.value.uid}/moments`);
-      momentsColl.value = useCollection(momentsCollRef);
-      tagsCollRef.value = collection(db, `users/${user.value.uid}/tags`);
-      tagsColl.value = useCollection(tagsCollRef);
-      aggregateMonthlyCollRef.value = collection(
-        db,
-        `users/${user.value.uid}/aggregateMonthly`,
+      momentsColl.value = useCollection(momentsCollRef); //TODO:2 rename all useCollection to  momentsCollReactive
+      tagsColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/tags`),
       );
-      aggregateMonthlyColl.value = useCollection(aggregateMonthlyCollRef);
-      aggregateYearlyCollRef.value = collection(
-        db,
-        `users/${user.value.uid}/aggregateYearly`,
+      aggregateMonthlyColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateMonthly`),
       );
-      aggregateYearlyColl.value = useCollection(aggregateYearlyCollRef);
-      aggregateAllTimeCollRef.value = collection(
-        db,
-        `users/${user.value.uid}/aggregateAllTime`,
+      aggregateYearlyColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateYearly`),
       );
-      aggregateAllTimeColl.value = useCollection(aggregateAllTimeCollRef);
+      aggregateAllTimeColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateAllTime`),
+      );
 
       initialized.value = true;
     } catch (error) {
@@ -132,8 +124,13 @@ export const useMomentsStore = defineStore("moments", () => {
     //TODO:2 make this an atomic transaction https://firebase.google.com/docs/firestore/manage-data/transactions#transactions?
     //TODO: 3 make it so those various call are simultaneous and not sequential and so that mom can be created either here or in express
     try {
+      const batch = writeBatch(db);
+
       // Add the new moment to momentsColl
-      const docRef = await addDoc(momentsCollRef.value, moment);
+      // Add a new document with a generated id
+      // bec. addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401
+      const docRef = doc(momentsCollRef.value);
+      batch.set(docRef, moment);
       // Update the tag statistics in tagsColl for the tags of the new moment if any
       console.log("XXX in addMoment, moment:", moment);
 
@@ -153,40 +150,34 @@ export const useMomentsStore = defineStore("moments", () => {
         // console.log("XXX in moment.tags.forEach, tagData", tagData);
 
         if (tagDoc.exists())
-          await updateDoc(tagDocRef, { tagMoments: arrayUnion(tagData) });
-        else await setDoc(tagDocRef, { tagMoments: [tagData] });
+          batch.update(tagDocRef, { tagMoments: arrayUnion(tagData) });
+        else batch.set(tagDocRef, { tagMoments: [tagData] });
       }
 
       // Update the user statistics in userDoc
-      await updateDoc(userDocRef.value, {
+      batch.update(userDocRef.value, {
         momentsDates: arrayUnion(moment.date),
       });
 
-      user.value
-        .getIdToken(/* forceRefresh */ true)
-        .then((idToken) => {
-          // console.log("idToken", idToken);
-          // Now, we use Axios to send the request with the token in the headers.
-          return axios.get(`/api/learn/needs/${moment.text}`, {
-            headers: {
-              authorization: `Bearer ${idToken}`,
-              momentdate: moment.date,
-              momentid: docRef.id,
-            },
-          });
-        })
-        .then((response) => {
-          console.log(
-            "SUCCESSFUL LLM RESPONSE for moment '",
-            moment.text,
-            "' :",
-            response.data,
-          );
-          //returns {'Physical Movement': 0.8, 'Self-Esteem & Social Recognition': 0.9, ...}
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      await batch.commit();
+
+      //TRIGGER LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
+      const idToken = await user.value.getIdToken(/* forceRefresh */ true);
+      console.log("TRIGGERING CALL TO LLM FOR moment '", moment.text);
+      const response = await axios.get(`/api/learn/needs/${moment.text}`, {
+        headers: {
+          authorization: `Bearer ${idToken}`,
+          momentdate: moment.date,
+          momentid: docRef.id,
+        },
+      });
+      console.log(
+        "SUCCESSFUL LLM RESPONSE for moment '",
+        moment.text,
+        "' :",
+        response.data,
+      );
+      //returns {'Physical Movement': 0.8, 'Self-Esteem & Social Recognition': 0.9, ...}
     } catch (error) {
       console.log(error);
     }
