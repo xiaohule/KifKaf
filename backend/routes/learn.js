@@ -3,9 +3,9 @@ var admin = require("firebase-admin");
 var serviceAccount = require("./../serviceAccountKey.json");
 const {
   getFirestore,
-  Timestamp,
+  // Timestamp,
   FieldValue,
-  Filter,
+  // Filter,
 } = require("firebase-admin/firestore");
 const { Configuration, OpenAIApi } = require("openai");
 const e = require("express");
@@ -13,7 +13,7 @@ require("dotenv").config();
 
 var router = express.Router();
 
-const firebaseApp = admin.initializeApp({
+admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 const db = getFirestore();
@@ -131,14 +131,14 @@ router.get("/needs/:moment", async (req, res) => {
       "HERE req.params",
       req.params,
       "HERE parsedContent",
-      parsedContent
+      parsedContent,
     );
     if (!parsedContent || parsedContent.error) {
       console.log(
         "Error: parsedContent empty or erroneous, for mom",
         req.params,
         "here are response.data.choices[0].message: ",
-        response.data.choices[0].message
+        response.data.choices[0].message,
       );
     }
 
@@ -150,17 +150,17 @@ router.get("/needs/:moment", async (req, res) => {
     // Check if all values are zero or if the sum is less than a threshold (0.1 in this case)
     const sumOfAllValues = Object.values(parsedContent).reduce(
       (a, b) => a + b,
-      0
+      0,
     );
     if (sumOfAllValues < 0.1) {
       console.log(
         "Error: All values in parsedContent are zero, moment & parsedContent:",
         req.params,
-        parsedContent
+        parsedContent,
       );
       console.log(
         "response.data.choices[0].message",
-        response.data.choices[0].message
+        response.data.choices[0].message,
       );
 
       // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
@@ -170,7 +170,7 @@ router.get("/needs/:moment", async (req, res) => {
           role: "user",
           content:
             "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
-        }
+        },
       );
       const retryResponse = await openai.createChatCompletion(request_options);
       // Update the 'parsedContent' from the new response
@@ -179,14 +179,14 @@ router.get("/needs/:moment", async (req, res) => {
         "HERE req.params",
         req.params,
         "HERE parsedContent after retry",
-        parsedContent
+        parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
           "Error in retry: parsedContent empty or erroneous, for mom",
           req.params,
           "here are response.data.choices[0].message: ",
-          response.data.choices[0].message
+          response.data.choices[0].message,
         );
       }
     }
@@ -196,11 +196,11 @@ router.get("/needs/:moment", async (req, res) => {
       console.log(
         "Error: No values in parsedContent are more than 0.1, moment & parsedContent:",
         req.params,
-        parsedContent
+        parsedContent,
       );
       console.log(
         "response.data.choices[0].message",
-        response.data.choices[0].message
+        response.data.choices[0].message,
       );
 
       // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
@@ -210,7 +210,7 @@ router.get("/needs/:moment", async (req, res) => {
           role: "user",
           content:
             "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
-        }
+        },
       );
       const retryResponse = await openai.createChatCompletion(request_options);
       // Update the 'parsedContent' from the new response
@@ -219,14 +219,14 @@ router.get("/needs/:moment", async (req, res) => {
         "HERE req.params",
         req.params,
         "HERE parsedContent after retry",
-        parsedContent
+        parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
           "Error in retry: parsedContent empty or erroneous, for mom",
           req.params,
           "here are response.data.choices[0].message: ",
-          response.data.choices[0].message
+          response.data.choices[0].message,
         );
       }
     }
@@ -238,11 +238,11 @@ router.get("/needs/:moment", async (req, res) => {
       console.log(
         "Error: parsedContent is empty, moment & parsedContent:",
         req.params,
-        parsedContent
+        parsedContent,
       );
       console.log(
         "response.data.choices[0].message",
-        response.data.choices[0].message
+        response.data.choices[0].message,
       );
 
       // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
@@ -252,7 +252,7 @@ router.get("/needs/:moment", async (req, res) => {
           role: "user",
           content:
             "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
-        }
+        },
       );
       const retryResponse = await openai.createChatCompletion(request_options);
       // Update the 'parsedContent' from the new response
@@ -261,17 +261,18 @@ router.get("/needs/:moment", async (req, res) => {
         "HERE req.params",
         req.params,
         "HERE parsedContent after retry",
-        parsedContent
+        parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
           "Error in retry: parsedContent empty or erroneous, for mom",
           req.params,
           "here are response.data.choices[0].message: ",
-          response.data.choices[0].message
+          response.data.choices[0].message,
         );
       }
     }
+    //TODO: 2 factorize the 3 retry code
 
     const momentNeedsImportanceResp = parsedContent;
     const momentNeedsArray = new Array(needsList.length * 2).fill(0);
@@ -286,64 +287,71 @@ router.get("/needs/:moment", async (req, res) => {
         await offlisNeedsRef.set(
           {
             moment: req.params.moment,
+            momentId: req.headers.momentid,
             needsImportance: parsedContent,
+            user: req.uid,
           },
-          { merge: true }
+          { merge: true },
         );
       }
     }
     // console.log("momentNeedsArray", momentNeedsArray);
 
-    // ENRICH MOMENT DOC
-    try {
-      await db
-        .collection("users")
-        .doc(req.uid)
-        .collection("moments")
-        .doc(req.headers.momentid)
-        .update({
-          needsImportances: momentNeedsImportanceResp,
-        });
-    } catch (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .send("Internal server error when updating moment needs");
-    }
+    // ENRICH MOMENT DOC & UPDATE AGGREGATE DOCS
+    const momentDocRef = db
+      .collection("users")
+      .doc(req.uid)
+      .collection("moments")
+      .doc(req.headers.momentid);
 
-    // UPDATE AGGREGATE DOCS
-    const updatedSumNeeds = new Array(needsList.length * 2).fill(0);
+    let updatedSumNeedsArray = new Array(needsList.length * 2).fill(0);
+    const aggregateAllTimeDocRef = db
+      .collection("users")
+      .doc(req.uid)
+      .collection("aggregateAllTime")
+      .doc("all_time");
+    const aggregateAllTimeDoc = await aggregateAllTimeDocRef.get();
+    if (!aggregateAllTimeDoc.exists) {
+      await aggregateAllTimeDocRef.set({
+        sumNeeds: updatedSumNeedsArray,
+        nNeeds: 0,
+        timestamp: FieldValue.serverTimestamp(),
+      });
+      console.log("aggregateAllTime>all_time doc created");
+    }
     try {
-      const aggregateAllTimeCollRef = db
-        .collection("users")
-        .doc(req.uid)
-        .collection("aggregateAllTime");
-      const doc = await aggregateAllTimeCollRef.doc("all_time").get();
-      if (!doc.exists) {
-        await aggregateAllTimeCollRef.doc("all_time").set({
-          sumNeeds: momentNeedsArray,
-          nNeeds: 1,
-          timestamp: FieldValue.serverTimestamp(),
-        });
-        console.log("aggregateAllTime doc created for moment", req.params);
-      } else {
-        const sumNeeds = doc.data().sumNeeds;
-        //add the momentNeedsArray to the sumNeeds array
+      await db.runTransaction(async (t) => {
+        //update aggregate doc, starting with re-reading it bec. this is a transaction
+        const aggregateAllTimeDocTransac = await t.get(aggregateAllTimeDocRef);
+        const sumNeedsArray = aggregateAllTimeDocTransac.data().sumNeeds;
         for (let i = 0; i < momentNeedsArray.length; i++) {
-          updatedSumNeeds[i] = sumNeeds[i] + momentNeedsArray[i];
+          updatedSumNeedsArray[i] = sumNeedsArray[i] + momentNeedsArray[i];
         }
-        await aggregateAllTimeCollRef.doc("all_time").update({
-          sumNeeds: updatedSumNeeds,
+        t.update(aggregateAllTimeDocRef, {
+          sumNeeds: updatedSumNeedsArray,
           nNeeds: FieldValue.increment(1),
           timestamp: FieldValue.serverTimestamp(),
         });
-        console.log("aggregateAllTime doc updated for moment", req.params);
-      }
+        //enrich moment doc
+        t.update(momentDocRef, { needsImportances: momentNeedsImportanceResp });
+      });
+      console.log(
+        "Transaction success, ",
+        req.params,
+        " enriched by needs rating and aggregate docs updated",
+      );
     } catch (err) {
-      console.log("Error getting document", err);
+      console.log(
+        "Transaction failure, ",
+        req.params,
+        "NOT enriched by needs rating and aggregate docs NOT updated: ",
+        err,
+      );
       return res
         .status(500)
-        .send("Internal server error when updating aggregate data");
+        .send(
+          "Internal server error when updating moment needs or aggregate data",
+        );
     }
 
     //   const aggregateMonthlyCollRef = collection(

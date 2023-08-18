@@ -4,7 +4,7 @@ import {
   doc,
   // addDoc,
   setDoc,
-  updateDoc,
+  // updateDoc,
   getDoc,
   Timestamp,
   arrayUnion,
@@ -34,13 +34,9 @@ export const useMomentsStore = defineStore("moments", () => {
   const userDocRef = ref(null);
   const momentsCollRef = ref(null);
   const momentsColl = ref([]);
-  const tagsCollRef = ref(null);
   const tagsColl = ref({});
-  const aggregateMonthlyCollRef = ref(null);
   const aggregateMonthlyColl = ref({});
-  const aggregateYearlyCollRef = ref(null);
   const aggregateYearlyColl = ref({});
-  const aggregateAllTimeCollRef = ref(null);
   const aggregateAllTimeColl = ref({});
   const initialized = ref(false);
   const isEditorFocused = ref(false);
@@ -105,23 +101,18 @@ export const useMomentsStore = defineStore("moments", () => {
 
       momentsCollRef.value = collection(db, `users/${user.value.uid}/moments`);
       momentsColl.value = useCollection(momentsCollRef); //TODO:2 rename all useCollection to  momentsCollReactive
-      tagsCollRef.value = collection(db, `users/${user.value.uid}/tags`);
-      tagsColl.value = useCollection(tagsCollRef);
-      aggregateMonthlyCollRef.value = collection(
-        db,
-        `users/${user.value.uid}/aggregateMonthly`,
+      tagsColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/tags`),
       );
-      aggregateMonthlyColl.value = useCollection(aggregateMonthlyCollRef);
-      aggregateYearlyCollRef.value = collection(
-        db,
-        `users/${user.value.uid}/aggregateYearly`,
+      aggregateMonthlyColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateMonthly`),
       );
-      aggregateYearlyColl.value = useCollection(aggregateYearlyCollRef);
-      aggregateAllTimeCollRef.value = collection(
-        db,
-        `users/${user.value.uid}/aggregateAllTime`,
+      aggregateYearlyColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateYearly`),
       );
-      aggregateAllTimeColl.value = useCollection(aggregateAllTimeCollRef);
+      aggregateAllTimeColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateAllTime`),
+      );
 
       initialized.value = true;
     } catch (error) {
@@ -172,6 +163,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
       //TRIGGER LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
+      console.log("TRIGGERING CALL TO LLM FOR moment '", moment.text);
       const response = await axios.get(`/api/learn/needs/${moment.text}`, {
         headers: {
           authorization: `Bearer ${idToken}`,

@@ -151,7 +151,7 @@ describe("Checking main screens & Moments inputting", () => {
         clock.restore();
       });
     }
-    cy.wait(1000);
+    cy.wait(15000);
     for (const item of momentsData) {
       cy.contains(item.text);
     }
