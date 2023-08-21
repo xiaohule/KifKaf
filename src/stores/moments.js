@@ -4,11 +4,17 @@ import {
   doc,
   // addDoc,
   setDoc,
-  // updateDoc,
+  updateDoc,
   getDoc,
+  getDocs,
   Timestamp,
   arrayUnion,
   writeBatch,
+  query,
+  where,
+  orderBy,
+  limit,
+  increment,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -38,6 +44,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateMonthlyColl = ref({});
   const aggregateYearlyColl = ref({});
   const aggregateAllTimeColl = ref({});
+  // const aggregateAllTimeDoc = ref(null);
   const initialized = ref(false);
   const isEditorFocused = ref(false);
   const needsList = [
@@ -85,6 +92,10 @@ export const useMomentsStore = defineStore("moments", () => {
 
   //TODO:2 separate betw local state and firestore so that directly after mom insertion the state is updated and only if fs save is failed is it reverted? I.e. "Optimistic UI Update with Revert" ?
   const fetchMoments = async () => {
+    if (initialized.value) {
+      console.log("XXX in fetchMoments, already initialized");
+      return;
+    }
     try {
       user.value = await getCurrentUser();
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
@@ -119,6 +130,50 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
+  //LLM CALL RETRIES: at each start of the app, look for a max of 3 moments whose needsImportances have not been properly rated and retry the LLM call if any
+  const emptyNeedsMomentsRetry = async () => {
+    // Query moments where needsImportances is empty
+    const emptyNeedsImportancesQuery = query(
+      momentsCollRef.value,
+      where("needsImportances", "==", {}),
+      where("retries", "<", 3),
+      orderBy("retries"),
+      limit(3),
+    );
+    const momentsWithEmptyNeedsImportances = await getDocs(
+      emptyNeedsImportancesQuery,
+    );
+
+    //for each moment with empty needsImportances, retry to call LLM and increment the retries counter
+    //TODO: 2 parallelize the calls to LLM
+    for (const doc of momentsWithEmptyNeedsImportances.docs) {
+      console.log(
+        "XXX in fetchMoments, emptyNeedsImportancesQuery returned:",
+        doc.data(),
+      );
+
+      await updateDoc(doc.ref, {
+        retries: increment(1),
+      });
+      const idToken = await user.value.getIdToken(/* forceRefresh */ true);
+      console.log("TRIGGERING RETRY CALL TO LLM FOR moment", doc.data().text);
+      const response = await axios.get(`/api/learn/needs/${doc.data().text}`, {
+        headers: {
+          authorization: `Bearer ${idToken}`,
+          momentdate: doc.data().date,
+          momentid: doc.id,
+        },
+      });
+
+      console.log(
+        "SUCCESSFUL RETRY LLM RESPONSE for moment '",
+        doc.data().text,
+        "' :",
+        response.data,
+      );
+    }
+  };
+
   const addMoment = async (moment) => {
     //TODO: 1 make it so fs storing and llm enriching are parallel (by defining a mom id first and doing both after for ex. so that whoever is ready first can create the mom?)
     console.log("XXX in addMoment, moment:", moment);
@@ -129,6 +184,7 @@ export const useMomentsStore = defineStore("moments", () => {
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
       const docRef = doc(momentsCollRef.value);
       batch.set(docRef, moment);
+      batch.update(docRef, { needsImportances: {}, retries: 0 });
 
       // Update the tag statistics in tagsColl for the tags of the new moment
       for (const tag of moment.tags) {
@@ -158,7 +214,7 @@ export const useMomentsStore = defineStore("moments", () => {
       //WARNING the following may take up to 30s to complete if bad connection, retries, llm hallucinations OR never complete
       //TODO: 3 robustify and track whether need retry or not
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
-      console.log("TRIGGERING CALL TO LLM FOR moment '", moment.text);
+      console.log("TRIGGERING CALL TO LLM FOR moment", moment.text);
       const response = await axios.get(`/api/learn/needs/${moment.text}`, {
         headers: {
           authorization: `Bearer ${idToken}`,
@@ -340,10 +396,12 @@ export const useMomentsStore = defineStore("moments", () => {
     isEditorFocused,
     uniqueTags,
     uniqueDays,
+    initialized,
     getTags,
     addMoment,
     fetchMoments,
     updateUser,
     setIsEditorFocused,
+    emptyNeedsMomentsRetry,
   };
 });

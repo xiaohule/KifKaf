@@ -141,7 +141,7 @@ router.get("/needs/:moment", async (req, res) => {
       );
     }
 
-    // PROCESS LLM RESPONSE, RETRYING IF NECESSARY
+    // PROCESS LLM RESPONSE, REPLYING IF NECESSARY
     //TODO:3 make this more robust
     //TODO: 2 factorize those checks
 
@@ -170,18 +170,18 @@ router.get("/needs/:moment", async (req, res) => {
             "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
         },
       );
-      const retryResponse = await openai.createChatCompletion(request_options);
+      const replyResponse = await openai.createChatCompletion(request_options);
       // Update the 'parsedContent' from the new response
-      parsedContent = JSON.parse(retryResponse.data.choices[0].message.content);
+      parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
       console.log(
         "HERE req.params",
         req.params,
-        "HERE parsedContent after retry",
+        "HERE parsedContent after reply",
         parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
-          "Error in retry: parsedContent empty or erroneous, for mom",
+          "Error in reply: parsedContent empty or erroneous, for mom",
           req.params,
           "here are response.data.choices[0].message: ",
           response.data.choices[0].message,
@@ -206,17 +206,17 @@ router.get("/needs/:moment", async (req, res) => {
         content:
           "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
       });
-      const retryResponse = await openai.createChatCompletion(request_options);
-      parsedContent = JSON.parse(retryResponse.data.choices[0].message.content);
+      const replyResponse = await openai.createChatCompletion(request_options);
+      parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
       console.log(
         "HERE req.params",
         req.params,
-        "HERE parsedContent after retry",
+        "HERE parsedContent after reply",
         parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
-          "Error in retry: parsedContent empty or erroneous, for mom",
+          "Error in reply: parsedContent empty or erroneous, for mom",
           req.params,
           "here are response.data.choices[0].message: ",
           response.data.choices[0].message,
@@ -241,17 +241,17 @@ router.get("/needs/:moment", async (req, res) => {
         content:
           "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
       });
-      const retryResponse = await openai.createChatCompletion(request_options);
-      parsedContent = JSON.parse(retryResponse.data.choices[0].message.content);
+      const replyResponse = await openai.createChatCompletion(request_options);
+      parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
       console.log(
         "HERE req.params",
         req.params,
-        "HERE parsedContent after retry",
+        "HERE parsedContent after reply",
         parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
-          "Error in retry: parsedContent empty or erroneous, for mom",
+          "Error in reply: parsedContent empty or erroneous, for mom",
           req.params,
           "here are response.data.choices[0].message: ",
           response.data.choices[0].message,

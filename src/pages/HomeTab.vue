@@ -111,12 +111,14 @@ import VirtualKeyboardBar from './../components/VirtualKeyboardBar.vue'
 const momentsStore = useMomentsStore()
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
-  if (!momentsStore.initialized) {
-    try {
+
+  try {
+    if (!momentsStore.initialized) {
       await momentsStore.fetchMoments();
-    } catch (error) {
-      console.error('await momentsStore.fetchMoments() error:', error);
     }
+    await momentsStore.emptyNeedsMomentsRetry();
+  } catch (error) {
+    console.error('await momentsStore.fetchMoments() error:', error);
   }
 })
 
