@@ -157,11 +157,14 @@ export const useMomentsStore = defineStore("moments", () => {
       });
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
       console.log("TRIGGERING RETRY CALL TO LLM FOR moment", doc.data().text);
-      const response = await axios.get(`/api/learn/needs/${doc.data().text}`, {
+      const response = await axios.get(`/api/learn/needs/`, {
+        params: {
+          momentText: doc.data().text,
+          momentDate: JSON.stringify(doc.data().date),
+          momentId: doc.id,
+        },
         headers: {
           authorization: `Bearer ${idToken}`,
-          momentdate: doc.data().date,
-          momentid: doc.id,
         },
       });
 
@@ -214,16 +217,20 @@ export const useMomentsStore = defineStore("moments", () => {
       //WARNING the following may take up to 30s to complete if bad connection, retries, llm hallucinations OR never complete
       //TODO: 3 robustify and track whether need retry or not
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
-      console.log("TRIGGERING CALL TO LLM FOR moment", moment.text);
-      const response = await axios.get(`/api/learn/needs/${moment.text}`, {
+      console.log("TRIGGERING CALL TO LLM FOR moment", docRef.id, moment.text);
+      const response = await axios.get(`/api/learn/needs/`, {
+        params: {
+          momentText: moment.text,
+          momentDate: JSON.stringify(moment.date),
+          momentId: docRef.id,
+        },
         headers: {
           authorization: `Bearer ${idToken}`,
-          momentdate: moment.date,
-          momentid: docRef.id,
         },
       });
       console.log(
         "SUCCESSFUL LLM RESPONSE for moment '",
+        docRef.id,
         moment.text,
         "' :",
         response.data,

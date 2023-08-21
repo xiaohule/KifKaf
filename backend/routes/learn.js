@@ -3,7 +3,7 @@ var admin = require("firebase-admin");
 var serviceAccount = require("./../serviceAccountKey.json");
 const {
   getFirestore,
-  // Timestamp,
+  Timestamp,
   FieldValue,
   // Filter,
 } = require("firebase-admin/firestore");
@@ -66,25 +66,6 @@ const needsList = [
   "Spiritual Transcendence",
 ];
 
-const authenticate = async (req, res, next) => {
-  const idToken = req.headers.authorization?.split("Bearer ")[1];
-
-  if (!idToken) {
-    return res.status(403).send("Unauthorized: No ID token provided.");
-  }
-
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.uid = decodedToken.uid; // Attach the uid to the request object
-    next();
-  } catch (error) {
-    console.error("Token verification error", error);
-    res.status(403).send("Unauthorized: Invalid ID token.");
-  }
-};
-
-router.use(authenticate); // Use the middleware for all routes in this router
-
 const createOpenAIRequestOptions = (moment) => {
   const request_options = {
     model: "gpt-3.5-turbo",
@@ -108,52 +89,102 @@ const createOpenAIRequestOptions = (moment) => {
   return request_options;
 };
 
-router.get("/needs/:moment", async (req, res) => {
+const getAggregateDocRef = async (uid, collectionName, docName) => {
+  let emptySumNeedsArray = new Array(needsList.length * 2).fill(0);
+  //create aggregateAllTime doc if it doesn't exist
+  const aggregateDocRef = db
+    .collection("users")
+    .doc(uid)
+    .collection(collectionName)
+    .doc(docName);
+  const aggregateDoc = await aggregateDocRef.get();
+  if (!aggregateDoc.exists) {
+    await aggregateDocRef.set({
+      sumNeeds: emptySumNeedsArray,
+      nNeeds: 0,
+      timestamp: FieldValue.serverTimestamp(),
+    });
+    console.log(collectionName, " > ", docName, " doc created");
+  }
+  return aggregateDocRef;
+};
+
+const authenticate = async (req, res, next) => {
+  const idToken = req.headers.authorization?.split("Bearer ")[1];
+
+  if (!idToken) {
+    return res.status(403).send("Unauthorized: No ID token provided.");
+  }
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.uid = decodedToken.uid; // Attach the uid to the request object
+    next();
+  } catch (error) {
+    console.error("Token verification error", error);
+    res.status(403).send("Unauthorized: Invalid ID token.");
+  }
+};
+
+router.use(authenticate); // Use the middleware for all routes in this router
+
+router.get("/needs/", async (req, res) => {
   try {
     // console.log("req.headers", req.headers);
-    console.log("req.params", req.params); //returns { moment:'Feeling sad to be working so much' }
+    console.log("GET request received", req.query); //returns { moment:'Feeling sad to be working so much' }
 
     // LLM CALL
-    const request_options = createOpenAIRequestOptions(req.params);
+    const request_options = createOpenAIRequestOptions(req.query.momentText);
     // console.log("request_options", request_options);
     const response = await openai.createChatCompletion(request_options);
     // console.log("response.data", response.data);
-    // console.log(
-    //   "response.data.choices[0].message",
-    //   response.data.choices[0].message
-    // );
+    // console.log( "response.data.choices[0].message",  response.data.choices[0].message );
 
     // Parse the response content to a JavaScript object
     let parsedContent = JSON.parse(response.data.choices[0].message.content);
     console.log(
-      "HERE req.params",
-      req.params,
-      "HERE parsedContent",
+      "LLM response received for",
+      req.query,
+      ", parsedContent=",
       parsedContent,
     );
     /* returns {"Emotional Safety & Well-Being": 0.8, "Personal Autonomy": 0.2, "Self-Esteem & Social Recognition": 0.2, "Exploration": 0.1, "Learning": 0.1, "Inner Peace": 0.1}*/
     if (!parsedContent || parsedContent.error) {
       console.log(
         "Error: parsedContent empty or erroneous, for mom",
-        req.params,
+        req.query,
         "here are response.data.choices[0].message: ",
         response.data.choices[0].message,
       );
     }
 
     // PROCESS LLM RESPONSE, REPLYING IF NECESSARY
-    //TODO:3 make this more robust
-    //TODO: 2 factorize those checks
-
+    let issueType = "";
     // Check if all values are zero or if the sum is less than a threshold (0.1 in this case)
-    const sumOfAllValues = Object.values(parsedContent).reduce(
-      (a, b) => a + b,
-      0,
-    );
-    if (sumOfAllValues < 0.1) {
+    if (Object.keys(parsedContent).length === 0) {
+      issueType = "parsedContentEmpty";
+    } else {
+      const sumOfAllValues = Object.values(parsedContent).reduce(
+        (a, b) => a + b,
+        0,
+      );
+      if (sumOfAllValues < 0.1) {
+        issueType = "sumOfAllValuesLow";
+      } else if (!Object.values(parsedContent).some((value) => value > 0.1)) {
+        issueType = "noValuesMoreThanThreshold";
+      }
+    }
+
+    if (issueType) {
       console.log(
-        "Error: All values in parsedContent are zero, moment & parsedContent:",
-        req.params,
+        (issueType = "parsedContentEmpty"
+          ? "Error: All values in parsedContent are zero, moment & parsedContent"
+          : (issueType = "sumOfAllValuesLow"
+              ? "Error: The sum of all values in parsedContent is less than 0.1, moment & parsedContent"
+              : (issueType = "noValuesMoreThanThreshold"
+                  ? "Error: No values in parsedContent are more than 0.1, moment & parsedContent"
+                  : "Error: issueType not recognized"))),
+        req.query,
         parsedContent,
       );
       console.log(
@@ -166,93 +197,28 @@ router.get("/needs/:moment", async (req, res) => {
         response.data.choices[0].message, // This adds the last response from the assistant
         {
           role: "user",
-          content:
-            "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+          content: (issueType = "parsedContentEmpty"
+            ? "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result."
+            : (issueType = "sumOfAllValuesLow"
+                ? "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result."
+                : (issueType = "noValuesMoreThanThreshold"
+                    ? "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result."
+                    : "Error: issueType not recognized"))),
         },
       );
       const replyResponse = await openai.createChatCompletion(request_options);
       // Update the 'parsedContent' from the new response
       parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
       console.log(
-        "HERE req.params",
-        req.params,
+        "HERE req.query",
+        req.query,
         "HERE parsedContent after reply",
         parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
           "Error in reply: parsedContent empty or erroneous, for mom",
-          req.params,
-          "here are response.data.choices[0].message: ",
-          response.data.choices[0].message,
-        );
-      }
-    }
-
-    // Check if no values are more than 0.1
-    if (!Object.values(parsedContent).some((value) => value > 0.1)) {
-      console.log(
-        "Error: No values in parsedContent are more than 0.1, moment & parsedContent:",
-        req.params,
-        parsedContent,
-      );
-      console.log(
-        "response.data.choices[0].message",
-        response.data.choices[0].message,
-      );
-
-      request_options.messages.push(response.data.choices[0].message, {
-        role: "user",
-        content:
-          "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
-      });
-      const replyResponse = await openai.createChatCompletion(request_options);
-      parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
-      console.log(
-        "HERE req.params",
-        req.params,
-        "HERE parsedContent after reply",
-        parsedContent,
-      );
-      if (!parsedContent || parsedContent.error) {
-        console.log(
-          "Error in reply: parsedContent empty or erroneous, for mom",
-          req.params,
-          "here are response.data.choices[0].message: ",
-          response.data.choices[0].message,
-        );
-      }
-    }
-
-    // Check if parsedContent is empty
-    if (Object.keys(parsedContent).length === 0) {
-      console.log(
-        "Error: parsedContent is empty, moment & parsedContent:",
-        req.params,
-        parsedContent,
-      );
-      console.log(
-        "response.data.choices[0].message",
-        response.data.choices[0].message,
-      );
-
-      request_options.messages.push(response.data.choices[0].message, {
-        role: "user",
-        content:
-          "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
-      });
-      const replyResponse = await openai.createChatCompletion(request_options);
-      parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
-      console.log(
-        "HERE req.params",
-        req.params,
-        "HERE parsedContent after reply",
-        parsedContent,
-      );
-      if (!parsedContent || parsedContent.error) {
-        console.log(
-          "Error in reply: parsedContent empty or erroneous, for mom",
-          req.params,
+          req.query,
           "here are response.data.choices[0].message: ",
           response.data.choices[0].message,
         );
@@ -269,9 +235,10 @@ router.get("/needs/:moment", async (req, res) => {
         console.log(need, " is not found in the needsList.");
         const offlisNeedsRef = db.collection("offlistNeeds").doc(need);
         await offlisNeedsRef.set(
+          //TODO:2 we should append the need to the offlistNeeds doc instead of overwriting it
           {
-            moment: req.params.moment,
-            momentId: req.headers.momentid,
+            moment: req.query.momentText,
+            momentId: req.query.momentId,
             needsImportance: parsedContent,
             user: req.uid,
           },
@@ -281,40 +248,80 @@ router.get("/needs/:moment", async (req, res) => {
     }
 
     // ENRICH MOMENT DOC & UPDATE AGGREGATE DOCS
+    //get all time, yearly and monthly aggregate docs
+    let aggregateAllTimeDocRef, aggregateYearlyDocRef, aggregateMonthlyDocRef;
+    const momentdateObject = JSON.parse(req.query.momentDate);
+    if (momentdateObject && momentdateObject.seconds) {
+      const momentTs = new Timestamp(
+        momentdateObject.seconds,
+        momentdateObject.nanoseconds,
+      );
+      const momentDate = momentTs.toDate();
+      const momentYear = momentDate.getFullYear().toString();
+      const momentMonth = momentDate.getMonth() + 1;
+      const momentYearMonth =
+        momentYear + "-" + (momentMonth < 10 ? "0" : "") + momentMonth;
+
+      aggregateAllTimeDocRef = await getAggregateDocRef(
+        req.uid,
+        "aggregateAllTime",
+        "all_time",
+      );
+      aggregateYearlyDocRef = await getAggregateDocRef(
+        req.uid,
+        "aggregateYearly",
+        momentYear,
+      );
+      aggregateMonthlyDocRef = await getAggregateDocRef(
+        req.uid,
+        "aggregateMonthly",
+        momentYearMonth,
+      );
+    } else {
+      console.error("Invalid momentdate provided in the headers.");
+      return res.status(400).send("Invalid momentdate provided.");
+    }
+
+    let updatedSumNeedsArrayAllTime = new Array(needsList.length * 2).fill(0);
+    let updatedSumNeedsArrayYearly = new Array(needsList.length * 2).fill(0);
+    let updatedSumNeedsArrayMonthly = new Array(needsList.length * 2).fill(0);
     const momentDocRef = db
       .collection("users")
       .doc(req.uid)
       .collection("moments")
-      .doc(req.headers.momentid);
+      .doc(req.query.momentId);
 
-    //create aggregateAllTime doc if it doesn't exist
-    let updatedSumNeedsArray = new Array(needsList.length * 2).fill(0);
-    const aggregateAllTimeDocRef = db
-      .collection("users")
-      .doc(req.uid)
-      .collection("aggregateAllTime")
-      .doc("all_time");
-    const aggregateAllTimeDoc = await aggregateAllTimeDocRef.get();
-    if (!aggregateAllTimeDoc.exists) {
-      await aggregateAllTimeDocRef.set({
-        sumNeeds: updatedSumNeedsArray,
-        nNeeds: 0,
-        timestamp: FieldValue.serverTimestamp(),
-      });
-      console.log("aggregateAllTime>all_time doc created");
-    }
-
-    // transctionally persist llm data in firestore
+    // transactionally persist llm data in firestore
     try {
       await db.runTransaction(async (t) => {
         //update aggregate doc, starting with re-reading it bec. this is a transaction
-        const aggregateAllTimeDocTransac = await t.get(aggregateAllTimeDocRef);
-        const sumNeedsArray = aggregateAllTimeDocTransac.data().sumNeeds;
+        const aggregateAllTimeSnap = await t.get(aggregateAllTimeDocRef); //TODO:2 to parallelize, we can read all 3 aggregate docs in parallel
+        const aggregateYearlySnap = await t.get(aggregateYearlyDocRef);
+        const aggregateMonthlySnap = await t.get(aggregateMonthlyDocRef);
+        const sumNeedsArrayAllTime = aggregateAllTimeSnap.data().sumNeeds;
+        const sumNeedsArrayYearly = aggregateYearlySnap.data().sumNeeds;
+        const sumNeedsArrayMonthly = aggregateMonthlySnap.data().sumNeeds;
+
         for (let i = 0; i < momentNeedsArray.length; i++) {
-          updatedSumNeedsArray[i] = sumNeedsArray[i] + momentNeedsArray[i];
+          updatedSumNeedsArrayAllTime[i] =
+            sumNeedsArrayAllTime[i] + momentNeedsArray[i];
+          updatedSumNeedsArrayYearly[i] =
+            sumNeedsArrayYearly[i] + momentNeedsArray[i];
+          updatedSumNeedsArrayMonthly[i] =
+            sumNeedsArrayMonthly[i] + momentNeedsArray[i];
         }
         t.update(aggregateAllTimeDocRef, {
-          sumNeeds: updatedSumNeedsArray,
+          sumNeeds: updatedSumNeedsArrayAllTime,
+          nNeeds: FieldValue.increment(1),
+          timestamp: FieldValue.serverTimestamp(),
+        });
+        t.update(aggregateYearlyDocRef, {
+          sumNeeds: updatedSumNeedsArrayYearly,
+          nNeeds: FieldValue.increment(1),
+          timestamp: FieldValue.serverTimestamp(),
+        });
+        t.update(aggregateMonthlyDocRef, {
+          sumNeeds: updatedSumNeedsArrayMonthly,
           nNeeds: FieldValue.increment(1),
           timestamp: FieldValue.serverTimestamp(),
         });
@@ -323,13 +330,17 @@ router.get("/needs/:moment", async (req, res) => {
       });
       console.log(
         "Transaction success, ",
-        req.params,
-        " enriched by needs rating and aggregate docs updated",
+        req.query,
+        " enriched by needs rating and aggregate docs all time and",
+        //keep only the last two part of the path
+        aggregateYearlyDocRef.path.split("/").slice(-2).join("/"),
+        aggregateMonthlyDocRef.path.split("/").slice(-2).join("/"),
+        "updated",
       );
     } catch (err) {
       console.log(
         "Transaction failure, ",
-        req.params,
+        req.query,
         "NOT enriched by needs rating and aggregate docs NOT updated: ",
         err,
       );
