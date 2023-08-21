@@ -12,6 +12,12 @@ const routes = [
     children: [{ path: "", component: () => import("pages/LearnTab.vue") }],
   },
   {
+    path: "/learnv1",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: { requiresAuth: true },
+    children: [{ path: "", component: () => import("pages/LearnTabV1.vue") }],
+  },
+  {
     path: "/timeline",
     component: () => import("layouts/MainLayout.vue"),
     meta: { requiresAuth: true },

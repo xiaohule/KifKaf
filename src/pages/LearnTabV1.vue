@@ -3,10 +3,6 @@
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
     <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0"></div> -->
     <q-item class="q-px-none q-pt-none">
-      <!-- <q-item-section class="col-auto">
-          <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
-            @click="openFilterDialog('tags')">{{ tagsButtonLabel }}</q-btn>
-        </q-item-section> -->
       <q-item-section class=" col-auto">
         <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="calendar_today"
           no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
@@ -16,32 +12,22 @@
     <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
         @slidechangetransitionend="console.log('SWIPER slidechangetransitionend fired', $event)"-->
     <div>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kifs</q-item-label>
-      <swiper-container ref="swiperElPositive" init="false" auto-height="true" observer="true"
-        observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @activeindexchange="(event) => onSliding(event, 'positive')"
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Needs</q-item-label>
+      <swiper-container ref="swiperElNeeds" init="false" auto-height="true" observer="true" observe-slide-children="true"
+        grab-cursor="true" pagination-dynamic-bullets="true" @activeindexchange="(event) => onSliding(event)"
         @observerUpdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
         @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
         @init="console.log('SWIPER init fired')">
         <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-          <learn-card flag="positive" :date-range="range" :frequency-selected="frequencySelectedPositive"
-            @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedPositive"
-            @click:show-button="showButtonClicked"></learn-card>
+          <learn-card-needs :date-range="range" :satisfied-selected="satisfiedSelected"
+            @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedNeeds"
+            @click:show-button="showButtonClicked"></learn-card-needs>
         </swiper-slide>
       </swiper-container>
     </div>
 
     <div>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Kafs</q-item-label>
-      <swiper-container ref="swiperElNegative" init="false" auto-height="true" observer="true"
-        observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @activeindexchange="(event) => onSliding(event, 'negative')">
-        <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-          <learn-card flag="negative" :date-range="range" :frequency-selected="frequencySelectedNegative"
-            @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedNegative"
-            @click:show-button="showButtonClicked"></learn-card>
-        </swiper-slide>
-      </swiper-container>
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Themes</q-item-label>
     </div>
 
     <q-dialog v-model="filterDialogOpen" position="bottom">
@@ -66,14 +52,6 @@
             emit-immediately @update:model-value="onUpdatePickedDate" :key="yearsKey"></q-date>
         </div>
 
-        <!-- <div v-else-if="tappedFilter === 'tags'">
-          <q-card-section class="text-h6">Filter period
-          </q-card-section>
-          <q-card-section>Filtering the period will take into account only the moments that happened during the
-            selected
-            period. </q-card-section>
-        </div> -->
-
         <q-card-actions align="center">
           <q-btn rounded color="primary" @click="filterDialogOpen = false" padding="10px"
             class="text-body1 q-ma-sm full-width" no-caps>Done</q-btn>
@@ -87,7 +65,7 @@
 import { ref, computed, watch, nextTick, onActivated, onDeactivated } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
-import LearnCard from "./../components/LearnCard.vue";
+import LearnCardNeeds from "./../components/LearnCardNeeds.vue";
 import { date } from "quasar";
 // destructuring to keep only what is needed in date
 const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBetweenDates } = date; //TODO:3 fix this import destructuring if unused
@@ -97,27 +75,18 @@ const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBet
 const momentsStore = useMomentsStore()
 
 const dateRangeButtonLabel = ref('This year')
-// const tagsButtonLabel = ref('All tags')
 
 //SWIPER
 //TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
-const swiperElPositive = ref(null)
-const swiperElNegative = ref(null)
+const swiperElNeeds = ref(null)
 const swiperInitialized = ref(false)
 const activeIndex = ref(0)
-// onMounted(() => { //TODO:1 keep only activated?
-//   console.log('ONMOUNTED')
-//   swiperEl.value.initialize();
-//   swiperEl.value.swiper.activeIndex = activeIndex.value
-//   swiperInitialized.value = true
-// });
+
 onActivated(() => {
   console.log('ONACTIVATED')
   if (!swiperInitialized.value) {
-    swiperElPositive.value.initialize();
-    swiperElNegative.value.initialize();
-    swiperElPositive.value.swiper.activeIndex = activeIndex.value
-    swiperElNegative.value.swiper.activeIndex = activeIndex.value
+    swiperElNeeds.value.initialize();
+    swiperElNeeds.value.swiper.activeIndex = activeIndex.value
     swiperInitialized.value = true
   }
 });
@@ -129,38 +98,26 @@ watch(activeIndex, (newVal, oldVal) => {
   if (swiperInitialized.value) {
     console.log('in activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
 
-    swiperElPositive.value.swiper.slideTo(newVal, 300)
-    console.log('in activeIndex watcher2, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
-    swiperElNegative.value.swiper.slideTo(newVal, 300)
+    swiperElNeeds.value.swiper.slideTo(newVal, 300)
+    console.log('in activeIndex watcher2, swiperElNeeds.value.swiper.activeIndex', swiperElNeeds.value.swiper.activeIndex)
 
-    swiperElPositive.value.swiper.activeIndex = newVal
-    console.log('in activeIndex watcher3, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
-    swiperElNegative.value.swiper.activeIndex = newVal
+    swiperElNeeds.value.swiper.activeIndex = newVal
+    console.log('in activeIndex watcher3, swiperElNeeds.value.swiper.activeIndex', swiperElNeeds.value.swiper.activeIndex)
 
-    console.log('CHECK POSITIVE', swiperElPositive.value.swiper)
-    // console.log('CHECK NEGATIVE', swiperElNegative.value.swiper)
+    console.log('swiperElNeeds.value.swiper', swiperElNeeds.value.swiper)
   }
 })
 
-const frequencySelectedPositive = ref(false)
-const frequencySelectedNegative = ref(false)
-const segmentedControlClicked = ({ value, flag }) => {
-  flag === 'positive' ? frequencySelectedPositive.value = value : frequencySelectedNegative.value = value
+const satisfiedSelected = ref(false)
+const segmentedControlClicked = ({ value }) => {
+  satisfiedSelected.value = value
 }
-const learnCardExpandedPositive = ref(false)
-const learnCardExpandedNegative = ref(false)
-const showButtonClicked = ({ value, flag }) => {
-  if (flag === 'positive') {
-    learnCardExpandedPositive.value = value
-    nextTick(() => {
-      swiperElPositive.value.swiper.updateAutoHeight(300);
-    })
-  } else {
-    learnCardExpandedNegative.value = value
-    nextTick(() => {
-      swiperElNegative.value.swiper.updateAutoHeight(300);
-    })
-  }
+const learnCardExpandedNeeds = ref(false)
+const showButtonClicked = ({ value }) => {
+  learnCardExpandedNeeds.value = value
+  nextTick(() => {
+    swiperElNeeds.value.swiper.updateAutoHeight(300);
+  })
 }
 
 //DATES MANAGEMENT
@@ -302,10 +259,10 @@ watch(segDateId, (newVal, oldVal) => {
   //TODO:2 ensure that when yearly (2023) > monthly, the carousel is showing current month and not Jan
 });
 
-const onSliding = (event, flag) => {
-  console.log('in onSliding 4, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
-  activeIndex.value = (flag === 'positive') ? swiperElPositive.value.swiper.activeIndex : swiperElNegative.value.swiper.activeIndex
-  console.log('In onSliding with flag', flag, ' activeIndex updated to ', activeIndex.value)
+const onSliding = (event) => {
+  console.log('in onSliding 4, swiperElNeeds.value.swiper.activeIndex', swiperElNeeds.value.swiper.activeIndex)
+  activeIndex.value = swiperElNeeds.value.swiper.activeIndex
+  console.log('In onSliding, activeIndex updated to ', activeIndex.value)
   updateDateButtonLabel()
   if (segDateId.value === 'Monthly') {
     pickedDate.value = date.formatDate(dateRangesMonths.value[activeIndex.value][0], "YYYY/MM/DD")

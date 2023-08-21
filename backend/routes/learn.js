@@ -233,17 +233,16 @@ router.get("/needs/", async (req, res) => {
         momentNeedsArray[index] = momentNeedsImportanceResp[need];
       } else {
         console.log(need, " is not found in the needsList.");
-        const offlisNeedsRef = db.collection("offlistNeeds").doc(need);
-        await offlisNeedsRef.set(
-          //TODO:2 we should append the need to the offlistNeeds doc instead of overwriting it
-          {
-            moment: req.query.momentText,
-            momentId: req.query.momentId,
-            needsImportance: parsedContent,
-            user: req.uid,
-          },
-          { merge: true },
-        );
+        const offlisNeedsRef = db
+          .collection("offlistNeeds")
+          .doc(need)
+          .collection("moments")
+          .doc(req.query.momentId);
+        await offlisNeedsRef.set({
+          moment: req.query.momentText,
+          needsImportance: parsedContent,
+          user: req.uid,
+        });
       }
     }
 

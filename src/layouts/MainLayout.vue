@@ -25,6 +25,8 @@
         :breakpoint="0" :ripple="false">
         <q-route-tab name="home" icon="home" label="Home" to="/" />
         <q-route-tab name="learn" icon="insights" label="Learn" to="/learn" />
+        <q-route-tab name="learnv1" icon="insights" label="Learn v1" to="/learnv1" />
+
         <!-- TODO:1 re-add tabs when ready -->
         <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
         <q-route-tab name="search" icon="search" label="Search" to="/search" /> -->
