@@ -66,6 +66,55 @@ const needsList = [
   "Spiritual Transcendence",
 ];
 
+const needsInitValues = {
+  importanceSum: 0,
+  satisfactionSum: 0,
+  occurrenceCount: 0,
+};
+
+const needsMap = needsList.reduce((acc, need) => {
+  acc[need] = { ...needsInitValues };
+  return acc;
+}, {});
+
+const getAggregateDocRef = async (uid, collectionName, docName) => {
+  const aggregateDocRef = db
+    .collection("users")
+    .doc(uid)
+    .collection(collectionName)
+    .doc(docName);
+  const aggregateDoc = await aggregateDocRef.get();
+  if (!aggregateDoc.exists) {
+    await aggregateDocRef.set({
+      nMoments: 0,
+      needs: needsMap, // needs: {need1: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
+      totalNeedsImportanceSum: 0,
+      lastUpdate: FieldValue.serverTimestamp(),
+    });
+    console.log(collectionName, " > ", docName, " doc created");
+  }
+  return aggregateDocRef;
+};
+
+function generateAggregateUpdateData(
+  momentImportancesResp,
+  momentImportancesTotal,
+) {
+  const baseData = {
+    nMoments: FieldValue.increment(1),
+    totalNeedsImportanceSum: FieldValue.increment(momentImportancesTotal),
+    lastUpdate: FieldValue.serverTimestamp(),
+  };
+  for (let need in momentImportancesResp) {
+    baseData[`needs.${need}.importanceSum`] = FieldValue.increment(
+      momentImportancesResp[need],
+    );
+    baseData[`needs.${need}.satisfactionSum`] = FieldValue.increment(0);
+    baseData[`needs.${need}.occurrenceCount`] = FieldValue.increment(1);
+  }
+  return baseData;
+}
+
 const createOpenAIRequestOptions = (moment) => {
   const request_options = {
     model: "gpt-3.5-turbo",
@@ -87,26 +136,6 @@ const createOpenAIRequestOptions = (moment) => {
     presence_penalty: 0,
   };
   return request_options;
-};
-
-const getAggregateDocRef = async (uid, collectionName, docName) => {
-  let emptySumNeedsArray = new Array(needsList.length * 2).fill(0);
-  //create aggregateAllTime doc if it doesn't exist
-  const aggregateDocRef = db
-    .collection("users")
-    .doc(uid)
-    .collection(collectionName)
-    .doc(docName);
-  const aggregateDoc = await aggregateDocRef.get();
-  if (!aggregateDoc.exists) {
-    await aggregateDocRef.set({
-      sumNeeds: emptySumNeedsArray,
-      nNeeds: 0,
-      timestamp: FieldValue.serverTimestamp(),
-    });
-    console.log(collectionName, " > ", docName, " doc created");
-  }
-  return aggregateDocRef;
 };
 
 const authenticate = async (req, res, next) => {
@@ -225,12 +254,13 @@ router.get("/needs/", async (req, res) => {
       }
     }
 
-    const momentNeedsImportanceResp = parsedContent;
-    const momentNeedsArray = new Array(needsList.length * 2).fill(0);
-    for (let need in momentNeedsImportanceResp) {
-      const index = needsList.indexOf(need);
-      if (index !== -1) {
-        momentNeedsArray[index] = momentNeedsImportanceResp[need];
+    const momentImportancesResp = parsedContent;
+
+    let momentImportancesTotal = 0;
+    for (let need in momentImportancesResp) {
+      //if need is not in needsList, add it to offlistNeeds collection
+      if (needsList.includes(need)) {
+        momentImportancesTotal += momentImportancesResp[need];
       } else {
         console.log(need, " is not found in the needsList.");
         const offlisNeedsRef = db
@@ -281,54 +311,31 @@ router.get("/needs/", async (req, res) => {
       return res.status(400).send("Invalid momentdate provided.");
     }
 
-    let updatedSumNeedsArrayAllTime = new Array(needsList.length * 2).fill(0);
-    let updatedSumNeedsArrayYearly = new Array(needsList.length * 2).fill(0);
-    let updatedSumNeedsArrayMonthly = new Array(needsList.length * 2).fill(0);
     const momentDocRef = db
       .collection("users")
       .doc(req.uid)
       .collection("moments")
       .doc(req.query.momentId);
+    const aggregateUpdateData = generateAggregateUpdateData(
+      momentImportancesResp,
+      momentImportancesTotal,
+    );
 
-    // transactionally persist llm data in firestore
+    //batch persist llm data in firestore
     try {
-      await db.runTransaction(async (t) => {
-        //update aggregate doc, starting with re-reading it bec. this is a transaction
-        const aggregateAllTimeSnap = await t.get(aggregateAllTimeDocRef); //TODO:2 to parallelize, we can read all 3 aggregate docs in parallel
-        const aggregateYearlySnap = await t.get(aggregateYearlyDocRef);
-        const aggregateMonthlySnap = await t.get(aggregateMonthlyDocRef);
-        const sumNeedsArrayAllTime = aggregateAllTimeSnap.data().sumNeeds;
-        const sumNeedsArrayYearly = aggregateYearlySnap.data().sumNeeds;
-        const sumNeedsArrayMonthly = aggregateMonthlySnap.data().sumNeeds;
+      // Get a new write batch
+      const batch = db.batch();
+      //update aggregate docs
+      batch.update(aggregateAllTimeDocRef, aggregateUpdateData);
+      batch.update(aggregateYearlyDocRef, aggregateUpdateData);
+      batch.update(aggregateMonthlyDocRef, aggregateUpdateData);
+      //enrich moment doc
+      batch.update(momentDocRef, { needsImportances: momentImportancesResp });
+      // Commit the batch
+      await batch.commit();
 
-        for (let i = 0; i < momentNeedsArray.length; i++) {
-          updatedSumNeedsArrayAllTime[i] =
-            sumNeedsArrayAllTime[i] + momentNeedsArray[i];
-          updatedSumNeedsArrayYearly[i] =
-            sumNeedsArrayYearly[i] + momentNeedsArray[i];
-          updatedSumNeedsArrayMonthly[i] =
-            sumNeedsArrayMonthly[i] + momentNeedsArray[i];
-        }
-        t.update(aggregateAllTimeDocRef, {
-          sumNeeds: updatedSumNeedsArrayAllTime,
-          nNeeds: FieldValue.increment(1),
-          timestamp: FieldValue.serverTimestamp(),
-        });
-        t.update(aggregateYearlyDocRef, {
-          sumNeeds: updatedSumNeedsArrayYearly,
-          nNeeds: FieldValue.increment(1),
-          timestamp: FieldValue.serverTimestamp(),
-        });
-        t.update(aggregateMonthlyDocRef, {
-          sumNeeds: updatedSumNeedsArrayMonthly,
-          nNeeds: FieldValue.increment(1),
-          timestamp: FieldValue.serverTimestamp(),
-        });
-        //enrich moment doc
-        t.update(momentDocRef, { needsImportances: momentNeedsImportanceResp });
-      });
       console.log(
-        "Transaction success, ",
+        "Batch write success, ",
         req.query,
         " enriched by needs rating and aggregate docs all time and",
         //keep only the last two part of the path
@@ -338,7 +345,7 @@ router.get("/needs/", async (req, res) => {
       );
     } catch (err) {
       console.log(
-        "Transaction failure, ",
+        "Batch write failure, ",
         req.query,
         "NOT enriched by needs rating and aggregate docs NOT updated: ",
         err,

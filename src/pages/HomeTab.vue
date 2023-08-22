@@ -137,6 +137,7 @@ const formatLikeUniqueDays = (moment) => {
   return date.formatDate(dt, "MMMM D, YYYY")
 };
 const computedUniqueDays = computed(() => {
+  console.log('in computedUniqueDays, returned momentsStore.uniqueDays', momentsStore.uniqueDays);
   return momentsStore.uniqueDays || []
 })
 const getMomentsOfTheDay = (day) => {

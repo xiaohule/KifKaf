@@ -18,7 +18,7 @@ import {
 } from "firebase/firestore";
 import {
   useCollection,
-  // useDocument,
+  useDocument,
   getCurrentUser,
   updateCurrentUserProfile,
 } from "vuefire";
@@ -38,57 +38,58 @@ const { formatDate } = date;
 export const useMomentsStore = defineStore("moments", () => {
   const user = ref(null);
   const userDocRef = ref(null);
+  const userDoc = ref(null);
   const momentsCollRef = ref(null);
   const momentsColl = ref([]);
-  const tagsColl = ref({});
-  const aggregateMonthlyColl = ref({});
-  const aggregateYearlyColl = ref({});
-  const aggregateAllTimeColl = ref({});
-  // const aggregateAllTimeDoc = ref(null);
+  const tagsColl = ref([]);
+  const aggregateAllTimeColl = ref([]);
+  const aggregateYearlyColl = ref([]);
+  const aggregateMonthlyColl = ref([]);
   const initialized = ref(false);
   const isEditorFocused = ref(false);
-  const needsList = [
-    "Physical Safety",
-    "Food",
-    "Shelter",
-    "Financial Security",
-    "Rest & Relaxation",
-    "Comfort",
-    "Physical Movement",
-    "Physical Touch",
-    "Sexual Expression",
-    "Contact with Nature",
-    "Social Connection",
-    "Belongingness & Community",
-    "Empathy, Understanding & Validation",
-    "Affection, Love & Intimacy",
-    "Emotional Safety & Well-Being",
-    "Personal Privacy",
-    "Personal Autonomy",
-    "Self-Esteem & Social Recognition",
-    "Competence",
-    "Efficiency",
-    "Societal Contribution",
-    "Personal Expression & Creativity",
-    "Exploration",
-    "Inspiration",
-    "Learning",
-    "Self-Actualization",
-    "Challenge",
-    "Novelty",
-    "Entertainment",
-    "Humor",
-    "Play",
-    "Moral Integrity",
-    "Social Justice",
-    "Order & Structure",
-    "Altruism",
-    "Life's Meaning & Purpose",
-    "Joyful Celebration",
-    "Grieving & Mourning",
-    "Inner Peace",
-    "Spiritual Transcendence",
-  ];
+  const needsMap = {
+    "Physical Safety": "Physical Safety 🛡️",
+    Food: "Food 🥦",
+    Shelter: "Shelter 🏠",
+    "Financial Security": "Financial Security 💰",
+    "Rest & Relaxation": "Rest & Relaxation 🌙",
+    Comfort: "Comfort 🛋️",
+    "Physical Movement": "Physical Movement 🤸",
+    "Physical Touch": "Physical Touch 👐",
+    "Sexual Expression": "Sexual Expression 💋",
+    "Contact with Nature": "Contact with Nature 🏞️",
+    "Social Connection": "Social Connection 👥",
+    "Belongingness & Community": "Belongingness & Community 🏘️",
+    "Empathy, Understanding & Validation":
+      "Empathy, Understanding & Validation 👂",
+    "Affection, Love & Intimacy": "Affection, Love & Intimacy ❤️",
+    "Emotional Safety & Well-Being": "Emotional Safety & Well-Being 🤗",
+    "Personal Privacy": "Personal Privacy 🚪",
+    "Personal Autonomy": "Personal Autonomy 🛤️",
+    "Self-Esteem & Social Recognition": "Self-Esteem & Social Recognition 💪",
+    Competence: "Competence 🏆",
+    Efficiency: "Efficiency ⚡",
+    "Societal Contribution": "Societal Contribution 🔧",
+    "Personal Expression & Creativity": "Personal Expression & Creativity 🎨",
+    Exploration: "Exploration 🌎",
+    Inspiration: "Inspiration💡",
+    Learning: "Learning 📚",
+    "Self-Actualization": "Self-Actualization 🌱",
+    Challenge: "Challenge ⛰️",
+    Novelty: "Novelty 🌀",
+    Entertainment: "Entertainment 🎠",
+    Humor: "Humor 😂",
+    Play: "Play ⚽",
+    "Moral Integrity": "Moral Integrity 🕊️",
+    "Social Justice": "Social Justice ⚖️",
+    "Order & Structure": "Order & Structure 📐",
+    Altruism: "Altruism 🤲",
+    "Life's Meaning & Purpose": "Life's Meaning & Purpose 🌌",
+    "Joyful Celebration": "Joyful Celebration 🎉",
+    "Grieving & Mourning": "Grieving & Mourning 🥀",
+    "Inner Peace": "Inner Peace 🧘‍♂️",
+    "Spiritual Transcendence": "Spiritual Transcendence 🌸",
+  };
 
   //TODO:2 separate betw local state and firestore so that directly after mom insertion the state is updated and only if fs save is failed is it reverted? I.e. "Optimistic UI Update with Revert" ?
   const fetchMoments = async () => {
@@ -105,32 +106,32 @@ export const useMomentsStore = defineStore("moments", () => {
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
-          momentsDates: [], //TODO:1 instead make it a list of {date, momentsCount} objects it will be faster to count for percentShare
+          momentsDays: [],
         });
       }
+      userDoc.value = useDocument(userDocRef);
 
       momentsCollRef.value = collection(db, `users/${user.value.uid}/moments`);
       momentsColl.value = useCollection(momentsCollRef);
       tagsColl.value = useCollection(
         collection(db, `users/${user.value.uid}/tags`),
       );
-      aggregateMonthlyColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/aggregateMonthly`),
+      aggregateAllTimeColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateAllTime`),
       );
       aggregateYearlyColl.value = useCollection(
         collection(db, `users/${user.value.uid}/aggregateYearly`),
       );
-      aggregateAllTimeColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/aggregateAllTime`),
+      aggregateMonthlyColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/aggregateMonthly`),
       );
-
       initialized.value = true;
     } catch (error) {
       console.log("Error in fetchMoments", error);
     }
   };
 
-  //LLM CALL RETRIES: at each start of the app, look for a max of 3 moments whose needsImportances have not been properly rated and retry the LLM call if any
+  //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
   const emptyNeedsMomentsRetry = async () => {
     // Query moments where needsImportances is empty
     const emptyNeedsImportancesQuery = query(
@@ -144,8 +145,7 @@ export const useMomentsStore = defineStore("moments", () => {
       emptyNeedsImportancesQuery,
     );
 
-    //for each moment with empty needsImportances, retry to call LLM and increment the retries counter
-    //TODO: 2 parallelize the calls to LLM
+    //retry to call LLM and increment the retries counter //TODO: 1 parallelize the calls to LLM
     for (const doc of momentsWithEmptyNeedsImportances.docs) {
       console.log(
         "XXX in fetchMoments, emptyNeedsImportancesQuery returned:",
@@ -178,10 +178,8 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const addMoment = async (moment) => {
-    //TODO: 1 make it so fs storing and llm enriching are parallel (by defining a mom id first and doing both after for ex. so that whoever is ready first can create the mom?)
     console.log("XXX in addMoment, moment:", moment);
     try {
-      //FIRESTORE BATCH WRITE
       const batch = writeBatch(db);
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
@@ -206,16 +204,20 @@ export const useMomentsStore = defineStore("moments", () => {
         else batch.set(tagDocRef, { tagMoments: [tagData] });
       }
 
-      // Update the momentsDates list
+      // Remove moment.date time and save the Timestamp to momentsDays array in userDoc
+      // console.log("XXX in addMoment, moment.date:", moment.date);
+      const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
+      const dateObj = ts.toDate();
+      dateObj.setHours(0, 0, 0, 0);
+      // console.log("XXX in addMoment, dateWithoutTime:", dateObj);
       batch.update(userDocRef.value, {
-        momentsDates: arrayUnion(moment.date),
+        momentsDays: arrayUnion(Timestamp.fromDate(dateObj)),
       });
 
       await batch.commit();
 
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
-      //WARNING the following may take up to 30s to complete if bad connection, retries, llm hallucinations OR never complete
-      //TODO: 3 robustify and track whether need retry or not
+      //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
       console.log("TRIGGERING CALL TO LLM FOR moment", docRef.id, moment.text);
       const response = await axios.get(`/api/learn/needs/`, {
@@ -256,31 +258,25 @@ export const useMomentsStore = defineStore("moments", () => {
   //     console.log(error);
   //   }
   // },
-  // define other actions like addMoment, updateMoment etc.
 
-  //TODO:1 improve perf
   const uniqueDays = computed(() => {
-    if (
-      !momentsColl.value ||
-      !momentsColl.value.data ||
-      momentsColl.value.data.length === 0
-    )
+    if (!(userDoc?.value?.data?.momentsDays?.length ?? 0)) {
+      console.log(
+        "Empty uniqueDays bec. of userDoc?.value?.data?.momentsDays?.length",
+      );
       return [];
+    }
 
-    const days = momentsColl.value.data.map((moment) => {
+    const daysTime = userDoc.value.data.momentsDays.map((day) => {
       // Convert Firestore Timestamp to JavaScript Date, format of moment.date is like {seconds: 1678296892, nanoseconds: 210000000}
-      const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-      const date = ts.toDate();
-      date.setHours(0, 0, 0, 0);
-      // Format of date.getTime() is like 1678230000000
-      return date.getTime();
+      const dayTs = new Timestamp(day.seconds, day.nanoseconds);
+      const dayDate = dayTs.toDate();
+      return dayDate.getTime(); //TODO: 2 improve perf
     });
-    //Make an array of unique dates
-    const uniqueDaysTemp = [...new Set(days)];
-    //Sort the array in descending order
-    uniqueDaysTemp.sort((a, b) => b - a);
-    // Convert to formatted Date objects
-    return uniqueDaysTemp.map((day) => date.formatDate(day, "MMMM D, YYYY"));
+
+    //Sort in descending order (most recent first) & return
+    daysTime.sort((a, b) => b - a);
+    return daysTime.map((day) => date.formatDate(day, "MMMM D, YYYY"));
   });
 
   const setIsEditorFocused = (isFocused) => {
@@ -367,6 +363,109 @@ export const useMomentsStore = defineStore("moments", () => {
     });
   };
 
+  const getNeeds = (
+    dateRange = "all",
+    filterBy = "negative",
+    sortBy = "satisfactionArea",
+    descending = true,
+  ) => {
+    return computed(() => {
+      if (
+        !aggregateAllTimeColl.value ||
+        !aggregateAllTimeColl.value.data ||
+        aggregateAllTimeColl.value.data.length === 0
+      ) {
+        return [];
+      }
+
+      // firestore aggregateDoc structure
+      // nMoments: 0,
+      // needs: {need1: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
+      // totalNeedsImportanceSum: 0,
+      // lastUpdate: FieldValue.serverTimestamp(),
+
+      //if dateRange is not defined or all time, return the all time needs
+      //if dateRange is a year, return the related yearly needs
+      //if dateRange is a month, return the related monthly needs
+
+      //we should return an array of needs objects like
+      // {
+      //   id: needLabel, //with emoji?
+      //   count: occurrenceCount for need on period,
+      //   importance:
+      //   occurrenceCount for need on period != 0
+      //       ? need.importanceSum / totalNeedsImportanceSum
+      //       : 0,
+      //   avgSatisfaction:
+      //   occurrenceCount for need on period != 0
+      //   ? need.satisfactionSum / need.occurrenceCount
+      //   : 0,
+      //   satisfactionArea:
+      //   occurrenceCount for need on period != 0
+      //   ? importance * avgSatisfaction
+      //   : 0,
+      // OR
+      //   occurrenceCount for need on period != 0
+      //   ? importance * (1 - avgSatisfaction)
+      //   : 0,
+      // };
+
+      const momentsList = momentsColl.value.data.filter((moment) => {
+        const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
+        const date = ts.toDate();
+        date.setHours(0, 0, 0, 0);
+        return date >= dateRange[0] && date <= dateRange[1];
+      });
+
+      let tagList = tagsColl.value.data.map((tagDoc) => {
+        if (tagDoc.tagMoments.length === 0) return;
+        //return only the tagMoments that are within the date range
+        const tagMomentsInRange = tagDoc.tagMoments.filter((tagMoment) => {
+          const ts = new Timestamp(
+            tagMoment.date.seconds,
+            tagMoment.date.nanoseconds,
+          );
+          const date = ts.toDate();
+          date.setHours(0, 0, 0, 0);
+          return date >= dateRange[0] && date <= dateRange[1];
+        });
+        //calculate the average intensity of the tagMoments in the date range
+        const totalIntensity = tagMomentsInRange.reduce(
+          (total, moment) => total + moment.intensity,
+          0,
+        );
+
+        //return the tagDoc with the average intensity
+        return {
+          id: tagDoc.id,
+          count: tagMomentsInRange.length,
+          avgIntensity:
+            tagMomentsInRange.length != 0
+              ? totalIntensity / tagMomentsInRange.length
+              : 0,
+          percentShare:
+            momentsList.length != 0
+              ? tagMomentsInRange.length / momentsList.length
+              : 0,
+        };
+      });
+      tagList = tagList.filter((tag) => tag.count > 0); //keep only the tags that have at least one moment
+      if (filterBy === "positive")
+        tagList = tagList.filter((tag) => tag.avgIntensity >= 0);
+      else if (filterBy === "negative")
+        tagList = tagList.filter((tag) => tag.avgIntensity < 0);
+
+      //sort the array in descending or ascending order
+      descending
+        ? tagList.sort((a, b) => b[sortBy] - a[sortBy])
+        : tagList.sort((a, b) => a[sortBy] - b[sortBy]);
+
+      //map needs to needsWithEmoji
+
+      return tagList;
+    });
+  };
+
   const updateUser = async (changes) => {
     try {
       if (changes.displayName) {
@@ -399,12 +498,12 @@ export const useMomentsStore = defineStore("moments", () => {
   return {
     user,
     momentsColl,
-    needsList,
     isEditorFocused,
     uniqueTags,
     uniqueDays,
     initialized,
     getTags,
+    getNeeds,
     addMoment,
     fetchMoments,
     updateUser,
