@@ -97,7 +97,7 @@ const props = defineProps({
     default: 'negative',
   },
   dateRange: {
-    type: Array,
+    type: String,
     //set default to be the first day of the year to today
     default: () => { new Date().getFullYear() },
   },

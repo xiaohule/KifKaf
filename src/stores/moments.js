@@ -262,7 +262,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const uniqueDays = computed(() => {
     if (!(userDoc?.value?.data?.momentsDays?.length ?? 0)) {
       console.log(
-        "Empty uniqueDays bec. of userDoc?.value?.data?.momentsDays?.length",
+        "In momentsStore uniqueDays: empty uniqueDays bec. of userDoc?.value?.data?.momentsDays?.length",
       );
       return [];
     }
@@ -364,9 +364,9 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const getNeeds = (
-    dateRange = "all",
-    filterBy = "negative",
-    sortBy = "satisfactionArea",
+    dateRange = "all", //a string of format xxx, YYYY or YYYY-MM
+    filterBy = "all", //TODO:3 support checking presence of unsatisfied/satisfied needs
+    sortBy = "unsatisfactionImpactValue",
     descending = true,
   ) => {
     return computed(() => {
@@ -384,85 +384,67 @@ export const useMomentsStore = defineStore("moments", () => {
       // totalNeedsImportanceSum: 0,
       // lastUpdate: FieldValue.serverTimestamp(),
 
-      //if dateRange is not defined or all time, return the all time needs
-      //if dateRange is a year, return the related yearly needs
-      //if dateRange is a month, return the related monthly needs
+      //if dateRange is of format YYYY, return the related yearly needs
+      console.log("XXX in getNeeds, dateRange:", dateRange);
 
-      //we should return an array of needs objects like
-      // {
-      //   id: needLabel, //with emoji?
-      //   count: occurrenceCount for need on period,
-      //   importance:
-      //   occurrenceCount for need on period != 0
-      //       ? need.importanceSum / totalNeedsImportanceSum
-      //       : 0,
-      //   avgSatisfaction:
-      //   occurrenceCount for need on period != 0
-      //   ? need.satisfactionSum / need.occurrenceCount
-      //   : 0,
-      //   satisfactionArea:
-      //   occurrenceCount for need on period != 0
-      //   ? importance * avgSatisfaction
-      //   : 0,
-      // OR
-      //   occurrenceCount for need on period != 0
-      //   ? importance * (1 - avgSatisfaction)
-      //   : 0,
-      // };
+      if (dateRange === "all") {
+        //TODO: 3
+      }
 
-      const momentsList = momentsColl.value.data.filter((moment) => {
-        const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-        const date = ts.toDate();
-        date.setHours(0, 0, 0, 0);
-        return date >= dateRange[0] && date <= dateRange[1];
-      });
-
-      let tagList = tagsColl.value.data.map((tagDoc) => {
-        if (tagDoc.tagMoments.length === 0) return;
-        //return only the tagMoments that are within the date range
-        const tagMomentsInRange = tagDoc.tagMoments.filter((tagMoment) => {
-          const ts = new Timestamp(
-            tagMoment.date.seconds,
-            tagMoment.date.nanoseconds,
-          );
-          const date = ts.toDate();
-          date.setHours(0, 0, 0, 0);
-          return date >= dateRange[0] && date <= dateRange[1];
-        });
-        //calculate the average intensity of the tagMoments in the date range
-        const totalIntensity = tagMomentsInRange.reduce(
-          (total, moment) => total + moment.intensity,
-          0,
+      if (dateRange.length === 4) {
+        const aggregateDoc = useDocument(
+          doc(db, "users", `${user.value.uid}`, "aggregateYearly", dateRange),
         );
+        console.log("XXX in getNeeds aggregateDoc", aggregateDoc);
+        console.log("XXX in getNeeds aggregateDoc.needs", aggregateDoc.needs);
 
-        //return the tagDoc with the average intensity
-        return {
-          id: tagDoc.id,
-          count: tagMomentsInRange.length,
-          avgIntensity:
-            tagMomentsInRange.length != 0
-              ? totalIntensity / tagMomentsInRange.length
-              : 0,
-          percentShare:
-            momentsList.length != 0
-              ? tagMomentsInRange.length / momentsList.length
-              : 0,
-        };
-      });
-      tagList = tagList.filter((tag) => tag.count > 0); //keep only the tags that have at least one moment
-      if (filterBy === "positive")
-        tagList = tagList.filter((tag) => tag.avgIntensity >= 0);
-      else if (filterBy === "negative")
-        tagList = tagList.filter((tag) => tag.avgIntensity < 0);
+        let maxImportanceValue = 0;
+        let needsList = aggregateDoc.needs.map((need) => {
+          //TODO:3 extract of the if
+          if (need.occurenceCount === 0) return;
+          const importanceValue =
+            need.importanceSum / aggregateDoc.totalNeedsImportanceSum;
+          if (importanceValue > maxImportanceValue)
+            maxImportanceValue = importanceValue;
+          // const satisfactionValue = need.satisfactionSum / need.occurenceCount;
+          // const satisfactionImpactValue = importanceValue * satisfactionValue
+          // const unsatisfactionImpactValue = importanceValue * (1 - satisfactionValue)
 
-      //sort the array in descending or ascending order
-      descending
-        ? tagList.sort((a, b) => b[sortBy] - a[sortBy])
-        : tagList.sort((a, b) => a[sortBy] - b[sortBy]);
+          return {
+            displayId: needsMap[need],
+            count: need.occurenceCount,
+            importanceValue: importanceValue,
+            // satisfactionValue: satisfactionValue
+            // satisfactionImpactValue: satisfactionImpactValue,
+            // unsatisfactionImpactValue: unsatisfactionImpactValue,
+          };
+        });
 
-      //map needs to needsWithEmoji
+        needsList = needsList.map((need) => {
+          const importanceDisplayValue =
+            need.importanceValue / maxImportanceValue;
+          return {
+            ...need,
+            importanceDisplayValue: importanceDisplayValue,
+            // satisfactionImpactDisplayValue:
+            //   importanceDisplayValue * need.satisfactionValue,
+            // unsatisfactionImpactDisplayValue:
+            //   importanceDisplayValue * (1-need.satisfactionValue),
+          };
+        });
 
-      return tagList;
+        //sort the array in descending or ascending "sortBy" order
+        descending
+          ? needsList.sort((a, b) => b[sortBy] - a[sortBy])
+          : needsList.sort((a, b) => a[sortBy] - b[sortBy]);
+      }
+
+      //if dateRange is of format YYYY-MM, return the related monthly needs
+      if (dateRange.length === 7) {
+        //TODO:3
+      }
+
+      return needsList;
     });
   };
 

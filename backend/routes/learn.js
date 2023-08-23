@@ -96,6 +96,7 @@ const getAggregateDocRef = async (uid, collectionName, docName) => {
   return aggregateDocRef;
 };
 
+//TODO: 2 aggregate overall needs satisfaction in case we need it in the future
 function generateAggregateUpdateData(
   momentImportancesResp,
   momentImportancesTotal,
@@ -109,7 +110,7 @@ function generateAggregateUpdateData(
     baseData[`needs.${need}.importanceSum`] = FieldValue.increment(
       momentImportancesResp[need],
     );
-    baseData[`needs.${need}.satisfactionSum`] = FieldValue.increment(0);
+    baseData[`needs.${need}.satisfactionSum`] = FieldValue.increment(0); //TODO:0 get satisfacton
     baseData[`needs.${need}.occurrenceCount`] = FieldValue.increment(1);
   }
   return baseData;

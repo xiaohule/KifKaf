@@ -181,7 +181,7 @@ const yearsSinceOldestMoment = computed(() => {
 const dateRangesYears = computed(() => {
   const dateRanges = [];
   for (let i = yearsSinceOldestMoment.value; i >= 0; i--) {
-    dateRanges.push(currentDate.value.getFullYear() - i);
+    dateRanges.push((currentDate.value.getFullYear() - i).toString());
   }
   console.log('in computed dateRangesYears, dateRanges is', dateRanges)
   return dateRanges;
@@ -195,6 +195,7 @@ const dateRangesMonths = computed(() => {
     dateRanges.push(`${year}-${month.toString().padStart(2, '0')}`);
     trackingDate.setMonth(trackingDate.getMonth() - 1); // Decrease month by 1
   }
+  console.log('in computed dateRangesMonths, dateRanges is', dateRanges)
   return dateRanges;
 });
 const dateRangesMonthsToDate = (idx) => {
