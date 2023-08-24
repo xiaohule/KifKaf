@@ -14,14 +14,14 @@
     </q-item>
 
     <div>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Unsatisfied Needs</q-item-label>
-      <swiper-container ref="swiperElNegative" init="false" auto-height="true" observer="true"
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Needs Satisfaction</q-item-label>
+      <swiper-container ref="swiperElSatisfaction" init="false" auto-height="true" observer="true"
         observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @activeindexchange="(event) => onSliding(event, 'negative')">
+        @activeindexchange="(event) => onSliding(event, 'satisfaction')">
         <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-          <learn-card-needs flag="negative" :date-range="range" :frequency-selected="frequencySelectedNegative"
-            @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedNegative"
-            @click:show-button="showButtonClicked"></learn-card-needs>
+          <learn-card-needs flag="satisfaction" :date-range="range" :second-seg-selected="secondSegSelectedSatisfaction"
+            :learn-card-expanded="learnCardExpandedSatisfaction" seg-control
+            @click:segmented-control="segmentedControlClicked" @click:show-button="showButtonClicked"></learn-card-needs>
         </swiper-slide>
       </swiper-container>
     </div>
@@ -29,16 +29,15 @@
     <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
         @slidechangetransitionend="console.log('SWIPER slidechangetransitionend fired', $event)"-->
     <div>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Satisfied Needs</q-item-label>
-      <swiper-container ref="swiperElPositive" init="false" auto-height="true" observer="true"
+      <q-item-label class="text-body1 text-weight-medium q-my-sm">Needs Importance</q-item-label>
+      <swiper-container ref="swiperElImportance" init="false" auto-height="true" observer="true"
         observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @activeindexchange="(event) => onSliding(event, 'positive')"
+        @activeindexchange="(event) => onSliding(event, 'importance')"
         @observerUpdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
         @beforeDestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
         @init="console.log('SWIPER init fired')">
         <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
-          <learn-card-needs flag="positive" :date-range="range" :frequency-selected="frequencySelectedPositive"
-            @click:segmented-control="segmentedControlClicked" :learn-card-expanded="learnCardExpandedPositive"
+          <learn-card-needs flag="importance" :date-range="range" :learn-card-expanded="learnCardExpandedImportance"
             @click:show-button="showButtonClicked"></learn-card-needs>
         </swiper-slide>
       </swiper-container>
@@ -93,18 +92,18 @@ const dateRangeButtonLabel = ref('This year')
 
 //SWIPER
 //TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
-const swiperElPositive = ref(null)
-const swiperElNegative = ref(null)
+const swiperElImportance = ref(null)
+const swiperElSatisfaction = ref(null)
 const swiperInitialized = ref(false)
 const activeIndex = ref(0)
 
 onActivated(() => {
   console.log('ONACTIVATED')
   if (!swiperInitialized.value) {
-    swiperElPositive.value.initialize();
-    swiperElNegative.value.initialize();
-    swiperElPositive.value.swiper.activeIndex = activeIndex.value
-    swiperElNegative.value.swiper.activeIndex = activeIndex.value
+    swiperElImportance.value.initialize();
+    swiperElSatisfaction.value.initialize();
+    swiperElImportance.value.swiper.activeIndex = activeIndex.value
+    swiperElSatisfaction.value.swiper.activeIndex = activeIndex.value
     swiperInitialized.value = true
   }
 });
@@ -116,36 +115,35 @@ watch(activeIndex, (newVal, oldVal) => {
   if (swiperInitialized.value) {
     console.log('in activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
 
-    swiperElPositive.value.swiper.slideTo(newVal, 300)
-    console.log('in activeIndex watcher2, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
-    swiperElNegative.value.swiper.slideTo(newVal, 300)
+    swiperElImportance.value.swiper.slideTo(newVal, 300)
+    console.log('in activeIndex watcher2, swiperElImportance.value.swiper.activeIndex', swiperElImportance.value.swiper.activeIndex)
+    swiperElSatisfaction.value.swiper.slideTo(newVal, 300)
 
-    swiperElPositive.value.swiper.activeIndex = newVal
-    console.log('in activeIndex watcher3, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
-    swiperElNegative.value.swiper.activeIndex = newVal
+    swiperElImportance.value.swiper.activeIndex = newVal
+    console.log('in activeIndex watcher3, swiperElImportance.value.swiper.activeIndex', swiperElImportance.value.swiper.activeIndex)
+    swiperElSatisfaction.value.swiper.activeIndex = newVal
 
-    console.log('CHECK POSITIVE', swiperElPositive.value.swiper)
-    // console.log('CHECK NEGATIVE', swiperElNegative.value.swiper)
+    console.log('CHECK IMPORTANCE', swiperElImportance.value.swiper)
+    // console.log('CHECK SATISFACTION', swiperElSatisfaction.value.swiper)
   }
 })
 
-const frequencySelectedPositive = ref(false)
-const frequencySelectedNegative = ref(false)
+const secondSegSelectedSatisfaction = ref(false)
 const segmentedControlClicked = ({ value, flag }) => {
-  flag === 'positive' ? frequencySelectedPositive.value = value : frequencySelectedNegative.value = value
+  if (flag === 'satisfaction') secondSegSelectedSatisfaction.value = value
 }
-const learnCardExpandedPositive = ref(false)
-const learnCardExpandedNegative = ref(false)
+const learnCardExpandedImportance = ref(false)
+const learnCardExpandedSatisfaction = ref(false)
 const showButtonClicked = ({ value, flag }) => {
-  if (flag === 'positive') {
-    learnCardExpandedPositive.value = value
+  if (flag === 'importance') {
+    learnCardExpandedImportance.value = value
     nextTick(() => {
-      swiperElPositive.value.swiper.updateAutoHeight(300);
+      swiperElImportance.value.swiper.updateAutoHeight(300);
     })
   } else {
-    learnCardExpandedNegative.value = value
+    learnCardExpandedSatisfaction.value = value
     nextTick(() => {
-      swiperElNegative.value.swiper.updateAutoHeight(300);
+      swiperElSatisfaction.value.swiper.updateAutoHeight(300);
     })
   }
 }
@@ -287,8 +285,8 @@ watch(segDateId, (newVal, oldVal) => {
 });
 
 const onSliding = (event, flag) => {
-  console.log('in onSliding 4, swiperElPositive.value.swiper.activeIndex', swiperElPositive.value.swiper.activeIndex)
-  activeIndex.value = (flag === 'positive') ? swiperElPositive.value.swiper.activeIndex : swiperElNegative.value.swiper.activeIndex
+  console.log('in onSliding 4, swiperElImportance.value.swiper.activeIndex', swiperElImportance.value.swiper.activeIndex)
+  activeIndex.value = (flag === 'importance') ? swiperElImportance.value.swiper.activeIndex : swiperElSatisfaction.value.swiper.activeIndex
   console.log('In onSliding with flag', flag, ' activeIndex updated to ', activeIndex.value)
   updateDateButtonLabel()
   if (segDateId.value === 'Monthly') {

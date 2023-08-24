@@ -148,7 +148,7 @@ export const useMomentsStore = defineStore("moments", () => {
     //retry to call LLM and increment the retries counter //TODO: 1 parallelize the calls to LLM
     for (const doc of momentsWithEmptyNeedsImportances.docs) {
       console.log(
-        "XXX in fetchMoments, emptyNeedsImportancesQuery returned:",
+        "XXX in emptyNeedsMomentsRetry, emptyNeedsImportancesQuery returned:",
         doc.data(),
       );
 
@@ -365,9 +365,6 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const getNeeds = (
     dateRange = "all", //a string of format xxx, YYYY or YYYY-MM
-    filterBy = "all", //TODO:3 support checking presence of unsatisfied/satisfied needs
-    sortBy = "unsatisfactionImpactValue",
-    descending = true,
   ) => {
     return computed(() => {
       if (
@@ -387,62 +384,109 @@ export const useMomentsStore = defineStore("moments", () => {
       //if dateRange is of format YYYY, return the related yearly needs
       console.log("XXX in getNeeds, dateRange:", dateRange);
 
+      let aggregateDoc;
       if (dateRange === "all") {
-        //TODO: 3
-      }
-
-      if (dateRange.length === 4) {
-        const aggregateDoc = useDocument(
+        aggregateDoc = useDocument(
+          doc(db, "users", `${user.value.uid}`, "aggregateAllTime", "all"),
+        );
+      } else if (dateRange.length === 4) {
+        aggregateDoc = useDocument(
           doc(db, "users", `${user.value.uid}`, "aggregateYearly", dateRange),
         );
-        console.log("XXX in getNeeds aggregateDoc", aggregateDoc);
-        console.log("XXX in getNeeds aggregateDoc.needs", aggregateDoc.needs);
-
-        let maxImportanceValue = 0;
-        let needsList = aggregateDoc.needs.map((need) => {
-          //TODO:3 extract of the if
-          if (need.occurenceCount === 0) return;
-          const importanceValue =
-            need.importanceSum / aggregateDoc.totalNeedsImportanceSum;
-          if (importanceValue > maxImportanceValue)
-            maxImportanceValue = importanceValue;
-          // const satisfactionValue = need.satisfactionSum / need.occurenceCount;
-          // const satisfactionImpactValue = importanceValue * satisfactionValue
-          // const unsatisfactionImpactValue = importanceValue * (1 - satisfactionValue)
-
-          return {
-            displayId: needsMap[need],
-            count: need.occurenceCount,
-            importanceValue: importanceValue,
-            // satisfactionValue: satisfactionValue
-            // satisfactionImpactValue: satisfactionImpactValue,
-            // unsatisfactionImpactValue: unsatisfactionImpactValue,
-          };
-        });
-
-        needsList = needsList.map((need) => {
-          const importanceDisplayValue =
-            need.importanceValue / maxImportanceValue;
-          return {
-            ...need,
-            importanceDisplayValue: importanceDisplayValue,
-            // satisfactionImpactDisplayValue:
-            //   importanceDisplayValue * need.satisfactionValue,
-            // unsatisfactionImpactDisplayValue:
-            //   importanceDisplayValue * (1-need.satisfactionValue),
-          };
-        });
-
-        //sort the array in descending or ascending "sortBy" order
-        descending
-          ? needsList.sort((a, b) => b[sortBy] - a[sortBy])
-          : needsList.sort((a, b) => a[sortBy] - b[sortBy]);
       }
-
       //if dateRange is of format YYYY-MM, return the related monthly needs
-      if (dateRange.length === 7) {
-        //TODO:3
+      else if (dateRange.length === 7) {
+        aggregateDoc = useDocument(
+          doc(db, "users", `${user.value.uid}`, "aggregateMonthly", dateRange),
+        );
+      } else {
+        console.log("XXX in getNeeds, dateRange not recognized:", dateRange);
+        return [];
       }
+
+      console.log("XXX in getNeeds aggregateDoc", aggregateDoc);
+      console.log("XXX in getNeeds aggregateDoc.needs", aggregateDoc.needs);
+
+      let maxImportanceValue = 0;
+      let totalSatisfactionImpact = 0;
+      let totalUnsatisfactionImpact = 0;
+
+      //compute what we can before aggregated vals are known
+      let needsList = aggregateDoc.needs.map((need) => {
+        //TODO:3 extract of the if
+        if (need.occurenceCount === 0) return;
+        const importanceValue =
+          need.importanceSum / aggregateDoc.totalNeedsImportanceSum;
+        if (importanceValue > maxImportanceValue)
+          maxImportanceValue = importanceValue;
+        const satisfactionValue = need.satisfactionSum / need.occurenceCount;
+        const satisfactionImpactValue = importanceValue * satisfactionValue;
+        totalSatisfactionImpact += satisfactionImpactValue;
+        const unsatisfactionImpactValue =
+          importanceValue * (1 - satisfactionValue);
+        totalUnsatisfactionImpact += unsatisfactionImpactValue;
+
+        return {
+          displayId: needsMap[need],
+          count: need.occurenceCount,
+          importanceValue: importanceValue,
+          satisfactionValue: satisfactionValue,
+          satisfactionImpactValue: satisfactionImpactValue,
+          unsatisfactionImpactValue: unsatisfactionImpactValue,
+        };
+      });
+
+      //compute the rest now that we know the aggregated vals
+      needsList = needsList.map((need) => {
+        const importanceDisplayValue =
+          need.importanceValue / maxImportanceValue;
+        const satisfactionImpactDisplayValue =
+          importanceDisplayValue * need.satisfactionValue;
+        const unsatisfactionImpactDisplayValue =
+          importanceDisplayValue * (1 - need.satisfactionValue);
+        return {
+          ...need,
+          importanceDisplayValue: importanceDisplayValue,
+          satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
+          unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
+          satisfactionImpactLabelValue:
+            satisfactionImpactDisplayValue / totalSatisfactionImpact,
+          unsatisfactionImpactLabelValue:
+            unsatisfactionImpactDisplayValue / totalUnsatisfactionImpact,
+        };
+      });
+
+      return needsList;
+      // {
+      //   displayId: needsMap[need],
+      //   count: need.occurenceCount,
+      //   importanceValue: importanceValue,
+      //   satisfactionValue: satisfactionValue,
+      //   satisfactionImpactValue: satisfactionImpactValue,
+      //   unsatisfactionImpactValue: unsatisfactionImpactValue,
+      //   importanceDisplayValue: importanceDisplayValue,
+      //   satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
+      //   unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
+      //   satisfactionImpactLabelValue:satisfactionImpactDisplayValue/totalSatisfactionImpact,
+      //   unsatisfactionImpactLabelValue:unsatisfactionImpactDisplayValue/totalUnsatisfactionImpact,
+      // };
+    });
+  };
+
+  const getFilteredSortedNeeds = (
+    dateRange = "all", //a string of format xxx, YYYY or YYYY-MM
+    filterBy = "none", //TODO:3 support checking presence of unsatisfied/satisfied needs
+    sortBy = "none",
+  ) => {
+    return computed(() => {
+      const needsList = getNeeds(dateRange);
+
+      if (filterBy === "unsatisfied")
+        needsList = needsList.filter((need) => need.satisfactionValue < 1);
+      else if (filterBy === "satisfied")
+        needsList = needsList.filter((need) => need.satisfactionValue > 0);
+
+      if (sortBy != "none") needsList.sort((a, b) => b[sortBy] - a[sortBy]);
 
       return needsList;
     });
@@ -485,7 +529,7 @@ export const useMomentsStore = defineStore("moments", () => {
     uniqueDays,
     initialized,
     getTags,
-    getNeeds,
+    getFilteredSortedNeeds,
     addMoment,
     fetchMoments,
     updateUser,

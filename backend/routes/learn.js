@@ -8,7 +8,7 @@ const {
   // Filter,
 } = require("firebase-admin/firestore");
 const { Configuration, OpenAIApi } = require("openai");
-const e = require("express");
+// const e = require("express");
 require("dotenv").config();
 
 var router = express.Router();
@@ -110,7 +110,9 @@ function generateAggregateUpdateData(
     baseData[`needs.${need}.importanceSum`] = FieldValue.increment(
       momentImportancesResp[need],
     );
-    baseData[`needs.${need}.satisfactionSum`] = FieldValue.increment(0); //TODO:0 get satisfacton
+    baseData[`needs.${need}.satisfactionSum`] = FieldValue.increment(
+      Math.random(),
+    ); //TODO:0 get satisfacton
     baseData[`needs.${need}.occurrenceCount`] = FieldValue.increment(1);
   }
   return baseData;
@@ -143,7 +145,7 @@ const authenticate = async (req, res, next) => {
   const idToken = req.headers.authorization?.split("Bearer ")[1];
 
   if (!idToken) {
-    return res.status(403).send("Unauthorized: No ID token provided.");
+    res.status(403).send("Unauthorized: No ID token provided.");
   }
 
   try {
@@ -158,10 +160,20 @@ const authenticate = async (req, res, next) => {
 
 router.use(authenticate); // Use the middleware for all routes in this router
 
+const lockedMomentIds = new Set(); //TODO:1 Since the code is running in a stateful server environment, lockedMomentIds is effective. However, be aware that in environments where multiple server instances are running (like in a clustered environment), this approach won't work since lockedMomentIds will only exist in memory for the specific server instance handling the request. In such cases, distributed lock manager like Redis or saving in firestore could be used.
+//TODO:2 lockedMomentIds can potentially grow indefinitely. Consider implementing a mechanism to purge old IDs after a certain time or after they're no longer relevant. Also consider monitoring it.
+
 router.get("/needs/", async (req, res) => {
   try {
+    if (lockedMomentIds.has(req.query.momentId)) {
+      res.status(409).send("Duplicate request detected for query", req.query);
+    }
+    lockedMomentIds.add(req.query.momentId);
+
     // console.log("req.headers", req.headers);
     console.log("GET request received", req.query); //returns { moment:'Feeling sad to be working so much' }
+
+    //TODO:1 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
 
     // LLM CALL
     const request_options = createOpenAIRequestOptions(req.query.momentText);
@@ -189,65 +201,54 @@ router.get("/needs/", async (req, res) => {
     }
 
     // PROCESS LLM RESPONSE, REPLYING IF NECESSARY
-    let issueType = "";
-    // Check if all values are zero or if the sum is less than a threshold (0.1 in this case)
-    if (Object.keys(parsedContent).length === 0) {
-      issueType = "parsedContentEmpty";
-    } else {
-      const sumOfAllValues = Object.values(parsedContent).reduce(
-        (a, b) => a + b,
-        0,
-      );
-      if (sumOfAllValues < 0.1) {
-        issueType = "sumOfAllValuesLow";
-      } else if (!Object.values(parsedContent).some((value) => value > 0.1)) {
-        issueType = "noValuesMoreThanThreshold";
-      }
-    }
+    const issueTypeConditions = {
+      parsedContentEmpty: Object.keys(parsedContent).length === 0,
+      sumOfAllValuesLow:
+        Object.values(parsedContent).reduce((a, b) => a + b, 0) < 0.1,
+      noValuesMoreThanThreshold: !Object.values(parsedContent).some(
+        (value) => value > 0.1,
+      ),
+    };
+    const issueType = Object.keys(issueTypeConditions).find(
+      (type) => issueTypeConditions[type],
+    );
 
     if (issueType) {
-      console.log(
-        (issueType = "parsedContentEmpty"
-          ? "Error: All values in parsedContent are zero, moment & parsedContent"
-          : (issueType = "sumOfAllValuesLow"
-              ? "Error: The sum of all values in parsedContent is less than 0.1, moment & parsedContent"
-              : (issueType = "noValuesMoreThanThreshold"
-                  ? "Error: No values in parsedContent are more than 0.1, moment & parsedContent"
-                  : "Error: issueType not recognized"))),
-        req.query,
-        parsedContent,
-      );
-      console.log(
-        "response.data.choices[0].message",
-        response.data.choices[0].message,
-      );
+      console.log("Error:", issueType, "for", req.query, parsedContent);
+
+      const errorMessages = {
+        parsedContentEmpty:
+          "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+        sumOfAllValuesLow:
+          "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+        noValuesMoreThanThreshold:
+          "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+      };
+      const errorMessage =
+        errorMessages[issueType] || "Error: issueType not recognized";
 
       // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
       request_options.messages.push(
         response.data.choices[0].message, // This adds the last response from the assistant
         {
           role: "user",
-          content: (issueType = "parsedContentEmpty"
-            ? "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result."
-            : (issueType = "sumOfAllValuesLow"
-                ? "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result."
-                : (issueType = "noValuesMoreThanThreshold"
-                    ? "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result."
-                    : "Error: issueType not recognized"))),
+          content: errorMessage,
         },
       );
       const replyResponse = await openai.createChatCompletion(request_options);
       // Update the 'parsedContent' from the new response
       parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
       console.log(
-        "HERE req.query",
+        "Retried for ",
         req.query,
-        "HERE parsedContent after reply",
+        "bec. it had Error:",
+        issueType,
+        "new parsedContent after reply: ",
         parsedContent,
       );
       if (!parsedContent || parsedContent.error) {
         console.log(
-          "Error in reply: parsedContent empty or erroneous, for mom",
+          "Error in retry: parsedContent empty or erroneous, for",
           req.query,
           "here are response.data.choices[0].message: ",
           response.data.choices[0].message,
@@ -295,7 +296,7 @@ router.get("/needs/", async (req, res) => {
       aggregateAllTimeDocRef = await getAggregateDocRef(
         req.uid,
         "aggregateAllTime",
-        "all_time",
+        "all",
       );
       aggregateYearlyDocRef = await getAggregateDocRef(
         req.uid,
@@ -309,7 +310,8 @@ router.get("/needs/", async (req, res) => {
       );
     } else {
       console.error("Invalid momentdate provided in the headers.");
-      return res.status(400).send("Invalid momentdate provided.");
+      lockedMomentIds.delete(req.query.momentId);
+      res.status(400).send("Invalid momentdate provided for query", req.query);
     }
 
     const momentDocRef = db
@@ -326,12 +328,15 @@ router.get("/needs/", async (req, res) => {
     try {
       // Get a new write batch
       const batch = db.batch();
+      //enrich moment doc
+      batch.update(momentDocRef, { needsImportances: momentImportancesResp });
+      //TODO:2 for more safety of the data we could check if the moment needsImportances were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
+
       //update aggregate docs
       batch.update(aggregateAllTimeDocRef, aggregateUpdateData);
       batch.update(aggregateYearlyDocRef, aggregateUpdateData);
       batch.update(aggregateMonthlyDocRef, aggregateUpdateData);
-      //enrich moment doc
-      batch.update(momentDocRef, { needsImportances: momentImportancesResp });
+
       // Commit the batch
       await batch.commit();
 
@@ -351,19 +356,25 @@ router.get("/needs/", async (req, res) => {
         "NOT enriched by needs rating and aggregate docs NOT updated: ",
         err,
       );
-      return res
+      lockedMomentIds.delete(req.query.momentId);
+      res
         .status(500)
         .send(
-          "Internal server error when updating moment needs or aggregate data",
+          "Internal server error when updating moment needs or aggregate data for query",
+          req.query,
         );
     }
-
+    lockedMomentIds.delete(req.query.momentId);
     res.json(parsedContent);
   } catch (err) {
     console.error(err);
+    lockedMomentIds.delete(req.query.momentId);
     res
       .status(500)
-      .send("An error occurred while making or saving the prediction");
+      .send(
+        "An error occurred while making or saving the prediction for query",
+        req.query,
+      );
   }
 });
 
