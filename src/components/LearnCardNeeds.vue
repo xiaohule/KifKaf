@@ -119,7 +119,7 @@ const allTimeNeeds = computed(() => {
 })
 
 const periodFilteredSortedNeeds = computed(() => {
-  return momentsStore.getFilteredSortedNeeds(props.dateRange, props.flag === 'satisfaction' ? (props.secondSegSelected ? 'satisfied' : 'unsatisfied') : undefined, props.flag === 'satisfaction' ? (props.secondSegSelected ? 'satisfactionImpactValue' : 'unsatisfactionImpactValue') : undefined)
+  return momentsStore.getFilteredSortedNeeds(props.dateRange, props.flag === 'satisfaction' ? (props.secondSegSelected ? 'satisfied' : 'unsatisfied') : undefined, props.flag === 'satisfaction' ? (props.secondSegSelected ? 'satisfactionImpactValue' : 'unsatisfactionImpactValue') : undefined).value
 })
 
 // function trackProcess(dotsPos) {

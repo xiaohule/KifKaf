@@ -367,11 +367,18 @@ export const useMomentsStore = defineStore("moments", () => {
     dateRange = "all", //a string of format xxx, YYYY or YYYY-MM
   ) => {
     return computed(() => {
+      console.log("getNeeds called with dateRange", dateRange);
       if (
         !aggregateAllTimeColl.value ||
         !aggregateAllTimeColl.value.data ||
         aggregateAllTimeColl.value.data.length === 0
       ) {
+        console.log(
+          "In getNeeds, returning empty array bec. aggregateAllTimeColl:",
+          aggregateAllTimeColl,
+          "or aggregateAllTimeColl.value.data:",
+          aggregateAllTimeColl.value.data,
+        );
         return [];
       }
 
@@ -405,18 +412,24 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       console.log("XXX in getNeeds aggregateDoc", aggregateDoc);
-      console.log("XXX in getNeeds aggregateDoc.needs", aggregateDoc.needs);
+      console.log("XXX in getNeeds aggregateDoc.value", aggregateDoc.value);
+      console.log(
+        "XXX in getNeeds aggregateDoc.value.needs",
+        aggregateDoc.value.needs,
+      );
 
       let maxImportanceValue = 0;
       let totalSatisfactionImpact = 0;
       let totalUnsatisfactionImpact = 0;
 
       //compute what we can before aggregated vals are known
-      let needsList = aggregateDoc.needs.map((need) => {
+      //TODO: 4 Uncaught (in promise) TypeError: aggregateDoc.value.needs.map is not a function
+
+      let needsList = aggregateDoc.value.needs.map((need) => {
         //TODO:3 extract of the if
         if (need.occurenceCount === 0) return;
         const importanceValue =
-          need.importanceSum / aggregateDoc.totalNeedsImportanceSum;
+          need.importanceSum / aggregateDoc.value.totalNeedsImportanceSum;
         if (importanceValue > maxImportanceValue)
           maxImportanceValue = importanceValue;
         const satisfactionValue = need.satisfactionSum / need.occurenceCount;
@@ -479,7 +492,15 @@ export const useMomentsStore = defineStore("moments", () => {
     sortBy = "none",
   ) => {
     return computed(() => {
-      const needsList = getNeeds(dateRange);
+      console.log(
+        "getFilteredSortedNeeds called with dateRange:",
+        dateRange,
+        "filterBy:",
+        filterBy,
+        "sortBy:",
+        sortBy,
+      );
+      let needsList = getNeeds(dateRange).value;
 
       if (filterBy === "unsatisfied")
         needsList = needsList.filter((need) => need.satisfactionValue < 1);

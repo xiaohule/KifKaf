@@ -112,7 +112,7 @@ function generateAggregateUpdateData(
     );
     baseData[`needs.${need}.satisfactionSum`] = FieldValue.increment(
       Math.random(),
-    ); //TODO:0 get satisfacton
+    ); //4 get satisfacton
     baseData[`needs.${need}.occurrenceCount`] = FieldValue.increment(1);
   }
   return baseData;
