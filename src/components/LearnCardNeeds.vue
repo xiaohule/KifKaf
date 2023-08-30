@@ -6,33 +6,33 @@
 
     <div v-if="periodFilteredSortedNeeds.length > 0">
       <q-list>
-        <q-card-section class="q-pt-xs q-pb-xs" clickable v-for="item in periodFilteredSortedNeeds.slice(0, numDisplayed)"
-          :key="item">
+        <q-card-section class="q-pt-xs q-pb-xs" clickable
+          v-for="[key, val] in periodFilteredSortedNeeds.slice(0, numDisplayed)" :key="key">
           <q-item class="q-px-none q-pb-none row">
 
             <q-item-section class="col-6">
               <q-item class="q-px-none q-py-none tags" style="min-height: 0px;" dense>
-                {{ item.displayId }}
+                {{ key }}
               </q-item>
               <q-item class="q-px-none q-py-none" style="min-height: 0px;" dense>
-                {{ item.count }} {{ item.count === 1 ? 'moment' : 'moments' }}
+                {{ val.occurenceCount }} {{ val.occurenceCount == 1 ? 'moment' : 'moments' }}
               </q-item>
             </q-item-section>
 
             <q-item-section class="col-5">
               <!-- <vue-slider v-model="item.importanceDisplayValue" :process="trackProcess" :min="-5" :max="5" :interval="1"
                 disabled tooltip="none"></vue-slider> -->
-              <q-linear-progress :value="item[props.flag === 'satisfaction' ? (props.secondSegSelected ?
+              <q-linear-progress :value="val[props.flag == 'satisfaction' ? (props.secondSegSelected ?
                 'satisfactionImpactDisplayValue'
                 : 'unsatisfactionImpactDisplayValue') : 'importanceDisplayValue']"
-                :buffer="item['importanceDisplayValue']"
-                :color="props.flag === 'satisfaction' ? (props.secondSegSelected ? 'green' : 'red') : 'blue'"
+                :buffer="val['importanceDisplayValue']"
+                :color="props.flag == 'satisfaction' ? (props.secondSegSelected ? 'green' : 'red') : 'blue'"
                 track-color="grey" :reverse="props.secondSegSelected" class="q-mt-sm" />
 
             </q-item-section>
 
             <q-item-section class="col-1 text-center">
-              {{ parseFloat((item[props.flag === 'satisfaction' ? (props.secondSegSelected ?
+              {{ parseFloat((val[props.flag == 'satisfaction' ? (props.secondSegSelected ?
                 'satisfactionImpactLabelValue'
                 : 'unsatisfactionImpactLabelValue') : 'importanceValue'] * 100).toFixed(0)) + "%" }}
             </q-item-section>
@@ -44,12 +44,13 @@
 
     <div v-else class="bg-surface q-px-md q-py-md rounded-borders-14" flat>
       <!-- system not ready or no need ever recorded -->
-      <div v-if="!momentsStore || !allTimeNeeds.length || allTimeNeeds.length === 0">
+      <!-- <div v-if="!momentsStore || !allTimeNeeds.length || allTimeNeeds.length == 0"> -->
+      <div v-if="!momentsStore || !momentsStore.hasNeeds">
         Add Moments in the Home tab to learn more about your needs!
       </div>
       <!-- system ready but no need recorded for the period-->
       <div v-else>
-        <div v-if="props.flag === 'satisfaction'">
+        <div v-if="props.flag == 'satisfaction'">
           <div v-if="props.secondSegSelected">
             No satisfied needs for this period.
           </div>
@@ -71,7 +72,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
@@ -79,6 +80,15 @@ import { uid } from 'quasar'
 import 'vue-slider-component/theme/default.css'
 
 const momentsStore = useMomentsStore()
+onMounted(async () => {
+  try {
+    if (!momentsStore.aggregateDataFetched) {
+      await momentsStore.fetchAggregateData();
+    }
+  } catch (error) {
+    console.error('In LearnCardNeeds store fetching error:', error);
+  }
+})
 
 const props = defineProps({
   flag: {
@@ -88,7 +98,7 @@ const props = defineProps({
   dateRange: {
     type: String,
     //set default to be the first day of the year to today
-    default: () => { new Date().getFullYear() },
+    default: () => { new Date().getFullYear().toString() },
   },
   segControl: {
     type: Boolean,
@@ -114,13 +124,19 @@ const segStatsId = computed(() => {
 })
 const segStatsName = "segStats" + segUid
 
-const allTimeNeeds = computed(() => {
-  return momentsStore.getFilteredSortedNeeds().value
-})
-
 const periodFilteredSortedNeeds = computed(() => {
-  return momentsStore.getFilteredSortedNeeds(props.dateRange, props.flag === 'satisfaction' ? (props.secondSegSelected ? 'satisfied' : 'unsatisfied') : undefined, props.flag === 'satisfaction' ? (props.secondSegSelected ? 'satisfactionImpactValue' : 'unsatisfactionImpactValue') : undefined).value
-})
+  let filter, sortKey;
+
+  if (props.flag == 'satisfaction') {
+    filter = props.secondSegSelected ? 'satisfied' : 'unsatisfied';
+    sortKey = props.secondSegSelected ? 'satisfactionImpactLabelValue' : 'unsatisfactionImpactLabelValue';
+  }
+  else if (props.flag == 'importance') {
+    sortKey = 'importanceValue';
+  }
+
+  return momentsStore.getFilteredSortedNeeds(props.dateRange, filter, sortKey).value;
+});
 
 // function trackProcess(dotsPos) {
 //   //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.

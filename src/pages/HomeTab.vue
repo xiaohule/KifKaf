@@ -47,7 +47,7 @@
       </q-card>
 
 
-      <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0"></div>
+      <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length == 0"></div>
       <div v-else>
         <q-item-label class="text-body1 text-weight-medium q-my-sm">Moments</q-item-label>
         <q-list>
@@ -111,9 +111,8 @@ import VirtualKeyboardBar from './../components/VirtualKeyboardBar.vue'
 const momentsStore = useMomentsStore()
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
-
   try {
-    if (!momentsStore.initialized) {
+    if (!momentsStore.momentsFetched) {
       await momentsStore.fetchMoments();
     }
     await momentsStore.emptyNeedsMomentsRetry();
@@ -141,7 +140,7 @@ const computedUniqueDays = computed(() => {
 })
 const getMomentsOfTheDay = (day) => {
   const moments = computed(() => momentsStore.momentsColl.value)
-  const ul = moments.value.filter(m => formatLikeUniqueDays(m) === day)
+  const ul = moments.value.filter(m => formatLikeUniqueDays(m) == day)
   // sort array ul per descending moments.value.date.seconds
   const ol = ul.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;

@@ -84,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onActivated, onDeactivated } from 'vue'
+import { ref, computed, watch, nextTick, onActivated, onDeactivated, onMounted } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
@@ -95,6 +95,15 @@ const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBet
 // import 'swiper/css/bundle';
 
 const momentsStore = useMomentsStore()
+onMounted(async () => {
+  try {
+    if (!momentsStore.momentsFetched) {
+      await momentsStore.fetchMoments();
+    }
+  } catch (error) {
+    console.error('await momentsStore.fetchMoments() error:', error);
+  }
+})
 
 const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')

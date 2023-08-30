@@ -15,6 +15,7 @@ import {
   orderBy,
   limit,
   increment,
+  // onSnapshot,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -39,13 +40,15 @@ export const useMomentsStore = defineStore("moments", () => {
   const user = ref(null);
   const userDocRef = ref(null);
   const userDoc = ref(null);
-  const momentsCollRef = ref(null);
   const momentsColl = ref([]);
   const tagsColl = ref([]);
-  const aggregateAllTimeColl = ref([]);
-  const aggregateYearlyColl = ref([]);
-  const aggregateMonthlyColl = ref([]);
-  const initialized = ref(false);
+  const needsAggregateCurrYearDoc = ref(null);
+  const needsAggregatePrevYears = ref({});
+  const needsAggregateCurrMonthDoc = ref(null);
+  const needsAggregatePrevMonths = ref({});
+  const userFetched = ref(false);
+  const momentsFetched = ref(false);
+  const aggregateDataFetched = ref(false);
   const isEditorFocused = ref(false);
   const needsMap = {
     "Physical Safety": "Physical Safety 🛡️",
@@ -92,13 +95,20 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   //TODO:2 separate betw local state and firestore so that directly after mom insertion the state is updated and only if fs save is failed is it reverted? I.e. "Optimistic UI Update with Revert" ?
-  const fetchMoments = async () => {
-    if (initialized.value) {
-      console.log("XXX in fetchMoments, already initialized");
-      return;
-    }
+  const fetchUser = async () => {
     try {
+      if (userFetched.value) {
+        console.log("XXX in fetchUser, already userFetched");
+        return;
+      }
       user.value = await getCurrentUser();
+
+      // Check if user exists and has a uid property
+      if (!user.value || !user.value.uid) {
+        console.log("Failed to fetch user or user.uid");
+        return;
+      }
+
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
 
       // Check if user doc exists, if not create & initialize it
@@ -107,35 +117,113 @@ export const useMomentsStore = defineStore("moments", () => {
         console.log("User doc does not exist, creating it");
         await setDoc(userDocRef.value, {
           momentsDays: [],
+          hasNeeds: false,
         });
       }
       userDoc.value = useDocument(userDocRef);
+      userFetched.value = true;
+    } catch (error) {
+      console.log("Error in fetchUser", error);
+    }
+  };
 
-      momentsCollRef.value = collection(db, `users/${user.value.uid}/moments`);
-      momentsColl.value = useCollection(momentsCollRef);
+  const fetchMoments = async () => {
+    try {
+      if (momentsFetched.value) {
+        console.log("XXX in fetchMoments, already momentsFetched");
+        return;
+      }
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      momentsColl.value = useCollection(
+        collection(db, `users/${user.value.uid}/moments`),
+      );
       tagsColl.value = useCollection(
         collection(db, `users/${user.value.uid}/tags`),
       );
-      aggregateAllTimeColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/aggregateAllTime`),
-      );
-      aggregateYearlyColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/aggregateYearly`),
-      );
-      aggregateMonthlyColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/aggregateMonthly`),
-      );
-      initialized.value = true;
+
+      momentsFetched.value = true;
     } catch (error) {
       console.log("Error in fetchMoments", error);
     }
   };
 
+  const fetchAggregateData = async () => {
+    try {
+      if (aggregateDataFetched.value) {
+        console.log("XXX in fetchAggregateData, already aggregateDataFetched");
+        return;
+      }
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear().toString();
+      const currentYYYYMM = `${currentYear}-${(currentDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}`;
+
+      const {
+        // rename the Ref to something more meaningful
+        data: dataCurrYear,
+        // A promise that resolves or rejects when the initial state is loaded
+        promise: promiseCurrYear,
+      } = useDocument(
+        doc(db, `users/${user.value.uid}/aggregateYearly/${currentYear}`),
+      );
+      promiseCurrYear.value.then((dataCurrYear) => {
+        needsAggregateCurrYearDoc.value = dataCurrYear;
+      });
+
+      const { data: dataCurrMonth, promise: promiseCurrMonth } = useDocument(
+        doc(db, `users/${user.value.uid}/aggregateYearlyCurr/${currentYYYYMM}`),
+      );
+      promiseCurrMonth.value.then((dataCurrMonth) => {
+        needsAggregateCurrMonthDoc.value = dataCurrMonth;
+      });
+
+      //TODO:2 first try getDocsFromCache, if fails then getDocsFromServer
+      getDocs(collection(db, `users/${user.value.uid}/aggregateYearly`)).then(
+        (querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            if (doc.id !== currentYear) {
+              needsAggregatePrevYears.value[doc.id] = ref(doc.data());
+            }
+          });
+        },
+      );
+
+      getDocs(collection(db, `users/${user.value.uid}/aggregateMonthly`)).then(
+        (querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            if (doc.id !== currentYYYYMM) {
+              needsAggregatePrevMonths.value[doc.id] = ref(doc.data());
+            }
+          });
+        },
+      );
+
+      aggregateDataFetched.value = true;
+    } catch (error) {
+      console.log("Error in fetchAggregateData", error);
+    }
+  };
+
+  const hasNeeds = computed(() => {
+    // console.log("XXX in hasNeeds, userDoc.value", userDoc.value.data);
+    return userDoc?.value?.data?.hasNeeds ?? false;
+  });
+
   //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
   const emptyNeedsMomentsRetry = async () => {
     // Query moments where needsImportances is empty
     const emptyNeedsImportancesQuery = query(
-      momentsCollRef.value,
+      collection(db, `users/${user.value.uid}/moments`),
       where("needsImportances", "==", {}),
       where("retries", "<", 3),
       orderBy("retries"),
@@ -178,14 +266,16 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const addMoment = async (moment) => {
-    console.log("XXX in addMoment, moment:", moment);
     try {
+      console.log("XXX in addMoment, moment:", moment);
       const batch = writeBatch(db);
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
-      const docRef = doc(momentsCollRef.value);
-      batch.set(docRef, moment);
-      batch.update(docRef, { needsImportances: {}, retries: 0 });
+      const newMomDocRef = doc(
+        collection(db, `users/${user.value.uid}/moments`),
+      );
+      batch.set(newMomDocRef, moment);
+      batch.update(newMomDocRef, { needsImportances: {}, retries: 0 });
 
       // Update the tag statistics in tagsColl for the tags of the new moment
       for (const tag of moment.tags) {
@@ -193,7 +283,7 @@ export const useMomentsStore = defineStore("moments", () => {
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
         const tagDoc = await getDoc(tagDocRef);
         const tagData = {
-          id: docRef.id,
+          id: newMomDocRef.id,
           date: moment.date,
           intensity: moment.intensity,
           tags: moment.tags,
@@ -204,7 +294,7 @@ export const useMomentsStore = defineStore("moments", () => {
         else batch.set(tagDocRef, { tagMoments: [tagData] });
       }
 
-      // Remove moment.date time and save the Timestamp to momentsDays array in userDoc
+      // Remove moment.date time and save the Timestamp to momentsDays array
       // console.log("XXX in addMoment, moment.date:", moment.date);
       const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
       const dateObj = ts.toDate();
@@ -219,12 +309,16 @@ export const useMomentsStore = defineStore("moments", () => {
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
-      console.log("TRIGGERING CALL TO LLM FOR moment", docRef.id, moment.text);
+      console.log(
+        "TRIGGERING CALL TO LLM FOR moment",
+        newMomDocRef.id,
+        moment.text,
+      );
       const response = await axios.get(`/api/learn/needs/`, {
         params: {
           momentText: moment.text,
           momentDate: JSON.stringify(moment.date),
-          momentId: docRef.id,
+          momentId: newMomDocRef.id,
         },
         headers: {
           authorization: `Bearer ${idToken}`,
@@ -232,13 +326,13 @@ export const useMomentsStore = defineStore("moments", () => {
       });
       console.log(
         "SUCCESSFUL LLM RESPONSE for moment '",
-        docRef.id,
+        newMomDocRef.id,
         moment.text,
         "' :",
         response.data,
       );
     } catch (error) {
-      console.log(error);
+      console.log("Error in addMoment", error);
     }
   };
 
@@ -262,7 +356,8 @@ export const useMomentsStore = defineStore("moments", () => {
   const uniqueDays = computed(() => {
     if (!(userDoc?.value?.data?.momentsDays?.length ?? 0)) {
       console.log(
-        "In momentsStore uniqueDays: empty uniqueDays bec. of userDoc?.value?.data?.momentsDays?.length",
+        "Failed to fetch unique Days bec: userDoc.value:",
+        userDoc.value,
       );
       return [];
     }
@@ -302,11 +397,18 @@ export const useMomentsStore = defineStore("moments", () => {
     descending = true,
   ) => {
     return computed(() => {
+      console.log("getTags called with dateRange", dateRange);
       if (
         !tagsColl.value ||
         !tagsColl.value.data ||
         tagsColl.value.data.length === 0
       ) {
+        console.log(
+          "In getTags, returning empty array bec. tagsColl.value:",
+          tagsColl.value,
+          "or tagsColl.value.data:",
+          tagsColl.value.data,
+        );
         return [];
       }
 
@@ -317,6 +419,7 @@ export const useMomentsStore = defineStore("moments", () => {
         return date >= dateRange[0] && date <= dateRange[1];
       });
 
+      console.log("In getTags, starting to build tagList");
       let tagList = tagsColl.value.data.map((tagDoc) => {
         if (tagDoc.tagMoments.length === 0) return;
         //return only the tagMoments that are within the date range
@@ -359,130 +462,67 @@ export const useMomentsStore = defineStore("moments", () => {
       descending
         ? tagList.sort((a, b) => b[sortBy] - a[sortBy])
         : tagList.sort((a, b) => a[sortBy] - b[sortBy]);
+
+      console.log("In getTags, returning tagList:", tagList);
       return tagList;
     });
   };
 
-  const getNeeds = (
-    dateRange = "all", //a string of format xxx, YYYY or YYYY-MM
+  const getAggregateDoc = (
+    dateRange, //a string of format YYYY or YYYY-MM
   ) => {
     return computed(() => {
-      console.log("getNeeds called with dateRange", dateRange);
-      if (
-        !aggregateAllTimeColl.value ||
-        !aggregateAllTimeColl.value.data ||
-        aggregateAllTimeColl.value.data.length === 0
-      ) {
-        console.log(
-          "In getNeeds, returning empty array bec. aggregateAllTimeColl:",
-          aggregateAllTimeColl,
-          "or aggregateAllTimeColl.value.data:",
-          aggregateAllTimeColl.value.data,
-        );
+      try {
+        console.log("In getAggregateDoc called with dateRange:", dateRange);
+
+        let aggregateDoc;
+        const currentDate = new Date();
+        // If dateRange is of format YYYY, return the related yearly needs
+        if (dateRange.length === 4) {
+          if (dateRange === currentDate.getFullYear()) {
+            aggregateDoc = needsAggregateCurrYearDoc;
+          } else {
+            aggregateDoc = needsAggregatePrevYears.value[dateRange];
+          }
+        }
+        // If dateRange is of format YYYY-MM, return the related monthly needs
+        else if (dateRange.length === 7) {
+          if (
+            dateRange ===
+            `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
+              .toString()
+              .padStart(2, "0")}`
+          ) {
+            aggregateDoc = needsAggregateCurrMonthDoc;
+          } else {
+            aggregateDoc = needsAggregatePrevMonths.value[dateRange];
+          }
+        } else {
+          throw new Error(
+            "In getAggregateDoc, unable to get aggregateDoc for dateRange:",
+            dateRange,
+          );
+        }
+
+        // console.log("aggregateDoc:", aggregateDoc);
+        // console.log("aggregateDoc.value:", aggregateDoc.value);
+        // if (!aggregateDoc?.value?.nMoments ?? false) {
+        //   throw new Error(
+        //     `In getAggregateDoc, aggregateDoc.value is empty or aggregateDoc.value.nMoments is missing: ${JSON.stringify(
+        //       aggregateDoc?.value?.nMoments,
+        //     )}`,
+        //   );
+        // }
+
+        // console.log(
+        //   "In getAggregateDoc, returning aggregateDoc:",
+        //   aggregateDoc,
+        // );
+        return aggregateDoc;
+      } catch (error) {
+        console.error("Error getAggregateDoc:", error);
         return [];
       }
-
-      // firestore aggregateDoc structure
-      // nMoments: 0,
-      // needs: {need1: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
-      // totalNeedsImportanceSum: 0,
-      // lastUpdate: FieldValue.serverTimestamp(),
-
-      //if dateRange is of format YYYY, return the related yearly needs
-      console.log("XXX in getNeeds, dateRange:", dateRange);
-
-      let aggregateDoc;
-      if (dateRange === "all") {
-        aggregateDoc = useDocument(
-          doc(db, "users", `${user.value.uid}`, "aggregateAllTime", "all"),
-        );
-      } else if (dateRange.length === 4) {
-        aggregateDoc = useDocument(
-          doc(db, "users", `${user.value.uid}`, "aggregateYearly", dateRange),
-        );
-      }
-      //if dateRange is of format YYYY-MM, return the related monthly needs
-      else if (dateRange.length === 7) {
-        aggregateDoc = useDocument(
-          doc(db, "users", `${user.value.uid}`, "aggregateMonthly", dateRange),
-        );
-      } else {
-        console.log("XXX in getNeeds, dateRange not recognized:", dateRange);
-        return [];
-      }
-
-      console.log("XXX in getNeeds aggregateDoc", aggregateDoc);
-      console.log("XXX in getNeeds aggregateDoc.value", aggregateDoc.value);
-      console.log(
-        "XXX in getNeeds aggregateDoc.value.needs",
-        aggregateDoc.value.needs,
-      );
-
-      let maxImportanceValue = 0;
-      let totalSatisfactionImpact = 0;
-      let totalUnsatisfactionImpact = 0;
-
-      //compute what we can before aggregated vals are known
-      //TODO: 4 Uncaught (in promise) TypeError: aggregateDoc.value.needs.map is not a function
-
-      let needsList = aggregateDoc.value.needs.map((need) => {
-        //TODO:3 extract of the if
-        if (need.occurenceCount === 0) return;
-        const importanceValue =
-          need.importanceSum / aggregateDoc.value.totalNeedsImportanceSum;
-        if (importanceValue > maxImportanceValue)
-          maxImportanceValue = importanceValue;
-        const satisfactionValue = need.satisfactionSum / need.occurenceCount;
-        const satisfactionImpactValue = importanceValue * satisfactionValue;
-        totalSatisfactionImpact += satisfactionImpactValue;
-        const unsatisfactionImpactValue =
-          importanceValue * (1 - satisfactionValue);
-        totalUnsatisfactionImpact += unsatisfactionImpactValue;
-
-        return {
-          displayId: needsMap[need],
-          count: need.occurenceCount,
-          importanceValue: importanceValue,
-          satisfactionValue: satisfactionValue,
-          satisfactionImpactValue: satisfactionImpactValue,
-          unsatisfactionImpactValue: unsatisfactionImpactValue,
-        };
-      });
-
-      //compute the rest now that we know the aggregated vals
-      needsList = needsList.map((need) => {
-        const importanceDisplayValue =
-          need.importanceValue / maxImportanceValue;
-        const satisfactionImpactDisplayValue =
-          importanceDisplayValue * need.satisfactionValue;
-        const unsatisfactionImpactDisplayValue =
-          importanceDisplayValue * (1 - need.satisfactionValue);
-        return {
-          ...need,
-          importanceDisplayValue: importanceDisplayValue,
-          satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
-          unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
-          satisfactionImpactLabelValue:
-            satisfactionImpactDisplayValue / totalSatisfactionImpact,
-          unsatisfactionImpactLabelValue:
-            unsatisfactionImpactDisplayValue / totalUnsatisfactionImpact,
-        };
-      });
-
-      return needsList;
-      // {
-      //   displayId: needsMap[need],
-      //   count: need.occurenceCount,
-      //   importanceValue: importanceValue,
-      //   satisfactionValue: satisfactionValue,
-      //   satisfactionImpactValue: satisfactionImpactValue,
-      //   unsatisfactionImpactValue: unsatisfactionImpactValue,
-      //   importanceDisplayValue: importanceDisplayValue,
-      //   satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
-      //   unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
-      //   satisfactionImpactLabelValue:satisfactionImpactDisplayValue/totalSatisfactionImpact,
-      //   unsatisfactionImpactLabelValue:unsatisfactionImpactDisplayValue/totalUnsatisfactionImpact,
-      // };
     });
   };
 
@@ -492,24 +532,94 @@ export const useMomentsStore = defineStore("moments", () => {
     sortBy = "none",
   ) => {
     return computed(() => {
-      console.log(
-        "getFilteredSortedNeeds called with dateRange:",
-        dateRange,
-        "filterBy:",
-        filterBy,
-        "sortBy:",
-        sortBy,
-      );
-      let needsList = getNeeds(dateRange).value;
+      try {
+        console.log(
+          "In getFilteredSortedNeeds called with dateRange:",
+          dateRange,
+          "filterBy:",
+          filterBy,
+          "sortBy:",
+          sortBy,
+        );
 
-      if (filterBy === "unsatisfied")
-        needsList = needsList.filter((need) => need.satisfactionValue < 1);
-      else if (filterBy === "satisfied")
-        needsList = needsList.filter((need) => need.satisfactionValue > 0);
+        if (!aggregateDataFetched.value || !hasNeeds.value) {
+          console.log(
+            "In getFilteredSortedNeeds, returning empty array bec. aggregateDataFetched.value:",
+            aggregateDataFetched.value,
+            "or hasNeeds.value:",
+            hasNeeds.value,
+            "for dateRange:",
+            dateRange,
+          );
+          return [];
+        }
+        const aggDoc = getAggregateDoc(dateRange);
+        console.log(
+          "In getFilteredSortedNeeds, aggDoc.value:",
+          aggDoc?.value,
+          // "aggDoc.value.value:",
+          // aggDoc?.value?.value,
+          "aggDoc?.value?.data:",
+          aggDoc?.value?.data,
+          "aggDoc?.value?.data?.value,:",
+          aggDoc?.value?.data?.value,
+          "for dateRange:",
+          dateRange,
+        );
 
-      if (sortBy != "none") needsList.sort((a, b) => b[sortBy] - a[sortBy]);
+        const needsList = aggDoc?.value?.needs;
+        console.log(
+          "In getFilteredSortedNeeds, needsList:",
+          needsList,
+          "for dateRange:",
+          dateRange,
+        );
+        if (!needsList) {
+          console.log(
+            "In getFilteredSortedNeeds, returning empty array bec. needsList:",
+            needsList,
+            "for dateRange:",
+            dateRange,
+          );
+          return [];
+        }
+        let needsListArray = Object.entries(needsList);
+        console.log(
+          "In getFilteredSortedNeeds, needsListArray:",
+          needsListArray,
+          "for dateRange:",
+          dateRange,
+        );
 
-      return needsList;
+        //Filtering
+        if (filterBy === "unsatisfied")
+          needsListArray = needsListArray.filter(
+            ([_, needData]) => needData.satisfactionValue < 1,
+          );
+        else if (filterBy === "satisfied")
+          needsListArray = needsListArray.filter(
+            ([_, needData]) => needData.satisfactionValue > 0,
+          );
+
+        //Sorting
+        if (sortBy != "none")
+          needsListArray.sort((a, b) => b[1][sortBy] - a[1][sortBy]);
+
+        console.log(
+          "In getFilteredSortedNeeds, returning needsListArray after filter sorting:",
+          needsListArray,
+          "for dateRange:",
+          dateRange,
+        );
+
+        return needsListArray.map(([need, needData]) => {
+          const mappedNeed = needsMap[need];
+          return [mappedNeed, needData];
+        });
+      } catch (error) {
+        console.error("Error getFilteredSortedNeeds:", error);
+        return [];
+      }
     });
   };
 
@@ -537,8 +647,7 @@ export const useMomentsStore = defineStore("moments", () => {
         }
       }
     } catch (error) {
-      console.log("Error occurred:", error);
-      throw error;
+      console.log("Error in updateUser: ", error);
     }
   };
 
@@ -548,11 +657,16 @@ export const useMomentsStore = defineStore("moments", () => {
     isEditorFocused,
     uniqueTags,
     uniqueDays,
-    initialized,
+    userFetched,
+    momentsFetched,
+    aggregateDataFetched,
+    hasNeeds,
     getTags,
     getFilteredSortedNeeds,
     addMoment,
+    fetchUser,
     fetchMoments,
+    fetchAggregateData,
     updateUser,
     setIsEditorFocused,
     emptyNeedsMomentsRetry,

@@ -8,7 +8,6 @@ const {
   // Filter,
 } = require("firebase-admin/firestore");
 const { Configuration, OpenAIApi } = require("openai");
-// const e = require("express");
 require("dotenv").config();
 
 var router = express.Router();
@@ -67,9 +66,16 @@ const needsList = [
 ];
 
 const needsInitValues = {
+  occurrenceCount: 0,
   importanceSum: 0,
   satisfactionSum: 0,
-  occurrenceCount: 0,
+  importanceValue: 0,
+  satisfactionValue: 0,
+  importanceDisplayValue: 0,
+  satisfactionImpactDisplayValue: 0,
+  unsatisfactionImpactDisplayValue: 0,
+  satisfactionImpactLabelValue: 0,
+  unsatisfactionImpactLabelValue: 0,
 };
 
 const needsMap = needsList.reduce((acc, need) => {
@@ -87,36 +93,127 @@ const getAggregateDocRef = async (uid, collectionName, docName) => {
   if (!aggregateDoc.exists) {
     await aggregateDocRef.set({
       nMoments: 0,
-      needs: needsMap, // needs: {need1: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
       totalNeedsImportanceSum: 0,
       lastUpdate: FieldValue.serverTimestamp(),
+      needs: needsMap, // needs: {need1: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
+      maxImportanceValue: 0,
+      totalSatisfactionImpact: 0,
+      totalUnsatisfactionImpact: 0,
     });
     console.log(collectionName, " > ", docName, " doc created");
   }
   return aggregateDocRef;
 };
 
-//TODO: 2 aggregate overall needs satisfaction in case we need it in the future
 function generateAggregateUpdateData(
-  momentImportancesResp,
+  mom,
+  docRef,
+  doc,
   momentImportancesTotal,
+  momentImportancesResp,
 ) {
+  // console.log("In generateAggregateUpdateData, for mom ",mom," for doc ",docRef.id );
+  const totalNeedsImportanceSum =
+    doc.data().totalNeedsImportanceSum + momentImportancesTotal;
+  let totalSatisfactionImpact = 0,
+    totalUnsatisfactionImpact = 0;
+  let maxImportanceValue = doc.data().maxImportanceValue;
+
   const baseData = {
     nMoments: FieldValue.increment(1),
-    totalNeedsImportanceSum: FieldValue.increment(momentImportancesTotal),
+    totalNeedsImportanceSum: totalNeedsImportanceSum,
     lastUpdate: FieldValue.serverTimestamp(),
   };
+
+  //first loop to calculate totalSatisfactionImpact, totalUnsatisfactionImpact and maxImportanceValue
   for (let need in momentImportancesResp) {
-    baseData[`needs.${need}.importanceSum`] = FieldValue.increment(
-      momentImportancesResp[need],
-    );
-    baseData[`needs.${need}.satisfactionSum`] = FieldValue.increment(
-      Math.random(),
-    ); //4 get satisfacton
-    baseData[`needs.${need}.occurrenceCount`] = FieldValue.increment(1);
+    // console.log(" In for (let need in momentImportancesResp), need", need);
+
+    const occurrenceCount = doc.data().needs[need].occurrenceCount + 1;
+    baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
+
+    const importanceSum =
+      doc.data().needs[need].importanceSum + momentImportancesResp[need];
+    baseData[`needs.${need}.importanceSum`] = importanceSum;
+
+    const importanceValue = importanceSum / totalNeedsImportanceSum;
+    baseData[`needs.${need}.importanceValue`] = importanceValue;
+    if (importanceValue > maxImportanceValue) {
+      maxImportanceValue = importanceValue;
+    }
+
+    const satisfactionSum =
+      doc.data().needs[need].satisfactionSum + Math.random(); //TODO: 4 get satisfacton
+    baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
+
+    const satisfactionValue = satisfactionSum / occurrenceCount;
+    baseData[`needs.${need}.satisfactionValue`] = satisfactionValue;
+
+    totalSatisfactionImpact += importanceValue * satisfactionValue;
+    totalUnsatisfactionImpact += importanceValue * (1 - satisfactionValue);
   }
+
+  baseData["maxImportanceValue"] = maxImportanceValue;
+  baseData["totalSatisfactionImpact"] = totalSatisfactionImpact;
+  baseData["totalUnsatisfactionImpact"] = totalUnsatisfactionImpact;
+
+  //second loop now that we know maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
+  for (let need in momentImportancesResp) {
+    const importanceDisplayValue =
+      baseData[`needs.${need}.importanceValue`] / maxImportanceValue;
+    baseData[`needs.${need}.importanceDisplayValue`] = importanceDisplayValue;
+
+    baseData[`needs.${need}.satisfactionImpactDisplayValue`] =
+      importanceDisplayValue * baseData[`needs.${need}.satisfactionValue`];
+    baseData[`needs.${need}.unsatisfactionImpactDisplayValue`] =
+      importanceDisplayValue *
+      (1 - baseData[`needs.${need}.satisfactionValue`]);
+
+    baseData[`needs.${need}.satisfactionImpactLabelValue`] =
+      (baseData[`needs.${need}.importanceValue`] *
+        baseData[`needs.${need}.satisfactionValue`]) /
+      totalSatisfactionImpact;
+    baseData[`needs.${need}.unsatisfactionImpactLabelValue`] =
+      (baseData[`needs.${need}.importanceValue`] *
+        (1 - baseData[`needs.${need}.satisfactionValue`])) /
+      totalUnsatisfactionImpact;
+  }
+  console.log(
+    "In generateAggregateUpdateData, for mom ",
+    mom,
+    " for doc ",
+    docRef.id,
+    " returning baseData:",
+    baseData,
+  );
+
   return baseData;
 }
+
+//   {
+//     needs: {
+//       nMoments: FieldValue.increment(1),
+//       totalNeedsImportanceSum: FieldValue.increment(momentImportancesTotal),
+//       lastUpdate: FieldValue.serverTimestamp(),
+//       needName: {,
+//           occurrenceCount: FieldValue.increment(1);
+
+//           importanceSum: FieldValue.increment(momentImportancesResp[need],
+//           satisfactionSum: FieldValue.increment(Math.random(),
+
+//           importanceValue: importanceSum / totalNeedsImportanceSum,
+//           satisfactionValue: satisfactionSum / occurrenceCount,
+//           importanceDisplayValue: importanceDisplayValue,
+//           satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
+//           unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
+//           satisfactionImpactLabelValue:satisfactionImpactDisplayValue/totalSatisfactionImpact,
+//           unsatisfactionImpactLabelValue:unsatisfactionImpactDisplayValue,
+//        }
+//     maxImportanceValue: 0,
+//     totalSatisfactionImpact: 0,
+//     totalUnsatisfactionImpact: 0,
+//   };
+// }
 
 const createOpenAIRequestOptions = (moment) => {
   const request_options = {
@@ -145,7 +242,7 @@ const authenticate = async (req, res, next) => {
   const idToken = req.headers.authorization?.split("Bearer ")[1];
 
   if (!idToken) {
-    res.status(403).send("Unauthorized: No ID token provided.");
+    return res.status(403).send("Unauthorized: No ID token provided.");
   }
 
   try {
@@ -154,7 +251,7 @@ const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Token verification error", error);
-    res.status(403).send("Unauthorized: Invalid ID token.");
+    return res.status(403).send("Unauthorized: Invalid ID token.");
   }
 };
 
@@ -166,7 +263,11 @@ const lockedMomentIds = new Set(); //TODO:1 Since the code is running in a state
 router.get("/needs/", async (req, res) => {
   try {
     if (lockedMomentIds.has(req.query.momentId)) {
-      res.status(409).send("Duplicate request detected for query", req.query);
+      return res
+        .status(409)
+        .send(
+          "Duplicate request detected for query" + JSON.stringify(req.query),
+        );
     }
     lockedMomentIds.add(req.query.momentId);
 
@@ -202,7 +303,7 @@ router.get("/needs/", async (req, res) => {
 
     // PROCESS LLM RESPONSE, REPLYING IF NECESSARY
     const issueTypeConditions = {
-      parsedContentEmpty: Object.keys(parsedContent).length === 0,
+      parsedContentEmpty: Object.keys(parsedContent).length == 0,
       sumOfAllValuesLow:
         Object.values(parsedContent).reduce((a, b) => a + b, 0) < 0.1,
       noValuesMoreThanThreshold: !Object.values(parsedContent).some(
@@ -256,14 +357,15 @@ router.get("/needs/", async (req, res) => {
       }
     }
 
-    const momentImportancesResp = parsedContent;
+    let momentImportancesResp = parsedContent;
 
-    let momentImportancesTotal = 0;
+    let momentImportancesTotal = 0; //TODO:2 this could be integrated in generateAggregatedData to avoid looping twice on momentImportancesResp
     for (let need in momentImportancesResp) {
       //if need is not in needsList, add it to offlistNeeds collection
       if (needsList.includes(need)) {
         momentImportancesTotal += momentImportancesResp[need];
       } else {
+        delete momentImportancesResp[need];
         console.log(need, " is not found in the needsList.");
         const offlisNeedsRef = db
           .collection("offlistNeeds")
@@ -311,7 +413,11 @@ router.get("/needs/", async (req, res) => {
     } else {
       console.error("Invalid momentdate provided in the headers.");
       lockedMomentIds.delete(req.query.momentId);
-      res.status(400).send("Invalid momentdate provided for query", req.query);
+      return res
+        .status(400)
+        .send(
+          "Invalid momentdate provided for query" + JSON.stringify(req.query),
+        );
     }
 
     const momentDocRef = db
@@ -319,29 +425,48 @@ router.get("/needs/", async (req, res) => {
       .doc(req.uid)
       .collection("moments")
       .doc(req.query.momentId);
-    const aggregateUpdateData = generateAggregateUpdateData(
-      momentImportancesResp,
-      momentImportancesTotal,
-    );
 
     //batch persist llm data in firestore
     try {
-      // Get a new write batch
-      const batch = db.batch();
-      //enrich moment doc
-      batch.update(momentDocRef, { needsImportances: momentImportancesResp });
-      //TODO:2 for more safety of the data we could check if the moment needsImportances were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
+      await db.runTransaction(async (t) => {
+        const docAllTime = await t.get(aggregateAllTimeDocRef);
+        const docYearly = await t.get(aggregateYearlyDocRef);
+        const docMonthly = await t.get(aggregateMonthlyDocRef);
 
-      //update aggregate docs
-      batch.update(aggregateAllTimeDocRef, aggregateUpdateData);
-      batch.update(aggregateYearlyDocRef, aggregateUpdateData);
-      batch.update(aggregateMonthlyDocRef, aggregateUpdateData);
+        const allTimeUpdateData = generateAggregateUpdateData(
+          req.query.momentText,
+          aggregateAllTimeDocRef,
+          docAllTime,
+          momentImportancesTotal,
+          momentImportancesResp,
+        );
+        const yearlyUpdateData = generateAggregateUpdateData(
+          req.query.momentText,
+          aggregateYearlyDocRef,
+          docYearly,
+          momentImportancesTotal,
+          momentImportancesResp,
+        );
+        const monthlyUpdateData = generateAggregateUpdateData(
+          req.query.momentText,
+          aggregateMonthlyDocRef,
+          docMonthly,
+          momentImportancesTotal,
+          momentImportancesResp,
+        );
 
-      // Commit the batch
-      await batch.commit();
+        //update aggregate docs
+        t.update(aggregateAllTimeDocRef, allTimeUpdateData);
+        t.update(aggregateYearlyDocRef, yearlyUpdateData);
+        t.update(aggregateMonthlyDocRef, monthlyUpdateData);
+
+        t.update(momentDocRef, { needsImportances: momentImportancesResp });
+        t.update(db.collection("users").doc(req.uid), { hasNeeds: true });
+        //TODO:2 for more safety of the data we could check if the moment needsImportances were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
+      });
 
       console.log(
-        "Batch write success, ",
+        "Transaction success, ",
         req.query,
         " enriched by needs rating and aggregate docs all time and",
         //keep only the last two part of the path
@@ -349,43 +474,52 @@ router.get("/needs/", async (req, res) => {
         aggregateMonthlyDocRef.path.split("/").slice(-2).join("/"),
         "updated",
       );
-    } catch (err) {
+    } catch (e) {
       console.log(
-        "Batch write failure, ",
+        "Transaction failure, ",
         req.query,
         "NOT enriched by needs rating and aggregate docs NOT updated: ",
-        err,
+        e,
       );
       lockedMomentIds.delete(req.query.momentId);
-      res
+      return res
         .status(500)
         .send(
-          "Internal server error when updating moment needs or aggregate data for query",
-          req.query,
+          "Internal server error when updating moment needs or aggregate data for query" +
+            JSON.stringify(req.query),
         );
     }
+
     lockedMomentIds.delete(req.query.momentId);
-    res.json(parsedContent);
+    return res
+      .status(200)
+      .send(
+        "Llm response received and processed for query" +
+          JSON.stringify(req.query),
+      );
+    // return res.json(parsedContent);
   } catch (err) {
     console.error(err);
     lockedMomentIds.delete(req.query.momentId);
-    res
+    return res
       .status(500)
       .send(
-        "An error occurred while making or saving the prediction for query",
-        req.query,
+        "An error occurred while making or saving the prediction for query" +
+          JSON.stringify(req.query),
       );
   }
 });
 
 //route to test performance
-router.get("/dummy", async (req, res) => {
-  try {
-    res.json("Dummy response");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("An error occurred while making the prediction");
-  }
-});
+// router.get("/dummy", async (req, res) => {
+//   try {
+//     return res.json("Dummy response");
+//   } catch (err) {
+//     console.error(err);
+//     return res
+//       .status(500)
+//       .send("An error occurred while making the prediction");
+//   }
+// });
 
 module.exports = router;

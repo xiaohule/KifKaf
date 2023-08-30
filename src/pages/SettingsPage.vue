@@ -181,7 +181,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onMounted } from 'vue'
 import { auth } from "../boot/firebaseBoot.js";
 import { signOut } from "firebase/auth";
 import { useQuasar } from 'quasar'
@@ -192,6 +192,15 @@ const version = process.env.__APP_VERSION__
 const $q = useQuasar()
 const router = useRouter()
 const momentsStore = useMomentsStore()
+onMounted(async () => {
+  try {
+    if (!momentsStore.userFetched) {
+      await momentsStore.fetchUser();
+    }
+  } catch (error) {
+    console.error('await momentsStore.fetchUser() error:', error);
+  }
+})
 
 const currentSetting = ref('')
 const newSettingValue = ref('')

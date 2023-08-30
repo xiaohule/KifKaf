@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onActivated, onDeactivated } from 'vue'
+import { ref, computed, watch, nextTick, onActivated, onDeactivated, onMounted } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCardNeeds from "./../components/LearnCardNeeds.vue";
@@ -86,6 +86,15 @@ const { formatDate, getDateDiff, startOfDate } = date;
 // import 'swiper/css/bundle';
 
 const momentsStore = useMomentsStore()
+onMounted(async () => {
+  try {
+    if (!momentsStore.aggregateDataFetched) {
+      await momentsStore.fetchAggregateData();
+    }
+  } catch (error) {
+    console.error('await momentsStore.fetchAggregateData() error:', error);
+  }
+})
 
 const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
@@ -229,14 +238,14 @@ const optionsFn = (date) => {
 const updateDateButtonLabel = () => {
   switch (segDateId.value) {
     case 'Yearly':
-      dateRangeButtonLabel.value = (currentDate.value.getFullYear() === dateRangesYears.value[activeIndex.value]) ? 'This year' : dateRangesYears.value[activeIndex.value].toString();
+      dateRangeButtonLabel.value = (currentDate.value.getFullYear() == dateRangesYears.value[activeIndex.value]) ? 'This year' : dateRangesYears.value[activeIndex.value].toString();
       break;
 
     case 'Monthly':
-      if (currentYYYYMM.value === dateRangesMonths.value[activeIndex.value]) {
+      if (currentYYYYMM.value == dateRangesMonths.value[activeIndex.value]) {
         dateRangeButtonLabel.value = 'This month';
       } else {
-        dateRangeButtonLabel.value = (yearStr === currentDate.value.getFullYear().toString())
+        dateRangeButtonLabel.value = (dateRangesMonthsToDate(activeIndex.value).getFullYear() == currentDate.value.getFullYear())
           ? date.formatDate(dateRangesMonthsToDate(activeIndex.value), 'MMMM')
           : date.formatDate(dateRangesMonthsToDate(activeIndex.value), 'MMMM YYYY');
       }
