@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
@@ -96,6 +96,15 @@ import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 
 const momentsStore = useMomentsStore()
+onMounted(async () => {
+  try {
+    if (!momentsStore.momentsFetched) {
+      await momentsStore.fetchMoments();
+    }
+  } catch (error) {
+    console.error('In LearnCard store fetching error:', error);
+  }
+})
 
 const props = defineProps({
   flag: {

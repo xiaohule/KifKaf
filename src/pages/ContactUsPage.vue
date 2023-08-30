@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useMomentsStore } from './../stores/moments.js'
 import { useRouter } from 'vue-router'
@@ -45,15 +45,15 @@ const $q = useQuasar()
 const router = useRouter()
 const momentsStore = useMomentsStore()
 
-// onMounted(async () => {
-//   if (!momentsStore.initialized) {
-//     try {
-//       await momentsStore.fetchMoments();
-//     } catch (error) {
-//       console.error('await momentsStore.fetchMoments() error:', error);
-//     }
-//   }
-// })
+onMounted(async () => {
+  try {
+    if (!momentsStore.userFetched) {
+      await momentsStore.fetchUser();
+    }
+  } catch (error) {
+    console.error('In contactUsPage fetchUser error:', error);
+  }
+})
 
 const emailAddress = ref('')
 const contactUsMessage = ref('')

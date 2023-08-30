@@ -17,12 +17,14 @@ import { useMomentsStore } from './stores/moments.js';
 const momentsStore = useMomentsStore()
 
 onMounted(async () => {
-  // const currentUser = await getCurrentUser(); //TODO4: is this needed since already done in moments.js?
-  // if (currentUser) {
-  await momentsStore.fetchMoments();
-  // }
+  try {
+    if (!momentsStore.userFetched) {
+      await momentsStore.fetchUser();
+    }
+  } catch (error) {
+    console.error('In App.vue momentsStore.fetchUser() error:', error);
+  }
 })
-
 </script>
 
 <!-- <style lang="scss">

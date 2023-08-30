@@ -47,13 +47,13 @@
       </q-card>
 
 
-      <div v-if="!momentsStore || !computedUniqueDays || computedUniqueDays.length === 0"></div>
+      <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
       <div v-else>
         <q-item-label class="text-body1 text-weight-medium q-my-sm">Moments</q-item-label>
         <q-list>
 
-          <q-card class="bg-surface q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14" v-for="day in computedUniqueDays"
-            :key="day" flat>
+          <q-card class="bg-surface q-mb-md q-px-xs q-pt-xs q-pb-md rounded-borders-14"
+            v-for="day in momentsStore.uniqueDays" :key="day" flat>
             <q-card-section class="text-subtitle1 q-pb-none">
               {{ day }}
             </q-card-section>
@@ -111,12 +111,13 @@ import VirtualKeyboardBar from './../components/VirtualKeyboardBar.vue'
 const momentsStore = useMomentsStore()
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
-  if (!momentsStore.initialized) {
-    try {
+  try {
+    if (!momentsStore.momentsFetched) {
       await momentsStore.fetchMoments();
-    } catch (error) {
-      console.error('await momentsStore.fetchMoments() error:', error);
     }
+    await momentsStore.emptyNeedsMomentsRetry();
+  } catch (error) {
+    console.error('await momentsStore.fetchMoments() error:', error);
   }
 })
 
@@ -134,14 +135,11 @@ const formatLikeUniqueDays = (moment) => {
   dt.getTime();
   return date.formatDate(dt, "MMMM D, YYYY")
 };
-const computedUniqueDays = computed(() => {
-  return momentsStore.uniqueDays || []
-})
-const getMomentsOfTheDay = (day) => {
-  const moments = computed(() => momentsStore.momentsColl.value)
-  const ul = moments.value.filter(m => formatLikeUniqueDays(m) === day)
+
+const getMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
+  const ul = momentsStore?.momentsColl?.value?.filter(m => formatLikeUniqueDays(m) == day)
   // sort array ul per descending moments.value.date.seconds
-  const ol = ul.sort((a, b) => b.date.seconds - a.date.seconds);
+  const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;
 }
 
