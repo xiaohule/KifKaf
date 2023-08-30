@@ -1,7 +1,6 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
-    <!-- <div v-if="!momentsStore || !computedUniqueTags || computedUniqueTags.length === 0"></div> -->
     <q-item class="q-px-none q-pt-none">
       <!-- <q-item-section class="col-auto">
           <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
@@ -101,18 +100,19 @@ const dateRangeButtonLabel = ref('This year')
 
 //SWIPER
 //TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
-const swiperElImportance = ref(null)
 const swiperElSatisfaction = ref(null)
+const swiperElImportance = ref(null)
+
 const swiperInitialized = ref(false)
 const activeIndex = ref(0)
 
 onActivated(() => {
   console.log('ONACTIVATED')
   if (!swiperInitialized.value) {
-    swiperElImportance.value.initialize();
     swiperElSatisfaction.value.initialize();
-    swiperElImportance.value.swiper.activeIndex = activeIndex.value
+    swiperElImportance.value.initialize();
     swiperElSatisfaction.value.swiper.activeIndex = activeIndex.value
+    swiperElImportance.value.swiper.activeIndex = activeIndex.value
     swiperInitialized.value = true
   }
 });
@@ -124,13 +124,13 @@ watch(activeIndex, (newVal, oldVal) => {
   if (swiperInitialized.value) {
     console.log('in activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
 
+    swiperElSatisfaction.value.swiper.slideTo(newVal, 300)
     swiperElImportance.value.swiper.slideTo(newVal, 300)
     console.log('in activeIndex watcher2, swiperElImportance.value.swiper.activeIndex', swiperElImportance.value.swiper.activeIndex)
-    swiperElSatisfaction.value.swiper.slideTo(newVal, 300)
 
+    swiperElSatisfaction.value.swiper.activeIndex = newVal
     swiperElImportance.value.swiper.activeIndex = newVal
     console.log('in activeIndex watcher3, swiperElImportance.value.swiper.activeIndex', swiperElImportance.value.swiper.activeIndex)
-    swiperElSatisfaction.value.swiper.activeIndex = newVal
 
     console.log('CHECK IMPORTANCE', swiperElImportance.value.swiper)
     // console.log('CHECK SATISFACTION', swiperElSatisfaction.value.swiper)
@@ -141,18 +141,18 @@ const secondSegSelectedSatisfaction = ref(false)
 const segmentedControlClicked = ({ value, flag }) => {
   if (flag === 'satisfaction') secondSegSelectedSatisfaction.value = value
 }
-const learnCardExpandedImportance = ref(false)
 const learnCardExpandedSatisfaction = ref(false)
+const learnCardExpandedImportance = ref(false)
 const showButtonClicked = ({ value, flag }) => {
-  if (flag === 'importance') {
-    learnCardExpandedImportance.value = value
-    nextTick(() => {
-      swiperElImportance.value.swiper.updateAutoHeight(300);
-    })
-  } else {
+  if (flag === 'satisfaction') {
     learnCardExpandedSatisfaction.value = value
     nextTick(() => {
       swiperElSatisfaction.value.swiper.updateAutoHeight(300);
+    })
+  } else {
+    learnCardExpandedImportance.value = value
+    nextTick(() => {
+      swiperElImportance.value.swiper.updateAutoHeight(300);
     })
   }
 }
@@ -165,11 +165,9 @@ const currentYYYYMM = computed(() => {
   return `${currentDate.value.getFullYear()}-${(currentDate.value.getMonth() + 1).toString().padStart(2, '0')}`
 })
 
-const computedUniqueDays = computed(() => {
-  return momentsStore.uniqueDays || []
-})
 const oldestMomentDate = computed(() => {
-  return computedUniqueDays.value[computedUniqueDays.value.length - 1] ?? currentDate.value;
+  const days = momentsStore.uniqueDays;
+  return days[days.length - 1] ?? currentDate.value;
 })
 const oldestMomentDateFormatted = computed(() => {
   return date.formatDate(oldestMomentDate.value, "YYYY/MM")
@@ -294,7 +292,7 @@ watch(segDateId, (newVal, oldVal) => {
 });
 
 const onSliding = (event, flag) => {
-  console.log('in onSliding 4, swiperElImportance.value.swiper.activeIndex', swiperElImportance.value.swiper.activeIndex)
+  console.log('in onSliding, swiperElImportance.value.swiper.activeIndex', swiperElImportance.value.swiper.activeIndex)
   activeIndex.value = (flag === 'importance') ? swiperElImportance.value.swiper.activeIndex : swiperElSatisfaction.value.swiper.activeIndex
   console.log('In onSliding with flag', flag, ' activeIndex updated to ', activeIndex.value)
   updateDateButtonLabel()

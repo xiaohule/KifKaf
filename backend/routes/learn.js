@@ -67,7 +67,7 @@ const needsList = [
 
 const needsInitValues = {
   occurrenceCount: 0,
-  importanceSum: 0,
+  importancesSum: 0,
   satisfactionSum: 0,
   importanceValue: 0,
   satisfactionValue: 0,
@@ -93,122 +93,137 @@ const getAggregateDocRef = async (uid, collectionName, docName) => {
   if (!aggregateDoc.exists) {
     await aggregateDocRef.set({
       nMoments: 0,
-      totalNeedsImportanceSum: 0,
+      totalImportances: 0,
       lastUpdate: FieldValue.serverTimestamp(),
-      needs: needsMap, // needs: {need1: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importanceSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
+      needs: needsMap, // needs: {need1: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
       maxImportanceValue: 0,
       totalSatisfactionImpact: 0,
       totalUnsatisfactionImpact: 0,
     });
-    console.log(collectionName, " > ", docName, " doc created");
+    console.log(
+      collectionName,
+      " > ",
+      docName,
+      " doc created with needsMap",
+      needsMap,
+    );
   }
   return aggregateDocRef;
 };
 
-function generateAggregateUpdateData(
-  mom,
-  docRef,
-  doc,
-  momentImportancesTotal,
-  momentImportancesResp,
-) {
-  // console.log("In generateAggregateUpdateData, for mom ",mom," for doc ",docRef.id );
-  const totalNeedsImportanceSum =
-    doc.data().totalNeedsImportanceSum + momentImportancesTotal;
-  let totalSatisfactionImpact = 0,
-    totalUnsatisfactionImpact = 0;
-  let maxImportanceValue = doc.data().maxImportanceValue;
+function generateAggregateUpdateData(mom, doc, momentImportancesResp) {
+  //variables are prefixed by "moment" when related to the processed moment, "" when related to a need and "total"/"max" when aggregated over all needs
+  const momentImportancesSum = Object.values(momentImportancesResp).reduce(
+    (acc, currentValue) => acc + currentValue,
+    0,
+  );
 
   const baseData = {
     nMoments: FieldValue.increment(1),
-    totalNeedsImportanceSum: totalNeedsImportanceSum,
+    totalImportances: doc.data().totalImportances + momentImportancesSum,
     lastUpdate: FieldValue.serverTimestamp(),
+    totalSatisfactionImpact: 0,
+    totalUnsatisfactionImpact: 0,
+    maxImportanceValue: 0,
   };
 
-  //first loop to calculate totalSatisfactionImpact, totalUnsatisfactionImpact and maxImportanceValue
+  //1st loop only on mom's needs to update value that relies only on the moment data
   for (let need in momentImportancesResp) {
-    // console.log(" In for (let need in momentImportancesResp), need", need);
-
     const occurrenceCount = doc.data().needs[need].occurrenceCount + 1;
     baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
 
-    const importanceSum =
-      doc.data().needs[need].importanceSum + momentImportancesResp[need];
-    baseData[`needs.${need}.importanceSum`] = importanceSum;
-
-    const importanceValue = importanceSum / totalNeedsImportanceSum;
-    baseData[`needs.${need}.importanceValue`] = importanceValue;
-    if (importanceValue > maxImportanceValue) {
-      maxImportanceValue = importanceValue;
-    }
+    baseData[`needs.${need}.importancesSum`] =
+      doc.data().needs[need].importancesSum + momentImportancesResp[need];
 
     const satisfactionSum =
       doc.data().needs[need].satisfactionSum + Math.random(); //TODO: 4 get satisfacton
     baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
 
-    const satisfactionValue = satisfactionSum / occurrenceCount;
-    baseData[`needs.${need}.satisfactionValue`] = satisfactionValue;
-
-    totalSatisfactionImpact += importanceValue * satisfactionValue;
-    totalUnsatisfactionImpact += importanceValue * (1 - satisfactionValue);
+    baseData[`needs.${need}.satisfactionValue`] =
+      satisfactionSum / occurrenceCount;
   }
 
-  baseData["maxImportanceValue"] = maxImportanceValue;
-  baseData["totalSatisfactionImpact"] = totalSatisfactionImpact;
-  baseData["totalUnsatisfactionImpact"] = totalUnsatisfactionImpact;
+  // 2nd loop on all needs to compute maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
+  for (let need in doc.data().needs) {
+    // console.log(
+    //   " In generateAggregateUpdateData 2nd loop for need:",
+    //   need,
+    //   "baseData[`needs.${need}.importancesSum`]",
+    //   baseData[`needs.${need}.importancesSum`],
+    // );
+    const importanceValue =
+      (baseData[`needs.${need}.importancesSum`] ??
+        doc.data().needs[need].importancesSum) / baseData.totalImportances;
+    baseData[`needs.${need}.importanceValue`] = importanceValue;
 
-  //second loop now that we know maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
-  for (let need in momentImportancesResp) {
+    if (importanceValue > baseData.maxImportanceValue) {
+      baseData.maxImportanceValue = importanceValue;
+    }
+
+    const satisfactionValue =
+      baseData[`needs.${need}.satisfactionValue`] ??
+      doc.data().needs[need].satisfactionValue;
+    baseData.totalSatisfactionImpact += importanceValue * satisfactionValue;
+    baseData.totalUnsatisfactionImpact +=
+      importanceValue * (1 - satisfactionValue);
+  }
+
+  //3rd loop on all needs now that we know maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
+  for (let need in doc.data().needs) {
     const importanceDisplayValue =
-      baseData[`needs.${need}.importanceValue`] / maxImportanceValue;
+      baseData[`needs.${need}.importanceValue`] / baseData.maxImportanceValue;
     baseData[`needs.${need}.importanceDisplayValue`] = importanceDisplayValue;
 
+    const satisfactionValue =
+      baseData[`needs.${need}.satisfactionValue`] ??
+      doc.data().needs[need].satisfactionValue;
     baseData[`needs.${need}.satisfactionImpactDisplayValue`] =
-      importanceDisplayValue * baseData[`needs.${need}.satisfactionValue`];
+      importanceDisplayValue * satisfactionValue;
     baseData[`needs.${need}.unsatisfactionImpactDisplayValue`] =
-      importanceDisplayValue *
-      (1 - baseData[`needs.${need}.satisfactionValue`]);
+      importanceDisplayValue * (1 - satisfactionValue);
 
     baseData[`needs.${need}.satisfactionImpactLabelValue`] =
-      (baseData[`needs.${need}.importanceValue`] *
-        baseData[`needs.${need}.satisfactionValue`]) /
-      totalSatisfactionImpact;
+      (baseData[`needs.${need}.importanceValue`] * satisfactionValue) /
+      baseData.totalSatisfactionImpact;
     baseData[`needs.${need}.unsatisfactionImpactLabelValue`] =
-      (baseData[`needs.${need}.importanceValue`] *
-        (1 - baseData[`needs.${need}.satisfactionValue`])) /
-      totalUnsatisfactionImpact;
+      (baseData[`needs.${need}.importanceValue`] * (1 - satisfactionValue)) /
+      baseData.totalUnsatisfactionImpact;
   }
-  console.log(
-    "In generateAggregateUpdateData, for mom ",
-    mom,
-    " for doc ",
-    docRef.id,
-    " returning baseData:",
-    baseData,
-  );
+  // console.log(
+  //   "In generateAggregateUpdateData, for mom ",
+  //   mom,
+  //   " for doc: ",
+  //   doc.id,
+  //   "for momentImportancesResp: ",
+  //   momentImportancesResp,
+  //   " returning baseData:",
+  //   baseData,
+  // );
 
   return baseData;
 }
 
 //   {
-//     needs: {
+//     2023: {
 //       nMoments: FieldValue.increment(1),
-//       totalNeedsImportanceSum: FieldValue.increment(momentImportancesTotal),
+//       totalImportances: FieldValue.increment(momentImportancesTotal),
 //       lastUpdate: FieldValue.serverTimestamp(),
-//       needName: {,
-//           occurrenceCount: FieldValue.increment(1);
+//       needs: {
+//         needName: {,
+//             occurrenceCount: FieldValue.increment(1);
 
-//           importanceSum: FieldValue.increment(momentImportancesResp[need],
-//           satisfactionSum: FieldValue.increment(Math.random(),
+//             importancesSum: FieldValue.increment(momentImportancesResp[need],
+//             satisfactionSum: FieldValue.increment(Math.random(),
 
-//           importanceValue: importanceSum / totalNeedsImportanceSum,
-//           satisfactionValue: satisfactionSum / occurrenceCount,
-//           importanceDisplayValue: importanceDisplayValue,
-//           satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
-//           unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
-//           satisfactionImpactLabelValue:satisfactionImpactDisplayValue/totalSatisfactionImpact,
-//           unsatisfactionImpactLabelValue:unsatisfactionImpactDisplayValue,
-//        }
+//             importanceValue: importancesSum / totalImportances,
+//             satisfactionValue: satisfactionSum / occurrenceCount,
+//             importanceDisplayValue: importanceDisplayValue,
+//             satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
+//             unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
+//             satisfactionImpactLabelValue:satisfactionImpactDisplayValue/totalSatisfactionImpact,
+//             unsatisfactionImpactLabelValue:unsatisfactionImpactDisplayValue,
+//         }
+//       },
 //     maxImportanceValue: 0,
 //     totalSatisfactionImpact: 0,
 //     totalUnsatisfactionImpact: 0,
@@ -261,6 +276,7 @@ const lockedMomentIds = new Set(); //TODO:1 Since the code is running in a state
 //TODO:2 lockedMomentIds can potentially grow indefinitely. Consider implementing a mechanism to purge old IDs after a certain time or after they're no longer relevant. Also consider monitoring it.
 
 router.get("/needs/", async (req, res) => {
+  //TODO:2 make this a post request? pro and cons of post vs get?
   try {
     if (lockedMomentIds.has(req.query.momentId)) {
       return res
@@ -347,7 +363,11 @@ router.get("/needs/", async (req, res) => {
         "new parsedContent after reply: ",
         parsedContent,
       );
-      if (!parsedContent || parsedContent.error) {
+      if (
+        !parsedContent ||
+        parsedContent.error ||
+        Object.keys(parsedContent).length == 0
+      ) {
         console.log(
           "Error in retry: parsedContent empty or erroneous, for",
           req.query,
@@ -359,12 +379,9 @@ router.get("/needs/", async (req, res) => {
 
     let momentImportancesResp = parsedContent;
 
-    let momentImportancesTotal = 0; //TODO:2 this could be integrated in generateAggregatedData to avoid looping twice on momentImportancesResp
     for (let need in momentImportancesResp) {
       //if need is not in needsList, add it to offlistNeeds collection
-      if (needsList.includes(need)) {
-        momentImportancesTotal += momentImportancesResp[need];
-      } else {
+      if (!needsList.includes(need)) {
         delete momentImportancesResp[need];
         console.log(need, " is not found in the needsList.");
         const offlisNeedsRef = db
@@ -376,13 +393,14 @@ router.get("/needs/", async (req, res) => {
           moment: req.query.momentText,
           needsImportance: parsedContent,
           user: req.uid,
+          lastUpdate: FieldValue.serverTimestamp(),
         });
       }
     }
 
     // ENRICH MOMENT DOC & UPDATE AGGREGATE DOCS
-    //get all time, yearly and monthly aggregate docs
-    let aggregateAllTimeDocRef, aggregateYearlyDocRef, aggregateMonthlyDocRef;
+    //get yearly and monthly aggregate docs
+    let aggregateYearlyDocRef, aggregateMonthlyDocRef;
     const momentdateObject = JSON.parse(req.query.momentDate);
     if (momentdateObject && momentdateObject.seconds) {
       const momentTs = new Timestamp(
@@ -395,11 +413,6 @@ router.get("/needs/", async (req, res) => {
       const momentYearMonth =
         momentYear + "-" + (momentMonth < 10 ? "0" : "") + momentMonth;
 
-      aggregateAllTimeDocRef = await getAggregateDocRef(
-        req.uid,
-        "aggregateAllTime",
-        "all",
-      );
       aggregateYearlyDocRef = await getAggregateDocRef(
         req.uid,
         "aggregateYearly",
@@ -429,34 +442,21 @@ router.get("/needs/", async (req, res) => {
     //batch persist llm data in firestore
     try {
       await db.runTransaction(async (t) => {
-        const docAllTime = await t.get(aggregateAllTimeDocRef);
         const docYearly = await t.get(aggregateYearlyDocRef);
         const docMonthly = await t.get(aggregateMonthlyDocRef);
 
-        const allTimeUpdateData = generateAggregateUpdateData(
-          req.query.momentText,
-          aggregateAllTimeDocRef,
-          docAllTime,
-          momentImportancesTotal,
-          momentImportancesResp,
-        );
         const yearlyUpdateData = generateAggregateUpdateData(
           req.query.momentText,
-          aggregateYearlyDocRef,
           docYearly,
-          momentImportancesTotal,
           momentImportancesResp,
         );
         const monthlyUpdateData = generateAggregateUpdateData(
           req.query.momentText,
-          aggregateMonthlyDocRef,
           docMonthly,
-          momentImportancesTotal,
           momentImportancesResp,
         );
 
         //update aggregate docs
-        t.update(aggregateAllTimeDocRef, allTimeUpdateData);
         t.update(aggregateYearlyDocRef, yearlyUpdateData);
         t.update(aggregateMonthlyDocRef, monthlyUpdateData);
 
@@ -468,7 +468,7 @@ router.get("/needs/", async (req, res) => {
       console.log(
         "Transaction success, ",
         req.query,
-        " enriched by needs rating and aggregate docs all time and",
+        " enriched by needs rating and aggregate docs for",
         //keep only the last two part of the path
         aggregateYearlyDocRef.path.split("/").slice(-2).join("/"),
         aggregateMonthlyDocRef.path.split("/").slice(-2).join("/"),
