@@ -51,47 +51,46 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateDataFetched = ref(false);
   const isEditorFocused = ref(false);
   const needsMap = {
-    "Physical Safety": "Physical Safety 🛡️",
-    Food: "Food 🥦",
-    Shelter: "Shelter 🏠",
-    "Financial Security": "Financial Security 💰",
-    "Rest & Relaxation": "Rest & Relaxation 🌙",
-    Comfort: "Comfort 🛋️",
-    "Physical Movement": "Physical Movement 🤸",
-    "Physical Touch": "Physical Touch 👐",
-    "Sexual Expression": "Sexual Expression 💋",
-    "Contact with Nature": "Contact with Nature 🏞️",
-    "Social Connection": "Social Connection 👥",
-    "Belongingness & Community": "Belongingness & Community 🏘️",
-    "Empathy, Understanding & Validation":
-      "Empathy, Understanding & Validation 👂",
-    "Affection, Love & Intimacy": "Affection, Love & Intimacy ❤️",
-    "Emotional Safety & Well-Being": "Emotional Safety & Well-Being 🤗",
-    "Personal Privacy": "Personal Privacy 🚪",
-    "Personal Autonomy": "Personal Autonomy 🛤️",
-    "Self-Esteem & Social Recognition": "Self-Esteem & Social Recognition 💪",
-    Competence: "Competence 🏆",
-    Efficiency: "Efficiency ⚡",
-    "Societal Contribution": "Societal Contribution 🔧",
-    "Personal Expression & Creativity": "Personal Expression & Creativity 🎨",
-    Exploration: "Exploration 🌎",
-    Inspiration: "Inspiration💡",
-    Learning: "Learning 📚",
-    "Self-Actualization": "Self-Actualization 🌱",
-    Challenge: "Challenge ⛰️",
-    Novelty: "Novelty 🌀",
-    Entertainment: "Entertainment 🎠",
-    Humor: "Humor 😂",
-    Play: "Play ⚽",
-    "Moral Integrity": "Moral Integrity 🕊️",
-    "Social Justice": "Social Justice ⚖️",
-    "Order & Structure": "Order & Structure 📐",
-    Altruism: "Altruism 🤲",
-    "Life's Meaning & Purpose": "Life's Meaning & Purpose 🌌",
-    "Joyful Celebration": "Joyful Celebration 🎉",
-    "Grieving & Mourning": "Grieving & Mourning 🥀",
-    "Inner Peace": "Inner Peace 🧘‍♂️",
-    "Spiritual Transcendence": "Spiritual Transcendence 🌸",
+    "Physical Safety": "🛡️",
+    Food: "🥦",
+    Shelter: "🏠",
+    "Financial Security": "💰",
+    "Rest & Relaxation": "🌙",
+    Comfort: "🛋️",
+    "Physical Movement": "🤸",
+    "Physical Touch": "👐",
+    "Sexual Expression": "💋",
+    "Contact with Nature": "🏞️",
+    "Social Connection": "👥",
+    "Belongingness & Community": "🏘️",
+    "Empathy, Understanding & Validation": "👂",
+    "Affection, Love & Intimacy": "❤️",
+    "Emotional Safety & Well-Being": "🤗",
+    "Personal Privacy": "🚪",
+    "Personal Autonomy": "🛤️",
+    "Self-Esteem & Social Recognition": "💪",
+    Competence: "🏆",
+    Efficiency: "⚡",
+    "Societal Contribution": "🔧",
+    "Personal Expression & Creativity": "🎨",
+    Exploration: "🌎",
+    Inspiration: "💡",
+    Learning: "📚",
+    "Self-Actualization": "🌱",
+    Challenge: "⛰️",
+    Novelty: "🌀",
+    Entertainment: "🎠",
+    Humor: "😂",
+    Play: "⚽",
+    "Moral Integrity": "🕊️",
+    "Social Justice": "⚖️",
+    "Order & Structure": "📐",
+    Altruism: "🤲",
+    "Life's Meaning & Purpose": "🌌",
+    "Joyful Celebration": "🎉",
+    "Grieving & Mourning": "🥀",
+    "Inner Peace": "🧘‍♂️",
+    "Spiritual Transcendence": "🌸",
   };
 
   //TODO:2 separate betw local state and firestore so that directly after mom insertion the state is updated and only if fs save is failed is it reverted? I.e. "Optimistic UI Update with Revert" ?
@@ -623,8 +622,13 @@ export const useMomentsStore = defineStore("moments", () => {
         );
 
         return needsListArray.map(([need, needData]) => {
-          const mappedNeed = needsMap[need];
-          return [mappedNeed, needData];
+          return [
+            need,
+            {
+              ...needData, // spread the existing needData properties
+              emoji: needsMap[need], // add the new emoji key-value pair
+            },
+          ];
         });
       } catch (error) {
         console.error("Error getFilteredSortedNeeds:", error);
