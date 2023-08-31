@@ -97,7 +97,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const fetchUser = async () => {
     try {
       if (userFetched.value) {
-        console.log("XXX in fetchUser, already userFetched");
+        console.log("In fetchUser, already userFetched");
         return;
       }
       user.value = await getCurrentUser();
@@ -129,7 +129,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const fetchMoments = async () => {
     try {
       if (momentsFetched.value) {
-        console.log("XXX in fetchMoments, already momentsFetched");
+        console.log("In fetchMoments, already momentsFetched");
         return;
       }
       if (!userFetched.value) {
@@ -153,7 +153,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const fetchAggregateData = async () => {
     try {
       if (aggregateDataFetched.value) {
-        console.log("XXX in fetchAggregateData, already aggregateDataFetched");
+        console.log("In fetchAggregateData, already aggregateDataFetched");
         return;
       }
       if (!userFetched.value) {
@@ -214,7 +214,6 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const hasNeeds = computed(() => {
-    // console.log("XXX in hasNeeds, userDoc.value", userDoc.value.data);
     return userDoc?.value?.data?.hasNeeds ?? false;
   });
 
@@ -235,7 +234,7 @@ export const useMomentsStore = defineStore("moments", () => {
     //retry to call LLM and increment the retries counter //TODO: 1 parallelize the calls to LLM
     for (const doc of momentsWithEmptyNeedsImportances.docs) {
       console.log(
-        "XXX in emptyNeedsMomentsRetry, emptyNeedsImportancesQuery returned:",
+        "In emptyNeedsMomentsRetry, emptyNeedsImportancesQuery returned:",
         doc.data(),
       );
 
@@ -243,7 +242,10 @@ export const useMomentsStore = defineStore("moments", () => {
         retries: increment(1),
       });
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
-      console.log("TRIGGERING RETRY CALL TO LLM FOR moment", doc.data().text);
+      console.log(
+        "In emptyNeedsMomentsRetry, triggering retry call to llm for moment",
+        doc.data().text,
+      );
       const response = await axios.get(`/api/learn/needs/`, {
         params: {
           momentText: doc.data().text,
@@ -256,7 +258,7 @@ export const useMomentsStore = defineStore("moments", () => {
       });
 
       console.log(
-        "SUCCESSFUL RETRY LLM RESPONSE for moment '",
+        "Successful retry llm call for moment '",
         doc.data().text,
         "' :",
         response.data,
@@ -266,7 +268,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const addMoment = async (moment) => {
     try {
-      console.log("XXX in addMoment, moment:", moment);
+      console.log("In addMoment, moment:", moment);
       const batch = writeBatch(db);
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
@@ -278,7 +280,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
       // Update the tag statistics in tagsColl for the tags of the new moment
       for (const tag of moment.tags) {
-        console.log("XXX in for (const tag of moment.tags), tag:", tag);
+        console.log("In for (const tag of moment.tags), tag:", tag);
         const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
         const tagDoc = await getDoc(tagDocRef);
         const tagData = {
@@ -294,11 +296,11 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       // Remove moment.date time and save the Timestamp to momentsDays array
-      // console.log("XXX in addMoment, moment.date:", moment.date);
+      // console.log("In addMoment, moment.date:", moment.date);
       const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
       const dateObj = ts.toDate();
       dateObj.setHours(0, 0, 0, 0);
-      // console.log("XXX in addMoment, dateWithoutTime:", dateObj);
+      // console.log("In addMoment, dateWithoutTime:", dateObj);
       batch.update(userDocRef.value, {
         momentsDays: arrayUnion(Timestamp.fromDate(dateObj)),
       });
@@ -309,7 +311,7 @@ export const useMomentsStore = defineStore("moments", () => {
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
       console.log(
-        "TRIGGERING CALL TO LLM FOR moment",
+        "In addMoment, triggering call to llm for moment",
         newMomDocRef.id,
         moment.text,
       );
@@ -324,7 +326,7 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       });
       console.log(
-        "SUCCESSFUL LLM RESPONSE for moment '",
+        "In addMoment, successful llm call for moment '",
         newMomDocRef.id,
         moment.text,
         "' :",
@@ -372,7 +374,6 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const setIsEditorFocused = (isFocused) => {
     isEditorFocused.value = isFocused;
-    // console.log("isEditorFocused set to", isEditorFocused.value);
   };
 
   const uniqueTags = computed(() => {
@@ -476,20 +477,8 @@ export const useMomentsStore = defineStore("moments", () => {
         // If dateRange is of format YYYY, return the related yearly needs
         if (dateRange.length === 4) {
           if (dateRange == currentDate.getFullYear()) {
-            console.log(
-              "In getAggregateDoc > currentYear for dateRange:",
-              dateRange,
-              "returning aggregateDoc:",
-              needsAggregateCurrYearDoc,
-            );
             aggregateDoc = needsAggregateCurrYearDoc;
           } else {
-            console.log(
-              "In getAggregateDoc > prevYear for dateRange:",
-              dateRange,
-              "returning aggregateDoc:",
-              needsAggregatePrevYears.value[dateRange],
-            );
             aggregateDoc = ref(needsAggregatePrevYears.value[dateRange]);
           }
         }
@@ -512,21 +501,6 @@ export const useMomentsStore = defineStore("moments", () => {
             " unable to get aggregateDoc",
           );
         }
-
-        // console.log("aggregateDoc:", aggregateDoc);
-        // console.log("aggregateDoc.value:", aggregateDoc.value);
-        // if (!aggregateDoc?.value?.nMoments ?? false) {
-        //   throw new Error(
-        //     `In getAggregateDoc, aggregateDoc.value is empty or aggregateDoc.value.nMoments is missing: ${JSON.stringify(
-        //       aggregateDoc?.value?.nMoments,
-        //     )}`,
-        //   );
-        // }
-
-        // console.log(
-        //   "In getAggregateDoc, returning aggregateDoc:",
-        //   aggregateDoc,
-        // );
         return aggregateDoc;
       } catch (error) {
         console.error("Error getAggregateDoc:", error);
@@ -563,20 +537,20 @@ export const useMomentsStore = defineStore("moments", () => {
           return [];
         }
         const aggregateDoc = getAggregateDoc(dateRange);
-        console.log(
-          "In getFilteredSortedNeeds for dateRange:",
-          dateRange,
-          "aggDoc.value.value:",
-          aggregateDoc?.value?.value,
-        );
+        // console.log(
+        //   "In getFilteredSortedNeeds for dateRange:",
+        //   dateRange,
+        //   "aggDoc.value.value:",
+        //   aggregateDoc?.value?.value,
+        // );
 
         const needsList = aggregateDoc.value.value.needs;
-        console.log(
-          "In getFilteredSortedNeeds for dateRange:",
-          dateRange,
-          "needsList:",
-          needsList,
-        );
+        // console.log(
+        //   "In getFilteredSortedNeeds for dateRange:",
+        //   dateRange,
+        //   "needsList:",
+        //   needsList,
+        // );
         if (!needsList) {
           console.log(
             "In getFilteredSortedNeeds for dateRange:",
@@ -587,12 +561,6 @@ export const useMomentsStore = defineStore("moments", () => {
           return [];
         }
         let needsListArray = Object.entries(needsList);
-        console.log(
-          "In getFilteredSortedNeeds for dateRange:",
-          dateRange,
-          "needsListArray:",
-          needsListArray,
-        );
 
         //Filtering
         if (filterBy === "unsatisfied")
@@ -617,7 +585,7 @@ export const useMomentsStore = defineStore("moments", () => {
         console.log(
           "In getFilteredSortedNeeds for dateRange:",
           dateRange,
-          "returning needsListArray after filter sorting:",
+          "returning needsListArray first 5 elems after filter sorting:",
           needsListArray,
         );
 

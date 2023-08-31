@@ -5,7 +5,7 @@
       :element-name="segStatsName" />
 
     <q-card class="bg-primary-container" style="border-radius: 8px;" flat>
-      <q-item class="q-px-sm">
+      <q-item class="q-px-md">
         <q-item-section side>
           <q-icon name="o_info" color="primary" size="32px" />
         </q-item-section>
@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch, nextTick } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
@@ -136,7 +136,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['click:segmentedControl'], ['click:showButton'])
+const emits = defineEmits(['click:segmentedControl', 'click:showButton', 'ready:periodFilteredSortedNeeds'])
 
 const unsatisfactionInfo = "Your unsatisfied needs sorted from highest to lowest unsatisfaction impact."
 const satisfactionInfo = "Your satisfied needs sorted from highest to lowest satisfaction impact."
@@ -170,6 +170,11 @@ const periodFilteredSortedNeeds = computed(() => {
   return momentsStore.getFilteredSortedNeeds(props.dateRange, filter, sortKey).value;
 });
 
+watch(periodFilteredSortedNeeds, (newVal, oldVal) => {
+  console.log('In periodFilteredSortedNeeds watch() with newVal:', newVal, 'and oldVal:', oldVal);
+  if (newVal && newVal.length > 0) emits('ready:periodFilteredSortedNeeds', { flag: props.flag })
+})
+
 // setInterval(async () => {
 //   // Recompute periodFilteredSortedNeeds.
 //   periodFilteredSortedNeeds();
@@ -197,11 +202,6 @@ const showButtonClicked = () => {
 </script>
 
 <style lang="scss">
-.tags {
-  font-size: 0.9rem;
-  color: color(primary);
-}
-
 .meala {
   transition: all 0.5s ease;
 }
@@ -215,5 +215,10 @@ const showButtonClicked = () => {
    animations can be calculated correctly. */
 .la {
   position: absolute;
+}
+
+.q-linear-progress__track,
+.q-linear-progress__model {
+  border-radius: 4px;
 }
 </style>
