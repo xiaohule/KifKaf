@@ -20,7 +20,8 @@
         <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
           <learn-card-needs flag="satisfaction" :date-range="range" :second-seg-selected="secondSegSelectedSatisfaction"
             :learn-card-expanded="learnCardExpandedSatisfaction" seg-control
-            @click:segmented-control="segmentedControlClicked" @click:show-button="showButtonClicked"></learn-card-needs>
+            @click:segmented-control="segmentedControlClicked" @click:show-button="showButtonClicked"
+            @ready:periodFilteredSortedNeeds="periodFilteredSortedNeedsReady"></learn-card-needs>
         </swiper-slide>
       </swiper-container>
     </div>
@@ -37,7 +38,8 @@
         @init="console.log('SWIPER init fired')">
         <swiper-slide v-for="range in (segDateId === 'Yearly' ? dateRangesYears : dateRangesMonths) " :key="range">
           <learn-card-needs flag="importance" :date-range="range" :learn-card-expanded="learnCardExpandedImportance"
-            @click:show-button="showButtonClicked"></learn-card-needs>
+            @click:show-button="showButtonClicked"
+            @ready:periodFilteredSortedNeeds="periodFilteredSortedNeedsReady"></learn-card-needs>
         </swiper-slide>
       </swiper-container>
     </div>
@@ -90,6 +92,7 @@ onMounted(async () => {
     if (!momentsStore.aggregateDataFetched) {
       await momentsStore.fetchAggregateData();
     }
+    console.log('In LearnTab onMounted, await momentsStore.fetchAggregateData() done')
   } catch (error) {
     console.error('await momentsStore.fetchAggregateData() error:', error);
   }
@@ -109,11 +112,14 @@ const activeIndex = ref(0)
 onActivated(() => {
   console.log('ONACTIVATED')
   if (!swiperInitialized.value) {
-    swiperElSatisfaction.value.initialize();
-    swiperElImportance.value.initialize();
-    swiperElSatisfaction.value.swiper.activeIndex = activeIndex.value
-    swiperElImportance.value.swiper.activeIndex = activeIndex.value
-    swiperInitialized.value = true
+    nextTick(() => {
+      swiperElSatisfaction.value.initialize();
+      swiperElImportance.value.initialize();
+      console.log('Swipers Initialized')
+      swiperElSatisfaction.value.swiper.activeIndex = activeIndex.value
+      swiperElImportance.value.swiper.activeIndex = activeIndex.value
+      swiperInitialized.value = true
+    })
   }
 });
 onDeactivated(() => {
@@ -151,6 +157,20 @@ const showButtonClicked = ({ value, flag }) => {
     })
   } else {
     learnCardExpandedImportance.value = value
+    nextTick(() => {
+      swiperElImportance.value.swiper.updateAutoHeight(300);
+    })
+  }
+}
+
+const initSwiperSatisfaction = ref(false)
+const initSwiperImportance = ref(false)
+const periodFilteredSortedNeedsReady = ({ flag }) => {
+  if (flag === 'satisfaction') {
+    nextTick(() => {
+      swiperElSatisfaction.value.swiper.updateAutoHeight(300);
+    })
+  } else {
     nextTick(() => {
       swiperElImportance.value.swiper.updateAutoHeight(300);
     })

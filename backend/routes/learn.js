@@ -104,8 +104,9 @@ const getAggregateDocRef = async (uid, collectionName, docName) => {
       collectionName,
       " > ",
       docName,
-      " doc created with needsMap",
-      needsMap,
+      " doc created",
+      // "with needsMap",
+      // needsMap,
     );
   }
   return aggregateDocRef;

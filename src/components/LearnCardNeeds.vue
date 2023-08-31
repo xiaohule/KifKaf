@@ -1,28 +1,44 @@
 <template >
   <q-card class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
-    <segmented-control v-if="props.segControl" :modelValue="segStatsId"
+    <segmented-control style="margin-bottom: 8px;" v-if="props.segControl" :modelValue="segStatsId"
       @update:modelValue="newValue => segmentedControlClicked(newValue)" :segments="segStats"
       :element-name="segStatsName" />
 
+    <q-card class="bg-primary-container" style="border-radius: 8px;" flat>
+      <q-item class="q-px-md">
+        <q-item-section side>
+          <q-icon name="o_info" color="primary" size="32px" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>{{ props.flag == 'satisfaction' ? (props.secondSegSelected ?
+            satisfactionInfo : unsatisfactionInfo) : importanceInfo }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-card>
+
     <div v-if="periodFilteredSortedNeeds.length > 0">
-      <q-list>
-        <q-item v-for="[key, val] in periodFilteredSortedNeeds.slice(0, numDisplayed)" :key="key" class="q-pt-xs q-pb-xs"
-          clickable>
-          <!-- <q-item class="q-px-none q-pb-none row"> -->
+      <q-list class="q-mt-xs">
+        <!-- <transition-group appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut"> -->
+        <transition-group appear enter-active-class="meala" leave-active-class="meala la" move-class="meala"
+          enter-from-class="eflt" leave-to-class="eflt">
 
-          <q-item-section avatar>
-            <q-avatar>
-              <img :src="`https://cdn.quasar.dev/img/avatar2.jpg`">
-            </q-avatar>
-          </q-item-section>
+          <q-item v-for="[key, val] in periodFilteredSortedNeeds.slice(0, numDisplayed)" :key="key"
+            class="q-pt-sm q-pb-sm q-px-xs" clickable>
 
-          <q-item-section>
-            <q-list>
-              <q-item>
+            <q-item-section avatar class="q-pr-none">
+              <q-avatar square font-size="35px">
+                {{ val.emoji }}
+              </q-avatar>
+            </q-item-section>
+
+            <q-item-section>
+
+              <q-item class="q-px-xs" dense style="min-height: 0px;">
                 <q-item-section>
                   <q-item-label>{{ key }}</q-item-label>
-                  <q-item-label caption lines="1">{{ val['occurrenceCount'] }}
-                    {{ val['occurrenceCount'] == 1 ? 'moment' : 'moments' }}
+                  <q-item-label caption lines="1">{{ val.occurrenceCount }}
+                    {{ val.occurrenceCount == 1 ? 'moment' : 'moments' }}
                   </q-item-label>
                 </q-item-section>
 
@@ -31,20 +47,20 @@
                   : 'unsatisfactionImpactLabelValue') : 'importanceValue'] * 100).toFixed(0)) + "%" }}
                 </q-item-section>
               </q-item>
-              <q-item class="q-pb-sm">
+
+              <q-item class="q-px-xs q-pt-none" dense style="min-height: 0px;">
                 <q-linear-progress :value="val[props.flag == 'satisfaction' ? (props.secondSegSelected ?
                   'satisfactionImpactDisplayValue'
                   : 'unsatisfactionImpactDisplayValue') : 'importanceDisplayValue']"
                   :buffer="val['importanceDisplayValue']"
                   :color="props.flag == 'satisfaction' ? (props.secondSegSelected ? 'green' : 'red') : 'blue'"
-                  track-color="grey" :reverse="props.secondSegSelected" class="q-mt-sm" rounded />
+                  track-color="grey" :reverse="props.secondSegSelected" class="q-mt-sm" rounded animation-speed="500" />
               </q-item>
-            </q-list>
-          </q-item-section>
 
+            </q-item-section>
+          </q-item>
 
-
-        </q-item>
+        </transition-group>
       </q-list>
     </div>
 
@@ -77,7 +93,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch, nextTick } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
@@ -120,7 +136,11 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['click:segmentedControl'], ['click:showButton'])
+const emits = defineEmits(['click:segmentedControl', 'click:showButton', 'ready:periodFilteredSortedNeeds'])
+
+const unsatisfactionInfo = "Your unsatisfied needs sorted from highest to lowest unsatisfaction impact."
+const satisfactionInfo = "Your satisfied needs sorted from highest to lowest satisfaction impact."
+const importanceInfo = "Your needs sorted from most to less important."
 
 let segUid = uid()
 // Example: 501e7ae1-7e6f-b923-3e84-4e946bff31a8
@@ -150,6 +170,11 @@ const periodFilteredSortedNeeds = computed(() => {
   return momentsStore.getFilteredSortedNeeds(props.dateRange, filter, sortKey).value;
 });
 
+watch(periodFilteredSortedNeeds, (newVal, oldVal) => {
+  console.log('In periodFilteredSortedNeeds watch() with newVal:', newVal, 'and oldVal:', oldVal);
+  if (newVal && newVal.length > 0) emits('ready:periodFilteredSortedNeeds', { flag: props.flag })
+})
+
 // setInterval(async () => {
 //   // Recompute periodFilteredSortedNeeds.
 //   periodFilteredSortedNeeds();
@@ -177,8 +202,23 @@ const showButtonClicked = () => {
 </script>
 
 <style lang="scss">
-.tags {
-  font-size: 0.9rem;
-  color: color(primary);
+.meala {
+  transition: all 0.5s ease;
+}
+
+.eflt {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.la {
+  position: absolute;
+}
+
+.q-linear-progress__track,
+.q-linear-progress__model {
+  border-radius: 4px;
 }
 </style>

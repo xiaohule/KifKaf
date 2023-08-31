@@ -126,7 +126,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['click:segmentedControl'], ['click:showButton'])
+const emits = defineEmits(['click:segmentedControl', 'click:showButton'])
 
 let segUid = uid()
 // Example: 501e7ae1-7e6f-b923-3e84-4e946bff31a8
