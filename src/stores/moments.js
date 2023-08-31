@@ -326,10 +326,9 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       });
       console.log(
-        "In addMoment, successful llm call for moment '",
+        "In addMoment for mom:",
         newMomDocRef.id,
-        moment.text,
-        "' :",
+        ", ",
         response.data,
       );
     } catch (error) {
