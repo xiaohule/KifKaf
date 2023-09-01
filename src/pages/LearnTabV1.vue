@@ -2,10 +2,6 @@
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
     <q-item class="q-px-none q-pt-none">
-      <!-- <q-item-section class="col-auto">
-          <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="tag" no-caps
-            @click="openFilterDialog('tags')">{{ tagsButtonLabel }}</q-btn>
-        </q-item-section> -->
       <q-item-section class=" col-auto">
         <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="calendar_today"
           no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
@@ -25,9 +21,6 @@
         </swiper-slide>
       </swiper-container>
     </div>
-
-    <!--  @slidechange="console.log('SWIPER slidechange fired', $event)"
-        @slidechangetransitionend="console.log('SWIPER slidechangetransitionend fired', $event)"-->
     <div>
       <q-item-label class="text-body1 text-weight-medium q-my-sm">Needs Importance</q-item-label>
       <swiper-container ref="swiperElImportance" init="false" auto-height="true" observer="true"
@@ -82,24 +75,32 @@ import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCardNeeds from "./../components/LearnCardNeeds.vue";
 import { date } from "quasar";
 // destructuring to keep only what is needed in date
-const { formatDate, getDateDiff, startOfDate } = date;
-// import styles bundle
-// import 'swiper/css/bundle';
+const { formatDate, getDateDiff, startOfDate, addToDate } = date;
+// import styles bundle //import 'swiper/css/bundle';
 
-const momentsStore = useMomentsStore()
-onMounted(async () => {
-  try {
-    if (!momentsStore.aggregateDataFetched) {
-      await momentsStore.fetchAggregateData();
-    }
-    console.log('In LearnTab onMounted, await momentsStore.fetchAggregateData() done')
-  } catch (error) {
-    console.error('await momentsStore.fetchAggregateData() error:', error);
+defineOptions({
+  preFetch() {
+    const momentsStore = useMomentsStore()
+    console.log('In LearnTab preFetch')
+    return momentsStore.fetchAggregateData();
   }
 })
 
+const momentsStore = useMomentsStore()
+// onMounted(async () => {
+//   try {
+//     console.log('In LearnTab onMounted!!')
+
+//     if (!momentsStore.aggregateDataFetched) {
+//       await momentsStore.fetchAggregateData();
+//     }
+//     console.log('In LearnTab onMounted, await momentsStore.fetchAggregateData() done')
+//   } catch (error) {
+//     console.error('await momentsStore.fetchAggregateData() error:', error);
+//   }
+// })
+
 const dateRangeButtonLabel = ref('This year')
-// const tagsButtonLabel = ref('All tags')
 
 //SWIPER
 //TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
@@ -112,14 +113,11 @@ const activeIndex = ref(0)
 onActivated(() => {
   console.log('ONACTIVATED')
   if (!swiperInitialized.value) {
-    nextTick(() => {
-      swiperElSatisfaction.value.initialize();
-      swiperElImportance.value.initialize();
-      console.log('Swipers Initialized')
-      swiperElSatisfaction.value.swiper.activeIndex = activeIndex.value
-      swiperElImportance.value.swiper.activeIndex = activeIndex.value
-      swiperInitialized.value = true
-    })
+    swiperElSatisfaction.value.initialize();
+    swiperElImportance.value.initialize();
+    swiperElSatisfaction.value.swiper.activeIndex = activeIndex.value
+    swiperElImportance.value.swiper.activeIndex = activeIndex.value
+    swiperInitialized.value = true
   }
 });
 onDeactivated(() => {
@@ -163,8 +161,6 @@ const showButtonClicked = ({ value, flag }) => {
   }
 }
 
-const initSwiperSatisfaction = ref(false)
-const initSwiperImportance = ref(false)
 const periodFilteredSortedNeedsReady = ({ flag }) => {
   if (flag === 'satisfaction') {
     nextTick(() => {
@@ -211,14 +207,14 @@ const dateRangesYears = computed(() => {
   console.log('in computed dateRangesYears, dateRanges is', dateRanges)
   return dateRanges;
 });
-const dateRangesMonths = computed(() => {
-  let trackingDate = new Date(currentDate.value);
+const dateRangesMonths = computed(() => { //TODO:1 could be optimized
   const dateRanges = [];
-  for (let i = monthsSinceOldestMoment.value; i >= 0; i--) {
+  let trackingDate = new Date(oldestMomentDate.value);
+  for (let i = 0; i <= monthsSinceOldestMoment.value; i++) {
     let month = trackingDate.getMonth() + 1; // +1 since getMonth returns 0-11
     let year = trackingDate.getFullYear();
     dateRanges.push(`${year}-${month.toString().padStart(2, '0')}`);
-    trackingDate.setMonth(trackingDate.getMonth() - 1); // Decrease month by 1
+    trackingDate = date.addToDate(trackingDate, { months: 1 });
   }
   console.log('in computed dateRangesMonths, dateRanges is', dateRanges)
   return dateRanges;

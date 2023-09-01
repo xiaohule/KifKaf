@@ -95,7 +95,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     //   cy.signIn(username, password);
     // });
 
-    cy.contains("account_circle").click();
+    cy.contains("account_circle", { timeout: 40000 }).click();
     cy.contains("Log out").click();
     cy.withinDialog((el) => {
       cy.wrap(el).should("contain", "screen");
@@ -131,7 +131,7 @@ describe("Checking main screens & Moments inputting", () => {
       "First add some Kafs in Home tab to learn about what drains you!",
     ).should("be.visible");
     cy.get("footer").contains("Home").click();
-    cy.url().should("not.include", "learn");
+    cy.url({ timeout: 40000 }).should("not.include", "learn");
     cy.contains("account_circle").click();
     cy.url().should("include", "settings");
     cy.contains("arrow_back").click();

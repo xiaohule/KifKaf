@@ -19,6 +19,4 @@ export default boot(({ router }) => {
       }
     }
   });
-
-  // app.use(router); //handled by quasar
 });
