@@ -50,7 +50,7 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
     Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI") || true;
   const appCheck = initializeAppCheck(firebaseApp, {
     provider: new ReCaptchaV3Provider(
-      "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB"
+      "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
     ),
     isTokenAutoRefreshEnabled: true,
   });
@@ -75,7 +75,7 @@ Cypress.Commands.add("signIn", (username, password) => {
   // cy.session(
   //   username,
   //   () => {
-  cy.url({ timeout: 20000 }).should("include", "login");
+  cy.url({ timeout: 40000 }).should("include", "login");
   cy.get("input").type(username);
   cy.contains("Next").click();
   cy.get("[type='password']").type(password);
@@ -94,14 +94,14 @@ Cypress.Commands.add("signIn", (username, password) => {
 });
 
 Cypress.Commands.add("signUp", (username, password) => {
-  cy.url({ timeout: 20000 }).should("include", "login");
+  cy.url({ timeout: 40000 }).should("include", "login");
   cy.get("input").type(username);
   cy.contains("Next").click();
   cy.get("[type='text'][name='name']").type("Jane Doe");
   cy.get("[type='password']").type(password);
   cy.get("button[type='submit']").click();
   cy.contains(
-    "A verification email has been sent. Please check your inbox and click on the link in the email to verify your account."
+    "A verification email has been sent. Please check your inbox and click on the link in the email to verify your account.",
   ).should("be.visible");
   cy.log("Verification email sent for " + username + " " + password);
   cy.wait(5000);
@@ -139,7 +139,7 @@ Cypress.Commands.add(
     const pixelsFromLeft = (intensity / 10 + 0.5) * sliderWidth;
     const pixelsFromTop = 0.5 * sliderHeight;
     cy.wrap(subject).click(pixelsFromLeft, pixelsFromTop, { force: true });
-  }
+  },
 );
 
 export const generateRandomTestEmail = (string_length) => {

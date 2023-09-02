@@ -15,7 +15,7 @@ import {
   orderBy,
   limit,
   increment,
-  // onSnapshot,
+  onSnapshot,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -42,10 +42,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const userDoc = ref(null);
   const momentsColl = ref([]);
   const tagsColl = ref([]);
-  const needsAggregateCurrYearDoc = ref(null);
-  const needsAggregatePrevYears = ref({});
-  const needsAggregateCurrMonthDoc = ref(null);
-  const needsAggregatePrevMonths = ref({});
+  const aggregateData = ref({});
   const userFetched = ref(false);
   const momentsFetched = ref(false);
   const aggregateDataFetched = ref(false);
@@ -100,17 +97,16 @@ export const useMomentsStore = defineStore("moments", () => {
         console.log("In fetchUser, already userFetched");
         return;
       }
-      user.value = await getCurrentUser();
 
+      user.value = await getCurrentUser();
       // Check if user exists and has a uid property
       if (!user.value || !user.value.uid) {
         console.log("Failed to fetch user or user.uid");
         return;
       }
 
-      userDocRef.value = doc(db, "users", `${user.value.uid}`);
-
       // Check if user doc exists, if not create & initialize it
+      userDocRef.value = doc(db, "users", `${user.value.uid}`);
       const userDocCheck = await getDoc(userDocRef.value);
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
@@ -119,7 +115,9 @@ export const useMomentsStore = defineStore("moments", () => {
           hasNeeds: false,
         });
       }
+
       userDoc.value = useDocument(userDocRef);
+
       userFetched.value = true;
     } catch (error) {
       console.log("Error in fetchUser", error);
@@ -163,35 +161,31 @@ export const useMomentsStore = defineStore("moments", () => {
 
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear().toString();
-      const currentYYYYMM = `${currentYear}-${(currentDate.getMonth() + 1)
+      const currentYYYYdMM = `${currentYear}-${(currentDate.getMonth() + 1)
         .toString()
         .padStart(2, "0")}`;
 
-      const {
-        // rename the Ref to something more meaningful
-        data: dataCurrYear,
-        // A promise that resolves or rejects when the initial state is loaded
-        promise: promiseCurrYear,
-      } = useDocument(
+      onSnapshot(
         doc(db, `users/${user.value.uid}/aggregateYearly/${currentYear}`),
+        (doc) => {
+          aggregateData.value[currentYear] = doc.data();
+        },
       );
-      promiseCurrYear.value.then((dataCurrYear) => {
-        needsAggregateCurrYearDoc.value = dataCurrYear;
-      });
 
-      const { data: dataCurrMonth, promise: promiseCurrMonth } = useDocument(
-        doc(db, `users/${user.value.uid}/aggregateYearlyCurr/${currentYYYYMM}`),
+      onSnapshot(
+        doc(db, `users/${user.value.uid}/aggregateMonthly/${currentYYYYdMM}`),
+        (doc) => {
+          aggregateData.value[currentYYYYdMM] = doc.data();
+        },
       );
-      promiseCurrMonth.value.then((dataCurrMonth) => {
-        needsAggregateCurrMonthDoc.value = dataCurrMonth;
-      });
 
       //TODO:2 first try getDocsFromCache, if fails then getDocsFromServer
       getDocs(collection(db, `users/${user.value.uid}/aggregateYearly`)).then(
         (querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            if (doc.id !== currentYear) {
-              needsAggregatePrevYears.value[doc.id] = ref(doc.data());
+            if (doc.id.length === 4 && doc.id !== currentYear) {
+              aggregateData.value[doc.id] = doc.data();
+              // needsAggregatePrevYears.value[doc.id] = ref(doc.data());
             }
           });
         },
@@ -200,14 +194,19 @@ export const useMomentsStore = defineStore("moments", () => {
       getDocs(collection(db, `users/${user.value.uid}/aggregateMonthly`)).then(
         (querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            if (doc.id !== currentYYYYMM) {
-              needsAggregatePrevMonths.value[doc.id] = ref(doc.data());
+            if (doc.id.length === 7 && doc.id !== currentYYYYdMM) {
+              aggregateData.value[doc.id] = doc.data();
             }
           });
         },
       );
 
       aggregateDataFetched.value = true;
+      // console.log("In fetchAggregateData, aggregateData:", aggregateData);
+      console.log(
+        "In fetchAggregateData, aggregateData.value:",
+        aggregateData.value,
+      );
     } catch (error) {
       console.log("Error in fetchAggregateData", error);
     }
@@ -325,12 +324,7 @@ export const useMomentsStore = defineStore("moments", () => {
           authorization: `Bearer ${idToken}`,
         },
       });
-      console.log(
-        "In addMoment for mom:",
-        newMomDocRef.id,
-        ", ",
-        response.data,
-      );
+      console.log("In addMoment", response.data);
     } catch (error) {
       console.log("Error in addMoment", error);
     }
@@ -354,8 +348,7 @@ export const useMomentsStore = defineStore("moments", () => {
   // },
 
   const uniqueDays = computed(() => {
-    if (!(userDoc?.value?.data?.momentsDays?.length ?? 0)) {
-      console.log("Failed to fetch unique Days", userDoc.value);
+    if (!userFetched.value || !userDoc.value.data?.momentsDays.length) {
       return [];
     }
 
@@ -369,6 +362,19 @@ export const useMomentsStore = defineStore("moments", () => {
     //Sort in descending order (most recent first) & return
     daysTime.sort((a, b) => b - a);
     return daysTime.map((day) => date.formatDate(day, "MMMM D, YYYY"));
+  });
+
+  const oldestMomentDate = computed(() => {
+    if (!userFetched.value || !userDoc.value.data?.momentsDays.length) {
+      return;
+    }
+
+    const sortedTimestamps = userDoc.value.data.momentsDays.sort(
+      (a, b) => a.seconds - b.seconds,
+    );
+
+    // Get the oldest timestamp and convert it to a JS Date format
+    return sortedTimestamps[0].toDate();
   });
 
   const setIsEditorFocused = (isFocused) => {
@@ -464,146 +470,6 @@ export const useMomentsStore = defineStore("moments", () => {
     });
   };
 
-  const getAggregateDoc = (
-    dateRange, //a string of format YYYY or YYYY-MM
-  ) => {
-    return computed(() => {
-      try {
-        console.log("In getAggregateDoc for dateRange:", dateRange);
-
-        let aggregateDoc;
-        const currentDate = new Date();
-        // If dateRange is of format YYYY, return the related yearly needs
-        if (dateRange.length === 4) {
-          if (dateRange == currentDate.getFullYear()) {
-            aggregateDoc = needsAggregateCurrYearDoc;
-          } else {
-            aggregateDoc = ref(needsAggregatePrevYears.value[dateRange]);
-          }
-        }
-        // If dateRange is of format YYYY-MM, return the related monthly needs
-        else if (dateRange.length === 7) {
-          if (
-            dateRange ==
-            `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
-              .toString()
-              .padStart(2, "0")}`
-          ) {
-            aggregateDoc = needsAggregateCurrMonthDoc;
-          } else {
-            aggregateDoc = ref(needsAggregatePrevMonths.value[dateRange]);
-          }
-        } else {
-          throw new Error(
-            "In getAggregateDoc for dateRange:",
-            dateRange,
-            " unable to get aggregateDoc",
-          );
-        }
-        return aggregateDoc;
-      } catch (error) {
-        console.error("Error getAggregateDoc:", error);
-        return [];
-      }
-    });
-  };
-
-  const getFilteredSortedNeeds = (
-    dateRange, //a string of format YYYY or YYYY-MM
-    filterBy = "none", //TODO:3 support checking presence of unsatisfied/satisfied needs
-    sortBy = "none",
-  ) => {
-    return computed(() => {
-      try {
-        console.log(
-          "In getFilteredSortedNeeds for dateRange:",
-          dateRange,
-          "filterBy:",
-          filterBy,
-          "sortBy:",
-          sortBy,
-        );
-
-        if (!aggregateDataFetched.value || !hasNeeds.value) {
-          console.log(
-            "In getFilteredSortedNeeds for dateRange:",
-            dateRange,
-            "returning empty array bec. aggregateDataFetched.value:",
-            aggregateDataFetched.value,
-            "or hasNeeds.value:",
-            hasNeeds.value,
-          );
-          return [];
-        }
-        const aggregateDoc = getAggregateDoc(dateRange);
-        // console.log(
-        //   "In getFilteredSortedNeeds for dateRange:",
-        //   dateRange,
-        //   "aggDoc.value.value:",
-        //   aggregateDoc?.value?.value,
-        // );
-
-        const needsList = aggregateDoc.value.value.needs;
-        // console.log(
-        //   "In getFilteredSortedNeeds for dateRange:",
-        //   dateRange,
-        //   "needsList:",
-        //   needsList,
-        // );
-        if (!needsList) {
-          console.log(
-            "In getFilteredSortedNeeds for dateRange:",
-            dateRange,
-            "returning empty array bec. needsList:",
-            needsList,
-          );
-          return [];
-        }
-        let needsListArray = Object.entries(needsList);
-
-        //Filtering
-        if (filterBy === "unsatisfied")
-          needsListArray = needsListArray.filter(
-            ([_, needData]) =>
-              needData.satisfactionValue < 1 && needData.occurrenceCount > 0,
-          );
-        else if (filterBy === "satisfied")
-          needsListArray = needsListArray.filter(
-            ([_, needData]) =>
-              needData.satisfactionValue > 0 && needData.occurrenceCount > 0,
-          );
-        else
-          needsListArray = needsListArray.filter(
-            ([_, needData]) => needData.occurrenceCount > 0,
-          );
-
-        //Sorting
-        if (sortBy != "none")
-          needsListArray.sort((a, b) => b[1][sortBy] - a[1][sortBy]);
-
-        console.log(
-          "In getFilteredSortedNeeds for dateRange:",
-          dateRange,
-          "returning needsListArray first 5 elems after filter sorting:",
-          needsListArray,
-        );
-
-        return needsListArray.map(([need, needData]) => {
-          return [
-            need,
-            {
-              ...needData, // spread the existing needData properties
-              emoji: needsMap[need], // add the new emoji key-value pair
-            },
-          ];
-        });
-      } catch (error) {
-        console.error("Error getFilteredSortedNeeds:", error);
-        return [];
-      }
-    });
-  };
-
   const updateUser = async (changes) => {
     try {
       if (changes.displayName) {
@@ -638,12 +504,14 @@ export const useMomentsStore = defineStore("moments", () => {
     isEditorFocused,
     uniqueTags,
     uniqueDays,
+    oldestMomentDate,
     userFetched,
     momentsFetched,
     aggregateDataFetched,
     hasNeeds,
+    needsMap,
+    aggregateData,
     getTags,
-    getFilteredSortedNeeds,
     addMoment,
     fetchUser,
     fetchMoments,

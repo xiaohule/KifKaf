@@ -83,36 +83,28 @@ const needsMap = needsList.reduce((acc, need) => {
   return acc;
 }, {});
 
-const getAggregateDocRef = async (uid, collectionName, docName) => {
-  const aggregateDocRef = db
-    .collection("users")
-    .doc(uid)
-    .collection(collectionName)
-    .doc(docName);
+const initAggregateDoc = async (aggregateDocRef, isRaw = false) => {
   const aggregateDoc = await aggregateDocRef.get();
   if (!aggregateDoc.exists) {
-    await aggregateDocRef.set({
-      nMoments: 0,
-      totalImportances: 0,
-      lastUpdate: FieldValue.serverTimestamp(),
-      needs: needsMap, // needs: {need1: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
-      maxImportanceValue: 0,
-      totalSatisfactionImpact: 0,
-      totalUnsatisfactionImpact: 0,
-    });
-    console.log(
-      collectionName,
-      " > ",
-      docName,
-      " doc created",
-      // "with needsMap",
-      // needsMap,
-    );
+    if (isRaw) {
+      await aggregateDocRef.set({
+        nMoments: 0,
+        totalImportances: 0,
+        lastUpdate: FieldValue.serverTimestamp(),
+        needs: needsMap, // needs: {need1: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
+        maxImportanceValue: 0,
+        totalSatisfactionImpact: 0,
+        totalUnsatisfactionImpact: 0,
+      });
+    } else {
+      await aggregateDocRef.set({
+        lastUpdate: FieldValue.serverTimestamp(),
+      });
+    }
   }
-  return aggregateDocRef;
 };
 
-function generateAggregateUpdateData(mom, doc, momentImportancesResp) {
+function generateNewRawData(mom, doc, momentImportancesResp) {
   //variables are prefixed by "moment" when related to the processed moment, "" when related to a need and "total"/"max" when aggregated over all needs
   const momentImportancesSum = Object.values(momentImportancesResp).reduce(
     (acc, currentValue) => acc + currentValue,
@@ -129,25 +121,34 @@ function generateAggregateUpdateData(mom, doc, momentImportancesResp) {
   };
 
   //1st loop only on mom's needs to update value that relies only on the moment data
-  for (let need in momentImportancesResp) {
-    const occurrenceCount = doc.data().needs[need].occurrenceCount + 1;
-    baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
+  for (let need in doc.data().needs) {
+    if (momentImportancesResp[need]) {
+      const occurrenceCount = doc.data().needs[need].occurrenceCount + 1;
+      baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
 
-    baseData[`needs.${need}.importancesSum`] =
-      doc.data().needs[need].importancesSum + momentImportancesResp[need];
+      baseData[`needs.${need}.importancesSum`] =
+        doc.data().needs[need].importancesSum + momentImportancesResp[need];
 
-    const satisfactionSum =
-      doc.data().needs[need].satisfactionSum + Math.random(); //TODO: 4 get satisfacton
-    baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
+      const satisfactionSum =
+        doc.data().needs[need].satisfactionSum + Math.random(); //TODO: 4 get satisfacton
+      baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
 
-    baseData[`needs.${need}.satisfactionValue`] =
-      satisfactionSum / occurrenceCount;
+      baseData[`needs.${need}.satisfactionValue`] =
+        satisfactionSum / occurrenceCount;
+    } else {
+      //needed in baseData for display data update
+      baseData[`needs.${need}.occurrenceCount`] =
+        doc.data().needs[need].occurrenceCount;
+      baseData[`needs.${need}.satisfactionValue`] =
+        doc.data().needs[need].satisfactionValue;
+      //not needed: importancesSum & satisfactionSum
+    }
   }
 
   // 2nd loop on all needs to compute maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
   for (let need in doc.data().needs) {
     // console.log(
-    //   " In generateAggregateUpdateData 2nd loop for need:",
+    //   " In generateNewRawData 2nd loop for need:",
     //   need,
     //   "baseData[`needs.${need}.importancesSum`]",
     //   baseData[`needs.${need}.importancesSum`],
@@ -191,7 +192,7 @@ function generateAggregateUpdateData(mom, doc, momentImportancesResp) {
       baseData.totalUnsatisfactionImpact;
   }
   // console.log(
-  //   "In generateAggregateUpdateData, for mom ",
+  //   "In generateNewRawData, for mom ",
   //   mom,
   //   " for doc: ",
   //   doc.id,
@@ -230,6 +231,107 @@ function generateAggregateUpdateData(mom, doc, momentImportancesResp) {
 //     totalUnsatisfactionImpact: 0,
 //   };
 // }
+
+const propertiesOfInterest = [
+  "occurrenceCount",
+  "satisfactionImpactLabelValue",
+  "unsatisfactionImpactLabelValue",
+  "importanceDisplayValue",
+  "satisfactionImpactDisplayValue",
+  "unsatisfactionImpactDisplayValue",
+  "importanceValue",
+  "satisfactionValue",
+];
+
+function allPropertiesZeroForNeed(newRawData, need) {
+  return propertiesOfInterest.every((prop) => {
+    let key = `needs.${need}.${prop}`;
+    return newRawData[key] === 0 || newRawData[key] === undefined;
+  });
+}
+
+function generateNewDisplayArray( //TODO:4 we could remove all data that won't be used in the frontend to reduce the size of the response
+  newRawData,
+  filterBy = "none",
+  sortBy = "none",
+) {
+  try {
+    // console.log(
+    //   "In generateNewDisplayData with filterBy:",
+    //   filterBy,
+    //   "sortBy:",
+    //   sortBy,
+    //   // "newRawData:",
+    //   // newRawData,
+    // );
+    if (!newRawData)
+      throw new Error("In generateNewDisplayArray newRawData is empty");
+
+    let needsDataArray = [];
+    let auxObject = {}; // to track existing needs
+
+    Object.keys(newRawData).forEach((key) => {
+      if (key.startsWith("needs.")) {
+        let [_, need, property] = key.split(".");
+
+        if (
+          !allPropertiesZeroForNeed(newRawData, need) &&
+          propertiesOfInterest.includes(property)
+        ) {
+          if (!auxObject[need]) {
+            auxObject[need] = { needName: need };
+            needsDataArray.push(auxObject[need]);
+          }
+
+          auxObject[need][property] = newRawData[key];
+        }
+      }
+    });
+
+    console.log(
+      "In generateNewDisplayArray with filterBy:",
+      filterBy,
+      "sortBy:",
+      sortBy,
+      "returning needsDataArray after arrayization:",
+      needsDataArray,
+    );
+
+    if (needsDataArray.length == 0)
+      throw new Error("In generateNewDisplayArray needsDataArray is empty");
+
+    //Filtering
+    needsDataArray = needsDataArray.filter((obj) => {
+      let needData = obj;
+
+      if (filterBy === "unsatisfaction")
+        return needData.satisfactionValue < 1 && needData.occurrenceCount > 0;
+      if (filterBy === "satisfaction")
+        return needData.satisfactionValue > 0 && needData.occurrenceCount > 0;
+
+      return needData.occurrenceCount > 0;
+    });
+
+    //Sorting
+    if (sortBy !== "none") {
+      needsDataArray.sort((a, b) => b[sortBy] - a[sortBy]);
+    }
+
+    console.log(
+      "In generateNewDisplayArray with filterBy:",
+      filterBy,
+      "sortBy:",
+      sortBy,
+      "returning needsDataArray after filter sorting:",
+      needsDataArray,
+    );
+
+    return needsDataArray;
+  } catch (error) {
+    console.error("Error generateNewDisplayArray:", error);
+    return [];
+  }
+}
 
 const createOpenAIRequestOptions = (moment) => {
   const request_options = {
@@ -280,10 +382,17 @@ router.get("/needs/", async (req, res) => {
   //TODO:2 make this a post request? pro and cons of post vs get?
   try {
     if (lockedMomentIds.has(req.query.momentId)) {
+      console.log(
+        "Error: duplicate request detected for query",
+        req.query,
+        "lockedMomentIds:",
+        lockedMomentIds,
+      );
       return res
         .status(409)
         .send(
-          "Duplicate request detected for query" + JSON.stringify(req.query),
+          "Error: duplicate request detected for query" +
+            JSON.stringify(req.query),
         );
     }
     lockedMomentIds.add(req.query.momentId);
@@ -359,9 +468,9 @@ router.get("/needs/", async (req, res) => {
       console.log(
         "Retried for ",
         req.query,
-        "bec. it had Error:",
+        "bec. it had Error ",
         issueType,
-        "new parsedContent after reply: ",
+        ", new parsedContent after reply: ",
         parsedContent,
       );
       if (
@@ -401,7 +510,11 @@ router.get("/needs/", async (req, res) => {
 
     // ENRICH MOMENT DOC & UPDATE AGGREGATE DOCS
     //get yearly and monthly aggregate docs
-    let aggregateYearlyDocRef, aggregateMonthlyDocRef;
+    const userDocRef = db.collection("users").doc(req.uid);
+    let aggregateYearlyRawDocRef,
+      aggregateMonthlyRawDocRef,
+      aggregateYearlyDocRef,
+      aggregateMonthlyDocRef;
     const momentdateObject = JSON.parse(req.query.momentDate);
     if (momentdateObject && momentdateObject.seconds) {
       const momentTs = new Timestamp(
@@ -414,16 +527,24 @@ router.get("/needs/", async (req, res) => {
       const momentYearMonth =
         momentYear + "-" + (momentMonth < 10 ? "0" : "") + momentMonth;
 
-      aggregateYearlyDocRef = await getAggregateDocRef(
-        req.uid,
-        "aggregateYearly",
-        momentYear,
-      );
-      aggregateMonthlyDocRef = await getAggregateDocRef(
-        req.uid,
-        "aggregateMonthly",
-        momentYearMonth,
-      );
+      aggregateYearlyRawDocRef = userDocRef
+        .collection("aggregateYearly")
+        .doc(`${momentYear}-raw`);
+      aggregateMonthlyRawDocRef = userDocRef
+        .collection("aggregateMonthly")
+        .doc(`${momentYearMonth}-raw`);
+      aggregateYearlyDocRef = userDocRef
+        .collection("aggregateYearly")
+        .doc(momentYear);
+      aggregateMonthlyDocRef = userDocRef
+        .collection("aggregateMonthly")
+        .doc(momentYearMonth);
+      await Promise.all([
+        initAggregateDoc(aggregateYearlyRawDocRef, true),
+        initAggregateDoc(aggregateMonthlyRawDocRef, true),
+        initAggregateDoc(aggregateYearlyDocRef),
+        initAggregateDoc(aggregateMonthlyDocRef),
+      ]);
     } else {
       console.error("Invalid momentdate provided in the headers.");
       lockedMomentIds.delete(req.query.momentId);
@@ -434,32 +555,74 @@ router.get("/needs/", async (req, res) => {
         );
     }
 
-    const momentDocRef = db
-      .collection("users")
-      .doc(req.uid)
+    const momentDocRef = userDocRef
       .collection("moments")
       .doc(req.query.momentId);
 
     //batch persist llm data in firestore
     try {
       await db.runTransaction(async (t) => {
-        const docYearly = await t.get(aggregateYearlyDocRef);
-        const docMonthly = await t.get(aggregateMonthlyDocRef);
+        const aggregateYearlyRawDoc = await t.get(aggregateYearlyRawDocRef);
+        const aggregateMonthlyRawDoc = await t.get(aggregateMonthlyRawDocRef);
 
-        const yearlyUpdateData = generateAggregateUpdateData(
+        const newYearlyRawData = generateNewRawData(
           req.query.momentText,
-          docYearly,
+          aggregateYearlyRawDoc,
           momentImportancesResp,
         );
-        const monthlyUpdateData = generateAggregateUpdateData(
+        const newMonthlyRawData = generateNewRawData(
           req.query.momentText,
-          docMonthly,
+          aggregateMonthlyRawDoc,
           momentImportancesResp,
         );
 
+        const newYearlyData = {
+          lastUpdate: FieldValue.serverTimestamp(),
+          unsatisfaction: generateNewDisplayArray(
+            newYearlyRawData,
+            "unsatisfaction",
+            "unsatisfactionImpactLabelValue",
+          ),
+          satisfaction: generateNewDisplayArray(
+            newYearlyRawData,
+            "satisfaction",
+            "satisfactionImpactLabelValue",
+          ),
+          importance: generateNewDisplayArray(
+            newYearlyRawData,
+            "none",
+            "importanceValue",
+          ),
+        };
+
+        const newMonthlyData = {
+          lastUpdate: FieldValue.serverTimestamp(),
+          unsatisfaction: generateNewDisplayArray(
+            newMonthlyRawData,
+            "unsatisfaction",
+            "unsatisfactionImpactLabelValue",
+          ),
+          satisfaction: generateNewDisplayArray(
+            newMonthlyRawData,
+            "satisfaction",
+            "satisfactionImpactLabelValue",
+          ),
+          importance: generateNewDisplayArray(
+            newMonthlyRawData,
+            "none",
+            "importanceValue",
+          ),
+        };
+
+        console.log(
+          "In transaction before update, newYearlyData",
+          newYearlyData,
+        );
         //update aggregate docs
-        t.update(aggregateYearlyDocRef, yearlyUpdateData);
-        t.update(aggregateMonthlyDocRef, monthlyUpdateData);
+        t.update(aggregateYearlyRawDocRef, newYearlyRawData);
+        t.update(aggregateMonthlyRawDocRef, newMonthlyRawData);
+        t.update(aggregateYearlyDocRef, newYearlyData);
+        t.update(aggregateMonthlyDocRef, newMonthlyData);
 
         t.update(momentDocRef, { needsImportances: momentImportancesResp });
         t.update(db.collection("users").doc(req.uid), { hasNeeds: true });
@@ -467,13 +630,12 @@ router.get("/needs/", async (req, res) => {
       });
 
       console.log(
-        "Transaction success, ",
+        "Transaction success for ",
         req.query,
-        " enriched by needs rating and aggregate docs for",
+        "docs updated: ",
         //keep only the last two part of the path
         aggregateYearlyDocRef.path.split("/").slice(-2).join("/"),
         aggregateMonthlyDocRef.path.split("/").slice(-2).join("/"),
-        "updated",
       );
     } catch (e) {
       console.log(
