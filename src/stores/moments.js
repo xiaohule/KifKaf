@@ -15,7 +15,7 @@ import {
   orderBy,
   limit,
   increment,
-  // onSnapshot,
+  onSnapshot,
 } from "firebase/firestore";
 import {
   useCollection,
@@ -97,17 +97,16 @@ export const useMomentsStore = defineStore("moments", () => {
         console.log("In fetchUser, already userFetched");
         return;
       }
-      user.value = await getCurrentUser();
 
+      user.value = await getCurrentUser();
       // Check if user exists and has a uid property
       if (!user.value || !user.value.uid) {
         console.log("Failed to fetch user or user.uid");
         return;
       }
 
-      userDocRef.value = doc(db, "users", `${user.value.uid}`);
-
       // Check if user doc exists, if not create & initialize it
+      userDocRef.value = doc(db, "users", `${user.value.uid}`);
       const userDocCheck = await getDoc(userDocRef.value);
       if (!userDocCheck.exists()) {
         console.log("User doc does not exist, creating it");
@@ -116,7 +115,9 @@ export const useMomentsStore = defineStore("moments", () => {
           hasNeeds: false,
         });
       }
+
       userDoc.value = useDocument(userDocRef);
+
       userFetched.value = true;
     } catch (error) {
       console.log("Error in fetchUser", error);
@@ -160,36 +161,30 @@ export const useMomentsStore = defineStore("moments", () => {
 
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear().toString();
-      const currentYYYYMM = `${currentYear}-${(currentDate.getMonth() + 1)
+      const currentYYYYdMM = `${currentYear}-${(currentDate.getMonth() + 1)
         .toString()
         .padStart(2, "0")}`;
 
-      const {
-        // rename the Ref to something more meaningful
-        data: dataCurrYear,
-        // A promise that resolves or rejects when the initial state is loaded
-        promise: promiseCurrYear,
-      } = useDocument(
+      onSnapshot(
         doc(db, `users/${user.value.uid}/aggregateYearly/${currentYear}`),
+        (doc) => {
+          aggregateData.value[currentYear] = doc.data();
+        },
       );
-      promiseCurrYear.value.then((dataCurrYear) => {
-        aggregateData.value[currentYear] = dataCurrYear;
-      });
 
-      const { data: dataCurrMonth, promise: promiseCurrMonth } = useDocument(
-        doc(db, `users/${user.value.uid}/aggregateYearlyCurr/${currentYYYYMM}`),
+      onSnapshot(
+        doc(db, `users/${user.value.uid}/aggregateMonthly/${currentYYYYdMM}`),
+        (doc) => {
+          aggregateData.value[currentYYYYdMM] = doc.data();
+        },
       );
-      promiseCurrMonth.value.then((dataCurrMonth) => {
-        aggregateData.value[currentYYYYMM] = dataCurrMonth;
-        // needsAggregateCurrMonthDoc.value = dataCurrMonth;
-      });
 
       //TODO:2 first try getDocsFromCache, if fails then getDocsFromServer
       getDocs(collection(db, `users/${user.value.uid}/aggregateYearly`)).then(
         (querySnapshot) => {
           querySnapshot.forEach((doc) => {
             if (doc.id.length === 4 && doc.id !== currentYear) {
-              aggregateData.value[doc.id] = ref(doc.data());
+              aggregateData.value[doc.id] = doc.data();
               // needsAggregatePrevYears.value[doc.id] = ref(doc.data());
             }
           });
@@ -199,8 +194,8 @@ export const useMomentsStore = defineStore("moments", () => {
       getDocs(collection(db, `users/${user.value.uid}/aggregateMonthly`)).then(
         (querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            if (doc.id.length === 7 && doc.id !== currentYYYYMM) {
-              aggregateData.value[doc.id] = ref(doc.data());
+            if (doc.id.length === 7 && doc.id !== currentYYYYdMM) {
+              aggregateData.value[doc.id] = doc.data();
             }
           });
         },
@@ -353,8 +348,7 @@ export const useMomentsStore = defineStore("moments", () => {
   // },
 
   const uniqueDays = computed(() => {
-    if (!(userDoc?.value?.data?.momentsDays?.length ?? 0)) {
-      console.log("Failed to fetch unique Days", userDoc.value);
+    if (!userFetched.value || !userDoc.value.data?.momentsDays.length) {
       return [];
     }
 
@@ -368,6 +362,19 @@ export const useMomentsStore = defineStore("moments", () => {
     //Sort in descending order (most recent first) & return
     daysTime.sort((a, b) => b - a);
     return daysTime.map((day) => date.formatDate(day, "MMMM D, YYYY"));
+  });
+
+  const oldestMomentDate = computed(() => {
+    if (!userFetched.value || !userDoc.value.data?.momentsDays.length) {
+      return;
+    }
+
+    const sortedTimestamps = userDoc.value.data.momentsDays.sort(
+      (a, b) => a.seconds - b.seconds,
+    );
+
+    // Get the oldest timestamp and convert it to a JS Date format
+    return sortedTimestamps[0].toDate();
   });
 
   const setIsEditorFocused = (isFocused) => {
@@ -497,6 +504,7 @@ export const useMomentsStore = defineStore("moments", () => {
     isEditorFocused,
     uniqueTags,
     uniqueDays,
+    oldestMomentDate,
     userFetched,
     momentsFetched,
     aggregateDataFetched,

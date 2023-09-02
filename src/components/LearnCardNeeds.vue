@@ -130,7 +130,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits(['click:segmentedControl', 'click:showButton', 'ready:periodFilteredSortedNeeds'])
+const emits = defineEmits(['click:segmentedControl', 'click:showButton', 'ready:aggregateData'])
 
 const unsatisfactionInfo = "Your unsatisfied needs sorted from highest to lowest unsatisfaction impact."
 const satisfactionInfo = "Your satisfied needs sorted from highest to lowest satisfaction impact."
@@ -148,28 +148,28 @@ const segStatsId = computed(() => {
 })
 const segStatsName = "segStats" + segUid
 
-watch(momentsStore.aggregateData, (newVal, oldVal) => {
-  console.log('In LearnCardNeeds, watch XXX88', newVal, ", replaced:", oldVal);
-  if (newVal && newVal.length > 0) emits('ready:periodFilteredSortedNeeds', { flag: props.flag })
-}, { immediate: true })
+// watch(momentsStore.aggregateData, (newVal, oldVal) => {
+//   console.log('In LearnCardNeeds, watch XXX88', newVal, ", replaced:", oldVal);
+//   if (newVal && newVal.length > 0) emits('ready:aggregateData', { flag: props.flag })
+// }, { immediate: true })
 
 watch(() => momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey.value], (newVal, oldVal) => {
   console.log('In LearnCardNeeds, watch XXX55', newVal, ", replaced:", oldVal);
-  if (newVal && newVal.length > 0) emits('ready:periodFilteredSortedNeeds', { flag: props.flag })
+  if (newVal && newVal.length > 0) emits('ready:aggregateData', { flag: props.flag })
 }, { immediate: true })
 
-watch(momentsStore.aggregateDataFetched, (newVal, oldVal) => {
-  nextTick(() => {
-    console.log('In LearnCardNeeds, watch XXX77 nextTick fired');
-  })
-}, { immediate: true })
+// watch(() => momentsStore.aggregateDataFetched, (newVal, oldVal) => {
+//   nextTick(() => {
+//     console.log('In LearnCardNeeds, watch XXX77 nextTick fired');
+//   })
+// }, { immediate: true })
 
-const aggregateDataValue = momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey.value];
+// const aggregateDataValue = momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey.value];
 
-watch(() => aggregateDataValue, (newVal, oldVal) => {
-  console.log('In LearnCardNeeds, watch XXX1212', newVal, ", replaced:", oldVal);
-  if (newVal && newVal.length > 0) emits('ready:periodFilteredSortedNeeds', { flag: props.flag })
-}, { immediate: true });
+// watch(() => aggregateDataValue, (newVal, oldVal) => {
+//   console.log('In LearnCardNeeds, watch XXX1212', newVal, ", replaced:", oldVal);
+//   if (newVal && newVal.length > 0) emits('ready:aggregateData', { flag: props.flag })
+// }, { immediate: true });
 
 // function trackProcess(dotsPos) {
 //   //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.

@@ -121,19 +121,28 @@ function generateNewRawData(mom, doc, momentImportancesResp) {
   };
 
   //1st loop only on mom's needs to update value that relies only on the moment data
-  for (let need in momentImportancesResp) {
-    const occurrenceCount = doc.data().needs[need].occurrenceCount + 1;
-    baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
+  for (let need in doc.data().needs) {
+    if (momentImportancesResp[need]) {
+      const occurrenceCount = doc.data().needs[need].occurrenceCount + 1;
+      baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
 
-    baseData[`needs.${need}.importancesSum`] =
-      doc.data().needs[need].importancesSum + momentImportancesResp[need];
+      baseData[`needs.${need}.importancesSum`] =
+        doc.data().needs[need].importancesSum + momentImportancesResp[need];
 
-    const satisfactionSum =
-      doc.data().needs[need].satisfactionSum + Math.random(); //TODO: 4 get satisfacton
-    baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
+      const satisfactionSum =
+        doc.data().needs[need].satisfactionSum + Math.random(); //TODO: 4 get satisfacton
+      baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
 
-    baseData[`needs.${need}.satisfactionValue`] =
-      satisfactionSum / occurrenceCount;
+      baseData[`needs.${need}.satisfactionValue`] =
+        satisfactionSum / occurrenceCount;
+    } else {
+      //needed in baseData for display data update
+      baseData[`needs.${need}.occurrenceCount`] =
+        doc.data().needs[need].occurrenceCount;
+      baseData[`needs.${need}.satisfactionValue`] =
+        doc.data().needs[need].satisfactionValue;
+      //not needed: importancesSum & satisfactionSum
+    }
   }
 
   // 2nd loop on all needs to compute maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
@@ -247,14 +256,14 @@ function generateNewDisplayArray( //TODO:4 we could remove all data that won't b
   sortBy = "none",
 ) {
   try {
-    console.log(
-      "In generateNewDisplayData with filterBy:",
-      filterBy,
-      "sortBy:",
-      sortBy,
-      // "newRawData:",
-      // newRawData,
-    );
+    // console.log(
+    //   "In generateNewDisplayData with filterBy:",
+    //   filterBy,
+    //   "sortBy:",
+    //   sortBy,
+    //   // "newRawData:",
+    //   // newRawData,
+    // );
     if (!newRawData)
       throw new Error("In generateNewDisplayArray newRawData is empty");
 
