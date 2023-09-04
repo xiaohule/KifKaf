@@ -43,9 +43,9 @@
     "vuefire": "^3.1.15"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.11",
-    "@babel/preset-env": "^7.22.14",
-    "@babel/preset-typescript": "^7.22.11",
+    "@babel/core": "^7.22.15",
+    "@babel/preset-env": "^7.22.15",
+    "@babel/preset-typescript": "^7.22.15",
     "@quasar/app-vite": "^1.5.0",
     "@quasar/quasar-app-extension-testing": "^2.1.1",
     "@quasar/quasar-app-extension-testing-e2e-cypress": "^5.1.0",

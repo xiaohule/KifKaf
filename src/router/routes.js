@@ -54,8 +54,6 @@ const routes = [
         path: "",
         component: () => import("pages/PrivacyPolicyPage.vue"),
       },
-      // Redirect route
-      // { path: "/login", redirect: "/privacy-policy" },
     ],
   },
   {
@@ -66,8 +64,6 @@ const routes = [
         path: "",
         component: () => import("pages/TermsConditionsPage.vue"),
       },
-      // Redirect route
-      // { path: "/login", redirect: "/terms" },
     ],
   },
   {
@@ -78,8 +74,6 @@ const routes = [
         path: "",
         component: () => import("pages/ContactUsPage.vue"),
       },
-      // Redirect route
-      // { path: "/login", redirect: "/terms" },
     ],
   },
 

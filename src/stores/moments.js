@@ -47,7 +47,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const momentsFetched = ref(false);
   const aggregateDataFetched = ref(false);
   const isEditorFocused = ref(false);
-  const needsMap = {
+  const needsMap = ref({
     "Physical Safety": "🛡️",
     Food: "🥦",
     Shelter: "🏠",
@@ -88,7 +88,7 @@ export const useMomentsStore = defineStore("moments", () => {
     "Grieving & Mourning": "🥀",
     "Inner Peace": "🧘‍♂️",
     "Spiritual Transcendence": "🌸",
-  };
+  });
 
   const fetchUser = async () => {
     try {
@@ -347,7 +347,7 @@ export const useMomentsStore = defineStore("moments", () => {
   // },
 
   const uniqueDays = computed(() => {
-    if (!userFetched.value || !userDoc.value.data?.momentsDays.length) {
+    if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
       return [];
     }
 
@@ -364,7 +364,7 @@ export const useMomentsStore = defineStore("moments", () => {
   });
 
   const oldestMomentDate = computed(() => {
-    if (!userFetched.value || !userDoc.value.data?.momentsDays.length) {
+    if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
       return;
     }
 
@@ -497,6 +497,20 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
+  function $reset() {
+    user.value = null;
+    userDocRef.value = null;
+    userDoc.value = null;
+    momentsColl.value = [];
+    tagsColl.value = [];
+    aggregateData.value = {};
+    userFetched.value = false;
+    momentsFetched.value = false;
+    aggregateDataFetched.value = false;
+    isEditorFocused.value = false;
+    needsMap.value = {};
+  }
+
   return {
     user,
     momentsColl,
@@ -518,5 +532,6 @@ export const useMomentsStore = defineStore("moments", () => {
     updateUser,
     setIsEditorFocused,
     emptyNeedsMomentsRetry,
+    $reset,
   };
 });

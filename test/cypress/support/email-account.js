@@ -13,6 +13,8 @@ const makeEmailAccount = async () => {
     tls: true,
     authTimeout: 10000,
   };
+  console.log("In cypress/support/email-account.js, imapConfig", imapConfig);
+  console.log("cypress/support/email-account.js, testAccount", testAccount);
   const userEmail = {
     email: testAccount.user,
     async getLastEmail() {
@@ -22,6 +24,10 @@ const makeEmailAccount = async () => {
           imap.once("ready", () => {
             imap.openBox("INBOX", false, () => {
               imap.search(["UNSEEN", ["SINCE", new Date()]], (err, results) => {
+                console.log(
+                  "cypress/support/email-account.js, results",
+                  results,
+                );
                 const f = imap.fetch(results, { bodies: "" });
                 f.on("message", (msg) => {
                   msg.on("body", (stream) => {

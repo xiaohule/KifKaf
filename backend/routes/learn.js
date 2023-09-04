@@ -7,7 +7,7 @@ const {
   FieldValue,
   // Filter,
 } = require("firebase-admin/firestore");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 require("dotenv").config();
 
 var router = express.Router();
@@ -17,10 +17,9 @@ admin.initializeApp({
 });
 const db = getFirestore();
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 const needsList = [
   "Physical Safety",
@@ -405,12 +404,12 @@ router.get("/needs/", async (req, res) => {
     // LLM CALL
     const request_options = createOpenAIRequestOptions(req.query.momentText);
     // console.log("request_options", request_options);
-    const response = await openai.createChatCompletion(request_options);
-    // console.log("response.data", response.data);
-    // console.log( "response.data.choices[0].message",  response.data.choices[0].message );
+    const response = await openai.chat.completions.create(request_options);
+    // console.log("response", response);
+    // console.log( "response.choices[0].message",  response.choices[0].message );
 
     // Parse the response content to a JavaScript object
-    let parsedContent = JSON.parse(response.data.choices[0].message.content);
+    let parsedContent = JSON.parse(response.choices[0].message.content);
     console.log(
       "LLM response received for",
       req.query,
@@ -422,8 +421,8 @@ router.get("/needs/", async (req, res) => {
       console.log(
         "Error: parsedContent empty or erroneous, for mom",
         req.query,
-        "here are response.data.choices[0].message: ",
-        response.data.choices[0].message,
+        "here are response.choices[0].message: ",
+        response.choices[0].message,
       );
     }
 
@@ -456,15 +455,16 @@ router.get("/needs/", async (req, res) => {
 
       // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
       request_options.messages.push(
-        response.data.choices[0].message, // This adds the last response from the assistant
+        response.choices[0].message, // This adds the last response from the assistant
         {
           role: "user",
           content: errorMessage,
         },
       );
-      const replyResponse = await openai.createChatCompletion(request_options);
+      const replyResponse =
+        await openai.chat.completions.create(request_options);
       // Update the 'parsedContent' from the new response
-      parsedContent = JSON.parse(replyResponse.data.choices[0].message.content);
+      parsedContent = JSON.parse(replyResponse.choices[0].message.content);
       console.log(
         "Retried for ",
         req.query,
@@ -481,8 +481,8 @@ router.get("/needs/", async (req, res) => {
         console.log(
           "Error in retry: parsedContent empty or erroneous, for",
           req.query,
-          "here are response.data.choices[0].message: ",
-          response.data.choices[0].message,
+          "here are response.choices[0].message: ",
+          response.choices[0].message,
         );
       }
     }
