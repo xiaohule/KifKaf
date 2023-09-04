@@ -89,7 +89,7 @@ module.exports = configure(function (/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
-      // https: true, //TODO:3 enable so that Workbox will load your service workers during quasar dev
+      // https: true, enable so that Workbox will load your service workers during quasar dev
       open: true, // opens browser window automatically
       // proxy all calls to /api to http://localhost:3000/api
       proxy: {
@@ -122,9 +122,9 @@ module.exports = configure(function (/* ctx */) {
       // plugins: ["Firebase", "VueFire"],
     },
 
-    // animations: "all", // --- includes all animations TODO:1 readd if needed
+    // animations: "all", // --- includes all animations readd if needed
     // https://v2.quasar.dev/options/animations
-    // animations: [], //TODO use this instead, for ex. animations: ['bounceInLeft','bounceOutRight']
+    // animations: [], //Or use this instead, for ex. animations: ['bounceInLeft','bounceOutRight']
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#property-sourcefiles
     // sourceFiles: {

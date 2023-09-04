@@ -65,7 +65,7 @@ onMounted(() => {
       //   }
       //   return 'Can you add some further context?'
       // },
-      //TODO:2 make rolling placeholders to avoid boredom?
+      //TODO:1 make random/rolling placeholders to avoid boredom?
     ],
     content: props.modelValue,
     onCreate: () => {

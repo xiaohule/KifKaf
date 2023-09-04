@@ -28,7 +28,7 @@
           </q-item>
         </q-card-section>
 
-        <!-- // TODO:2 make the btn align with the end of the text area when it grows -->
+        <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
         <!-- TODO:3 add a signal that speech recognition is on,
           TODO:1 maybe this two overlapping button is bad design? In that case put the mic button left of the sending one? -->
         <q-field rounded outlined bg-color="surface-variant" color="transparent" class="q-ma-md q-mt-lg">

@@ -159,14 +159,16 @@ const showButtonClicked = ({ value, flag }) => {
   }
 }
 const aggregateDataReady = ({ flag }) => {
-  if (flag === 'satisfaction') {
-    nextTick(() => {
-      swiperElSatisfaction.value.swiper.updateAutoHeight(300);
-    })
-  } else {
-    nextTick(() => {
-      swiperElImportance.value.swiper.updateAutoHeight(300);
-    })
+  if (swiperInitialized.value) {
+    if (flag === 'satisfaction') {
+      nextTick(() => {
+        swiperElSatisfaction.value.swiper.updateAutoHeight(300);
+      })
+    } else {
+      nextTick(() => {
+        swiperElImportance.value.swiper.updateAutoHeight(300);
+      })
+    }
   }
 }
 
@@ -205,7 +207,7 @@ watch(dateRangesYears, (newValue) => {
 }, { immediate: true }
 );
 
-const dateRangesMonths = computed(() => { //TODO:1 could be optimized
+const dateRangesMonths = computed(() => {
   const dateRanges = [];
   const monthsSinceOldestMoment = date.getDateDiff(currentDate.value, oldestMomentDate.value, 'months')
   let trackingDate = date.startOfDate(oldestMomentDate.value, 'month');
@@ -235,9 +237,9 @@ const openFilterDialog = (filter) => {
   filterDialogOpen.value = true
 }
 
-// initialize pickedDateYYYYsMMsDD as the first day of the current year with format YYYY/MM/DD //TODO:4 or first day of month?
+//before pickedDateYYYYsMMsDD was initialized as the first day of the current year with format YYYY/MM/DD
 const pickedDateYYYYsMMsDD = ref(date.formatDate(currentDate.value, "YYYY/MM/DD"))
-const monthsKey = ref(Date.now()) //TODO:1 reduce to only one of those keys?
+const monthsKey = ref(Date.now())
 const yearsKey = ref(Date.now())
 const optionsFn = (date) => {
   return date >= oldestMomentDate.value;
@@ -260,7 +262,7 @@ const updateDateButtonLabel = () => {
 }
 
 //EVENTS
-const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:2 pourrait etre un watch?
+const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:1 pourrait etre un watch?
   console.log('onUpdatePickedDate newVal', newVal)
   if (newVal) {
     if (segDateId.value === 'Monthly') {

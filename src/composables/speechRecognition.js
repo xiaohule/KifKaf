@@ -5,8 +5,8 @@
 // doesn't work
 //  in MOBILE for ios safari standalone pwa, android chrome standalone pwa yet, android chrome (as explained also in https://bugs.webkit.org/show_bug.cgi?id=225298 graceful fallback needed)
 //TODO:1 test if https improve things, test if Speech Recognition requires an Internet connection, so will not function when your PWA users are offline
-// TODO:2 persevere the fact that the user has already granted permission to use the microphone so that we don't ask again when kill/restart the app
-// TODO:2 persevere the fact that speech recognition is not available in user's setup so that we don't show the button back when kill/restart the app
+// TODO:3 persevere the fact that the user has already granted permission to use the microphone so that we don't ask again when kill/restart the app
+// TODO:3 persevere the fact that speech recognition is not available in user's setup so that we don't show the button back when kill/restart the app
 import { ref } from "vue";
 
 export const isRecognizing = ref(false);

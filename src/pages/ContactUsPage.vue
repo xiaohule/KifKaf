@@ -18,7 +18,7 @@
 
       <q-separator />
 
-      <!-- TODO:1 add name and email and possibility to edit them -->
+      <!-- TODO:2 add name and email and possibility to edit them -->
       <q-card-section class="q-pb-none">
         <q-input v-if="!(momentsStore?.user?.email)" v-model="emailAddress" class="q-mx-sm" rounded outlined type="text"
           bg-color="surface-variant" label="Your email address" lazy-rules :rules="emailRules" />

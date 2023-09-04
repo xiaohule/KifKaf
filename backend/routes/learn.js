@@ -130,7 +130,7 @@ function generateNewRawData(mom, doc, momentImportancesResp) {
         doc.data().needs[need].importancesSum + momentImportancesResp[need];
 
       const satisfactionSum =
-        doc.data().needs[need].satisfactionSum + Math.random(); //TODO: 4 get satisfacton
+        doc.data().needs[need].satisfactionSum + Math.random(); //TODO:4 get satisfacton
       baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
 
       baseData[`needs.${need}.satisfactionValue`] =
@@ -250,7 +250,7 @@ function allPropertiesZeroForNeed(newRawData, need) {
   });
 }
 
-function generateNewDisplayArray( //TODO:4 we could remove all data that won't be used in the frontend to reduce the size of the response
+function generateNewDisplayArray( //TODO:2 we could remove all data that won't be used in the frontend to reduce the size of the response
   newRawData,
   filterBy = "none",
   sortBy = "none",
@@ -375,11 +375,11 @@ const authenticate = async (req, res, next) => {
 
 router.use(authenticate); // Use the middleware for all routes in this router
 
-const lockedMomentIds = new Set(); //TODO:1 Since the code is running in a stateful server environment, lockedMomentIds is effective. However, be aware that in environments where multiple server instances are running (like in a clustered environment), this approach won't work since lockedMomentIds will only exist in memory for the specific server instance handling the request. In such cases, distributed lock manager like Redis or saving in firestore could be used.
+const lockedMomentIds = new Set(); //Since the code is running in a stateful server environment, lockedMomentIds is effective. However, be aware that in environments where multiple server instances are running (like in a clustered environment), this approach won't work since lockedMomentIds will only exist in memory for the specific server instance handling the request. In such cases, distributed lock manager like Redis or saving in firestore could be used.
 //TODO:2 lockedMomentIds can potentially grow indefinitely. Consider implementing a mechanism to purge old IDs after a certain time or after they're no longer relevant. Also consider monitoring it.
 
 router.get("/needs/", async (req, res) => {
-  //TODO:2 make this a post request? pro and cons of post vs get?
+  //TODO:1 make this a post request? pro and cons of post vs get?
   try {
     if (lockedMomentIds.has(req.query.momentId)) {
       console.log(
@@ -400,7 +400,7 @@ router.get("/needs/", async (req, res) => {
     // console.log("req.headers", req.headers);
     console.log("GET request received", req.query); //returns { moment:'Feeling sad to be working so much' }
 
-    //TODO:1 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
+    //TODO:2 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
 
     // LLM CALL
     const request_options = createOpenAIRequestOptions(req.query.momentText);

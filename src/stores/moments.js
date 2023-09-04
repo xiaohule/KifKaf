@@ -90,7 +90,6 @@ export const useMomentsStore = defineStore("moments", () => {
     "Spiritual Transcendence": "🌸",
   };
 
-  //TODO:2 separate betw local state and firestore so that directly after mom insertion the state is updated and only if fs save is failed is it reverted? I.e. "Optimistic UI Update with Revert" ?
   const fetchUser = async () => {
     try {
       if (userFetched.value) {
@@ -230,7 +229,7 @@ export const useMomentsStore = defineStore("moments", () => {
       emptyNeedsImportancesQuery,
     );
 
-    //retry to call LLM and increment the retries counter //TODO: 1 parallelize the calls to LLM
+    //retry to call LLM and increment the retries counter //TODO:1 parallelize the calls to LLM
     for (const doc of momentsWithEmptyNeedsImportances.docs) {
       console.log(
         "In emptyNeedsMomentsRetry, emptyNeedsImportancesQuery returned:",
@@ -356,7 +355,7 @@ export const useMomentsStore = defineStore("moments", () => {
       // Convert Firestore Timestamp to JavaScript Date, format of moment.date is like {seconds: 1678296892, nanoseconds: 210000000}
       const dayTs = new Timestamp(day.seconds, day.nanoseconds);
       const dayDate = dayTs.toDate();
-      return dayDate.getTime(); //TODO: 2 improve perf
+      return dayDate.getTime(); //TODO:2 improve perf
     });
 
     //Sort in descending order (most recent first) & return

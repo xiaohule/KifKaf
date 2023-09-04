@@ -90,7 +90,7 @@ import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCard from "./../components/LearnCard.vue";
 import { date } from "quasar";
 // destructuring to keep only what is needed in date
-const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBetweenDates } = date; //TODO:3 fix this import destructuring if unused
+const { formatDate, getDateDiff, startOfDate, endOfDate, subtractFromDate, isBetweenDates } = date; //TODO:1 fix this import destructuring if unused
 // import styles bundle
 // import 'swiper/css/bundle';
 
@@ -109,7 +109,7 @@ const dateRangeButtonLabel = ref('This year')
 // const tagsButtonLabel = ref('All tags')
 
 //SWIPER
-//TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
+//TODO:1 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
 const swiperElPositive = ref(null)
 const swiperElNegative = ref(null)
 const swiperInitialized = ref(false)
@@ -308,7 +308,7 @@ watch(segDateId, (newVal, oldVal) => {
     onUpdatePickedDate(pickedDate.value)
   }
   //TODO:1 ensure that when yearly (2023) > monthly selecting May (2023) > yearly (2023) > monthly the carousel has kept May and is not showing Jan as current
-  //TODO:2 ensure that when yearly (2023) > monthly, the carousel is showing current month and not Jan
+  //TODO:1 ensure that when yearly (2023) > monthly, the carousel is showing current month and not Jan
 });
 
 const onSliding = (event, flag) => {

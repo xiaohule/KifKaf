@@ -45,7 +45,7 @@ const routes = [
     component: () => import("layouts/AuthLayout.vue"),
     children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
   },
-  //TODO:2 make only one layout for terms and privacy policy and auth that can take a title as param
+  //TODO:1 make only one layout for terms and privacy policy and auth that can take a title as param
   {
     path: "/privacy-policy",
     component: () => import("layouts/PrivacyPolicyLayout.vue"),
