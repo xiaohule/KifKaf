@@ -52,19 +52,18 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
   });
 
   // const username = generateRandomTestEmail(4) + "@yopmail.com";
-  let username;
+  // let username;
   const password = "yopyopyop";
 
   it("has diff. sign in options, ToS and Contact fields & let a user sign up with email, log out and sign in again", () => {
-    cy.task("getUserEmail")
-      .then((email) => {
-        expect(email).to.be.a("string");
-        console.log("EMAIL is:", email);
-        // username = email;
-        return email;
-      })
-      .as("username");
+    // connecting to the temporary email provider
+    cy.origin("https://www.guerrillamail.com", () => {
+      cy.visit("/");
+      // retrieving the temporary email address
+      cy.get("#inbox-id").invoke("text");
+    }).as("username");
 
+    cy.visit("/");
     //should have sign in options, ToS and Contact us
     cy.contains("Sign in with email").should("be.visible").click();
     cy.contains("Cancel").should("be.visible").click();
@@ -85,15 +84,10 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.contains("arrow_back").click();
 
     //should let a user sign up with email, log out and sign in again
-
     cy.contains("Sign in with email").click();
     cy.get("@username").then((username) => {
-      cy.signUp(username, password);
+      cy.signUp(`${username}@sharklasers.com`, password);
     });
-    // cy.contains("Sign in with email").click();
-    // cy.get("@username").then((username) => {
-    //   cy.signIn(username, password);
-    // });
 
     cy.contains("account_circle", { timeout: 40000 }).click();
     cy.contains("Log out").click();
@@ -102,11 +96,9 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
       cy.dataCy("logout-button").click();
     });
 
-    // cy.visit("/login");
-
     cy.contains("Sign in with email").click();
     cy.get("@username").then((username) => {
-      cy.signIn(username, password);
+      cy.signIn(`${username}@sharklasers.com`, password);
     });
   });
 });
@@ -121,8 +113,6 @@ describe("Checking main screens & Moments inputting", () => {
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
     cy.contains("Learn").should("be.visible");
-    // cy.contains("Timeline");
-    // cy.contains("Search");
     //can navigate to Learn>Home>Settings>Home
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
