@@ -22,45 +22,37 @@ const openai = new OpenAI({
 });
 
 const needsList = [
-  "Physical Safety",
-  "Food",
+  "Physical Well-Being",
+  "Sustenance & Nourishment",
   "Shelter",
   "Financial Security",
   "Rest & Relaxation",
-  "Comfort",
   "Physical Movement",
-  "Physical Touch",
-  "Sexual Expression",
+  "Physical Contact & Intimacy",
   "Contact with Nature",
   "Social Connection",
   "Belongingness & Community",
-  "Empathy, Understanding & Validation",
-  "Affection, Love & Intimacy",
-  "Emotional Safety & Well-Being",
-  "Personal Privacy",
-  "Personal Autonomy",
+  "Support, Understanding & Validation",
+  "Affection & Love",
+  "Emotional Well-Being & Inner Peace",
+  "Boundaries & Privacy",
+  "Autonomy",
   "Self-Esteem & Social Recognition",
-  "Competence",
-  "Efficiency",
-  "Societal Contribution",
-  "Personal Expression & Creativity",
-  "Exploration",
-  "Inspiration",
+  "Competence & Effectiveness",
+  "Outward Care & Contribution",
+  "Self-Expression & Creativity",
+  "Exploration, Novelty & Inspiration",
   "Learning",
   "Self-Actualization",
   "Challenge",
-  "Novelty",
   "Entertainment",
   "Humor",
   "Play",
-  "Moral Integrity",
-  "Social Justice",
+  "Moral Integrity & Social Justice",
   "Order & Structure",
-  "Altruism",
-  "Life's Meaning & Purpose",
-  "Joyful Celebration",
+  "Meaning & Purpose",
+  "Gratitude & Joyful Celebration",
   "Grieving & Mourning",
-  "Inner Peace",
   "Spiritual Transcendence",
 ];
 
@@ -343,7 +335,7 @@ const createOpenAIRequestOptions = (moment) => {
       },
       {
         role: "user",
-        content: JSON.stringify(moment), // content: '{"moment": "Feeling aroused and capable when playfight jamming with penelope and new ppl"}',
+        content: JSON.stringify(moment), // content: "Feeling aroused and capable when playfight jamming with penelope and new ppl",
       },
     ],
     temperature: 0,
@@ -397,7 +389,7 @@ router.get("/needs/", async (req, res) => {
     lockedMomentIds.add(req.query.momentId);
 
     // console.log("req.headers", req.headers);
-    console.log("GET request received", req.query); //returns { moment:'Feeling sad to be working so much' }
+    console.log("GET request received", req.query); //returns { momentText: 'Feeling stressed of not knowing what I’m gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
 
     //TODO:2 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
 

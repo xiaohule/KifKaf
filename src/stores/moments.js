@@ -48,45 +48,37 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateDataFetched = ref(false);
   const isEditorFocused = ref(false);
   const needsMap = ref({
-    "Physical Safety": "🛡️",
-    Food: "🥦",
+    "Physical Well-Being": "🛡️",
+    "Sustenance & Nourishment": "🍎",
     Shelter: "🏠",
     "Financial Security": "💰",
-    "Rest & Relaxation": "🌙",
-    Comfort: "🛋️",
+    "Rest & Relaxation": "🌙", //🛋️ //🛌
     "Physical Movement": "🤸",
-    "Physical Touch": "👐",
-    "Sexual Expression": "💋",
+    "Physical Contact & Intimacy": "👐",
     "Contact with Nature": "🏞️",
     "Social Connection": "👥",
     "Belongingness & Community": "🏘️",
-    "Empathy, Understanding & Validation": "👂",
-    "Affection, Love & Intimacy": "❤️",
-    "Emotional Safety & Well-Being": "🤗",
-    "Personal Privacy": "🚪",
-    "Personal Autonomy": "🛤️",
+    "Support, Understanding & Validation": "👂", // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
+    "Affection & Love": "❤️",
+    "Emotional Well-Being & Inner Peace": "🧘‍♂️", //"🤗",
+    "Boundaries & Privacy": "🚪",
+    Autonomy: "🛤️",
     "Self-Esteem & Social Recognition": "💪",
-    Competence: "🏆",
-    Efficiency: "⚡",
-    "Societal Contribution": "🔧",
-    "Personal Expression & Creativity": "🎨",
-    Exploration: "🌎",
-    Inspiration: "💡",
+    "Competence & Effectiveness": "🎯",
+    "Outward Care & Contribution": "🤲", //break in 2?
+    "Self-Expression & Creativity": "🎨",
+    "Exploration, Novelty & Inspiration": "🌌", //🌎 // réduire à Exploration & Novelty?
     Learning: "📚",
     "Self-Actualization": "🌱",
     Challenge: "⛰️",
-    Novelty: "🌀",
     Entertainment: "🎠",
     Humor: "😂",
     Play: "⚽",
-    "Moral Integrity": "🕊️",
-    "Social Justice": "⚖️",
+    "Moral Integrity & Social Justice": "⚖️", //🕊️
     "Order & Structure": "📐",
-    Altruism: "🤲",
-    "Life's Meaning & Purpose": "🌌",
-    "Joyful Celebration": "🎉",
+    "Meaning & Purpose": "🧭", //🌌
+    "Gratitude & Joyful Celebration": "🎉",
     "Grieving & Mourning": "🥀",
-    "Inner Peace": "🧘‍♂️",
     "Spiritual Transcendence": "🌸",
   });
 

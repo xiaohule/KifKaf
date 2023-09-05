@@ -3,138 +3,308 @@
     "date": "2023-05-13",
     "intensity": 4,
     "text": "Feeling proud of myself for working out today!",
-    "tags": ["movement", "self-esteem", "proud"]
+    "tags": ["movement", "self-esteem", "proud"],
+    "needs": ["Physical Movement", "Self-Esteem & Social Recognition"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-05-15",
     "intensity": -3,
     "text": "Feeling a little down today after calling mum",
-    "tags": ["phone", "mum"]
+    "tags": ["phone", "mum"],
+    "needs": ["Emotional Well-Being & Inner Peace"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-05-16",
     "intensity": 3,
     "text": "Feeling grateful toward life when eating my fresh tomatoes",
-    "tags": ["food"]
+    "tags": ["food"],
+    "needs": [
+      "Sustenance & Nourishment",
+      "Gratitude & Joyful Celebration",
+      "Contact with Nature"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-05-23",
     "intensity": -5,
     "text": "Feeling so stressed out today when woking up",
-    "tags": [""]
+    "tags": [""],
+    "needs": ["Emotional Well-Being & Inner Peace", "Rest & Relaxation"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-05-24",
     "intensity": 4,
     "text": "Feeling both empty and full after movement class",
-    "tags": ["movement"]
+    "tags": ["movement"],
+    "needs": [
+      "Physical Movement",
+      "Emotional Well-Being & Inner Peace",
+      "Self-Expression & Creativity"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-05-24",
     "intensity": 2,
     "text": "Feeling excited when calling mum",
-    "tags": ["mum", "proud"]
+    "tags": ["mum", "proud"],
+    "needs": [
+      "Social Connection",
+      "Belongingness & Community",
+      "Emotional Well-Being & Inner Peace",
+      "Affection & Love",
+      "Support, Understanding & Validation"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-05-27",
     "intensity": -3,
     "text": "Felt so bad when running after eating spinach",
-    "tags": ["movement", "food"]
+    "tags": ["movement", "food"],
+    "needs": ["Physical Well-Being", "Physical Movement"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2022-12-08",
     "intensity": 4,
     "text": "Feeling grateful to have the sun on my face while walking down from Montmarte bec. it felt warm and natural",
-    "tags": ["sun", "nature", "self-esteem"]
+    "tags": ["sun", "nature", "self-esteem"],
+    "needs": [
+      "Contact with Nature",
+      "Physical Well-Being",
+      "Gratitude & Joyful Celebration"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2022-12-10",
     "intensity": -4,
     "text": "Feeling like I am losing my time at the playfight workshop bec. I am not learning anything",
-    "tags": ["impatience"]
+    "tags": ["impatience"],
+    "needs": ["Learning", "Effectiveness", "Self-Actualization"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2022-12-10",
     "intensity": 3,
     "text": "Feeling smart and useful when discussing with Thomas about his project and mine, bec. I felt less of a failure",
-    "tags": ["self-esteem"]
+    "tags": ["self-esteem"],
+    "needs": [
+      "Self-Esteem & Social Recognition",
+      "Support, Understanding & Validation",
+      "Social Connection",
+      "Outward Care & Contribution"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2022-12-10",
     "intensity": 2,
     "text": "Feeling content and proud when theorizing about office locking and my chance bec. I like feeling different and free",
-    "tags": ["autonomy", "proud"]
+    "tags": ["autonomy", "proud"],
+    "needs": [
+      "Autonomy",
+      "Self-Expression & Creativity",
+      "Gratitude & Joyful Celebration",
+      "Self-Esteem & Social Recognition",
+      "Support, Understanding & Validation"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2021-08-29",
     "intensity": -4,
     "text": "Feeling incapable to help mam when she tells me she’s not going well on phone call bec. hard to see loved ones struggle",
-    "tags": ["mum", "phone"]
+    "tags": ["mum", "phone"],
+    "needs": [
+      "Emotional Well-Being & Inner Peace",
+      "Outward Care & Contribution",
+      "Competence"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-03-03",
     "intensity": 1,
     "text": "Feeling powerful when managing my money online",
-    "tags": ["self-esteem", "safety", "autonomy"]
+    "tags": ["self-esteem", "safety", "autonomy"],
+    "needs": [
+      "Financial Security",
+      "Self-Esteem & Social Recognition",
+      "Autonomy",
+      "Competence"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-03-14",
     "intensity": 2,
     "text": "Feeling completely relaxed and epic at the end of movement course when lying down",
-    "tags": ["rest", "movement"]
+    "tags": ["rest", "movement"],
+    "needs": [
+      "Rest & Relaxation",
+      "Physical Movement",
+      "Emotional Well-Being & Inner Peace",
+      "spiritual Transcendence",
+      "Self-Esteem & Social Recognition"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "satis, deduction,,"
   },
   {
     "date": "2023-03-15",
     "intensity": 2,
     "text": "Feeling aroused and capable when playfight jamming with bastos caro and new ppl",
-    "tags": ["movement", "lettinggo", "dance"]
+    "tags": ["movement", "lettinggo", "dance"],
+    "needs": [
+      "Competence",
+      "Physical Movement",
+      "Play",
+      "Social Connection",
+      "Physical Contact & Intimacy",
+      "Self-Expression & Creativity"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-03-26",
     "intensity": -4,
     "text": "Feeling guilty and sad when mam tell us we stay in touch bec. she will have difficulties when we leave matthieu’s home",
-    "tags": ["mum"]
+    "tags": ["mum"],
+    "needs": [
+      "Emotional Well-Being & Inner Peace",
+      "Outward Care & Contribution",
+      "Autonomy"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-03-28",
     "intensity": -2,
     "text": "Feeling guilty to have let Maria down yest. night",
-    "tags": ["proud", "maria"]
+    "tags": ["proud", "maria"],
+    "needs": ["Emotional Well-Being & Inner Peace", "Autonomy"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-08",
     "intensity": -3,
     "text": "Feeling disrespected that mona came to sleep with me despite me saying no",
-    "tags": ["impatience", "autonomy"]
+    "tags": ["impatience", "autonomy"],
+    "needs": [
+      "Boundaries & Privacy",
+      "Autonomy",
+      "Support, Understanding & Validation"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-10",
     "intensity": 3,
     "text": "Finally alone at home",
-    "tags": ["autonomy"]
+    "tags": ["autonomy"],
+    "needs": [
+      "Autonomy",
+      "Boundaries & Privacy",
+      "Gratitude & Joyful Celebration",
+      "Emotional Well-Being & Inner Peace",
+      "Rest & Relaxation"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "should this lower the overall importance of the need for social connection?,"
   },
   {
     "date": "2023-04-19",
     "intensity": 4,
     "text": "🍑 with mona, good connection and sharing",
-    "tags": ["sex", "sharing"]
+    "tags": ["sex", "sharing"],
+    "needs": [
+      "Physical Contact & Intimacy",
+      "Social Connection",
+      "Support, Understanding & Validation"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-21",
     "intensity": 2,
     "text": "Feeling grateful and cuddled to have my tea prepared by Maria bec. proof of love",
-    "tags": ["maria", "rest", "proofoflove"]
+    "tags": ["maria", "rest", "proofoflove"],
+    "needs": [
+      "Affection & Love",
+      "Gratitude & Joyful Celebration",
+      "Support, Understanding & Validation"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-29",
     "intensity": -4,
     "text": "Feeling stressed of not knowing what I’m gonna do today",
-    "tags": ["self-esteem"]
+    "tags": ["self-esteem"],
+    "needs": [
+      "Emotional Well-Being & Inner Peace",
+      "Meaning & Purpose",
+      "Autonomy",
+      "Effectiveness"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-29",
     "intensity": -1,
     "text": "Feeling moody bec. of the grey weather",
-    "tags": ["weather"]
+    "tags": ["weather"],
+    "needs": ["Contact with Nature", "Emotional Well-Being & Inner Peace"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   }
 ]
