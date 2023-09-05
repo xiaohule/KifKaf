@@ -105,7 +105,7 @@ Cypress.Commands.add("signUp", (username, password) => {
       cy.get("#inbox-id").click();
       cy.get("#inbox-id > input").type(usernameHandle);
       cy.contains("Set").click();
-      cy.get("#email_list tr:not(#mr_1)", { timeout: 120000 })
+      cy.contains("kifkaf", { timeout: 120000 })
         .should("be.visible")
         .click()
         .then(() => {
