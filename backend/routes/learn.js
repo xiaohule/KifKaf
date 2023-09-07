@@ -34,7 +34,7 @@ const needsList = [
   "Belongingness & Community",
   "Support, Understanding & Validation",
   "Affection & Love",
-  "Emotional Well-Being & Inner Peace",
+  "Emotional Safety & Inner Peace",
   "Boundaries & Privacy",
   "Autonomy",
   "Self-Esteem & Social Recognition",
@@ -45,14 +45,11 @@ const needsList = [
   "Learning",
   "Self-Actualization",
   "Challenge",
-  "Entertainment",
-  "Humor",
-  "Play",
-  "Moral Integrity & Social Justice",
+  "Play, Humor & Entertainment",
+  "Fairness & Justice",
   "Order & Structure",
   "Meaning & Purpose",
-  "Gratitude & Joyful Celebration",
-  "Grieving & Mourning",
+  "Gratitude & Celebration",
   "Spiritual Transcendence",
 ];
 
@@ -331,7 +328,36 @@ const createOpenAIRequestOptions = (moment) => {
       {
         role: "system",
         content:
-          '**Context**: You and I are collaborating as scientists working to understand the importance of various universal human needs based on described experiences. You are a psychology expert specializing in human needs.\n\n**Instructions**:\n1. You\'ll receive a "Moment", a description of an individual\'s life experience.\n2. For that moment, rate the importance each need of the list of Universal Human Needs (provided below) is likely holding for the individual who reported it. Rate from 0.0 (not important at all) to 1.0 (very important). 0.5 indicates moderate importance.\n3. Provide your result in the following JSON Format (include only needs with non-zero importance and don’t justify your answers, just return the expected JSON result):\n```\n{"Need Name": importance_value, ...}\n```\nNotes:\n- Both the satisfaction and dissatisfaction of a need do indicate its importance for the individual.\n- A moment might hint at a need\'s importance even if the need is not explicitly mentioned.\n\n**Universal Human Needs**:\n```\n[ "Physical Safety", "Food", "Shelter", "Financial Security", "Rest & Relaxation", "Comfort", "Physical Movement", "Physical Touch", "Sexual Expression", "Contact with Nature", "Social Connection", "Belongingness & Community", "Empathy, Understanding & Validation", "Affection, Love & Intimacy", "Emotional Safety & Well-Being", "Personal Privacy", "Personal Autonomy", "Self-Esteem & Social Recognition", "Competence", "Efficiency", "Societal Contribution", "Personal Expression & Creativity", "Exploration", "Inspiration", "Learning", "Self-Actualization", "Challenge", "Novelty", "Entertainment", "Humor", "Play", "Moral Integrity", "Social Justice", "Order & Structure", "Altruism", "Life\'s Meaning & Purpose", "Joyful Celebration", "Grieving & Mourning", "Inner Peace", "Spiritual Transcendence" ]\n```\n\n**Example**:\n1. Moment:\n```\n{"moment": "Feeling like I am wasting my time at the playfight workshop because I\'m not learning anything"}\n```\n2. Importance rating:\n   You would assess for each need whether the moment is referring to the satisfaction or dissatisfaction of it, or if the moment hint at its importance for the individual:\n- "Physical Safety": not related at all. importance_value: 0.0.\n  ...\n- "Physical Movement": indirectly related since playfight is an activity involving movement so the user must attach importance to this need otherwise he wouldn\'t practice playfight at all. importance_value: 0.5.\n- "Physical Touch": indirectly related since playfight is an activity involving touch so the user must attach importance to this need otherwise he wouldn\'t practice playfight at all. importance_value: 0.3.\n- "Sexual Expression": indirectly related since playfight and sexual expression share a lot of traits like play, creativity, physical touch, etc... importance_value: 0.1.\n- "Social Connection": indirectly related since playfight is an activity involving social connections so the user must attach importance to this need otherwise he wouldn\'t practice playfight at all. importance_value: 0.5.\n  ...\n- "Efficiency": directly related since the user is reporting a high dissatisfaction caused by "not learning anything" so the user must have a high need for efficiency importance_value: 0.7.\n  ...\n- "Learning": directly related since the user is reporting a high dissatisfaction caused by "not learning anything" so the user must have a need for learning that is somewhat important. importance_value: 0.9\n  ...\n3. Expected JSON result (only including needs with non-zero importance):\n```\n{ "Physical Movement": 0.5, "Physical Touch": 0.3, "Sexual Expression": 0.1, "Social Connection": 0.5, "Belongingness & Community": 0.1, "Personal Autonomy": 0.2, "Competence": 0.2, "Efficiency": 0.7, "Personal Expression & Creativity": 0.3, "Exploration": 0.3, "Challenge": 0.2, "Novelty": 0.4, "Learning": 0.9, "Self-Actualization": 0.2, "Play": 0.5 }\n```',
+          "**Context**:\nWe are collaborating to understand the satisfaction and importance levels of various human needs from described experiences. You specialize in human needs psychology.\n\n**Instructions**:\nFollow these steps when responding to user inputs:\n\nStep 1 - User provides an experience.\n\nStep 2 - For each need of the list of Universal Human Needs (see below), assess whether the experience indicates the satisfaction or lack thereof for that need or suggests that the user attaches importance to this need.\nEnclose all your work for this step within triple quotes (\"\"\").\n\nNote for Step 2:\nIf you don't understand the user's experience reply with \"\"\"Oops: I'm sorry, but I was unable to analyze your needs for this experience because [Reason]. Could you please retry with [Advice]\"\"\" and ignore following steps.\n\nStep 3 - From the needs identified in Step 2, select a maximum of 5 that correlate most with the experience. Fewer is fine, but no more than 5.\nEnclose all your work for this step within triple quotes (\"\"\").\n\nStep 4 - For each need selected at step 3, rate on a scale from [0.0,1.0]:\n\n- Its level of satisfaction for the user. 0.0 means that this need was fully unsatisfied and 1.0 means fully satisfied. Choose 0.5 if the satisfaction level appears neutral or uncertain.\n- The importance the user is likely attaching to this need. 0.0 means the experience suggests that this need isn't important at all for the user currently and 1.0 means highly important. Choose 0.5 for moderate importance.\n\nReturn your result in the following JSON Format. Only include needs with non-zero importance. Avoid explanations, just return the expected JSON result.\n```\n{\"need_name\": [satisfaction_value, importance_value], ...}\n```\n\nInsights for Step 4:\n\n- A strong sense of a need being met or unmet is a clear cue of its high importance to the user.\n- Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for 'Felt so bad when running after eating spinach' we have no information on whether the need for 'Physical Movement' was met during this unfortunate experience but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.\n- An experience might hint at a need's importance even if the need is not explicitly mentioned.\n- Over-satisfaction of a need might hint at the unsatisfaction of another need.\n  e.g., For 'Feeling overwhelmed from too much social interaction', the 'Social Connection' need may be over-satisfied and of lesser importance currently for the user, but the 'Boundaries & Privacy' need might be unsatisfied and of higher importance.\n\n**Universal Human Needs**:\n```['Physical Well-Being',\n  'Sustenance & Nourishment',\n  'Shelter',\n  'Financial Security',\n  'Rest & Relaxation',\n  'Physical Movement',\n  'Physical Contact & Intimacy',\n  'Contact with Nature',\n  'Social Connection',\n  'Belongingness & Community',\n  'Support, Understanding & Validation',\n  'Affection & Love',\n  'Emotional Safety & Inner Peace',\n  'Boundaries & Privacy',\n  'Autonomy',\n  'Self-Esteem & Social Recognition',\n  'Competence & Effectiveness',\n  'Outward Care & Contribution',\n  'Self-Expression & Creativity',\n  'Exploration, Novelty & Inspiration',\n  'Learning',\n  'Self-Actualization',\n  'Challenge',\n  'Play, Humor & Entertainment',\n  'Fairness & Justice',\n  'Order & Structure',\n  'Meaning & Purpose',\n  'Gratitude & Celebration',\n  'Spiritual Transcendence']```",
+      },
+      {
+        role: "user",
+        content:
+          "Feeling like I am wasting my time at the playfight workshop because I'm not learning anything.",
+      },
+      {
+        role: "assistant",
+        content:
+          "Step 2:\n\"\"\"\n'Physical Well-Being' - Not related.\n...\n'Physical Movement' - Implied by \"playfight workshop\", but the experience does not specify whether this need is satisfied or not.\n'Physical Contact & Intimacy' - Implied by \"playfight workshop\", but the experience does not specify whether this need is satisfied or not.\n...\n'Social Connection': Not directly related but may be implied by attending a workshop.\n...\n'Emotional Safety & Inner Peace' - You might be feeling emotionally unsettled because you are not gaining value.\n...\n'Autonomy' - You might feel a lack of autonomy over your learning process.\n'Self-Esteem & Social Recognition' - Not directly related, but the feeling of time-wasting might affect your self-esteem.\n'Competence & Effectiveness' - You might feel a lack of effectiveness due to the lack of learning.\n...\n'Exploration, Novelty & Inspiration' - You might have sought the workshop for novelty or exploration, which isn't being satisfied.\n'Learning' - Directly mentioned, you are not feeling that you are learning.\n'Self-Actualization' - The experience might touch upon a desire for personal growth.\n'Challenge' - The lack of learning might imply that the challenge isn't adequate.\n...\n'Play, Humor & Entertainment' - The term \"playfight\" might indicate some aspect of play, but it's not clear if it's being satisfied.\n...\n'Meaning & Purpose' - You might be questioning the purpose of the workshop.\n...\n\"\"\"\nStep 3:\n\"\"\"\n'Learning','Competence & Effectiveness','Exploration, Novelty & Inspiration','Challenge'\n\"\"\"\nStep 4:\n{\n\"Learning\": [0.0, 1.0],\n\"Competence & Effectiveness\": [0.0, 0.9],\n\"Exploration, Novelty & Inspiration\": [0.0, 0.8],\n\"Challenge\": [0.0, 0.7]\n}",
+      },
+      {
+        role: "user",
+        content:
+          "Je me sens bien d'aller voir les copains pour dîner avec eux mais un petit peu agitée tout de même parce que j'ai beaucoup bossé je sens que mon besoin de récompense est élevé",
+      },
+      {
+        role: "assistant",
+        content:
+          "Step 2:\n\"\"\"\n'Physical Well-Being' - Not directly related.\n...\n'Sustenance & Nourishment' - Related due to mention of \"dîner\".\n...\n'Rest & Relaxation' - Implied, given that you mentioned feeling \"agitée\" after working a lot.\n...\n'Social Connection' - Directly mentioned, as you are going to see friends for dinner.\n'Belongingness & Community' - Related due to the mention of \"copains\".\n...\n'Emotional Safety & Inner Peace' - Feeling \"agitée\" indicates a potential lack of inner peace.\n...\n'Self-Esteem & Social Recognition' - Your need for reward might be connected to a desire for recognition.\n'Competence & Effectiveness' - Not directly related.\n...\n'Play, Humor & Entertainment' - The idea of seeing friends might touch upon the need for play and humor.\n...\n'Fairness & Justice' - Your need for reward might connect to a sense of fairness.\n...\n'Meaning & Purpose' - Not directly related but might be underlying the need for reward.\n...\n'Gratitude & Celebration' - The idea of going to dinner with friends could be a form of celebration.\n\"\"\"\nStep 3:\n\"\"\"\n'Rest & Relaxation', 'Social Connection', 'Emotional Safety & Inner Peace', 'Self-Esteem & Social Recognition', 'Fairness & Justice'\n\"\"\"\nStep 4:\n{\n\"Rest & Relaxation\": [0.5, 0.9],\n\"Social Connection\": [0.8, 1.0],\n\"Emotional Safety & Inner Peace\": [0.5, 0.9],\n\"Self-Esteem & Social Recognition\": [0.7, 0.9],\n\"Fairness & Justice\": [0.7, 0.8]\n}",
+      },
+      {
+        role: "user",
+        content: "Feeling",
+      },
+      {
+        role: "assistant",
+        content:
+          'Step 2:\n"""\nOops: I\'m sorry, but I was unable to analyze your needs for this experience because your input seems to be incomplete. Could you please retry with more information?\n"""',
       },
       {
         role: "user",
@@ -345,6 +371,37 @@ const createOpenAIRequestOptions = (moment) => {
     presence_penalty: 0,
   };
   return request_options;
+};
+
+// const extractNeedsRating2 = (content) => {
+//   // Find the position of "Step 4:"
+//   const step4Index = content.indexOf("Step 4:");
+
+//   // Extract content from "Step 4:" onwards
+//   const needsRating = content.substring(step4Index + "Step 4:".length).trim();
+
+//   // Parse the content as JSON
+//   return JSON.parse(needsRating);
+// };
+
+const extractNeedsRating = (content) => {
+  try {
+    // Regex pattern to search for content between { and }, not enclosed in triple quotes
+    const regexPattern = /(?<!""")\{[^}]*\}(?!""")/;
+
+    // Extract the content matching the pattern
+    const match = content.match(regexPattern);
+
+    if (!match) {
+      throw new Error("No valid JSON object found!");
+    }
+
+    // Parse the matched content as JSON
+    return JSON.parse(match[0]);
+  } catch (error) {
+    console.error("Error extractNeedsRating:", error);
+    return {};
+  }
 };
 
 const authenticate = async (req, res, next) => {
@@ -389,7 +446,7 @@ router.get("/needs/", async (req, res) => {
     lockedMomentIds.add(req.query.momentId);
 
     // console.log("req.headers", req.headers);
-    console.log("GET request received", req.query); //returns { momentText: 'Feeling stressed of not knowing what I’m gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
+    console.log("GET request received", req.query); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
 
     //TODO:2 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
 
@@ -398,16 +455,38 @@ router.get("/needs/", async (req, res) => {
     // console.log("request_options", request_options);
     const response = await openai.chat.completions.create(request_options);
     // console.log("response", response);
-    // console.log( "response.choices[0].message",  response.choices[0].message );
+    console.log(
+      "LLM response received for",
+      req.query,
+      "response.choices[0].message",
+      response.choices[0].message,
+    );
 
     // Parse the response content to a JavaScript object
-    let parsedContent = JSON.parse(response.choices[0].message.content);
+    let parsedContent = extractNeedsRating(response.choices[0].message.content);
     console.log(
       "LLM response received for",
       req.query,
       ", parsedContent=",
       parsedContent,
     );
+    // let parsedContent2 = extractNeedsRating2(
+    //   response.choices[0].message.content,
+    // );
+    // console.log(
+    //   "LLM response received for",
+    //   req.query,
+    //   ", parsedContent2=",
+    //   parsedContent2,
+    // );
+
+    return res
+      .status(500)
+      .send(
+        "An error occurred while making or saving the prediction for query" +
+          JSON.stringify(req.query),
+      );
+
     /* returns {"Emotional Safety & Well-Being": 0.8, "Personal Autonomy": 0.2, "Self-Esteem & Social Recognition": 0.2, "Exploration": 0.1, "Learning": 0.1, "Inner Peace": 0.1}*/
     if (!parsedContent || parsedContent.error) {
       console.log(
@@ -436,11 +515,11 @@ router.get("/needs/", async (req, res) => {
 
       const errorMessages = {
         parsedContentEmpty:
-          "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+          "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don't justify it, just return the expected JSON result.",
         sumOfAllValuesLow:
-          "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+          "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don't justify it, just return the expected JSON result.",
         noValuesMoreThanThreshold:
-          "Why are all need importance values so low? Please provide a revised answer. Don’t justify it, just return the expected JSON result.",
+          "Why are all need importance values so low? Please provide a revised answer. Don't justify it, just return the expected JSON result.",
       };
       const errorMessage =
         errorMessages[issueType] || "Error: issueType not recognized";

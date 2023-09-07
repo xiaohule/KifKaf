@@ -48,7 +48,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateDataFetched = ref(false);
   const isEditorFocused = ref(false);
   const needsMap = ref({
-    "Physical Well-Being": "🛡️",
+    "Physical Well-Being": "🛡️", //readd Physical safety dedans ou split
     "Sustenance & Nourishment": "🍎",
     Shelter: "🏠",
     "Financial Security": "💰",
@@ -60,7 +60,7 @@ export const useMomentsStore = defineStore("moments", () => {
     "Belongingness & Community": "🏘️",
     "Support, Understanding & Validation": "👂", // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
     "Affection & Love": "❤️",
-    "Emotional Well-Being & Inner Peace": "🧘‍♂️", //"🤗",
+    "Emotional Safety & Inner Peace": "🧘‍♂️", //"🤗",
     "Boundaries & Privacy": "🚪",
     Autonomy: "🛤️",
     "Self-Esteem & Social Recognition": "💪",
@@ -69,16 +69,13 @@ export const useMomentsStore = defineStore("moments", () => {
     "Self-Expression & Creativity": "🎨",
     "Exploration, Novelty & Inspiration": "🌌", //🌎 // réduire à Exploration & Novelty?
     Learning: "📚",
-    "Self-Actualization": "🌱",
+    "Self-Actualization": "🌱", //merge learning and self-actualization?
     Challenge: "⛰️",
-    Entertainment: "🎠",
-    Humor: "😂",
-    Play: "⚽",
-    "Moral Integrity & Social Justice": "⚖️", //🕊️
+    "Play, Humor & Entertainment": "🎠", // "😂","⚽",🎭
+    "Fairness & Justice": "⚖️", //🕊️
     "Order & Structure": "📐",
     "Meaning & Purpose": "🧭", //🌌
-    "Gratitude & Joyful Celebration": "🎉",
-    "Grieving & Mourning": "🥀",
+    "Gratitude & Celebration": "🎈", //🎉 //🕯️
     "Spiritual Transcendence": "🌸",
   });
 
