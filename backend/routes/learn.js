@@ -12,6 +12,8 @@ require("dotenv").config();
 
 var router = express.Router();
 
+//TODO:2 unify and clean error handling
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -92,10 +94,10 @@ const initAggregateDoc = async (aggregateDocRef, isRaw = false) => {
   }
 };
 
-function generateNewRawData(mom, doc, momentImportancesResp) {
+function generateNewRawData(mom, doc, momentNeedsResp) {
   //variables are prefixed by "moment" when related to the processed moment, "" when related to a need and "total"/"max" when aggregated over all needs
-  const momentImportancesSum = Object.values(momentImportancesResp).reduce(
-    (acc, currentValue) => acc + currentValue,
+  const momentImportancesSum = Object.values(momentNeedsResp).reduce(
+    (acc, currentValue) => acc + currentValue[1],
     0,
   );
 
@@ -107,18 +109,20 @@ function generateNewRawData(mom, doc, momentImportancesResp) {
     totalUnsatisfactionImpact: 0,
     maxImportanceValue: 0,
   };
+  // console.log("baseData", baseData);
 
   //1st loop only on mom's needs to update value that relies only on the moment data
   for (let need in doc.data().needs) {
-    if (momentImportancesResp[need]) {
+    //if need in momentNeedsResp with non-zero importance
+    if (momentNeedsResp[need] && momentNeedsResp[need][1]) {
       const occurrenceCount = doc.data().needs[need].occurrenceCount + 1;
       baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
 
       baseData[`needs.${need}.importancesSum`] =
-        doc.data().needs[need].importancesSum + momentImportancesResp[need];
+        doc.data().needs[need].importancesSum + momentNeedsResp[need][1];
 
       const satisfactionSum =
-        doc.data().needs[need].satisfactionSum + Math.random(); //TODO:4 get satisfacton
+        doc.data().needs[need].satisfactionSum + momentNeedsResp[need][0];
       baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
 
       baseData[`needs.${need}.satisfactionValue`] =
@@ -184,15 +188,14 @@ function generateNewRawData(mom, doc, momentImportancesResp) {
   //   mom,
   //   " for doc: ",
   //   doc.id,
-  //   "for momentImportancesResp: ",
-  //   momentImportancesResp,
+  //   "for momentNeedsResp: ",
+  //   momentNeedsResp,
   //   " returning baseData:",
   //   baseData,
   // );
 
   return baseData;
 }
-
 //   {
 //     2023: {
 //       nMoments: FieldValue.increment(1),
@@ -202,8 +205,8 @@ function generateNewRawData(mom, doc, momentImportancesResp) {
 //         needName: {,
 //             occurrenceCount: FieldValue.increment(1);
 
-//             importancesSum: FieldValue.increment(momentImportancesResp[need],
-//             satisfactionSum: FieldValue.increment(Math.random(),
+//             importancesSum: FieldValue.increment(momentNeedsResp[need][1]),
+//             satisfactionSum: FieldValue.increment(momentNeedsResp[need][0]),
 
 //             importanceValue: importancesSum / totalImportances,
 //             satisfactionValue: satisfactionSum / occurrenceCount,
@@ -244,14 +247,16 @@ function generateNewDisplayArray( //TODO:2 we could remove all data that won't b
   sortBy = "none",
 ) {
   try {
-    // console.log(
-    //   "In generateNewDisplayData with filterBy:",
-    //   filterBy,
-    //   "sortBy:",
-    //   sortBy,
-    //   // "newRawData:",
-    //   // newRawData,
-    // );
+    // if (filterBy === "satisfaction") {
+    //   console.log(
+    //     "In generateNewDisplayData with filterBy:",
+    //     filterBy,
+    //     "sortBy:",
+    //     sortBy,
+    //     "newRawData:",
+    //     newRawData,
+    //   );
+    // }
     if (!newRawData)
       throw new Error("In generateNewDisplayArray newRawData is empty");
 
@@ -275,15 +280,16 @@ function generateNewDisplayArray( //TODO:2 we could remove all data that won't b
         }
       }
     });
-
-    console.log(
-      "In generateNewDisplayArray with filterBy:",
-      filterBy,
-      "sortBy:",
-      sortBy,
-      "returning needsDataArray after arrayization:",
-      needsDataArray,
-    );
+    // if (filterBy === "satisfaction") {
+    //   console.log(
+    //     "In generateNewDisplayArray with filterBy:",
+    //     filterBy,
+    //     "sortBy:",
+    //     sortBy,
+    //     "returning needsDataArray after arrayization:",
+    //     needsDataArray,
+    //   );
+    // }
 
     if (needsDataArray.length == 0)
       throw new Error("In generateNewDisplayArray needsDataArray is empty");
@@ -304,19 +310,20 @@ function generateNewDisplayArray( //TODO:2 we could remove all data that won't b
     if (sortBy !== "none") {
       needsDataArray.sort((a, b) => b[sortBy] - a[sortBy]);
     }
-
-    console.log(
-      "In generateNewDisplayArray with filterBy:",
-      filterBy,
-      "sortBy:",
-      sortBy,
-      "returning needsDataArray after filter sorting:",
-      needsDataArray,
-    );
+    // if (filterBy === "satisfaction") {
+    //   console.log(
+    //     "In generateNewDisplayArray with filterBy:",
+    //     filterBy,
+    //     "sortBy:",
+    //     sortBy,
+    //     "returning needsDataArray after filter sorting:",
+    //     needsDataArray,
+    //   );
+    // }
 
     return needsDataArray;
   } catch (error) {
-    console.error("Error generateNewDisplayArray:", error);
+    console.error("Error in generateNewDisplayArray:", error);
     return [];
   }
 }
@@ -373,35 +380,14 @@ const createOpenAIRequestOptions = (moment) => {
   return request_options;
 };
 
-// const extractNeedsRating2 = (content) => {
-//   // Find the position of "Step 4:"
-//   const step4Index = content.indexOf("Step 4:");
-
-//   // Extract content from "Step 4:" onwards
-//   const needsRating = content.substring(step4Index + "Step 4:".length).trim();
-
-//   // Parse the content as JSON
-//   return JSON.parse(needsRating);
-// };
-
 const extractNeedsRating = (content) => {
-  try {
-    // Regex pattern to search for content between { and }, not enclosed in triple quotes
-    const regexPattern = /(?<!""")\{[^}]*\}(?!""")/;
-
-    // Extract the content matching the pattern
-    const match = content.match(regexPattern);
-
-    if (!match) {
-      throw new Error("No valid JSON object found!");
-    }
-
-    // Parse the matched content as JSON
-    return JSON.parse(match[0]);
-  } catch (error) {
-    console.error("Error extractNeedsRating:", error);
-    return {};
-  }
+  // Regex pattern to search for content between { and }, not enclosed in triple quotes
+  const regexPattern = /(?<!""")\{[^}]*\}(?!""")/;
+  // Extract the content matching the pattern
+  const match = content.match(regexPattern);
+  if (!match) return {};
+  // Parse the matched content as JSON
+  return JSON.parse(match[0]);
 };
 
 const authenticate = async (req, res, next) => {
@@ -446,7 +432,7 @@ router.get("/needs/", async (req, res) => {
     lockedMomentIds.add(req.query.momentId);
 
     // console.log("req.headers", req.headers);
-    console.log("GET request received", req.query); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
+    // console.log("GET request received", req.query); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
 
     //TODO:2 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
 
@@ -454,56 +440,69 @@ router.get("/needs/", async (req, res) => {
     const request_options = createOpenAIRequestOptions(req.query.momentText);
     // console.log("request_options", request_options);
     const response = await openai.chat.completions.create(request_options);
-    // console.log("response", response);
-    console.log(
-      "LLM response received for",
-      req.query,
-      "response.choices[0].message",
-      response.choices[0].message,
-    );
-
-    // Parse the response content to a JavaScript object
-    let parsedContent = extractNeedsRating(response.choices[0].message.content);
-    console.log(
-      "LLM response received for",
-      req.query,
-      ", parsedContent=",
-      parsedContent,
-    );
-    // let parsedContent2 = extractNeedsRating2(
-    //   response.choices[0].message.content,
-    // );
     // console.log(
     //   "LLM response received for",
     //   req.query,
-    //   ", parsedContent2=",
-    //   parsedContent2,
+    //   "response", //.choices[0].message
+    //   response,
     // );
 
-    return res
-      .status(500)
-      .send(
-        "An error occurred while making or saving the prediction for query" +
-          JSON.stringify(req.query),
-      );
+    // Parse the response content to a JavaScript object
+    let momentNeedsResp = extractNeedsRating(
+      response.choices[0].message.content,
+    );
+    console.log(
+      "LLM response received and parsed for",
+      req.query,
+      ", momentNeedsResp=",
+      momentNeedsResp,
+    );
+    // returns {'Emotional Safety & Inner Peace': [ 0.3, 0.8 ],'Self-Esteem & Social Recognition': [ 0.4, 0.7 ]} or {} if error or llm didn't understand the moment
 
-    /* returns {"Emotional Safety & Well-Being": 0.8, "Personal Autonomy": 0.2, "Self-Esteem & Social Recognition": 0.2, "Exploration": 0.1, "Learning": 0.1, "Inner Peace": 0.1}*/
-    if (!parsedContent || parsedContent.error) {
-      console.log(
-        "Error: parsedContent empty or erroneous, for mom",
-        req.query,
-        "here are response.choices[0].message: ",
-        response.choices[0].message,
+    // TODO:4 find a way to handle Oops to put it in needsSatisAndImp so that doesn't trigger moments store retry
+    const userDocRef = db.collection("users").doc(req.uid);
+    const momentDocRef = userDocRef
+      .collection("invalidMoments")
+      .doc(req.query.momentId);
+
+    if (
+      !momentNeedsResp ||
+      momentNeedsResp.error ||
+      Object.keys(momentNeedsResp).length == 0 ||
+      Object.values(momentNeedsResp).some((value) => value[1] === 0)
+    ) {
+      const invalidMomentsRef = db
+        .collection("moments")
+        .doc(req.query.momentId);
+
+      const batch = db.batch();
+      batch.set(invalidMomentsRef, {
+        moment: req.query.momentText,
+        reason: response.choices[0].message.content,
+        user: req.uid,
+        lastUpdate: FieldValue.serverTimestamp(),
+      });
+      batch.update(momentDocRef, { needsSatisAndImp: momentNeedsResp });
+      await batch.commit();
+
+      throw new Error(
+        "momentNeedsResp empty or erroneous, for mom" +
+          JSON.stringify(req.query) +
+          "here are response.choices[0].message: " +
+          JSON.stringify(response.choices[0].message),
       );
     }
 
     // PROCESS LLM RESPONSE, REPLYING IF NECESSARY
     const issueTypeConditions = {
-      parsedContentEmpty: Object.keys(parsedContent).length == 0,
-      sumOfAllValuesLow:
-        Object.values(parsedContent).reduce((a, b) => a + b, 0) < 0.1,
-      noValuesMoreThanThreshold: !Object.values(parsedContent).some(
-        (value) => value > 0.1,
+      // momentNeedsRespEmpty: Object.keys(momentNeedsResp).length === 0,
+      sumOfAllImportancesLow:
+        Object.values(momentNeedsResp).reduce((a, b) => a[1] + b[1], 0) < 0.1,
+      noImportancesMoreThanThreshold: !Object.values(momentNeedsResp).some(
+        (value) => value[1] > 0.1,
+      ),
+      oneZeroImportance: Object.values(momentNeedsResp).some(
+        (value) => value[1] === 0,
       ),
     };
     const issueType = Object.keys(issueTypeConditions).find(
@@ -511,59 +510,58 @@ router.get("/needs/", async (req, res) => {
     );
 
     if (issueType) {
-      console.log("Error:", issueType, "for", req.query, parsedContent);
+      console.log("Error:", issueType, "for", req.query, momentNeedsResp);
 
       const errorMessages = {
-        parsedContentEmpty:
-          "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don't justify it, just return the expected JSON result.",
-        sumOfAllValuesLow:
+        // momentNeedsRespEmpty:
+        //   "Why did you return an empty result? All moments do hint at some needs. Please provide a revised answer. Don't justify it, just return the expected JSON result.",
+        sumOfAllImportancesLow:
           "Why are all need importance values zero? All moments do hint at some needs. Please provide a revised answer. Don't justify it, just return the expected JSON result.",
-        noValuesMoreThanThreshold:
+        noImportancesMoreThanThreshold:
           "Why are all need importance values so low? Please provide a revised answer. Don't justify it, just return the expected JSON result.",
       };
-      const errorMessage =
-        errorMessages[issueType] || "Error: issueType not recognized";
 
       // append the returned assistant response and the user's response to request_options.messages and call openai.createChatCompletion again
       request_options.messages.push(
         response.choices[0].message, // This adds the last response from the assistant
         {
           role: "user",
-          content: errorMessage,
+          content: errorMessages[issueType],
         },
       );
       const replyResponse =
         await openai.chat.completions.create(request_options);
-      // Update the 'parsedContent' from the new response
-      parsedContent = JSON.parse(replyResponse.choices[0].message.content);
+      // Update the 'momentNeedsResp' from the new response
+      momentNeedsResp = extractNeedsRating(
+        replyResponse.choices[0].message.content,
+      );
       console.log(
         "Retried for ",
         req.query,
         "bec. it had Error ",
         issueType,
-        ", new parsedContent after reply: ",
-        parsedContent,
+        ", new momentNeedsResp after reply: ",
+        momentNeedsResp,
       );
       if (
-        !parsedContent ||
-        parsedContent.error ||
-        Object.keys(parsedContent).length == 0
+        !momentNeedsResp ||
+        momentNeedsResp.error ||
+        Object.keys(momentNeedsResp).length === 0 ||
+        Object.values(momentNeedsResp).some((value) => value[1] === 0)
       ) {
         console.log(
-          "Error in retry: parsedContent empty or erroneous, for",
+          "Error in retry: momentNeedsResp empty or erroneous, for",
           req.query,
-          "here are response.choices[0].message: ",
+          "here is response.choices[0].message: ",
           response.choices[0].message,
         );
       }
     }
 
-    let momentImportancesResp = parsedContent;
-
-    for (let need in momentImportancesResp) {
+    for (let need in momentNeedsResp) {
       //if need is not in needsList, add it to offlistNeeds collection
       if (!needsList.includes(need)) {
-        delete momentImportancesResp[need];
+        delete momentNeedsResp[need];
         console.log(need, " is not found in the needsList.");
         const offlisNeedsRef = db
           .collection("offlistNeeds")
@@ -572,7 +570,7 @@ router.get("/needs/", async (req, res) => {
           .doc(req.query.momentId);
         await offlisNeedsRef.set({
           moment: req.query.momentText,
-          needsImportance: parsedContent,
+          needsSatisAndImp: momentNeedsResp,
           user: req.uid,
           lastUpdate: FieldValue.serverTimestamp(),
         });
@@ -581,7 +579,6 @@ router.get("/needs/", async (req, res) => {
 
     // ENRICH MOMENT DOC & UPDATE AGGREGATE DOCS
     //get yearly and monthly aggregate docs
-    const userDocRef = db.collection("users").doc(req.uid);
     let aggregateYearlyRawDocRef,
       aggregateMonthlyRawDocRef,
       aggregateYearlyDocRef,
@@ -626,10 +623,6 @@ router.get("/needs/", async (req, res) => {
         );
     }
 
-    const momentDocRef = userDocRef
-      .collection("moments")
-      .doc(req.query.momentId);
-
     //batch persist llm data in firestore
     try {
       await db.runTransaction(async (t) => {
@@ -639,12 +632,12 @@ router.get("/needs/", async (req, res) => {
         const newYearlyRawData = generateNewRawData(
           req.query.momentText,
           aggregateYearlyRawDoc,
-          momentImportancesResp,
+          momentNeedsResp,
         );
         const newMonthlyRawData = generateNewRawData(
           req.query.momentText,
           aggregateMonthlyRawDoc,
-          momentImportancesResp,
+          momentNeedsResp,
         );
 
         const newYearlyData = {
@@ -685,19 +678,19 @@ router.get("/needs/", async (req, res) => {
           ),
         };
 
-        console.log(
-          "In transaction before update, newYearlyData",
-          newYearlyData,
-        );
+        // console.log(
+        //   "In transaction before update, newYearlyData",
+        //   newYearlyData,
+        // );
         //update aggregate docs
         t.update(aggregateYearlyRawDocRef, newYearlyRawData);
         t.update(aggregateMonthlyRawDocRef, newMonthlyRawData);
         t.update(aggregateYearlyDocRef, newYearlyData);
         t.update(aggregateMonthlyDocRef, newMonthlyData);
 
-        t.update(momentDocRef, { needsImportances: momentImportancesResp });
+        t.update(momentDocRef, { needsSatisAndImp: momentNeedsResp });
         t.update(db.collection("users").doc(req.uid), { hasNeeds: true });
-        //TODO:2 for more safety of the data we could check if the moment needsImportances were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
+        //TODO:2 for more safety of the data we could check if the moment needsSatisAndImp were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
       });
 
       console.log(

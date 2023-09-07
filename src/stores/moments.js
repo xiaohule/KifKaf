@@ -206,22 +206,22 @@ export const useMomentsStore = defineStore("moments", () => {
 
   //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
   const emptyNeedsMomentsRetry = async () => {
-    // Query moments where needsImportances is empty
-    const emptyNeedsImportancesQuery = query(
+    // Query moments where needsSatisAndImp is empty
+    const emptyNeedsSatisAndImpQuery = query(
       collection(db, `users/${user.value.uid}/moments`),
-      where("needsImportances", "==", {}),
+      where("needsSatisAndImp", "==", {}),
       where("retries", "<", 3),
       orderBy("retries"),
       limit(3),
     );
-    const momentsWithEmptyNeedsImportances = await getDocs(
-      emptyNeedsImportancesQuery,
+    const momentsWithEmptyNeedsSatisAndImp = await getDocs(
+      emptyNeedsSatisAndImpQuery,
     );
 
     //retry to call LLM and increment the retries counter //TODO:1 parallelize the calls to LLM
-    for (const doc of momentsWithEmptyNeedsImportances.docs) {
+    for (const doc of momentsWithEmptyNeedsSatisAndImp.docs) {
       console.log(
-        "In emptyNeedsMomentsRetry, emptyNeedsImportancesQuery returned:",
+        "In emptyNeedsMomentsRetry, emptyNeedsSatisAndImpQuery returned:",
         doc.data(),
       );
 
@@ -263,7 +263,7 @@ export const useMomentsStore = defineStore("moments", () => {
         collection(db, `users/${user.value.uid}/moments`),
       );
       batch.set(newMomDocRef, moment);
-      batch.update(newMomDocRef, { needsImportances: {}, retries: 0 });
+      batch.update(newMomDocRef, { needsSatisAndImp: {}, retries: 0 });
 
       // Update the tag statistics in tagsColl for the tags of the new moment
       for (const tag of moment.tags) {

@@ -116,9 +116,10 @@ describe("Checking main screens & Moments inputting", () => {
     //can navigate to Learn>Home>Settings>Home
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-    cy.contains("Kifs").should("be.visible");
+    cy.contains("Needs Importance").should("be.visible");
+    cy.contains("Satisfied").should("be.visible");
     cy.contains(
-      "First add some Kafs in Home tab to learn about what drains you!",
+      "Add Moments in the Home tab to learn more about your needs!",
     ).should("be.visible");
     cy.get("footer").contains("Home").click();
     cy.url({ timeout: 40000 }).should("not.include", "learn");
@@ -148,17 +149,15 @@ describe("Checking main screens & Moments inputting", () => {
   });
 });
 
-describe("Stats validation", () => {
+describe("Learn Stats validation", () => {
   it("has correct stats in Learn tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Learn tab for 2023
     cy.visit("/");
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-    cy.contains("This year").should("be.visible");
-    cy.contains("Kifs").should("be.visible");
-    cy.contains("Kafs");
+    cy.contains("This month").should("be.visible");
 
-    //expand Kifs section
+    //expand Needs Satisfaction section
     cy.get(".swiper-slide-active").first().contains("Show more").click();
     cy.get(".swiper-slide-active").then(($els) => {
       for (const item of momentsStats2023Data) {
@@ -186,70 +185,13 @@ describe("Stats validation", () => {
       }
     });
 
-    // cy.get(".swiper-slide-active").then(($els) => {
-    //   for (const item of momentsStats2023Data) {
-    //     // Check if the tag exists in the first .swiper-slide-active element
-    //     const foundInFirstSlide = $els.first().text().includes(item.tag);
-
-    //     if (foundInFirstSlide) {
-    //       cy.wrap($els.first())
-    //         .contains(item.tag)
-    //         .as("foundTag")
-    //         .parent()
-    //         .as("tagParent")
-    //         .contains(item.count)
-    //         .as("countElement")
-    //         .parent()
-    //         .parent()
-    //         .contains(item.avgIntensity);
-    //     } else {
-    //       // If not found in the first .swiper-slide-active element, try the second one
-    //       cy.wrap($els.last())
-    //         .contains(item.tag)
-    //         .as("foundTagLast")
-    //         .parent()
-    //         .as("tagParentLast")
-    //         .contains(item.count)
-    //         .as("countElementLast")
-    //         .parent()
-    //         .parent()
-    //         .contains(item.avgIntensity);
-    //     }
-    //   }
-    // });
-
-    // cy.get(".swiper-slide-active").then(($els) => {
-    //   for (const item of momentsStats2023Data) {
-    //     cy.wrap($els.first()).within(($el) => {
-    //       if ($el.text().includes(item.tag)) {
-    //         cy.contains(item.tag)
-    //           .parent()
-    //           .contains(item.count)
-    //           .parent()
-    //           .parent()
-    //           .contains(item.avgIntensity);
-    //       } else {
-    //         // If not found in the first .swiper-slide-active element, try the second one
-    //         cy.wrap($els.last()).within(() => {
-    //           cy.contains(item.tag)
-    //             .parent()
-    //             .contains(item.count)
-    //             .parent()
-    //             .parent()
-    //             .contains(item.avgIntensity);
-    //         });
-    //       }
-    //     });
-    //   }
-    // });
-
-    cy.contains("Frequency").each(($el) => {
+    cy.contains("Satisfied").each(($el) => {
       cy.wrap($el).click({ force: true });
     });
     cy.get(".swiper-slide-active").each(($el, index, $list) => {
       cy.wrap($el).as("swiper");
-      cy.get("@swiper").contains("Frequency").as("frequency");
-      cy.get("@frequency").click();
+      cy.get("@swiper").contains("Satisfied").as("satisfied");
+      cy.get("@satisfied").click();
     });
 
     cy.get(".swiper-slide-active").then(($els) => {
@@ -281,7 +223,7 @@ describe("Stats validation", () => {
     cy.visit("/");
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-    cy.contains("This year").should("be.visible").click();
+    cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
       // cy.wrap(el).should("contain", "screen");
       cy.contains("Monthly").should("be.visible").click();
@@ -321,37 +263,133 @@ describe("Stats validation", () => {
     cy.visit("/");
     cy.contains("Learn").click();
     cy.url().should("include", "learn");
-    cy.contains("This year").click();
+    cy.contains("This month").click();
+    cy.contains("Yearly").click();
     cy.contains("2021").click();
     cy.contains("Done").click();
-    cy.contains("No Kifs for this period").should("be.visible");
+    cy.contains("No unsatisfied needs for this period").should("be.visible");
   });
 });
 
-// https://github.com/cypress-io/cypress-example-recipes/blob/master/examples/fundamentals__fixtures/cypress/e2e/list-spec.cy.js
-
-// ** The following code is an example to show you how to write some tests for your home page **
-
-// describe("Home page tests", () => {
-//   beforeEach(() => {
+// describe("Lear_nOld Stats validation", () => {
+//   it("has correct stats in Learn tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
+//     //should have correct stats in Learn tab for 2023
 //     cy.visit("/");
-//   });
-//   it("has pretty background", () => {
-//     cy.dataCy("landing-wrapper")
-//       .should("have.css", "background")
-//       .and("match", /(".+(\/img\/background).+\.png)/);
-//   });
-//   it("has pretty logo", () => {
-//     cy.dataCy("landing-wrapper img")
-//       .should("have.class", "logo-main")
-//       .and("have.attr", "src")
-//       .and("match", /^(data:image\/svg\+xml).+/);
-//   });
-//   it("has very important information", () => {
-//     cy.dataCy("instruction-wrapper")
-//       .should("contain", "SETUP INSTRUCTIONS")
-//       .and("contain", "Configure Authentication")
-//       .and("contain", "Database Configuration and CRUD operations")
-//       .and("contain", "Continuous Integration & Continuous Deployment CI/CD");
+//     cy.contains("Lear_nOld").click();
+//     cy.url().should("include", "lear_nold");
+//     cy.contains("This year").should("be.visible");
+//     cy.contains("Kifs").should("be.visible");
+//     cy.contains("Kafs");
+
+//     //expand Kifs section
+//     cy.get(".swiper-slide-active").first().contains("Show more").click();
+//     cy.get(".swiper-slide-active").then(($els) => {
+//       for (const item of momentsStats2023Data) {
+//         if ($els.first().text().includes(item.tag)) {
+//           // Create alias for the first swiper-slide-active
+//           cy.wrap($els.first()).as("firstSwiper");
+
+//           cy.get("@firstSwiper").contains(item.tag).as("firstTag");
+//           cy.get("@firstTag").parent().as("firstTagParent");
+//           cy.get("@firstTagParent").contains(item.count).as("firstCount");
+//           cy.get("@firstCount").parent().as("firstCountParent");
+//           cy.get("@firstCountParent").parent().as("firstCountGrandParent");
+//           cy.get("@firstCountGrandParent").contains(item.avgIntensity);
+//         } else {
+//           // Create alias for the last swiper-slide-active
+//           cy.wrap($els.last()).as("lastSwiper");
+
+//           cy.get("@lastSwiper").contains(item.tag).as("lastTag");
+//           cy.get("@lastTag").parent().as("lastTagParent");
+//           cy.get("@lastTagParent").contains(item.count).as("lastCount");
+//           cy.get("@lastCount").parent().as("lastCountParent");
+//           cy.get("@lastCountParent").parent().as("lastCountGrandParent");
+//           cy.get("@lastCountGrandParent").contains(item.avgIntensity);
+//         }
+//       }
+//     });
+
+//     cy.contains("Frequency").each(($el) => {
+//       cy.wrap($el).click({ force: true });
+//     });
+//     cy.get(".swiper-slide-active").each(($el, index, $list) => {
+//       cy.wrap($el).as("swiper");
+//       cy.get("@swiper").contains("Frequency").as("frequency");
+//       cy.get("@frequency").click();
+//     });
+
+//     cy.get(".swiper-slide-active").then(($els) => {
+//       for (const item of momentsStats2023Data) {
+//         cy.wrap($els.first()).within(($el) => {
+//           if ($el.text().includes(item.tag)) {
+//             cy.contains(item.tag)
+//               .parent()
+//               .contains(item.count)
+//               .parent()
+//               .parent()
+//               .contains((item.percentShare * 100).toFixed(0));
+//           } else {
+//             // If not found in the first .swiper-slide-active element, try the second one
+//             cy.wrap($els.last()).within(() => {
+//               cy.contains(item.tag)
+//                 .parent()
+//                 .contains(item.count)
+//                 .parent()
+//                 .parent()
+//                 .contains((item.percentShare * 100).toFixed(0));
+//             });
+//           }
+//         });
+//       }
+//     });
+
+//     //should have a working monthly picker and correct stats in learn tab for 2022
+//     cy.visit("/");
+//     cy.contains("Lear_nOld").click();
+//     cy.url().should("include", "lear_nold");
+//     cy.contains("This year").should("be.visible").click();
+//     cy.withinDialog((el) => {
+//       // cy.wrap(el).should("contain", "screen");
+//       cy.contains("Monthly").should("be.visible").click();
+//       cy.contains("May").should("be.visible");
+//       cy.contains("Yearly").should("be.visible").click();
+//       cy.contains("2023").should("be.visible");
+//       cy.contains("2022").should("be.visible").click();
+//       cy.contains("Done").should("be.visible").click();
+//     });
+//     cy.contains("2022").should("be.visible");
+//     cy.get(".swiper-slide-active").then(($els) => {
+//       for (const item of momentsStats2022Data) {
+//         cy.wrap($els.first()).within(($el) => {
+//           if ($el.text().includes(item.tag)) {
+//             cy.contains(item.tag)
+//               .parent()
+//               .contains(item.count)
+//               .parent()
+//               .parent()
+//               .contains(item.avgIntensity);
+//           } else {
+//             // If not found in the first .swiper-slide-active element, try the second one
+//             cy.wrap($els.last()).within(() => {
+//               cy.contains(item.tag)
+//                 .parent()
+//                 .contains(item.count)
+//                 .parent()
+//                 .parent()
+//                 .contains(item.avgIntensity);
+//             });
+//           }
+//         });
+//       }
+//     });
+
+//     //should have the expected placeholder in learn tab for 2021
+//     cy.visit("/");
+//     cy.contains("Lear_nOld").click();
+//     cy.url().should("include", "lear_nold");
+//     cy.contains("This year").click();
+//     cy.contains("2021").click();
+//     cy.contains("Done").click();
+//     cy.contains("No Kifs for this period").should("be.visible");
 //   });
 // });

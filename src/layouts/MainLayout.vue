@@ -24,8 +24,8 @@
       <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-secondary"
         :breakpoint="0" :ripple="false">
         <q-route-tab name="home" icon="home" label="Home" to="/" />
+        <q-route-tab name="lear_nOld" icon="insights" label="Lear_nOld" to="/lear_nold" />
         <q-route-tab name="learn" icon="insights" label="Learn" to="/learn" />
-        <q-route-tab name="learnv1" icon="insights" label="Learn v1" to="/learnv1" />
 
         <!-- re-add tabs when ready -->
         <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />

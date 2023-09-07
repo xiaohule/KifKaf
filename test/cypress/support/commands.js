@@ -102,12 +102,20 @@ Cypress.Commands.add("signUp", (username, password) => {
     ({ usernameHandle }) => {
       cy.visit("/");
       // retrieving the temporary email address
-      cy.get("#inbox-id").click();
+      cy.get("#inbox-id").click({ force: true });
       cy.get("#inbox-id > input").type(usernameHandle);
-      cy.contains("Set").click();
+      cy.contains("Set").click({ force: true });
+      cy.wait(1000);
+      // cy.visit("/");
+      cy.wait(1000);
+      // cy.wait(5000);
+      // cy.reload();
+      // cy.wait(5000);
+      cy.reload(true);
+
       cy.contains("kifkaf", { timeout: 120000 })
         .should("be.visible")
-        .click()
+        .click({ force: true })
         .then(() => {
           // clicking the authentication link contained in the body of the email
           // cy.get(".email_body a").first().click();
