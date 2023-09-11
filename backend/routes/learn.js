@@ -9,6 +9,7 @@ const {
 } = require("firebase-admin/firestore");
 const OpenAI = require("openai");
 require("dotenv").config();
+const crypto = require("crypto");
 
 var router = express.Router();
 
@@ -372,7 +373,7 @@ const createOpenAIRequestOptions = (moment) => {
       },
     ],
     temperature: 0,
-    max_tokens: 500,
+    max_tokens: 1500,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
@@ -389,6 +390,30 @@ const extractNeedsRating = (content) => {
   // Parse the matched content as JSON
   return JSON.parse(match[0]);
 };
+
+function generateFirestoreDocId(text) {
+  // Step 1: Hash the text using SHA-256
+  const hash = crypto.createHash("sha256").update(text, "utf8").digest();
+
+  // Step 2: Convert the hash to Base64URL format
+  let base64url = hash
+    .toString("base64")
+    .replace(/\+/g, "-") // replace all '+' with '-'
+    .replace(/\//g, "_") // replace all '/' with '_'
+    .replace(/=+$/, ""); // remove any trailing '=' characters
+  // Guard against the pattern __.*__
+  if (/^__.*__$/.test(base64url)) {
+    base64url = "ID-" + base64url;
+  }
+
+  // Step 3: Ensure it's less than 1,500 bytes (this step might be redundant given the fixed size of SHA-256 hashes, but included for completeness)
+  if (Buffer.from(base64url).length > 1500) {
+    base64url = base64url.substring(0, 1500);
+  }
+
+  console.log("In generateFirestoreDocId", text, base64url);
+  return base64url;
+}
 
 const authenticate = async (req, res, next) => {
   const idToken = req.headers.authorization?.split("Bearer ")[1];
@@ -462,7 +487,7 @@ router.get("/needs/", async (req, res) => {
     // TODO:4 find a way to handle Oops to put it in needsSatisAndImp so that doesn't trigger moments store retry
     const userDocRef = db.collection("users").doc(req.uid);
     const momentDocRef = userDocRef
-      .collection("invalidMoments")
+      .collection("moments")
       .doc(req.query.momentId);
 
     if (
@@ -471,12 +496,13 @@ router.get("/needs/", async (req, res) => {
       Object.keys(momentNeedsResp).length == 0 ||
       Object.values(momentNeedsResp).some((value) => value[1] === 0)
     ) {
-      const invalidMomentsRef = db
-        .collection("moments")
-        .doc(req.query.momentId);
-
+      // Example
+      const invalidMomentDocId = generateFirestoreDocId(req.query.momentText);
+      const invalidMomentsDocRef = db
+        .collection("invalidMoments")
+        .doc(invalidMomentDocId);
       const batch = db.batch();
-      batch.set(invalidMomentsRef, {
+      batch.set(invalidMomentsDocRef, {
         moment: req.query.momentText,
         reason: response.choices[0].message.content,
         user: req.uid,
@@ -486,10 +512,10 @@ router.get("/needs/", async (req, res) => {
       await batch.commit();
 
       throw new Error(
-        "momentNeedsResp empty or erroneous, for mom" +
+        "momentNeedsResp empty or erroneous, for mom " +
           JSON.stringify(req.query) +
-          "here are response.choices[0].message: " +
-          JSON.stringify(response.choices[0].message),
+          " here is the full response: " +
+          JSON.stringify(response),
       );
     }
 
