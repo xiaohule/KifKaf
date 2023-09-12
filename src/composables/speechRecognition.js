@@ -12,7 +12,7 @@ import { ref } from "vue";
 export const isRecognizing = ref(false);
 export let recognition = null;
 
-export const useSpeechRecognition = (rawNewText) => {
+export const useSpeechRecognition = (newMomText) => {
   const showSpeechRecognitionButton = ref(false);
   const recognitionInstanceNaming =
     window.SpeechRecognition ||
@@ -25,7 +25,7 @@ export const useSpeechRecognition = (rawNewText) => {
     recognition = new recognitionInstanceNaming();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = "fr-FR"; //TODO:3 make this dynamic based on user's language
+    recognition.lang = "fr-FR"; //TODO:4 make this dynamic based on user's language
     recognition.onerror = function (event) {
       showSpeechRecognitionButton.value = false;
       isRecognizing.value = false;
@@ -54,7 +54,7 @@ export const useSpeechRecognition = (rawNewText) => {
             }
           }
 
-          rawNewText.value = finalTranscript + interimTranscript;
+          newMomText.value = finalTranscript + interimTranscript;
         } catch (error) {
           // Handle the error, e.g., log or display an error message
           console.error("Error in speech recognition:", error);

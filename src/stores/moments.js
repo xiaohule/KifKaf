@@ -41,7 +41,6 @@ export const useMomentsStore = defineStore("moments", () => {
   const userDocRef = ref(null);
   const userDoc = ref(null);
   const momentsColl = ref([]);
-  const tagsColl = ref([]);
   const aggregateData = ref({});
   const userFetched = ref(false);
   const momentsFetched = ref(false);
@@ -125,9 +124,6 @@ export const useMomentsStore = defineStore("moments", () => {
 
       momentsColl.value = useCollection(
         collection(db, `users/${user.value.uid}/moments`),
-      );
-      tagsColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/tags`),
       );
 
       momentsFetched.value = true;
@@ -263,24 +259,11 @@ export const useMomentsStore = defineStore("moments", () => {
         collection(db, `users/${user.value.uid}/moments`),
       );
       batch.set(newMomDocRef, moment);
-      batch.update(newMomDocRef, { needsSatisAndImp: {}, retries: 0 });
-
-      // Update the tag statistics in tagsColl for the tags of the new moment
-      for (const tag of moment.tags) {
-        console.log("In for (const tag of moment.tags), tag:", tag);
-        const tagDocRef = doc(db, `users/${user.value.uid}/tags`, tag);
-        const tagDoc = await getDoc(tagDocRef);
-        const tagData = {
-          id: newMomDocRef.id,
-          date: moment.date,
-          intensity: moment.intensity,
-          tags: moment.tags,
-          text: moment.text,
-        };
-        if (tagDoc.exists())
-          batch.update(tagDocRef, { tagMoments: arrayUnion(tagData) });
-        else batch.set(tagDocRef, { tagMoments: [tagData] });
-      }
+      batch.update(newMomDocRef, {
+        needsSatisAndImp: {},
+        retries: 0,
+        hideSpinner: false,
+      });
 
       // Remove moment.date time and save the Timestamp to momentsDays array
       // console.log("In addMoment, moment.date:", moment.date);
@@ -293,6 +276,12 @@ export const useMomentsStore = defineStore("moments", () => {
       });
 
       await batch.commit();
+
+      setTimeout(async () => {
+        await updateDoc(newMomDocRef, {
+          hideSpinner: true,
+        });
+      }, 60000);
 
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
@@ -369,95 +358,6 @@ export const useMomentsStore = defineStore("moments", () => {
     isEditorFocused.value = isFocused;
   };
 
-  const uniqueTags = computed(() => {
-    if (
-      !tagsColl.value ||
-      !tagsColl.value.data ||
-      tagsColl.value.data.length === 0
-    )
-      return [];
-
-    return tagsColl.value.data.map((doc) => doc.id);
-  });
-
-  const getTags = (
-    dateRange,
-    filterBy = "all",
-    sortBy = "avgIntensity",
-    descending = true,
-  ) => {
-    return computed(() => {
-      console.log("getTags called with dateRange", dateRange);
-      if (
-        !tagsColl.value ||
-        !tagsColl.value.data ||
-        tagsColl.value.data.length === 0
-      ) {
-        console.log(
-          "In getTags, returning empty array bec. tagsColl.value:",
-          tagsColl.value,
-          "or tagsColl.value.data:",
-          tagsColl.value.data,
-        );
-        return [];
-      }
-
-      const momentsList = momentsColl.value.data.filter((moment) => {
-        const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-        const date = ts.toDate();
-        date.setHours(0, 0, 0, 0);
-        return date >= dateRange[0] && date <= dateRange[1];
-      });
-
-      console.log("In getTags, starting to build tagList");
-      let tagList = tagsColl.value.data.map((tagDoc) => {
-        if (tagDoc.tagMoments.length === 0) return;
-        //return only the tagMoments that are within the date range
-        const tagMomentsInRange = tagDoc.tagMoments.filter((tagMoment) => {
-          const ts = new Timestamp(
-            tagMoment.date.seconds,
-            tagMoment.date.nanoseconds,
-          );
-          const date = ts.toDate();
-          date.setHours(0, 0, 0, 0);
-          return date >= dateRange[0] && date <= dateRange[1];
-        });
-        //calculate the average intensity of the tagMoments in the date range
-        const totalIntensity = tagMomentsInRange.reduce(
-          (total, moment) => total + moment.intensity,
-          0,
-        );
-
-        //return the tagDoc with the average intensity
-        return {
-          id: tagDoc.id,
-          count: tagMomentsInRange.length,
-          avgIntensity:
-            tagMomentsInRange.length != 0
-              ? totalIntensity / tagMomentsInRange.length
-              : 0,
-          percentShare:
-            momentsList.length != 0
-              ? tagMomentsInRange.length / momentsList.length
-              : 0,
-        };
-      });
-      tagList = tagList.filter((tag) => tag.count > 0); //keep only the tags that have at least one moment
-      if (filterBy === "positive")
-        tagList = tagList.filter((tag) => tag.avgIntensity >= 0);
-      else if (filterBy === "negative")
-        tagList = tagList.filter((tag) => tag.avgIntensity < 0);
-
-      //sort the array in descending or ascending order
-      descending
-        ? tagList.sort((a, b) => b[sortBy] - a[sortBy])
-        : tagList.sort((a, b) => a[sortBy] - b[sortBy]);
-
-      console.log("In getTags, returning tagList:", tagList);
-      return tagList;
-    });
-  };
-
   const updateUser = async (changes) => {
     try {
       if (changes.displayName) {
@@ -491,7 +391,6 @@ export const useMomentsStore = defineStore("moments", () => {
     userDocRef.value = null;
     userDoc.value = null;
     momentsColl.value = [];
-    tagsColl.value = [];
     aggregateData.value = {};
     userFetched.value = false;
     momentsFetched.value = false;
@@ -504,7 +403,6 @@ export const useMomentsStore = defineStore("moments", () => {
     user,
     momentsColl,
     isEditorFocused,
-    uniqueTags,
     uniqueDays,
     oldestMomentDate,
     userFetched,
@@ -513,7 +411,6 @@ export const useMomentsStore = defineStore("moments", () => {
     hasNeeds,
     needsMap,
     aggregateData,
-    getTags,
     addMoment,
     fetchUser,
     fetchMoments,

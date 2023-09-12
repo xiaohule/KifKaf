@@ -34,7 +34,6 @@ watchEffect(() => {
   }
 });
 
-// TODO:1 extend behaviour of Mention extension to inline highlight/style/decorate new hashtags too
 onMounted(() => {
   editor.value = new Editor({
     // editorProps: {
@@ -53,7 +52,7 @@ onMounted(() => {
         suggestion,
       }),
       Placeholder.configure({
-        placeholder: 'Feeling ... when/at/to ...  #mytag',
+        placeholder: 'Feeling ... when/at/to ... because ...',
         HTMLAttributes: {
           class: 'placeholder',
         },

@@ -386,9 +386,15 @@ const extractNeedsRating = (content) => {
   const regexPattern = /(?<!""")\{[^}]*\}(?!""")/;
   // Extract the content matching the pattern
   const match = content.match(regexPattern);
-  if (!match) return {};
   // Parse the matched content as JSON
-  return JSON.parse(match[0]);
+  if (match) return JSON.parse(match[0]);
+  else {
+    let returnObj = {};
+    const oopsMatch = content.match(/Oops:(.*?)(\\|$)/s);
+    if (oopsMatch && oopsMatch[1]) returnObj["oops"] = oopsMatch[1].trim();
+    else returnObj["error"] = content;
+    return returnObj;
+  }
 };
 
 function generateFirestoreDocId(text) {
@@ -490,8 +496,10 @@ router.get("/needs/", async (req, res) => {
       .collection("moments")
       .doc(req.query.momentId);
 
+    //if unable to return needs rating, save the moment in invalidMoments collection, save reason in moment data and return
     if (
       !momentNeedsResp ||
+      momentNeedsResp.oops ||
       momentNeedsResp.error ||
       Object.keys(momentNeedsResp).length == 0 ||
       Object.values(momentNeedsResp).some((value) => value[1] === 0)
@@ -514,7 +522,9 @@ router.get("/needs/", async (req, res) => {
       throw new Error(
         "momentNeedsResp empty or erroneous, for mom " +
           JSON.stringify(req.query) +
-          " here is the full response: " +
+          " here is momentNeedsResp: " +
+          JSON.stringify(momentNeedsResp) +
+          " and here is the full response: " +
           JSON.stringify(response),
       );
     }
@@ -535,6 +545,7 @@ router.get("/needs/", async (req, res) => {
       (type) => issueTypeConditions[type],
     );
 
+    //if able to return needs rating, but erroneous ones, retry
     if (issueType) {
       console.log("Error:", issueType, "for", req.query, momentNeedsResp);
 
