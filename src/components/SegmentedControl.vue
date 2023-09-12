@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-// TODO:2: improve this component to reduce need for uniqueId names
+// TODO:1: improve this component to reduce need for uniqueId names
 import { ref, computed, watchEffect, onMounted, onBeforeUnmount, nextTick } from 'vue';
 
 const props = defineProps({

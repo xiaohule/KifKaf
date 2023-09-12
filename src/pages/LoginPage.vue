@@ -14,23 +14,17 @@
     <div class="q-my-md text-center"><a class="text-caption text-outline" href="/#/contact"
         style="text-decoration: none">Contact us</a>
     </div>
-    <!-- <div to="/contact" class="q-py-md text-caption text-outline text-center">Contact us</div> -->
-    <!-- <q-item clickable v-ripple to="/contact">
-      <q-item-section>
-        <q-item-label>Contact us</q-item-label>
-      </q-item-section>
-    </q-item> -->
   </q-page>
 </template>
 
 <script setup>
-import { onActivated, onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
 import { auth } from "../boot/firebaseBoot.js";
-import { EmailAuthProvider, GoogleAuthProvider, sendEmailVerification, onAuthStateChanged } from 'firebase/auth';
-import { getCurrentUser } from 'vuefire'
+import { EmailAuthProvider, GoogleAuthProvider, sendEmailVerification } from 'firebase/auth';
+// import { getCurrentUser } from 'vuefire'
 
 const route = useRoute();
 const router = useRouter();
@@ -38,14 +32,13 @@ const router = useRouter();
 const emailSent = ref(false); // reactive property to track email sent status
 const renderLoader = ref(false); // reactive property to track loader rendering status
 let ui;// Declare variable to store Firebase UI instance
-let unsubscribeAuthStateListener; // Declare variable to store the unsubscribe function
+// let unsubscribeAuthStateListener; // Declare variable to store the unsubscribe function
 let checkEmailVerifiedInterval; // Declare variable to store the interval ID
 
-
-const to =
-  route.query.redirect && typeof route.query.redirect === 'string'
-    ? route.query.redirect
-    : '/'
+// const to =
+//   route.query.redirect && typeof route.query.redirect === 'string'
+//     ? route.query.redirect
+//     : '/'
 
 // Configuration for the Firebase UI widget
 const uiConfig = {
@@ -61,13 +54,12 @@ const uiConfig = {
         emailSent.value = false; // Email already verified, so set this to false
         console.log("Sign in successful, redirecting...", authResult, redirectUrl);
         // redirecting back to the intended page after login
-        router.push(to)
+        // router.push(to)
         return true; // User is signed in.
       } else {
         // User email not verified
         renderLoader.value = false
         emailSent.value = true; // Set to true to show the message
-        // redirecting back to the intended page after login
         sendEmailVerification(authResult.user);  // Send email verification to user.
         console.log("User email not verified, sending email...", authResult, redirectUrl);
         return false; // User needs to verify email.
@@ -85,7 +77,7 @@ const uiConfig = {
     },
   },
   signInFlow: 'popup',// Sign-in flow configuration (popup window)
-  // signInSuccessUrl: '/',
+  signInSuccessUrl: '/',
   signInOptions: [
     EmailAuthProvider.PROVIDER_ID,
     // EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
@@ -102,10 +94,12 @@ const uiConfig = {
 
 onMounted(async () => {
   // Once the user is loaded, getCurrentUser() will immediately resolve the current user. Sometimes, the Firebase SDK might be able to automatically log in the user with a hidden cookie or local storage. In that case, you can automatically redirect the user to the page they were trying to access before being automatically logged in.
-  const currentUser = await getCurrentUser()
-  if (currentUser) {
-    router.push(to)
-  }
+  //Disabled temporarily as it was causing a bug that when one open tab logged as a and opening second tab to log as b, expected tab a disconnect from a, getting tab b log as tab a unless ctrl+R and then it shows b. Or i was thinking I had just logged in as b but it was actually a...
+  //TODO: 2 or maybe we should fix it by disabling /*settings*/ { tabManager: persistentMultipleTabManager() } in /Users/julesdouet/web-projects/quasar-project/src/boot/firebaseBoot.js when in development mode?
+  // const currentUser = await getCurrentUser()
+  // if (currentUser) {
+  //   router.push(to)
+  // }
 
   // Check if a FirebaseUI instance already exists. If not, create one.
   if (!firebaseui.auth.AuthUI.getInstance()) {
@@ -125,12 +119,12 @@ checkEmailVerifiedInterval = setInterval(async () => {
   if (user) {
     await user.reload();
     if (user.emailVerified) {
-      console.log("User's email is now verified. Redirecting to home page.");
-      router.push(to);
+      console.log("User's email is now verified. Redirecting to Home");
+      router.push("/");
       clearInterval(checkEmailVerifiedInterval);
     }
   }
-}, 3000); // Check every 5 seconds. Adjust this as needed.
+}, 3000); // Check every 3 seconds. Adjust this as needed.
 
 onUnmounted(() => {
   console.log("Unmounting Login page...");

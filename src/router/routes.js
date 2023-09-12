@@ -9,12 +9,6 @@ const routes = [
     path: "/learn",
     component: () => import("layouts/MainLayout.vue"),
     meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/LearnTab.vue") }],
-  },
-  {
-    path: "/learnv1",
-    component: () => import("layouts/MainLayout.vue"),
-    meta: { requiresAuth: true },
     children: [{ path: "", component: () => import("pages/LearnTabV1.vue") }],
   },
   {
@@ -45,7 +39,7 @@ const routes = [
     component: () => import("layouts/AuthLayout.vue"),
     children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
   },
-  //TODO:2 make only one layout for terms and privacy policy and auth that can take a title as param
+  //TODO:1 make only one layout for terms and privacy policy and auth that can take a title as param
   {
     path: "/privacy-policy",
     component: () => import("layouts/PrivacyPolicyLayout.vue"),
@@ -54,8 +48,6 @@ const routes = [
         path: "",
         component: () => import("pages/PrivacyPolicyPage.vue"),
       },
-      // Redirect route
-      // { path: "/login", redirect: "/privacy-policy" },
     ],
   },
   {
@@ -66,8 +58,6 @@ const routes = [
         path: "",
         component: () => import("pages/TermsConditionsPage.vue"),
       },
-      // Redirect route
-      // { path: "/login", redirect: "/terms" },
     ],
   },
   {
@@ -78,8 +68,6 @@ const routes = [
         path: "",
         component: () => import("pages/ContactUsPage.vue"),
       },
-      // Redirect route
-      // { path: "/login", redirect: "/terms" },
     ],
   },
 

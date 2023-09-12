@@ -101,8 +101,6 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
-// import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
 
 const momentsStore = useMomentsStore()
 
@@ -148,34 +146,10 @@ const segStatsId = computed(() => {
 })
 const segStatsName = "segStats" + segUid
 
-// watch(momentsStore.aggregateData, (newVal, oldVal) => {
-//   console.log('In LearnCardNeeds, watch XXX88', newVal, ", replaced:", oldVal);
-//   if (newVal && newVal.length > 0) emits('ready:aggregateData', { flag: props.flag })
-// }, { immediate: true })
-
 watch(() => momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey.value], (newVal, oldVal) => {
   console.log('In LearnCardNeeds, watch XXX55', newVal, ", replaced:", oldVal);
   if (newVal && newVal.length > 0) emits('ready:aggregateData', { flag: props.flag })
 }, { immediate: true })
-
-// watch(() => momentsStore.aggregateDataFetched, (newVal, oldVal) => {
-//   nextTick(() => {
-//     console.log('In LearnCardNeeds, watch XXX77 nextTick fired');
-//   })
-// }, { immediate: true })
-
-// const aggregateDataValue = momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey.value];
-
-// watch(() => aggregateDataValue, (newVal, oldVal) => {
-//   console.log('In LearnCardNeeds, watch XXX1212', newVal, ", replaced:", oldVal);
-//   if (newVal && newVal.length > 0) emits('ready:aggregateData', { flag: props.flag })
-// }, { immediate: true });
-
-// function trackProcess(dotsPos) {
-//   //The position is expressed as a percentage, with 0 representing the start point and 100 representing the end point.
-//   // cf. https://nightcatsama.github.io/vue-slider-component/#/basics/process
-//   return [[50, dotsPos[0]]]
-// }
 
 const numDisplayed = computed(() => {
   return props.learnCardExpanded ? momentsStore.aggregateData[props.dateRange][sortingKey.value].length : 5

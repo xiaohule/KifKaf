@@ -6,9 +6,9 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 // import { getAnalytics } from "firebase/analytics";
-import { VueFire, VueFireAuth } from "vuefire";
+import { VueFire, VueFireAuth, getCurrentUser } from "vuefire";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { markRaw } from "vue";
 
@@ -27,9 +27,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 export const db = markRaw(
   initializeFirestore(firebaseApp, {
     localCache: persistentLocalCache(
-      /*settings*/ { tabManager: persistentMultipleTabManager() }
+      /*settings*/ { tabManager: persistentMultipleTabManager() },
     ),
-  })
+  }),
 );
 // console.log("firebaseApp", firebaseApp);
 // console.log("db", db);
@@ -45,7 +45,7 @@ self.FIREBASE_APPCHECK_DEBUG_TOKEN =
   false;
 console.log(
   "FIREBASE_APPCHECK_DEBUG_TOKEN",
-  self.FIREBASE_APPCHECK_DEBUG_TOKEN
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN,
 );
 // Pass your reCAPTCHA v3 site key (public key). Make sure this key is the counterpart to the secret key you set in the Firebase console.
 const appCheck = initializeAppCheck(firebaseApp, {
@@ -55,7 +55,7 @@ const appCheck = initializeAppCheck(firebaseApp, {
   isTokenAutoRefreshEnabled: true,
 });
 
-export default boot(({ app }) => {
+export default boot(({ app, router }) => {
   app.use(VueFire, {
     // imported above but could also just be created here
     firebaseApp,
@@ -63,6 +63,32 @@ export default boot(({ app }) => {
       // we will see other modules later on
       VueFireAuth(),
     ],
+  });
+
+  //if signed out in one tab, sign out in all tabs
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      router.push("/login");
+    }
+  });
+
+  //if targeting a route that needs sign in without being signed in, redirect to login
+  router.beforeEach(async (to) => {
+    // routes with `meta: { requiresAuth: true }` will check for the users, others won't
+    if (to.meta.requiresAuth) {
+      const currentUser = await getCurrentUser();
+      // if the user is not logged in, redirect to the login page
+      if (!currentUser || !currentUser.emailVerified) {
+        return {
+          path: "/login",
+          query: {
+            // we keep the current path in the query so we can redirect to it after login
+            // with `router.push(route.query.redirect || '/')`
+            redirect: to.fullPath,
+          },
+        };
+      }
+    }
   });
   // // Attach the application context to the global window object
   // window.appContext = app._context

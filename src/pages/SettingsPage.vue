@@ -1,98 +1,105 @@
 <template>
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
-    <q-list padding>
-      <q-item-label header>Account details</q-item-label>
 
-      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-        <q-item clickable v-ripple @click="openEditDialog('displayName')">
-          <q-item-section>
-            <q-item-label caption>
-              Name
-            </q-item-label>
-            <q-item-label>{{ momentsStore.user.displayName }}</q-item-label>
-          </q-item-section>
-        </q-item>
+    <div v-if="!momentsStore || !momentsStore.user"></div>
 
-        <q-item clickable v-ripple @click="openEditDialog('email')">
-          <q-item-section>
-            <q-item-label caption>
-              Email
-            </q-item-label>
-            <q-item-label>{{ momentsStore.user.email }}</q-item-label>
-          </q-item-section>
-        </q-item>
+    <div v-else>
+      <q-list padding>
+
+        <q-item-label header>Account details</q-item-label>
 
 
-        <q-item clickable v-ripple @click="openEditDialog('password')">
-          <q-item-section>
-            <q-item-label caption>
-              Password
-            </q-item-label>
-            <q-item-label>*********</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-card>
+        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
+          <q-item clickable v-ripple @click="openEditDialog('displayName')">
+            <q-item-section>
+              <q-item-label caption>
+                Name
+              </q-item-label>
+              <q-item-label>{{ momentsStore.user.displayName }}</q-item-label>
+            </q-item-section>
+          </q-item>
 
-      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-        <q-item clickable v-ripple>
-          <q-item-section>
+          <q-item clickable v-ripple @click="openEditDialog('email')">
+            <q-item-section>
+              <q-item-label caption>
+                Email
+              </q-item-label>
+              <q-item-label>{{ momentsStore.user.email }}</q-item-label>
+            </q-item-section>
+          </q-item>
 
-            <q-item-label>Language</q-item-label>
-            <q-item-label caption>
-              English
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-card>
 
-      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-        <!-- TODO:1 later do About us section -->
-        <!-- <q-item clickable v-ripple>
+          <q-item clickable v-ripple @click="openEditDialog('password')">
+            <q-item-section>
+              <q-item-label caption>
+                Password
+              </q-item-label>
+              <q-item-label>*********</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
+
+        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
+          <q-item clickable v-ripple>
+            <q-item-section>
+
+              <q-item-label>Language</q-item-label>
+              <q-item-label caption>
+                English
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
+
+        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
+          <!-- TODO:1 later do About us section -->
+          <!-- <q-item clickable v-ripple>
           <q-item-section>
             <q-item-label>About us</q-item-label>
           </q-item-section>
         </q-item> -->
-        <q-item clickable v-ripple to="/privacy-policy">
-          <q-item-section>
-            <q-item-label>Privacy policy</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable v-ripple to="/terms">
-          <q-item-section>
-            <q-item-label>Terms of Service</q-item-label>
-          </q-item-section>
-        </q-item>
-        <!-- TODO:1 fail if no internet connection and ask user for connection -->
-        <!-- <q-item clickable v-ripple @click="contactUsDialogOpen = true"> -->
-        <q-item clickable v-ripple to="/contact">
-          <q-item-section>
-            <q-item-label>Contact us</q-item-label>
-          </q-item-section>
-        </q-item>
-        <!-- TODO:1 later allow to Close account -->
-        <!-- <q-item clickable v-ripple>
+          <q-item clickable v-ripple to="/privacy-policy">
+            <q-item-section>
+              <q-item-label>Privacy policy</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable v-ripple to="/terms">
+            <q-item-section>
+              <q-item-label>Terms of Service</q-item-label>
+            </q-item-section>
+          </q-item>
+          <!-- TODO:1 fail if no internet connection and ask user for connection -->
+          <!-- <q-item clickable v-ripple @click="contactUsDialogOpen = true"> -->
+          <q-item clickable v-ripple to="/contact">
+            <q-item-section>
+              <q-item-label>Contact us</q-item-label>
+            </q-item-section>
+          </q-item>
+          <!-- TODO:1 later allow to Close account -->
+          <!-- <q-item clickable v-ripple>
           <q-item-section>
             <q-item-label>Close account</q-item-label>
           </q-item-section>
         </q-item> -->
-      </q-card>
+        </q-card>
 
-      <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
-        @click="logoutDialogOpen = true">
+        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
+          @click="logoutDialogOpen = true">
+          <q-item>
+            <q-item-section>
+              <q-item-label>Log out</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
+
         <q-item>
           <q-item-section>
-            <q-item-label>Log out</q-item-label>
+            <q-item-label>KifKaf version {{ version }}</q-item-label>
           </q-item-section>
         </q-item>
-      </q-card>
 
-      <q-item>
-        <q-item-section>
-          <q-item-label>KifKaf version {{ version }}</q-item-label>
-        </q-item-section>
-      </q-item>
-
-    </q-list>
+      </q-list>
+    </div>
 
     <!--TODO:1 allow for not re-inputting email if not needed -->
     <q-dialog v-model="editDialogOpen" position="top">
@@ -325,9 +332,10 @@ const updateSetting = async () => {
 
 const logOut = () => {
   signOut(auth).then(() => {
-    console.log('logged out')
     setTimeout(() => {
+      momentsStore.$reset()
       router.push('/login')
+      console.log('logged out')
     }, 10)
   }).catch((error) => {
     console.log("Error logging out", error);

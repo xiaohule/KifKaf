@@ -5,14 +5,14 @@
 // doesn't work
 //  in MOBILE for ios safari standalone pwa, android chrome standalone pwa yet, android chrome (as explained also in https://bugs.webkit.org/show_bug.cgi?id=225298 graceful fallback needed)
 //TODO:1 test if https improve things, test if Speech Recognition requires an Internet connection, so will not function when your PWA users are offline
-// TODO:2 persevere the fact that the user has already granted permission to use the microphone so that we don't ask again when kill/restart the app
-// TODO:2 persevere the fact that speech recognition is not available in user's setup so that we don't show the button back when kill/restart the app
+// TODO:3 persevere the fact that the user has already granted permission to use the microphone so that we don't ask again when kill/restart the app
+// TODO:3 persevere the fact that speech recognition is not available in user's setup so that we don't show the button back when kill/restart the app
 import { ref } from "vue";
 
 export const isRecognizing = ref(false);
 export let recognition = null;
 
-export const useSpeechRecognition = (rawNewText) => {
+export const useSpeechRecognition = (newMomText) => {
   const showSpeechRecognitionButton = ref(false);
   const recognitionInstanceNaming =
     window.SpeechRecognition ||
@@ -25,7 +25,7 @@ export const useSpeechRecognition = (rawNewText) => {
     recognition = new recognitionInstanceNaming();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = "fr-FR"; //TODO:3 make this dynamic based on user's language
+    recognition.lang = "fr-FR"; //TODO:4 make this dynamic based on user's language
     recognition.onerror = function (event) {
       showSpeechRecognitionButton.value = false;
       isRecognizing.value = false;
@@ -54,7 +54,7 @@ export const useSpeechRecognition = (rawNewText) => {
             }
           }
 
-          rawNewText.value = finalTranscript + interimTranscript;
+          newMomText.value = finalTranscript + interimTranscript;
         } catch (error) {
           // Handle the error, e.g., log or display an error message
           console.error("Error in speech recognition:", error);

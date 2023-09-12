@@ -3,138 +3,418 @@
     "date": "2023-05-13",
     "intensity": 4,
     "text": "Feeling proud of myself for working out today!",
-    "tags": ["movement", "self-esteem", "proud"]
+    "tags": ["movement", "self-esteem", "proud"],
+    "needs": ["Self-Esteem & Social Recognition", "Physical Movement"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp deduc, s explicit - sm imp deduc, ",
+    "test": {
+      "Physical Well-Being": ["1.0 could be lower sat", 0.5],
+      "Physical Movement": [1.0, 0.5],
+      "Self-Esteem & Social Recognition": [0.9, 0.8],
+      "Competence & Effectiveness": [0.9, 0.7],
+      "Self-Actualization": [0.8, 0.5],
+      "Challenge": [0.8, 0.5]
+    }
   },
+
   {
     "date": "2023-05-15",
     "intensity": -3,
     "text": "Feeling a little down today after calling mum",
-    "tags": ["phone", "mum"]
+    "tags": ["phone", "mum"],
+    "needs": ["Emotional Safety & Inner Peace"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - sm imp deduc",
+    "test": {
+      "Social Connection": [0.5, 0.8],
+      "Support, Understanding & Validation": [0.5, 0.9],
+      "Affection & Love": [0.5, 0.7],
+      "Emotional Safety & Inner Peace": [0.3, "0.8 could be higher imp"]
+    }
   },
   {
     "date": "2023-05-16",
     "intensity": 3,
     "text": "Feeling grateful toward life when eating my fresh tomatoes",
-    "tags": ["food"]
+    "tags": ["food"],
+    "needs": [
+      "Gratitude & Celebration",
+      "Sustenance & Nourishment",
+      "Contact with Nature"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp explicit, sm s explicit - imp deduc, sm s deduc - sm imp deduc; XXX la satis du need for nourishment cause la satis du need for grateful",
+    "test": {
+      "Physical Well-Being": [0.8, 0.5],
+      "Sustenance & Nourishment": [0.9, 0.5],
+      "Contact with Nature": [0.7, 0.5],
+      "Gratitude & Celebration": [0.9, 0.8]
+    }
   },
   {
     "date": "2023-05-23",
     "intensity": -5,
     "text": "Feeling so stressed out today when woking up",
-    "tags": [""]
+    "tags": [""],
+    "needs": ["Emotional Safety & Inner Peace"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - sm imp explicit",
+    "test": {
+      "Rest & Relaxation": [0.2, 0.5],
+      "Emotional Safety & Inner Peace": [0.3, 0.5]
+    }
   },
   {
     "date": "2023-05-24",
     "intensity": 4,
     "text": "Feeling both empty and full after movement class",
-    "tags": ["movement"]
+    "tags": ["movement"],
+    "needs": [
+      "Emotional Safety & Inner Peace",
+      "Physical Movement",
+      "Self-Expression & Creativity",
+      "Physical Well-Being"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - sm imp deduc, s explicit - imp deduc, sm s deduc - sm imp deduc, sm s deduc - sm imp deduc",
+    "test": {
+      "Physical Well-Being": [0.5, 0.5],
+      "Physical Movement": [
+        0.5,
+        0.5,
+        "Could be added comme exemple depuis gpt4 pke il manque la dimension psy ou ptetr non pke tp particulier?"
+      ]
+    }
   },
   {
     "date": "2023-05-24",
     "intensity": 2,
     "text": "Feeling excited when calling mum",
-    "tags": ["mum", "proud"]
+    "tags": ["mum", "proud"],
+    "needs": ["Social Connection"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp explicit",
+    "test": {
+      "Social Connection": [0.8, 0.5],
+      "Support, Understanding & Validation": [0.7, 0.5],
+      "Affection & Love": [0.6, 0.5]
+    }
   },
   {
     "date": "2023-05-27",
     "intensity": -3,
     "text": "Felt so bad when running after eating spinach",
-    "tags": ["movement", "food"]
+    "tags": ["movement", "food"],
+    "needs": ["Physical Well-Being", "Physical Movement"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp explicit, s unknonw - imp deduc",
+    "test": {
+      "Physical Well-Being": [0.2, 0.5],
+      "Physical Movement": [
+        0.3,
+        0.5,
+        "could be satis should be uncertain add comme exple"
+      ]
+    }
   },
   {
     "date": "2022-12-08",
     "intensity": 4,
     "text": "Feeling grateful to have the sun on my face while walking down from Montmarte bec. it felt warm and natural",
-    "tags": ["sun", "nature", "self-esteem"]
+    "tags": ["sun", "nature", "self-esteem"],
+    "needs": [
+      "Physical Well-Being",
+      "Contact with Nature",
+      "Gratitude & Celebration"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit- imp deduc, sm s explicit - imp deduc, s explicit - imp explicit  ",
+    "test": {
+      "Contact with Nature": [0.8, 0.5, "could be miss physical wellbeing"],
+      "Exploration, Novelty & Inspiration": [
+        0.7,
+        0.5,
+        "could benot sure about this one"
+      ],
+      "Gratitude & Celebration": [0.9, 0.8]
+    }
   },
   {
     "date": "2022-12-10",
     "intensity": -4,
     "text": "Feeling like I am losing my time at the playfight workshop bec. I am not learning anything",
-    "tags": ["impatience"]
+    "tags": ["impatience"],
+    "needs": ["Learning", "Competence & Effectiveness"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp explicit, is explicit - imp explicit"
   },
   {
     "date": "2022-12-10",
     "intensity": 3,
     "text": "Feeling smart and useful when discussing with Thomas about his project and mine, bec. I felt less of a failure",
-    "tags": ["self-esteem"]
+    "tags": ["self-esteem"],
+    "needs": [
+      "Self-Esteem & Social Recognition",
+      "Support, Understanding & Validation",
+      "Social Connection"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "satis explicit - sm imp deduc, satis explicit - imp deduc, satis deduc - imp deduc"
   },
   {
     "date": "2022-12-10",
     "intensity": 2,
     "text": "Feeling content and proud when theorizing about office locking and my chance bec. I like feeling different and free",
-    "tags": ["autonomy", "proud"]
+    "tags": ["autonomy", "proud"],
+    "needs": [
+      "Emotional Safety & Inner Peace",
+      "Self-Esteem & Social Recognition",
+      "Autonomy"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "* , satis explicit - imp deduc, satis explicit - imp explicit"
   },
   {
     "date": "2021-08-29",
     "intensity": -4,
-    "text": "Feeling incapable to help mam when she tells me she’s not going well on phone call bec. hard to see loved ones struggle",
-    "tags": ["mum", "phone"]
+    "text": "Feeling incapable to help mam when she tells me she's not going well on phone call bec. hard to see loved ones struggle",
+    "tags": ["mum", "phone"],
+    "needs": [
+      "Competence & Effectiveness",
+      "Emotional Safety & Inner Peace",
+      "Outward Care & Contribution"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp deduc, is explicit - imp deduc, sm is deduc - imp deduc"
   },
   {
     "date": "2023-03-03",
     "intensity": 1,
     "text": "Feeling powerful when managing my money online",
-    "tags": ["self-esteem", "safety", "autonomy"]
+    "tags": ["self-esteem", "safety", "autonomy"],
+    "needs": [
+      "Self-Esteem & Social Recognition",
+      "Financial Security",
+      "Autonomy",
+      "Competence & Effectiveness"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp deduc ,s deduc - imp deduc, s deduc - imp deduc, s deduc - imp deduc "
   },
   {
     "date": "2023-03-14",
     "intensity": 2,
     "text": "Feeling completely relaxed and epic at the end of movement course when lying down",
-    "tags": ["rest", "movement"]
+    "tags": ["rest", "movement"],
+    "needs": [
+      "Rest & Relaxation",
+      "Spiritual Transcendence",
+      "Emotional Safety & Inner Peace",
+      "Physical Movement"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp ded, s deduc - imp deduc, s deduc - imp deduc, s deduc - imp deduc"
   },
   {
     "date": "2023-03-15",
     "intensity": 2,
     "text": "Feeling aroused and capable when playfight jamming with bastos caro and new ppl",
-    "tags": ["movement", "lettinggo", "dance"]
+    "tags": ["movement", "lettinggo", "dance"],
+    "needs": [
+      "Physical Contact & Intimacy",
+      "Competence & Effectiveness",
+      "Play, Humor & Entertainment",
+      "Physical Movement",
+      "Social Connection",
+      "Self-Expression & Creativity"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "ex, ex, deduc, deduc, deduc, deduc"
   },
   {
     "date": "2023-03-26",
     "intensity": -4,
-    "text": "Feeling guilty and sad when mam tell us we stay in touch bec. she will have difficulties when we leave matthieu’s home",
-    "tags": ["mum"]
+    "text": "Feeling guilty and sad when mam tell us we stay in touch bec. she will have difficulties when we leave matthieu's home",
+    "tags": ["mum"],
+    "needs": ["Emotional Safety & Inner Peace", "Outward Care & Contribution"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "ex, deduc"
   },
   {
     "date": "2023-03-28",
     "intensity": -2,
     "text": "Feeling guilty to have let Maria down yest. night",
-    "tags": ["proud", "maria"]
+    "tags": ["proud", "maria"],
+    "needs": [
+      "Emotional Safety & Inner Peace",
+      "Outward Care & Contribution",
+      "Autonomy"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "ex, deduc, "
   },
   {
     "date": "2023-04-08",
     "intensity": -3,
     "text": "Feeling disrespected that mona came to sleep with me despite me saying no",
-    "tags": ["impatience", "autonomy"]
+    "tags": ["impatience", "autonomy"],
+    "needs": [
+      "Boundaries & Privacy",
+      "Autonomy",
+      "Support, Understanding & Validation"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-10",
     "intensity": 3,
     "text": "Finally alone at home",
-    "tags": ["autonomy"]
+    "tags": ["autonomy"],
+    "needs": ["Autonomy", "Boundaries & Privacy", "Gratitude & Celebration"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "should this lower the overall importance of the need for social connection?,"
   },
   {
     "date": "2023-04-19",
     "intensity": 4,
-    "text": "🍑 with mona, good connection and sharing",
-    "tags": ["sex", "sharing"]
+    "text": "Good sex 🍑 with mona, good connection and sharing",
+    "tags": ["sex", "sharing"],
+    "needs": [
+      "Physical Contact & Intimacy",
+      "Social Connection",
+      "Support, Understanding & Validation",
+      "Affection & Love"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-21",
     "intensity": 2,
     "text": "Feeling grateful and cuddled to have my tea prepared by Maria bec. proof of love",
-    "tags": ["maria", "rest", "proofoflove"]
+    "tags": ["maria", "rest", "proofoflove"],
+    "needs": ["Affection & Love", "Gratitude & Celebration"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-29",
     "intensity": -4,
-    "text": "Feeling stressed of not knowing what I’m gonna do today",
-    "tags": ["self-esteem"]
+    "text": "Feeling stressed of not knowing what I'm gonna do today",
+    "tags": ["self-esteem"],
+    "needs": ["Emotional Safety & Inner Peace", "Meaning & Purpose"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   },
   {
     "date": "2023-04-29",
     "intensity": -1,
     "text": "Feeling moody bec. of the grey weather",
-    "tags": ["weather"]
+    "tags": ["weather"],
+    "needs": ["Emotional Safety & Inner Peace", "Contact with Nature"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp deduc, imp deduc"
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "Je me sens bien d'aller voir les copains pour dîner avec eux mais un petit peu agitée tout de même parce que j'ai beaucoup bossé je sens que mon besoin de récompense est élevé",
+    "tags": [""],
+    "needs": [
+      "Social Connection",
+      "Emotional Safety & Inner Peace",
+      "Rest & Relaxation",
+      "Self-Esteem & Social Recognition",
+      "Fairness & Justice",
+      "Support, Understanding & Validation",
+      "Meaning & Purpose"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp deduc, imp deduc"
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "jkdaoglda",
+    "tags": [""],
+    "needs": [""],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "l líder del PSOE avanza hacia los 17",
+    "tags": [""],
+    "needs": [""],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "Fee",
+    "tags": [""],
+    "needs": [""],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "Feeling",
+    "tags": [""],
+    "needs": [""],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "Je me sens com",
+    "tags": [""],
+    "needs": [""],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "Je me sens laraouet et bezdo",
+    "tags": [""],
+    "needs": [""],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
   }
 ]

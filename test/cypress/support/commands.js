@@ -72,9 +72,6 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
 });
 
 Cypress.Commands.add("signIn", (username, password) => {
-  // cy.session(
-  //   username,
-  //   () => {
   cy.url({ timeout: 40000 }).should("include", "login");
   cy.get("input").type(username);
   cy.contains("Next").click();
@@ -84,13 +81,6 @@ Cypress.Commands.add("signIn", (username, password) => {
   // cy.url({ timeout: 20000 }).should("not.include", "login");
   cy.contains("Home").should("be.visible");
   cy.log("Signed in as " + username + " " + password);
-  // },
-  //   {
-  //     validate: () => {
-  //       cy.getCookie("session").should("exist");
-  //     },
-  //   }
-  // );
 });
 
 Cypress.Commands.add("signUp", (username, password) => {
@@ -104,27 +94,48 @@ Cypress.Commands.add("signUp", (username, password) => {
     "A verification email has been sent. Please check your inbox and click on the link in the email to verify your account.",
   ).should("be.visible");
   cy.log("Verification email sent for " + username + " " + password);
-  cy.wait(5000);
-  cy.task("getLastEmail")
-    .its("html")
-    .then((html) => {
-      cy.document({ log: false }).invoke({ log: false }, "write", html);
-    });
-  //visit the link in the email by using cy.visit() command and not clicking on the link in the email
-  cy.get("a[href*='verifyEmail']").then((element) => {
-    const link = element.prop("href");
-    const url = new URL(link);
+  // cy.wait(5000);
+  const usernameHandle = username.split("@")[0];
+  cy.origin(
+    "https://www.guerrillamail.com",
+    { args: { usernameHandle } },
+    ({ usernameHandle }) => {
+      cy.visit("/");
+      // retrieving the temporary email address
+      cy.get("#inbox-id").click({ force: true });
+      cy.get("#inbox-id > input").type(usernameHandle);
+      cy.contains("Set").click({ force: true });
+      cy.wait(1000);
+      // cy.visit("/");
+      cy.wait(1000);
+      // cy.wait(5000);
+      // cy.reload();
+      // cy.wait(5000);
+      cy.reload(true);
+
+      cy.contains("kifkaf", { timeout: 120000 })
+        .should("be.visible")
+        .click({ force: true })
+        .then(() => {
+          // clicking the authentication link contained in the body of the email
+          // cy.get(".email_body a").first().click();
+          cy.get(".email_body a").first().invoke("attr", "href");
+        });
+    },
+  ).as("verificationLink");
+  cy.get("@verificationLink").then((verificationLink) => {
+    const url = new URL(verificationLink);
     const origin = url.origin; // for cy.origin
-    // cy.visit(link);
-    cy.origin(origin, { args: { link } }, ({ link }) => {
-      cy.visit(link);
-      cy.contains("Your email has been verified").should("be.visible");
-    });
+    cy.origin(
+      origin,
+      { args: { verificationLink } },
+      ({ verificationLink }) => {
+        cy.visit(verificationLink);
+        cy.contains("Your email has been verified").should("be.visible");
+      },
+    );
   });
-  // This does not work returning error Error encountered - The page is displayed in a cross origin iframe.
-  // cy.get("a[href*='verifyEmail']").click();
-  // cy.wait(3000);
-  // cy.contains("Your email has been verified").should("be.visible");
+
   cy.visit("/login");
 });
 

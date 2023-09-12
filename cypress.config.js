@@ -4,7 +4,6 @@ const {
 } = require("@quasar/quasar-app-extension-testing-e2e-cypress/cct-dev-server");
 const { defineConfig } = require("cypress");
 const webpackPreprocessor = require("@cypress/webpack-preprocessor");
-const makeEmailAccount = require("./test/cypress/support/email-account.js");
 
 module.exports = defineConfig({
   // chromeWebSecurity: false,
@@ -82,18 +81,6 @@ module.exports = defineConfig({
         // whatever you return here becomes the launchOptions
         return launchOptions;
       });
-      let emailAccount;
-      on("task", {
-        async getUserEmail() {
-          emailAccount = await makeEmailAccount();
-          return emailAccount.email;
-        },
-        async getLastEmail() {
-          const lastEmail = await emailAccount.getLastEmail();
-          return lastEmail;
-        },
-      });
-
       return config;
     },
     baseUrl: "http://localhost:9200/",

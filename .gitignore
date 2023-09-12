@@ -30,3 +30,5 @@ yarn-error.log*
 
 .nyc_output
 coverage/
+/scripts/serviceAccountKey.json
+
