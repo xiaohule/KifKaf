@@ -10,9 +10,9 @@
     <q-card class="bg-surface q-mb-lg q-px-none q-py-sm rounded-borders-14" flat>
       <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
       <!-- TODO:3 add a signal that speech recognition is on -->
-      <q-input ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText" lazy-rules="ondemand"
-        :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text" autogrow rounded
-        outlined bg-color="surface-variant" color="transparent">
+      <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
+        lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text"
+        autogrow rounded outlined bg-color="surface-variant" color="transparent">
         <template v-slot:append>
           <q-btn v-if="showSpeechRecognitionButton" color="primary" :flat=!isRecognizing dense round icon="mic"
             :class="isRecognizing ? 'pulse-animation' : ''" @click="toggleSpeechRecognition" />

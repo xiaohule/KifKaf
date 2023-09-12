@@ -136,7 +136,7 @@ describe("Checking main screens & Moments inputting", () => {
       // cy.get(".vue-slider-rail").first().clickVSlider(item.intensity);
       // const tagsString = item.tags.map((tag) => ` #${tag}`).join("");
       // const fullText = `${item.text}${tagsString}`;
-      cy.dataCy("new-moment-editor").type(item.text);
+      cy.dataCy("new-moment-textarea").type(item.text);
       cy.contains("arrow_forward").click();
       cy.clock().then((clock) => {
         clock.restore();
