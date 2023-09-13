@@ -3,10 +3,20 @@
 // in DESKTOP for chrome, safari, chrome standalone pwa
 // in MOBILE for chrome, safari, safari minimal-ui pwa
 // doesn't work
+//In DESKTOP for safari pwa since can't install a safari pwa in desktop yet
 //  in MOBILE for ios safari standalone pwa, android chrome standalone pwa yet, android chrome (as explained also in https://bugs.webkit.org/show_bug.cgi?id=225298 graceful fallback needed)
 //TODO:1 test if https improve things, test if Speech Recognition requires an Internet connection, so will not function when your PWA users are offline
 // TODO:3 persevere the fact that the user has already granted permission to use the microphone so that we don't ask again when kill/restart the app
 // TODO:3 persevere the fact that speech recognition is not available in user's setup so that we don't show the button back when kill/restart the app
+
+//persisting microphone permission (Allow “app_name” to use your microphone?)
+// doesn't work:
+// in DESKTOP for safari (neither tab closing nor browser closing) and edge (pb different ils considère que la perm est ok mais mon code cache le mic button), safari pwa since can't install a safari pwa in desktop yet
+//works:
+//  in chrome, chrome standalone pwa,
+
+//mic buttons visible
+//wworks in whatpwacandotoday in mobile chrome safari standalone pwa but not in my app
 import { ref } from "vue";
 
 export const isRecognizing = ref(false);
