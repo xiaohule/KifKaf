@@ -11,6 +11,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { VueFire, VueFireAuth, getCurrentUser } from "vuefire";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { markRaw } from "vue";
+import Vue3Lottie from "vue3-lottie";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -90,6 +91,8 @@ export default boot(({ app, router }) => {
       }
     }
   });
+
+  app.use(Vue3Lottie);
   // // Attach the application context to the global window object
   // window.appContext = app._context
 });

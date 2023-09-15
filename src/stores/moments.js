@@ -47,6 +47,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateDataFetched = ref(false);
   const isEditorFocused = ref(false);
   const needsMap = ref({
+    //add 'Work-Life Balance'?
     "Physical Well-Being": "🛡️", //readd Physical safety dedans ou split
     "Sustenance & Nourishment": "🍎",
     Shelter: "🏠",
@@ -262,7 +263,6 @@ export const useMomentsStore = defineStore("moments", () => {
       batch.update(newMomDocRef, {
         needsSatisAndImp: {},
         retries: 0,
-        hideSpinner: false,
       });
 
       // Remove moment.date time and save the Timestamp to momentsDays array
@@ -276,12 +276,6 @@ export const useMomentsStore = defineStore("moments", () => {
       });
 
       await batch.commit();
-
-      setTimeout(async () => {
-        await updateDoc(newMomDocRef, {
-          hideSpinner: true,
-        });
-      }, 60000);
 
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete

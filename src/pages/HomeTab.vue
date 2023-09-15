@@ -7,15 +7,21 @@
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
 
-    <q-card class="bg-surface q-mb-lg q-px-none q-py-sm rounded-borders-14" flat>
+    <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
+    <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
+      :width="200" :scale="2" /> -->
+
+    <q-card class="bg-surface q-mb-xl q-px-none q-py-sm rounded-borders-14" flat>
       <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
       <!-- TODO:3 add a signal that speech recognition is on -->
       <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
         lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text"
         autogrow rounded outlined bg-color="surface-variant" color="transparent">
         <template v-slot:append>
-          <q-btn v-if="showSpeechRecognitionButton" color="primary" :flat=!isRecognizing dense round icon="mic"
-            :class="isRecognizing ? 'pulse-animation' : ''" @click="toggleSpeechRecognition" />
+          <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
+            @click="toggleSpeechRecognition" />
+          <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
+            class="pulse-animation" @click="toggleSpeechRecognition" />
         </template>
         <template v-slot:after>
           <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense unelevated color="primary"
@@ -27,40 +33,53 @@
 
     <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
     <div v-else>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Moments</q-item-label>
+      <q-list>
+        <div v-for="day in momentsStore.uniqueDays" :key="day">
+          <q-item-label header class="text-body1 text-weight-medium text-on-background q-pa-none q-mt-lg q-mb-sm">{{ day
+          }}</q-item-label>
 
-      <q-card class="bg-surface q-mb-md q-px-none q-pt-xs q-pb-xs rounded-borders-14"
-        v-for="day in momentsStore.uniqueDays" :key="day" flat>
-        <q-card-section class="text-subtitle1 q-pb-none q-px-md">
-          {{ day }}
-        </q-card-section>
+          <q-item class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14">
+            <q-list>
+              <q-item v-for="moment in getSortedMomentsOfTheDay(day)" :key="moment.id" clickable v-ripple
+                class="q-px-none q-py-md" style="min-height: 0px;">
 
-        <q-card-section class="q-py-xs q-px-none" clickable v-for="moment in getMomentsOfTheDay(day)" :key="moment.id">
+                <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
+                  <q-icon v-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0" size="20px"
+                    color="primary" name="check_circle" class="q-mx-md" />
+                  <!-- display stateful-circular-progress only if moment.date is less than expectedLlmCallDuration seconds ago -->
+                  <stateful-circular-progress :expected-duration="expectedLlmCallDuration"
+                    v-else-if="moment.date.seconds && moment.date.seconds > (currentTime - expectedLlmCallDuration)" />
+                  <q-icon v-else size="20px" color="error-dark" name="error" class="q-mx-md" />
+                </q-item-section>
+                <q-item-section class=" q-pb-none q-pl-none q-pr-md" dense>{{ moment.text
+                }}</q-item-section>
 
-          <q-card-section class="q-pt-sm q-pb-none q-px-md" style="min-height: 0px;" dense>{{ moment.text
-          }}</q-card-section>
+                <!-- <q-card-section
+                    v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
+                    class="q-px-none q-py-xs" style="min-height: 0px;"> -->
+                <!-- add the "+" for manually adding needs -->
+                <!-- </q-card-section>
+                  <q-card-section v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
+                    class="q-px-none q-py-xs chip-container" style="min-height: 0px;">
+                    <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
+                      @scroll="onChipsRowScroll($event, moment.id)"> -->
+                <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
+                <!-- <q-chip v-for="need in Object.entries(moment.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
+                        :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
+                        :label="need[0]" class="needs" />
+                    </div>
+                  </q-card-section>
 
-          <q-card-section
-            v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
-            class="q-px-none q-py-xs" style="min-height: 0px;">
-            <!-- add the "+" for manually adding needs -->
-          </q-card-section>
-          <q-card-section v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
-            class="q-px-none q-py-xs chip-container" style="min-height: 0px;">
-            <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
-              @scroll="onChipsRowScroll($event, moment.id)">
-              <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
-              <q-chip v-for="need in Object.entries(moment.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
-                :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
-                :label="need[0]" class="needs" />
-            </div>
-          </q-card-section>
+                  <q-card-section v-else-if="!moment.hideSpinner" class="q-px-none q-py-xs text-center"
+                    style="min-height: 0px;">
+                    <q-spinner-dots color="" size="2em" />
+                  </q-card-section> -->
+              </q-item>
 
-          <q-card-section v-else-if="!moment.hideSpinner" class="q-px-none q-py-xs text-center" style="min-height: 0px;">
-            <q-spinner-dots color="" size="2em" />
-          </q-card-section>
-        </q-card-section>
-      </q-card>
+            </q-list>
+          </q-item>
+        </div>
+      </q-list>
     </div>
   </q-page>
 </template>
@@ -72,6 +91,10 @@ import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 const { formatDate } = date; // destructuring to keep only what is needed in date
 import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js' // TODO:2 make this dynamic imports?
+import statefulCircularProgress from 'src/components/statefulCircularProgress.vue';
+// import { Vue3Lottie } from 'vue3-lottie'
+// import AstronautJSON from './astronaut.json'
+
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
@@ -85,6 +108,13 @@ onMounted(async () => {
   } catch (error) {
     console.error('await momentsStore.fetchMoments() error:', error);
   }
+})
+
+onMounted(() => {
+  // Update the currentTime every second
+  timeInterval = setInterval(() => {
+    currentTime.value = Timestamp.now().seconds;
+  }, 1000);
 })
 
 onActivated(() => {
@@ -105,6 +135,7 @@ onBeforeUnmount(() => {
     recognition.stop();
     isRecognizing.value = false;
   }
+  clearInterval(timeInterval);
 })
 
 const placeholderText = 'Feeling...when/at/to...bec...'
@@ -112,6 +143,9 @@ const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
 const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
+const expectedLlmCallDuration = ref(40);
+const currentTime = ref(Timestamp.now().seconds);
+let timeInterval;
 
 // INPUT
 const inputBlurred = () => {
@@ -173,7 +207,7 @@ const formatLikeUniqueDays = (moment) => {
   return date.formatDate(dt, "MMMM D, YYYY")
 };
 
-const getMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
+const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
   const ul = momentsStore?.momentsColl?.value?.filter(m => formatLikeUniqueDays(m) == day)
   // sort array ul per descending moments.value.date.seconds
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
