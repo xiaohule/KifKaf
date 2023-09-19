@@ -1,6 +1,10 @@
-<template >
-  <q-icon v-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0" size="20px" color="primary"
-    name="check_circle" class="q-mx-md" />
+<template>
+  <q-icon
+    v-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0 && Object.keys(moment?.needsSatisAndImp).every(key => key === 'oops' || key === 'error')"
+    size="20px" color="error-dark" name="error" class="q-mx-md" />
+
+  <q-icon v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0" size="20px"
+    color="primary" name="check_circle" class="q-mx-md" />
 
   <q-icon v-else-if="moment?.date?.seconds && (moment?.date?.seconds > (currentTime - expectedLlmCallDuration))"
     size="20px" class="q-mx-md">

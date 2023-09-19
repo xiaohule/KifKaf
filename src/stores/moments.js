@@ -371,7 +371,6 @@ export const useMomentsStore = defineStore("moments", () => {
       : date.isSameDate(dt, today, "year")
       ? date.formatDate(dt, "MMMM D")
       : date.formatDate(dt, "MMMM D, YYYY");
-    console.log("In getFormattedDate, day:", day);
 
     if (showHour) return day + ", " + date.formatDate(dt, "HH:mm");
     else return day;

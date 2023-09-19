@@ -147,7 +147,7 @@ const segStatsId = computed(() => {
 const segStatsName = "segStats" + segUid
 
 watch(() => momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey.value], (newVal, oldVal) => {
-  console.log('In LearnCardNeeds, watch XXX55', newVal, ", replaced:", oldVal);
+  // console.log('In LearnCardNeeds, watch XXX55', newVal, ", replaced:", oldVal);
   if (newVal && newVal.length > 0) emits('ready:aggregateData', { flag: props.flag })
 }, { immediate: true })
 
