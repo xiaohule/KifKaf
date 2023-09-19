@@ -40,7 +40,9 @@
 
           <q-card-section
             v-if="moment?.needsSatisAndImp && (moment?.needsSatisAndImp.error || moment?.needsSatisAndImp.oops)"
-            class="q-px-none q-py-sm" style="min-height: 0px;">
+            class="q-px-none q-py-sm text-error" style="min-height: 0px;">
+            {{ "Oops: " + (moment?.needsSatisAndImp.error ||
+              moment?.needsSatisAndImp.oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
             <!-- add the "+" for manually adding needs -->
           </q-card-section>
           <q-card-section v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0"
@@ -49,9 +51,9 @@
             <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
               :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
               :label="need[0]" class="needs" />
+            <!-- add the "+" for manually adding needs -->
           </q-card-section>
-          <q-card-section v-else-if="!moment?.hideSpinner" class="q-px-none q-py-sm text-center" style="min-height: 0px;">
-            <q-spinner-dots color="" size="2em" />
+          <q-card-section v-else class="q-px-none q-py-sm text-error" style="min-height: 0px;">
           </q-card-section>
 
         </q-card>
