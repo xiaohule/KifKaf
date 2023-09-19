@@ -6,12 +6,7 @@
         <q-item-section class="text-body1 text-weight-medium">{{
           momentsStore.formatLikeUniqueDays(moment) }}</q-item-section>
         <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
-          <q-icon v-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0" size="20px"
-            color="primary" name="check_circle" class="q-mx-none" />
-          <!-- display stateful-circular-progress only if moment.date is less than expectedLlmCallDuration seconds ago -->
-          <stateful-circular-progress :expected-duration="expectedLlmCallDuration"
-            v-else-if="moment.date?.seconds && moment.date?.seconds > (currentTime - expectedLlmCallDuration)" />
-          <q-icon v-else size="20px" color="error-dark" name="error" class="q-mx-none" />
+          <moment-sync-icon :moment-id="momentId" :expected-llm-call-duration="expectedLlmCallDuration" />
         </q-item-section>
       </q-item>
 
@@ -24,7 +19,7 @@
           <div class="text-weight-medium text-primary col-auto">Edit</div> -->
         </q-card-section>
         <q-card-section class="q-px-none q-py-sm">
-          <div class="">{{ moment.text }}</div>
+          <div class="">{{ moment?.text }}</div>
         </q-card-section>
       </q-card>
 
@@ -37,18 +32,19 @@
           <div class="text-weight-medium text-primary col-auto">Edit</div> -->
         </q-card-section>
 
-        <q-card-section v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
+        <q-card-section
+          v-if="moment?.needsSatisAndImp && (moment?.needsSatisAndImp.error || moment?.needsSatisAndImp.oops)"
           class="q-px-none q-py-sm" style="min-height: 0px;">
           <!-- add the "+" for manually adding needs -->
         </q-card-section>
-        <q-card-section v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
+        <q-card-section v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0"
           class="q-px-none q-py-sm chip-container" style="min-height: 0px;">
           <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
-          <q-chip v-for="need in Object.entries(moment.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
+          <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
             :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]" :label="need[0]"
             class="needs" />
         </q-card-section>
-        <q-card-section v-else-if="!moment.hideSpinner" class="q-px-none q-py-sm text-center" style="min-height: 0px;">
+        <q-card-section v-else-if="!moment?.hideSpinner" class="q-px-none q-py-sm text-center" style="min-height: 0px;">
           <q-spinner-dots color="" size="2em" />
         </q-card-section>
 
@@ -58,45 +54,35 @@
 </template>
 
 <script setup>
-// import { ref, onMounted, nextTick } from 'vue'
+import { ref, watch } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
-import statefulCircularProgress from 'src/components/statefulCircularProgress.vue';
+import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 
-//STORE INITIALIZATION
-// defineOptions({
-//   preFetch() {
-//     const momentsStore = useMomentsStore()
-//     console.log('In momBottomSheet preFetch')
-//     return momentsStore.fetchMoments();
-//   }
-// })
-const momentsStore = useMomentsStore()
-// onMounted(async () => {
-//   console.log('In momBottomSheet onMounted')
-//   nextTick(() => {
-//     console.log('In momBottomSheet nextTick')
-//   });
-//   // try {
-//   //   if (!momentsStore.momentsFetched) {
-//   //     await momentsStore.fetchMoments();
-//   //   }
-//   // } catch (error) {
-//   //   console.error('await momentsStore.fetchMoments() error:', error);
-//   // }
-// })
-
-defineProps({
+const props = defineProps({
   modelValue: {
     required: true,
     type: Boolean,
     default: false,
   },
-  moment: {
+  momentId: {
     required: true,
-    type: Object
+    type: String,
+  },
+  expectedLlmCallDuration: {
+    required: true,
+    type: Number,
+    default: 40
   },
 });
 defineEmits(['update:modelValue']);
+
+const momentsStore = useMomentsStore()
+const moment = ref(null)
+
+watch(() => props.momentId, (newVal, oldVal) => {
+  momentsStore.getMomentById(newVal, moment);
+  console.log('in momentBottomSheet watch props.momentId:', props.momentId, "moment:", moment);
+})
 
 const getChipColor = (needsStats) => {
   if (needsStats[0] < 0.4) return 'red'

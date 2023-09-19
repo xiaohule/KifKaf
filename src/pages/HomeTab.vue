@@ -40,15 +40,10 @@
           <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
             <q-list full-width style="width: 100%;">
               <q-item v-for="moment in getSortedMomentsOfTheDay(day)" :key="moment.id" clickable v-ripple
-                class="q-px-none q-py-md" style="min-height: 0px;" @click="openBottomSheet(moment)">
+                class="q-px-none q-py-md" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
 
                 <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
-                  <q-icon v-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0" size="20px"
-                    color="primary" name="check_circle" class="q-mx-md" />
-                  <!-- display stateful-circular-progress only if moment.date is less than expectedLlmCallDuration seconds ago -->
-                  <stateful-circular-progress :expected-duration="expectedLlmCallDuration"
-                    v-else-if="moment.date.seconds && moment.date.seconds > (currentTime - expectedLlmCallDuration)" />
-                  <q-icon v-else size="20px" color="error-dark" name="error" class="q-mx-md" />
+                  <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
                 </q-item-section>
                 <q-item-section class=" q-pb-none q-pl-none q-pr-md">{{ moment.text
                 }}</q-item-section>
@@ -58,7 +53,8 @@
           </q-item>
         </div>
       </q-list>
-      <moment-bottom-sheet v-model="momPageOpened" :moment="bottomSheetMoment" />
+      <moment-bottom-sheet v-model="momPageOpened" :moment-id="bottomSheetMomentId"
+        :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
   </q-page>
 </template>
@@ -70,10 +66,10 @@ import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 const { formatDate } = date; // destructuring to keep only what is needed in date
 import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js' // TODO:2 make this dynamic imports?
-import statefulCircularProgress from 'src/components/statefulCircularProgress.vue';
+import momentSyncIcon from 'src/components/momentSyncIcon.vue';
+import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
 // import AstronautJSON from './astronaut.json'
-import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
@@ -89,16 +85,8 @@ onMounted(async () => {
   }
 })
 
-onMounted(() => {
-  // Update the currentTime every second
-  timeInterval = setInterval(() => {
-    currentTime.value = Timestamp.now().seconds;
-  }, 1000);
-})
-
 onActivated(() => {
   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-  momsWithScrolledNeeds.value = {};
 })
 
 onDeactivated(() => {
@@ -114,43 +102,19 @@ onBeforeUnmount(() => {
     recognition.stop();
     isRecognizing.value = false;
   }
-  clearInterval(timeInterval);
 })
 
 const placeholderText = 'Feeling...when/at/to...bec...'
 const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
-const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
-const expectedLlmCallDuration = ref(40);
-const currentTime = ref(Timestamp.now().seconds);
-let timeInterval;
-const momPageOpened = ref(false)
-const getLatestMoment = computed(() => {
-  try {
-    // console.log("in getlatestmom typeof", typeof momentsStore?.momentsColl?.value);
-    console.log("in getlatestmom momentsStore?.momentsColl?.value", momentsStore?.momentsColl?.value);
-    // console.log("in getlatestmom momentsStore?.momentsColl?.value?.length", momentsStore?.momentsColl?.value?.length);
-    if (!momentsStore || !momentsStore.momentsColl || !momentsStore.momentsColl.value) return {}
-    else {
-      // console.log("in getlatestmom valid momcoll", momentsStore?.momentsColl?.value);
-      // ul = [...momentsStore.momentsColl.value].sort((a, b) => b.date.seconds - a.date.seconds)
-      const sortedArray = momentsStore.momentsColl.value.slice().sort((a, b) => b.date.seconds - a.date.seconds)
-      console.log("in getlatestmom sortedArray", sortedArray);
-      console.log("in getlatestmom sortedArray[0]", sortedArray[0]);
-      return sortedArray[0]
-    }
-  }
-  catch (error) {
-    console.error('getLatestMoment error:', error);
-    return {}
-  }
-})
-const bottomSheetMoment = ref(getLatestMoment.value)
 
-const openBottomSheet = (moment) => {
-  console.log('in openBottomSheet moment:', moment)
-  bottomSheetMoment.value = moment
+const expectedLlmCallDuration = ref(40);
+const momPageOpened = ref(false)
+const bottomSheetMomentId = ref("")
+const openBottomSheet = (momentId) => {
+  console.log('in openBottomSheet momentId:', momentId)
+  bottomSheetMomentId.value = momentId
   momPageOpened.value = true
 }
 

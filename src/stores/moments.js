@@ -133,6 +133,32 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
+  const getMomentById = computed(() => {
+    return async (momentId, momentRef) => {
+      try {
+        if (!momentId) {
+          console.log("In getMomentById, momentId is null, returning null");
+          return null;
+        }
+        if (!momentsFetched.value) {
+          console.log(
+            "In getMomentById, moments not yet fetched, fetching them",
+          );
+          await fetchMoments();
+        }
+
+        onSnapshot(
+          doc(db, `users/${user.value.uid}/moments/${momentId}`),
+          (doc) => {
+            momentRef.value = doc.data();
+          },
+        );
+      } catch (error) {
+        console.log("Error in getMomentById", error);
+      }
+    };
+  });
+
   const fetchAggregateData = async () => {
     try {
       if (aggregateDataFetched.value) {
@@ -336,7 +362,7 @@ export const useMomentsStore = defineStore("moments", () => {
   });
 
   const formatLikeUniqueDays = (moment) => {
-    if (!moment.date) {
+    if (!moment?.date) {
       return;
     }
     const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
@@ -416,6 +442,7 @@ export const useMomentsStore = defineStore("moments", () => {
     hasNeeds,
     needsMap,
     aggregateData,
+    getMomentById,
     formatLikeUniqueDays,
     addMoment,
     fetchUser,
