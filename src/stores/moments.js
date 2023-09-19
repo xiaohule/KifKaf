@@ -47,6 +47,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateDataFetched = ref(false);
   const isEditorFocused = ref(false);
   const needsMap = ref({
+    //add 'Work-Life Balance'?
     "Physical Well-Being": "🛡️", //readd Physical safety dedans ou split
     "Sustenance & Nourishment": "🍎",
     Shelter: "🏠",
@@ -131,6 +132,32 @@ export const useMomentsStore = defineStore("moments", () => {
       console.log("Error in fetchMoments", error);
     }
   };
+
+  const getMomentById = computed(() => {
+    return async (momentId, momentRef) => {
+      try {
+        if (!momentId) {
+          console.log("In getMomentById, momentId is null, returning null");
+          return null;
+        }
+        if (!momentsFetched.value) {
+          console.log(
+            "In getMomentById, moments not yet fetched, fetching them",
+          );
+          await fetchMoments();
+        }
+
+        onSnapshot(
+          doc(db, `users/${user.value.uid}/moments/${momentId}`),
+          (doc) => {
+            momentRef.value = doc.data();
+          },
+        );
+      } catch (error) {
+        console.log("Error in getMomentById", error);
+      }
+    };
+  });
 
   const fetchAggregateData = async () => {
     try {
@@ -262,7 +289,6 @@ export const useMomentsStore = defineStore("moments", () => {
       batch.update(newMomDocRef, {
         needsSatisAndImp: {},
         retries: 0,
-        hideSpinner: false,
       });
 
       // Remove moment.date time and save the Timestamp to momentsDays array
@@ -276,12 +302,6 @@ export const useMomentsStore = defineStore("moments", () => {
       });
 
       await batch.commit();
-
-      setTimeout(async () => {
-        await updateDoc(newMomDocRef, {
-          hideSpinner: true,
-        });
-      }, 60000);
 
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
@@ -328,18 +348,34 @@ export const useMomentsStore = defineStore("moments", () => {
     if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
       return [];
     }
-
-    const daysTime = userDoc.value.data.momentsDays.map((day) => {
-      // Convert Firestore Timestamp to JavaScript Date, format of moment.date is like {seconds: 1678296892, nanoseconds: 210000000}
-      const dayTs = new Timestamp(day.seconds, day.nanoseconds);
-      const dayDate = dayTs.toDate();
-      return dayDate.getTime(); //TODO:2 improve perf
-    });
-
+    let ul = userDoc.value.data.momentsDays.map((day) => day.seconds);
     //Sort in descending order (most recent first) & return
-    daysTime.sort((a, b) => b - a);
-    return daysTime.map((day) => date.formatDate(day, "MMMM D, YYYY"));
+    return ul.sort((a, b) => b - a);
   });
+
+  const getFormattedDate = (seconds, showHour = false, forDisplay = true) => {
+    if (!seconds) {
+      return;
+    }
+
+    const ts = new Timestamp(seconds, 0); //Timestamp {seconds: 1679961600, nanoseconds: 0}
+    const dt = ts.toDate(); //Tue Mar 28 2023 02:00:00 GMT+0200 (Central European Summer Time)
+    const today = new Date();
+
+    if (!forDisplay) return date.formatDate(dt, "MMMM D, YYYY");
+
+    const day = date.isSameDate(dt, today, "day")
+      ? "Today"
+      : date.isSameDate(dt, today - 86400000, "day")
+      ? "Yesterday"
+      : date.isSameDate(dt, today, "year")
+      ? date.formatDate(dt, "MMMM D")
+      : date.formatDate(dt, "MMMM D, YYYY");
+    console.log("In getFormattedDate, day:", day);
+
+    if (showHour) return day + ", " + date.formatDate(dt, "HH:mm");
+    else return day;
+  };
 
   const oldestMomentDate = computed(() => {
     if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
@@ -411,6 +447,8 @@ export const useMomentsStore = defineStore("moments", () => {
     hasNeeds,
     needsMap,
     aggregateData,
+    getMomentById,
+    getFormattedDate,
     addMoment,
     fetchUser,
     fetchMoments,

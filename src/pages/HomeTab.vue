@@ -6,6 +6,9 @@
     <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
+    <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
+    <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
+      :width="200" :scale="2" /> -->
 
     <q-card class="bg-surface q-mb-lg q-px-none q-py-sm rounded-borders-14" flat>
       <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
@@ -14,8 +17,10 @@
         lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text"
         autogrow rounded outlined bg-color="surface-variant" color="transparent">
         <template v-slot:append>
-          <q-btn v-if="showSpeechRecognitionButton" color="primary" :flat=!isRecognizing dense round icon="mic"
-            :class="isRecognizing ? 'pulse-animation' : ''" @click="toggleSpeechRecognition" />
+          <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
+            @click="toggleSpeechRecognition" />
+          <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
+            class="pulse-animation" @click="toggleSpeechRecognition" />
         </template>
         <template v-slot:after>
           <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense unelevated color="primary"
@@ -27,40 +32,29 @@
 
     <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
     <div v-else>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Moments</q-item-label>
+      <q-list>
+        <div v-for="day in momentsStore.uniqueDays" :key="day">
+          <q-item-label header class="text-body1 text-weight-medium text-on-background q-pa-none q-mt-lg q-mb-sm">{{
+            momentsStore.getFormattedDate(day) }}</q-item-label>
 
-      <q-card class="bg-surface q-mb-md q-px-none q-pt-xs q-pb-xs rounded-borders-14"
-        v-for="day in momentsStore.uniqueDays" :key="day" flat>
-        <q-card-section class="text-subtitle1 q-pb-none q-px-md">
-          {{ day }}
-        </q-card-section>
+          <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
+            <q-list full-width style="width: 100%;">
+              <q-item v-for="moment in getSortedMomentsOfTheDay(day)" :key="moment.id" clickable v-ripple
+                class="q-px-none q-py-md" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
 
-        <q-card-section class="q-py-xs q-px-none" clickable v-for="moment in getMomentsOfTheDay(day)" :key="moment.id">
+                <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
+                  <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
+                </q-item-section>
+                <q-item-section class=" q-pb-none q-pl-none q-pr-md">{{ moment.text
+                }}</q-item-section>
+              </q-item>
 
-          <q-card-section class="q-pt-sm q-pb-none q-px-md" style="min-height: 0px;" dense>{{ moment.text
-          }}</q-card-section>
-
-          <q-card-section
-            v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
-            class="q-px-none q-py-xs" style="min-height: 0px;">
-            <!-- add the "+" for manually adding needs -->
-          </q-card-section>
-          <q-card-section v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
-            class="q-px-none q-py-xs chip-container" style="min-height: 0px;">
-            <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
-              @scroll="onChipsRowScroll($event, moment.id)">
-              <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
-              <q-chip v-for="need in Object.entries(moment.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
-                :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
-                :label="need[0]" class="needs" />
-            </div>
-          </q-card-section>
-
-          <q-card-section v-else-if="!moment.hideSpinner" class="q-px-none q-py-xs text-center" style="min-height: 0px;">
-            <q-spinner-dots color="" size="2em" />
-          </q-card-section>
-        </q-card-section>
-      </q-card>
+            </q-list>
+          </q-item>
+        </div>
+      </q-list>
+      <moment-bottom-sheet v-model="momPageOpened" :moment-id="bottomSheetMomentId"
+        :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
   </q-page>
 </template>
@@ -72,6 +66,10 @@ import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 const { formatDate } = date; // destructuring to keep only what is needed in date
 import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js' // TODO:2 make this dynamic imports?
+import momentSyncIcon from 'src/components/momentSyncIcon.vue';
+import momentBottomSheet from 'src/components/momentBottomSheet.vue'
+// import { Vue3Lottie } from 'vue3-lottie'
+// import AstronautJSON from './astronaut.json'
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
@@ -89,7 +87,6 @@ onMounted(async () => {
 
 onActivated(() => {
   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-  momsWithScrolledNeeds.value = {};
 })
 
 onDeactivated(() => {
@@ -111,7 +108,15 @@ const placeholderText = 'Feeling...when/at/to...bec...'
 const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
-const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
+
+const expectedLlmCallDuration = ref(40);
+const momPageOpened = ref(false)
+const bottomSheetMomentId = ref("")
+const openBottomSheet = (momentId) => {
+  console.log('in openBottomSheet momentId:', momentId)
+  bottomSheetMomentId.value = momentId
+  momPageOpened.value = true
+}
 
 // INPUT
 const inputBlurred = () => {
@@ -165,76 +170,18 @@ const onSubmit = (event) => {
 }
 
 // DISPLAY PREVIOUS MOMENTS
-const formatLikeUniqueDays = (moment) => {
-  const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-  const dt = ts.toDate();
-  dt.setHours(0, 0, 0, 0);
-  dt.getTime();
-  return date.formatDate(dt, "MMMM D, YYYY")
-};
-
-const getMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
-  const ul = momentsStore?.momentsColl?.value?.filter(m => formatLikeUniqueDays(m) == day)
+const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
+  const dayDate = (new Timestamp(day, 0)).toDate()
+  const ul = momentsStore?.momentsColl?.value?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
   // sort array ul per descending moments.value.date.seconds
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;
 }
-
-// DISPLAY PREVIOUS MOMENTS NEEDS
-const getChipColor = (needsStats) => {
-  if (needsStats[0] < 0.4) return 'red'
-  else if (needsStats[0] > 0.6) return 'green'
-  else return 'primary'
-}
-const onChipsRowScroll = (event, id) => {
-  momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
-};
-const setChipsRowPadding = (id) => {
-  // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
-  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 16px;';
-};
-
-
 </script>
 
 <style lang="scss">
-.needs {
-  font-size: 0.8rem;
-  // max-width: 200px; //truncate
-}
-
-/* Hide scrollbar for IE, Edge, and Firefox */
-.chip-container {
-  scrollbar-width: none;
-  /* For Firefox */
-  -ms-overflow-style: none;
-  /* For Internet Explorer and Edge */
-}
-
-.horizontal-scroll {
-  display: flex;
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  width: 100%;
-  transition: padding-left 0.1s ease;
-
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.q-chip__icon {
-  margin-bottom: 1.5px;
-}
-
 .q-field--outlined .q-field__control:before {
   border: none;
-}
-
-.horizontal-scroll .q-chip:first-child {
-  margin-left: 0;
 }
 
 .q-field__append.q-field__marginal.row.no-wrap.items-center.q-anchor--skip {
