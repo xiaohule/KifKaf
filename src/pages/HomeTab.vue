@@ -10,7 +10,7 @@
     <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
       :width="200" :scale="2" /> -->
 
-    <q-card class="bg-surface q-mb-xl q-px-none q-py-sm rounded-borders-14" flat>
+    <q-card class="bg-surface q-mb-lg q-px-none q-py-sm rounded-borders-14" flat>
       <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
       <!-- TODO:3 add a signal that speech recognition is on -->
       <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
@@ -34,8 +34,8 @@
     <div v-else>
       <q-list>
         <div v-for="day in momentsStore.uniqueDays" :key="day">
-          <q-item-label header class="text-body1 text-weight-medium text-on-background q-pa-none q-mt-lg q-mb-sm">{{ day
-          }}</q-item-label>
+          <q-item-label header class="text-body1 text-weight-medium text-on-background q-pa-none q-mt-lg q-mb-sm">{{
+            momentsStore.getFormattedDate(day) }}</q-item-label>
 
           <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
             <q-list full-width style="width: 100%;">
@@ -171,7 +171,8 @@ const onSubmit = (event) => {
 
 // DISPLAY PREVIOUS MOMENTS
 const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
-  const ul = momentsStore?.momentsColl?.value?.filter(m => momentsStore.formatLikeUniqueDays(m) == day)
+  const dayDate = (new Timestamp(day, 0)).toDate()
+  const ul = momentsStore?.momentsColl?.value?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
   // sort array ul per descending moments.value.date.seconds
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;

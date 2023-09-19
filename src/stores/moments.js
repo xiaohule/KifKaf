@@ -348,28 +348,33 @@ export const useMomentsStore = defineStore("moments", () => {
     if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
       return [];
     }
-
-    const daysTime = userDoc.value.data.momentsDays.map((day) => {
-      // Convert Firestore Timestamp to JavaScript Date, format of moment.date is like {seconds: 1678296892, nanoseconds: 210000000}
-      const dayTs = new Timestamp(day.seconds, day.nanoseconds);
-      const dayDate = dayTs.toDate();
-      return dayDate.getTime(); //TODO:2 improve perf
-    });
-
+    let ul = userDoc.value.data.momentsDays.map((day) => day.seconds);
     //Sort in descending order (most recent first) & return
-    daysTime.sort((a, b) => b - a);
-    return daysTime.map((day) => date.formatDate(day, "MMMM D, YYYY"));
+    return ul.sort((a, b) => b - a);
   });
 
-  const formatLikeUniqueDays = (moment) => {
-    if (!moment?.date) {
+  const getFormattedDate = (seconds, showHour = false, forDisplay = true) => {
+    if (!seconds) {
       return;
     }
-    const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-    const dt = ts.toDate();
-    dt.setHours(0, 0, 0, 0);
-    dt.getTime();
-    return date.formatDate(dt, "MMMM D, YYYY");
+
+    const ts = new Timestamp(seconds, 0); //Timestamp {seconds: 1679961600, nanoseconds: 0}
+    const dt = ts.toDate(); //Tue Mar 28 2023 02:00:00 GMT+0200 (Central European Summer Time)
+    const today = new Date();
+
+    if (!forDisplay) return date.formatDate(dt, "MMMM D, YYYY");
+
+    const day = date.isSameDate(dt, today, "day")
+      ? "Today"
+      : date.isSameDate(dt, today - 86400000, "day")
+      ? "Yesterday"
+      : date.isSameDate(dt, today, "year")
+      ? date.formatDate(dt, "MMMM D")
+      : date.formatDate(dt, "MMMM D, YYYY");
+    console.log("In getFormattedDate, day:", day);
+
+    if (showHour) return day + ", " + date.formatDate(dt, "HH:mm");
+    else return day;
   };
 
   const oldestMomentDate = computed(() => {
@@ -443,7 +448,7 @@ export const useMomentsStore = defineStore("moments", () => {
     needsMap,
     aggregateData,
     getMomentById,
-    formatLikeUniqueDays,
+    getFormattedDate,
     addMoment,
     fetchUser,
     fetchMoments,
