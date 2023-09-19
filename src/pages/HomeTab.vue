@@ -6,7 +6,6 @@
     <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
-
     <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
     <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
       :width="200" :scale="2" /> -->
@@ -38,10 +37,10 @@
           <q-item-label header class="text-body1 text-weight-medium text-on-background q-pa-none q-mt-lg q-mb-sm">{{ day
           }}</q-item-label>
 
-          <q-item class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14">
-            <q-list>
+          <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
+            <q-list full-width style="width: 100%;">
               <q-item v-for="moment in getSortedMomentsOfTheDay(day)" :key="moment.id" clickable v-ripple
-                class="q-px-none q-py-md" style="min-height: 0px;">
+                class="q-px-none q-py-md" style="min-height: 0px;" @click="openBottomSheet(moment)">
 
                 <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
                   <q-icon v-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0" size="20px"
@@ -51,35 +50,15 @@
                     v-else-if="moment.date.seconds && moment.date.seconds > (currentTime - expectedLlmCallDuration)" />
                   <q-icon v-else size="20px" color="error-dark" name="error" class="q-mx-md" />
                 </q-item-section>
-                <q-item-section class=" q-pb-none q-pl-none q-pr-md" dense>{{ moment.text
+                <q-item-section class=" q-pb-none q-pl-none q-pr-md">{{ moment.text
                 }}</q-item-section>
-
-                <!-- <q-card-section
-                    v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
-                    class="q-px-none q-py-xs" style="min-height: 0px;"> -->
-                <!-- add the "+" for manually adding needs -->
-                <!-- </q-card-section>
-                  <q-card-section v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
-                    class="q-px-none q-py-xs chip-container" style="min-height: 0px;">
-                    <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
-                      @scroll="onChipsRowScroll($event, moment.id)"> -->
-                <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
-                <!-- <q-chip v-for="need in Object.entries(moment.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
-                        :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
-                        :label="need[0]" class="needs" />
-                    </div>
-                  </q-card-section>
-
-                  <q-card-section v-else-if="!moment.hideSpinner" class="q-px-none q-py-xs text-center"
-                    style="min-height: 0px;">
-                    <q-spinner-dots color="" size="2em" />
-                  </q-card-section> -->
               </q-item>
 
             </q-list>
           </q-item>
         </div>
       </q-list>
+      <moment-bottom-sheet v-model="momPageOpened" :moment="bottomSheetMoment" />
     </div>
   </q-page>
 </template>
@@ -94,7 +73,7 @@ import { isRecognizing, recognition, useSpeechRecognition } from '../composables
 import statefulCircularProgress from 'src/components/statefulCircularProgress.vue';
 // import { Vue3Lottie } from 'vue3-lottie'
 // import AstronautJSON from './astronaut.json'
-
+import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
@@ -146,6 +125,34 @@ const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft valu
 const expectedLlmCallDuration = ref(40);
 const currentTime = ref(Timestamp.now().seconds);
 let timeInterval;
+const momPageOpened = ref(false)
+const getLatestMoment = computed(() => {
+  try {
+    // console.log("in getlatestmom typeof", typeof momentsStore?.momentsColl?.value);
+    console.log("in getlatestmom momentsStore?.momentsColl?.value", momentsStore?.momentsColl?.value);
+    // console.log("in getlatestmom momentsStore?.momentsColl?.value?.length", momentsStore?.momentsColl?.value?.length);
+    if (!momentsStore || !momentsStore.momentsColl || !momentsStore.momentsColl.value) return {}
+    else {
+      // console.log("in getlatestmom valid momcoll", momentsStore?.momentsColl?.value);
+      // ul = [...momentsStore.momentsColl.value].sort((a, b) => b.date.seconds - a.date.seconds)
+      const sortedArray = momentsStore.momentsColl.value.slice().sort((a, b) => b.date.seconds - a.date.seconds)
+      console.log("in getlatestmom sortedArray", sortedArray);
+      console.log("in getlatestmom sortedArray[0]", sortedArray[0]);
+      return sortedArray[0]
+    }
+  }
+  catch (error) {
+    console.error('getLatestMoment error:', error);
+    return {}
+  }
+})
+const bottomSheetMoment = ref(getLatestMoment.value)
+
+const openBottomSheet = (moment) => {
+  console.log('in openBottomSheet moment:', moment)
+  bottomSheetMoment.value = moment
+  momPageOpened.value = true
+}
 
 // INPUT
 const inputBlurred = () => {
@@ -199,76 +206,17 @@ const onSubmit = (event) => {
 }
 
 // DISPLAY PREVIOUS MOMENTS
-const formatLikeUniqueDays = (moment) => {
-  const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-  const dt = ts.toDate();
-  dt.setHours(0, 0, 0, 0);
-  dt.getTime();
-  return date.formatDate(dt, "MMMM D, YYYY")
-};
-
 const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
-  const ul = momentsStore?.momentsColl?.value?.filter(m => formatLikeUniqueDays(m) == day)
+  const ul = momentsStore?.momentsColl?.value?.filter(m => momentsStore.formatLikeUniqueDays(m) == day)
   // sort array ul per descending moments.value.date.seconds
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;
 }
-
-// DISPLAY PREVIOUS MOMENTS NEEDS
-const getChipColor = (needsStats) => {
-  if (needsStats[0] < 0.4) return 'red'
-  else if (needsStats[0] > 0.6) return 'green'
-  else return 'primary'
-}
-const onChipsRowScroll = (event, id) => {
-  momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
-};
-const setChipsRowPadding = (id) => {
-  // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
-  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 16px;';
-};
-
-
 </script>
 
 <style lang="scss">
-.needs {
-  font-size: 0.8rem;
-  // max-width: 200px; //truncate
-}
-
-/* Hide scrollbar for IE, Edge, and Firefox */
-.chip-container {
-  scrollbar-width: none;
-  /* For Firefox */
-  -ms-overflow-style: none;
-  /* For Internet Explorer and Edge */
-}
-
-.horizontal-scroll {
-  display: flex;
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  width: 100%;
-  transition: padding-left 0.1s ease;
-
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.q-chip__icon {
-  margin-bottom: 1.5px;
-}
-
 .q-field--outlined .q-field__control:before {
   border: none;
-}
-
-.horizontal-scroll .q-chip:first-child {
-  margin-left: 0;
 }
 
 .q-field__append.q-field__marginal.row.no-wrap.items-center.q-anchor--skip {

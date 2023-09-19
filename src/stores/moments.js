@@ -335,6 +335,17 @@ export const useMomentsStore = defineStore("moments", () => {
     return daysTime.map((day) => date.formatDate(day, "MMMM D, YYYY"));
   });
 
+  const formatLikeUniqueDays = (moment) => {
+    if (!moment.date) {
+      return;
+    }
+    const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
+    const dt = ts.toDate();
+    dt.setHours(0, 0, 0, 0);
+    dt.getTime();
+    return date.formatDate(dt, "MMMM D, YYYY");
+  };
+
   const oldestMomentDate = computed(() => {
     if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
       return;
@@ -405,6 +416,7 @@ export const useMomentsStore = defineStore("moments", () => {
     hasNeeds,
     needsMap,
     aggregateData,
+    formatLikeUniqueDays,
     addMoment,
     fetchUser,
     fetchMoments,
