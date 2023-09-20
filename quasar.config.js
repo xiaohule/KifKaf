@@ -28,7 +28,6 @@ module.exports = configure(function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
     boot: ["firebaseBoot", "browserAddressbarColor", "swiperBoot"],
-    // boot: ["firebase", "vuefire"],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ["app.scss"],
@@ -46,6 +45,7 @@ module.exports = configure(function (/* ctx */) {
       "roboto-font", // optional, you are not bound to it
       "material-icons", // optional, you are not bound to it
       "material-icons-outlined",
+      "material-icons-round",
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
