@@ -79,7 +79,6 @@ onMounted(async () => {
     if (!momentsStore.momentsFetched) {
       await momentsStore.fetchMoments();
     }
-    await momentsStore.emptyNeedsMomentsRetry();
   } catch (error) {
     console.error('await momentsStore.fetchMoments() error:', error);
   }

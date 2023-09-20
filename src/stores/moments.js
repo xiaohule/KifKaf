@@ -33,6 +33,7 @@ import {
   EmailAuthProvider,
 } from "firebase/auth";
 import axios from "axios";
+import { Notify } from "quasar";
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
@@ -227,58 +228,10 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.data?.hasNeeds ?? false;
   });
 
-  //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
-  const emptyNeedsMomentsRetry = async () => {
-    // Query moments where needsSatisAndImp is empty
-    const emptyNeedsSatisAndImpQuery = query(
-      collection(db, `users/${user.value.uid}/moments`),
-      where("needsSatisAndImp", "==", {}),
-      where("retries", "<", 3),
-      orderBy("retries"),
-      limit(3),
-    );
-    const momentsWithEmptyNeedsSatisAndImp = await getDocs(
-      emptyNeedsSatisAndImpQuery,
-    );
-
-    //retry to call LLM and increment the retries counter //TODO:1 parallelize the calls to LLM
-    for (const doc of momentsWithEmptyNeedsSatisAndImp.docs) {
-      console.log(
-        "In emptyNeedsMomentsRetry, emptyNeedsSatisAndImpQuery returned:",
-        doc.data(),
-      );
-
-      await updateDoc(doc.ref, {
-        retries: increment(1),
-      });
-      const idToken = await user.value.getIdToken(/* forceRefresh */ true);
-      console.log(
-        "In emptyNeedsMomentsRetry, triggering retry call to llm for moment",
-        doc.data().text,
-      );
-      const response = await axios.get(`/api/learn/needs/`, {
-        params: {
-          momentText: doc.data().text,
-          momentDate: JSON.stringify(doc.data().date),
-          momentId: doc.id,
-        },
-        headers: {
-          authorization: `Bearer ${idToken}`,
-        },
-      });
-
-      console.log(
-        "Successful retry llm call for moment '",
-        doc.data().text,
-        "' :",
-        response.data,
-      );
-    }
-  };
-
   const addMoment = async (moment) => {
     try {
       console.log("In addMoment, moment:", moment);
+
       const batch = writeBatch(db);
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
@@ -301,6 +254,14 @@ export const useMomentsStore = defineStore("moments", () => {
         momentsDays: arrayUnion(Timestamp.fromDate(dateObj)),
       });
 
+      if (navigator.onLine) {
+        Notify.create("Moment saved.");
+      } else {
+        Notify.create(
+          "Moment saved. Needs analysis will complete next time you’re online.",
+        );
+      }
+
       await batch.commit();
 
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
@@ -321,6 +282,8 @@ export const useMomentsStore = defineStore("moments", () => {
           authorization: `Bearer ${idToken}`,
         },
       });
+      Notify.create("Needs analysis complete.");
+
       console.log("In addMoment", response.data);
     } catch (error) {
       console.log("Error in addMoment", error);
@@ -454,7 +417,6 @@ export const useMomentsStore = defineStore("moments", () => {
     fetchAggregateData,
     updateUser,
     setIsEditorFocused,
-    emptyNeedsMomentsRetry,
     $reset,
   };
 });

@@ -19,3 +19,7 @@ input,
 textarea {
   user-select: text; /* Allow text selection */
 }
+
+.q-notifications__list--bottom {
+  bottom: 72px;
+}

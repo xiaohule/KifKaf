@@ -28,7 +28,6 @@ module.exports = configure(function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
     boot: ["firebaseBoot", "browserAddressbarColor", "swiperBoot"],
-    // boot: ["firebase", "vuefire"],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ["app.scss"],

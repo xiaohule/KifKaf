@@ -5,13 +5,23 @@ import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
+  query,
+  collection,
+  where,
+  getDocs,
+  updateDoc,
+  increment,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 // import { getAnalytics } from "firebase/analytics";
 import { VueFire, VueFireAuth, getCurrentUser } from "vuefire";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { markRaw } from "vue";
-import Vue3Lottie from "vue3-lottie";
+// import Vue3Lottie from "vue3-lottie";
+import { debounce } from "lodash";
+import axios from "axios";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -56,6 +66,82 @@ const appCheck = initializeAppCheck(firebaseApp, {
   isTokenAutoRefreshEnabled: true,
 });
 
+//LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
+const emptyNeedsMomentsRetry = async () => {
+  // const currentUser = await getCurrentUser();
+  const user = auth.currentUser;
+  if (!user || !user.uid) {
+    console.log("In emptyNeedsMomentsRetry, returning early because no user");
+    return;
+  }
+
+  // Query moments where needsSatisAndImp is empty
+  const emptyNeedsSatisAndImpQuery = query(
+    collection(db, `users/${user.uid}/moments`),
+    where("needsSatisAndImp", "==", {}),
+    where("retries", "<", 3),
+    orderBy("retries"),
+    limit(3),
+  );
+
+  const momentsWithEmptyNeedsSatisAndImp = await getDocs(
+    emptyNeedsSatisAndImpQuery,
+  );
+
+  // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeedsSatisAndImp.empty
+  if (!momentsWithEmptyNeedsSatisAndImp.size) {
+    console.log(
+      "In emptyNeedsMomentsRetry, no moments with empty needsSatisAndImp found",
+    );
+    return;
+  }
+
+  const idToken = await user.getIdToken(/* forceRefresh */ true);
+
+  // Use Promise.all to process all moments concurrently
+  const processPromises = momentsWithEmptyNeedsSatisAndImp.docs.map(
+    async (doc) => {
+      console.log(
+        "In emptyNeedsMomentsRetry, triggering retry call to llm for moment",
+        doc.data().text,
+      );
+      const response = await axios.get(`/api/learn/needs/`, {
+        params: {
+          momentText: doc.data().text,
+          momentDate: JSON.stringify(doc.data().date),
+          momentId: doc.id,
+        },
+        headers: {
+          authorization: `Bearer ${idToken}`,
+        },
+      });
+      await updateDoc(doc.ref, {
+        retries: increment(1),
+      });
+      console.log(
+        "Successful retried llm call for moment",
+        doc.data().text,
+        // "' :",
+        // response.data,
+      );
+    },
+  );
+
+  // Wait for all moments to be processed
+  await Promise.all(processPromises);
+};
+
+const onlineHandler = debounce(
+  () => {
+    console.log("App is online!");
+    emptyNeedsMomentsRetry();
+  },
+  60000,
+  { leading: true, trailing: false },
+);
+
+window.addEventListener("online", onlineHandler);
+
 export default boot(({ app, router }) => {
   app.use(VueFire, {
     // imported above but could also just be created here
@@ -92,7 +178,12 @@ export default boot(({ app, router }) => {
     }
   });
 
-  app.use(Vue3Lottie);
+  //   window.addEventListener('offline', () => {
+  //   console.log("App is offline");
+  //   // Any offline handling logic...
+  // });
+
+  // app.use(Vue3Lottie);
   // // Attach the application context to the global window object
   // window.appContext = app._context
 });

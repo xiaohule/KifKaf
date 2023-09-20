@@ -142,7 +142,6 @@ let fixPosition = 0; // the fix
 // let lastScrollY = window.pageYOffset; // the last scroll position
 onMounted(() => {
 
-
   let toolbarWrap = document.getElementById('toolbar-wrap'); // the toolbar wrap
   let toolbar = document.getElementById('toolbar'); // the toolbar
   let editor = document.getElementById('editor'); // the editor
