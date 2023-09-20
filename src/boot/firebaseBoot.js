@@ -68,8 +68,8 @@ const appCheck = initializeAppCheck(firebaseApp, {
 
 //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
 const emptyNeedsMomentsRetry = async () => {
-  // const currentUser = await getCurrentUser();
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
+  // const user = auth.currentUser;
   if (!user || !user.uid) {
     console.log("In emptyNeedsMomentsRetry, returning early because no user");
     return;
@@ -81,7 +81,8 @@ const emptyNeedsMomentsRetry = async () => {
     where("needsSatisAndImp", "==", {}),
     where("retries", "<", 3),
     orderBy("retries"),
-    limit(3),
+    orderBy("date", "desc"),
+    limit(5),
   );
 
   const momentsWithEmptyNeedsSatisAndImp = await getDocs(
@@ -131,16 +132,23 @@ const emptyNeedsMomentsRetry = async () => {
   await Promise.all(processPromises);
 };
 
-const onlineHandler = debounce(
+const llmRetryHandler = debounce(
   () => {
-    console.log("App is online!");
+    console.log("llmRetryHandler called!");
     emptyNeedsMomentsRetry();
   },
   60000,
   { leading: true, trailing: false },
 );
 
-window.addEventListener("online", onlineHandler);
+//Call llmRetryHandler when going online
+window.addEventListener("online", llmRetryHandler);
+//Call llmRetryHandler when foregrounding app
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    llmRetryHandler();
+  }
+});
 
 export default boot(({ app, router }) => {
   app.use(VueFire, {
@@ -177,6 +185,9 @@ export default boot(({ app, router }) => {
       }
     }
   });
+
+  // Call llmRetryHandler during app initialization
+  llmRetryHandler();
 
   //   window.addEventListener('offline', () => {
   //   console.log("App is offline");

@@ -1,23 +1,24 @@
 <template>
-  <q-icon
-    v-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0 && Object.keys(moment?.needsSatisAndImp).every(key => key === 'oops' || key === 'error')"
-    size="20px" color="error-dark" name="error" class="q-mx-md" />
+  <q-icon v-if="iconToDisplay === 'needsAnalyzedWithOops'" size="20px" color="error-dark" name="error" class="q-mx-md" />
 
-  <q-icon v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0" size="20px"
-    color="primary" name="check_circle" class="q-mx-md" />
+  <!--TODO:2 could be main needs emoji or r_arrow_circle_up cloud_done ou cloud_upload-->
+  <q-icon v-else-if="iconToDisplay === 'needsAnalyzedWithSuccess'" size="20px" color="primary" name="check_circle"
+    class="q-mx-md" />
 
-  <q-icon v-else-if="moment?.date?.seconds && (moment?.date?.seconds > (currentTime - expectedLlmCallDuration))"
-    size="20px" class="q-mx-md">
+  <q-icon v-else-if="iconToDisplay === 'needsNonAnalyzedAndOffline'" size="20px" color="outline-variant" name="cloud_off"
+    class="q-mx-md" />
+
+  <q-icon v-else-if="iconToDisplay === 'analyzingNeeds'" size="20px" class="q-mx-md">
     <q-circular-progress :value="(currentTime - moment?.date?.seconds) * (100 / expectedLlmCallDuration)" size="20px"
       color="primary" track-color="primary-container" rounded class="position-absolute centered" />
     <q-spinner-puff color="primary" size="20px" class="position-absolute centered" />
   </q-icon>
 
-  <q-icon v-else size="20px" color="error-dark" name="error" class="q-mx-md" />
+  <q-icon v-else size="20px" color="outline-variant" name="cloud_off" class="q-mx-md" />
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { onMounted, onBeforeUnmount, ref, computed } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import { useMomentsStore } from './../stores/moments.js'
 
@@ -52,6 +53,20 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (timeInterval) clearInterval(timeInterval);
 });
+
+const iconToDisplay = computed(() => {
+  // if (navigator.onLine) {
+  if (moment.value?.needsSatisAndImp && Object.keys(moment.value?.needsSatisAndImp).length > 0) {
+    if (Object.keys(moment.value?.needsSatisAndImp).every(key => key === 'oops' || key === 'error')) {
+      return 'needsAnalyzedWithOops'
+    }
+    else {
+      return 'needsAnalyzedWithSuccess'
+    }
+  } else if (!navigator?.onLine) return 'needsNonAnalyzedAndOffline'
+  else if (moment.value?.date?.seconds && (moment.value?.date?.seconds > (currentTime.value - props.expectedLlmCallDuration))) return 'analyzingNeeds'
+  else return 'unknownError'
+})
 
 </script>
 
