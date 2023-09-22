@@ -1,0 +1,1 @@
+import{Q as e}from"./QPage.91e185e6.js";import{y as a,z as t,B as r,a3 as s}from"./index.904fb14a.js";const o=s("div",null,"Here is the Search tab, WIP",-1),d={__name:"SearchTab",setup(c){return(_,n)=>(a(),t(e,{padding:""},{default:r(()=>[o]),_:1}))}};export{d as default};
