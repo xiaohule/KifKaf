@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">KifKaf</string>
     <string name="title_activity_main">KifKaf</string>
-    <string name="package_name">org.capacitor.quasar.app</string>
-    <string name="custom_url_scheme">org.capacitor.quasar.app</string>
+    <string name="package_name">app.kifkaf.kifkaf</string>
+    <string name="custom_url_scheme">app.kifkaf.kifkaf</string>
 </resources>

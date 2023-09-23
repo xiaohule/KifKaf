@@ -1,4 +1,4 @@
-package org.capacitor.quasar.app;
+package app.kifkaf.kifkaf;
 
 import com.getcapacitor.BridgeActivity;
 

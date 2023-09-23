@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "org.capacitor.quasar.app"
+    namespace "app.kifkaf.kifkaf"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "org.capacitor.quasar.app"
+        applicationId "app.kifkaf.kifkaf"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
