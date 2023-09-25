@@ -31,7 +31,9 @@
 
         <q-card class="bg-surface q-mb-md q-px-md q-py-md" style="border-radius: 14px" flat>
           <q-card-section horizontal class="q-px-none">
-            <div class="text-weight-medium text-outline col">Needs</div>
+            <div class="text-weight-medium text-outline col">Needs<q-btn flat color="primary" icon="o_info" dense
+                size="10px" @click="needsInfoOpened = true" /></div>
+
             <!-- <q-card-actions vertical class="col-auto q-pa-none">
             <q-btn flat color="primary" icon="edit" dense size="sm" />
           </q-card-actions>
@@ -46,12 +48,21 @@
             <!-- add the "+" for manually adding needs -->
           </q-card-section>
           <q-card-section v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0"
-            class="q-px-none q-py-sm chip-container" style="min-height: 0px;">
+            class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
             <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
             <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
-              :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
+              :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
+
+            <div class="text-caption text-center text-outline q-mt-sm">
+              <!-- <q-icon name="r_crop_square" color="green" size="15px" class="" /> -->
+              <q-chip outline color="green" size="xs" label="&nbsp;" />Net satisfied&nbsp;
+              <q-chip outline color="primary" size="xs" label="&nbsp;" />Neutral&nbsp;
+              <q-chip outline color="red" size="xs" label="&nbsp;" />Net unsatisfied
+            </div>
+
+
           </q-card-section>
           <q-card-section v-else class="q-px-none q-py-sm text-error" style="min-height: 0px;">
           </q-card-section>
@@ -59,6 +70,57 @@
         </q-card>
       </div>
     </q-card>
+    <q-dialog v-model="needsInfoOpened" position="bottom" full-width>
+      <q-card class="bg-background q-px-sm" flat>
+        <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
+        </div> -->
+
+        <q-card-section class="text-h6 text-weight-medium">Moment's needs
+        </q-card-section>
+
+        <q-card-section class="q-pt-xs text-outline">These are the needs related to your moment picked from our list of
+          Universal Human Needs. <br><br>The full list is composed of:<br>
+
+          <q-list>
+            <q-expansion-item v-for="categ in Object.entries(momentsStore.needsCategories)" :key="categ[0]"
+              group="needsCategories" header-class="q-px-none">
+              <template v-slot:header>
+                <!-- <q-item-section avatar>
+                  <q-avatar square
+                    v-for="(need, index) in Object.entries(momentsStore.needsMap).filter(need => need[1][1] === categ).slice(0, 3)"
+                    :key="index" size="20px" class="overlapping" :style="`left: ${index * 16}px`">
+                    <div style="font-size: 15px;">{{ need[1][0] }}</div>
+                  </q-avatar>
+                  <q-avatar size="16px" class="overlapping" :style="`left: ${3 * 16}px`">
+                    <div style="font-size: 15px;">...</div>
+                  </q-avatar>
+                </q-item-section> -->
+                <q-item-section avatar>
+                  <q-icon :name="categ[1]" />
+                </q-item-section>
+                <q-item-section>
+                  {{ categ[0] }} needs </q-item-section>
+              </template>
+
+              <q-card class="bg-background q-pa-none">
+                <q-card-section class="q-pa-none">
+                  <!-- [["Physical Well-Being", ["🛡️", "Physiological & Safety"]],
+  ["Sustenance & Nourishment", ["🍎", "Physiological & Safety"]],
+  // ... (and so on for each entry in the needsMap)] -->
+                  <q-chip v-for="need in Object.entries(momentsStore.needsMap).filter(need => need[1][1] === categ[0])"
+                    :key="need[0]" outline :icon="need[1][0]" color="outline" :label="need[0]" class="needs" />
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </q-list>
+        </q-card-section>
+
+        <q-card-actions align="center">
+          <q-btn rounded color="primary" padding="md md" @click="needsInfoOpened = false" class="text-body1
+q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-dialog>
 </template>
 
@@ -98,6 +160,8 @@ const getChipColor = (needsStats) => {
   else if (needsStats[0] > 0.6) return 'green'
   else return 'primary'
 }
+
+const needsInfoOpened = ref(false)
 </script>
 <style lang="scss">
 .needs {
@@ -113,6 +177,11 @@ const getChipColor = (needsStats) => {
   border-top-right-radius: 14px;
   border-top-left-radius: 14px;
 }
+
+// .overlapping {
+//   // border: 2px solid white;
+//   position: absolute;
+// }
 </style>
 
 

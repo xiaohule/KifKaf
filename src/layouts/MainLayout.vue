@@ -3,7 +3,11 @@
 
     <q-header class="bg-transparent" bordered reveal :reveal-offset="150">
       <q-toolbar>
-        <q-toolbar-title class="text-on-surface">KifKaf</q-toolbar-title>
+        <q-avatar size="sm" square>
+          <img src="icon-kifkaf-no-background.svg" />
+        </q-avatar>
+        <q-toolbar-title class="text-on-surface text-center text-subtitle1 text-weight-medium
+">{{ tab }}</q-toolbar-title>
         <router-link to="/settings" style="text-decoration: none;">
           <q-btn flat round dense icon="account_circle" size="20px" class="text-on-surface">
           </q-btn>
@@ -23,9 +27,9 @@
     <q-footer class="bg-transparent" bordered>
       <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-secondary"
         :breakpoint="0" :ripple="false">
-        <q-route-tab name="home" icon="home" label="Home" to="/" />
-        <q-route-tab name="learn" icon="insights" label="Learn" to="/learn" />
-
+        <q-route-tab name="Home" icon="home" label="Home" to="/" />
+        <q-route-tab name="Insights" icon="insights" label="Insights" to="/learn" />
+        <!-- ou stats ou needs ou learn -->
         <!-- re-add tabs when ready -->
         <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
         <q-route-tab name="search" icon="search" label="Search" to="/search" /> -->
@@ -38,7 +42,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const tab = ref('home')
+const tab = ref('Home')
 /*The reason why using {} allows you to call the ref function directly is because it is a named import.
 When you use named imports, you can import only the specific functions or objects that you need from a module.
 This makes your code more efficient and easier to read. The behavior of using named imports is called destructuring.*/
