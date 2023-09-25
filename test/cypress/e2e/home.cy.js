@@ -105,16 +105,16 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
 //TODO:2 in all tests that aren't testing signing in and moments input we should log in programmatically on an existing account with good data and split those tests into separate files
 describe("Checking main screens & Moments inputting", () => {
-  it("contain expected header, tabs, can navigate to Learn>Home>Settings>Home & can input moments in Home", () => {
+  it("contain expected header, tabs, can navigate to Insights>Home>Settings>Home & can input moments in Home", () => {
     cy.visit("/");
     //assert <title> and header title are correct
     cy.title().should("include", "KifKaf");
     cy.contains("KifKaf").should("be.visible");
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
-    cy.contains("Learn").should("be.visible");
+    cy.contains("Insights").should("be.visible");
     //can navigate to Learn>Home>Settings>Home
-    cy.contains("Learn").click();
+    cy.contains("Insights").click();
     cy.url().should("include", "learn");
     cy.contains("Needs Importance").should("be.visible");
     cy.contains("Satisfied").should("be.visible");
@@ -149,11 +149,11 @@ describe("Checking main screens & Moments inputting", () => {
   });
 });
 
-describe("Learn Stats validation", () => {
-  it("has correct stats in Learn tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
+describe("Insights Stats validation", () => {
+  it("has correct stats in Insights tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Learn tab for 2023
     cy.visit("/");
-    cy.contains("Learn").click();
+    cy.contains("Insights").click();
     cy.url().should("include", "learn");
     cy.contains("This month").should("be.visible");
 
@@ -221,7 +221,7 @@ describe("Learn Stats validation", () => {
 
     //should have a working monthly picker and correct stats in learn tab for 2022
     cy.visit("/");
-    cy.contains("Learn").click();
+    cy.contains("Insights").click();
     cy.url().should("include", "learn");
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
@@ -261,7 +261,7 @@ describe("Learn Stats validation", () => {
 
     //should have the expected placeholder in learn tab for 2021
     cy.visit("/");
-    cy.contains("Learn").click();
+    cy.contains("Insights").click();
     cy.url().should("include", "learn");
     cy.contains("This month").click();
     cy.contains("Yearly").click();

@@ -55,11 +55,14 @@
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
 
-            <div class="text-caption text-center q-mt-sm">
-              <q-icon name="r_crop_square" color="green" size="15px" class="" />&nbsp;Satisfied &nbsp; &nbsp;
-              <q-icon name="r_crop_square" color="primary" size="15px" class="" />&nbsp;Neutral &nbsp; &nbsp;
-              <q-icon name="r_crop_square" color="red" size="15px" class="" />&nbsp;Unsatisfied &nbsp; &nbsp;
+            <div class="text-caption text-center text-outline q-mt-sm">
+              <!-- <q-icon name="r_crop_square" color="green" size="15px" class="" /> -->
+              <q-chip outline color="green" size="xs" label="&nbsp;" />Net satisfied&nbsp;
+              <q-chip outline color="primary" size="xs" label="&nbsp;" />Neutral&nbsp;
+              <q-chip outline color="red" size="xs" label="&nbsp;" />Net unsatisfied
             </div>
+
+
           </q-card-section>
           <q-card-section v-else class="q-px-none q-py-sm text-error" style="min-height: 0px;">
           </q-card-section>
