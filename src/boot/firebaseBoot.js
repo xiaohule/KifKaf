@@ -141,14 +141,14 @@ const llmRetryHandler = debounce(
   { leading: true, trailing: false },
 );
 
-//Call llmRetryHandler when going online
-window.addEventListener("online", llmRetryHandler);
-//Call llmRetryHandler when foregrounding app
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    llmRetryHandler();
-  }
-});
+// //Call llmRetryHandler when going online
+// window.addEventListener("online", llmRetryHandler);
+// //Call llmRetryHandler when foregrounding app
+// document.addEventListener("visibilitychange", () => {
+//   if (document.visibilityState === "visible") {
+//     llmRetryHandler();
+//   }
+// });
 
 export default boot(({ app, router }) => {
   app.use(VueFire, {
@@ -160,41 +160,43 @@ export default boot(({ app, router }) => {
     ],
   });
 
-  //if signed out in one tab, sign out in all tabs
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      router.push("/login");
-    }
-  });
-
-  //if targeting a route that needs sign in without being signed in, redirect to login
-  router.beforeEach(async (to) => {
-    // routes with `meta: { requiresAuth: true }` will check for the users, others won't
-    if (to.meta.requiresAuth) {
-      const currentUser = await getCurrentUser();
-      // if the user is not logged in, redirect to the login page
-      if (!currentUser || !currentUser.emailVerified) {
-        return {
-          path: "/login",
-          query: {
-            // we keep the current path in the query so we can redirect to it after login
-            // with `router.push(route.query.redirect || '/')`
-            redirect: to.fullPath,
-          },
-        };
-      }
-    }
-  });
-
-  // Call llmRetryHandler during app initialization
-  llmRetryHandler();
-
-  //   window.addEventListener('offline', () => {
-  //   console.log("App is offline");
-  //   // Any offline handling logic...
+  // //if signed out in one tab, sign out in all tabs
+  // onAuthStateChanged(auth, (user) => {
+  //   // console.log("onAuthStateChanged", user);
+  //   if (!user) {
+  //     router.push("/login");
+  //   }
   // });
 
-  // app.use(Vue3Lottie);
-  // // Attach the application context to the global window object
-  // window.appContext = app._context
+  // //if targeting a route that needs sign in without being signed in, redirect to login
+  // router.beforeEach(async (to) => {
+  //   // console.log("router.beforeEach", to);
+  //   // routes with `meta: { requiresAuth: true }` will check for the users, others won't
+  //   if (to.meta.requiresAuth) {
+  //     const currentUser = await getCurrentUser();
+  //     // if the user is not logged in, redirect to the login page
+  //     if (!currentUser || !currentUser.emailVerified) {
+  //       return {
+  //         path: "/login",
+  //         query: {
+  //           // we keep the current path in the query so we can redirect to it after login
+  //           // with `router.push(route.query.redirect || '/')`
+  //           redirect: to.fullPath,
+  //         },
+  //       };
+  //     }
+  //   }
+  // });
+
+  // // Call llmRetryHandler during app initialization
+  // llmRetryHandler();
+
+  // //   window.addEventListener('offline', () => {
+  // //   console.log("App is offline");
+  // //   // Any offline handling logic...
+  // // });
+
+  // // app.use(Vue3Lottie);
+  // // // Attach the application context to the global window object
+  // // window.appContext = app._context
 });
