@@ -49,35 +49,42 @@ export const useMomentsStore = defineStore("moments", () => {
   const isEditorFocused = ref(false);
   const needsMap = ref({
     //add 'Work-Life Balance'?
-    "Physical Well-Being": "🛡️", //readd Physical safety dedans ou split
-    "Sustenance & Nourishment": "🍎",
-    Shelter: "🏠",
-    "Financial Security": "💰",
-    "Rest & Relaxation": "🌙", //🛋️ //🛌
-    "Physical Movement": "🤸",
-    "Physical Contact & Intimacy": "👐",
-    "Contact with Nature": "🏞️",
-    "Social Connection": "👥",
-    "Belongingness & Community": "🏘️",
-    "Support, Understanding & Validation": "👂", // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
-    "Affection & Love": "❤️",
-    "Emotional Safety & Inner Peace": "🧘‍♂️", //"🤗",
-    "Boundaries & Privacy": "🚪",
-    Autonomy: "🛤️",
-    "Self-Esteem & Social Recognition": "💪",
-    "Competence & Effectiveness": "🎯",
-    "Outward Care & Contribution": "🤲", //break in 2?
-    "Self-Expression & Creativity": "🎨",
-    "Exploration, Novelty & Inspiration": "🌌", //🌎 // réduire à Exploration & Novelty?
-    Learning: "📚",
-    "Self-Actualization": "🌱", //merge learning and self-actualization?
-    Challenge: "⛰️",
-    "Play, Humor & Entertainment": "🎠", // "😂","⚽",🎭
-    "Fairness & Justice": "⚖️", //🕊️
-    "Order & Structure": "📐",
-    "Meaning & Purpose": "🧭", //🌌
-    "Gratitude & Celebration": "🎈", //🎉 //🕯️
-    "Spiritual Transcendence": "🌸",
+    "Physical Well-Being": ["🛡️", "Physiological & Safety"], //readd Physical safety dedans ou split
+    "Sustenance & Nourishment": ["🍎", "Physiological & Safety"],
+    Shelter: ["🏠", "Physiological & Safety"],
+    "Financial Security": ["💰", "Physiological & Safety"],
+    "Rest & Relaxation": ["🌙", "Physiological & Safety"], //🛋️ //🛌
+    "Physical Movement": ["🤸", "Physiological & Safety"],
+    "Emotional Safety & Inner Peace": ["🧘‍♂️", "Physiological & Safety"], //"🤗",""],
+    "Boundaries & Privacy": ["🚪", "Physiological & Safety"],
+    "Physical Contact & Intimacy": ["👐", "Connection"],
+    "Contact with Nature": ["🏞️", "Connection"],
+    "Social Connection": ["👥", "Connection"],
+    "Belongingness & Community": ["🏘️", "Connection"],
+    "Support, Understanding & Validation": ["👂", "Connection"], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
+    "Affection & Love": ["❤️", "Connection"],
+    "Play, Humor & Entertainment": ["🎠", "Connection"], // "😂",""],"⚽",""],🎭
+    Autonomy: ["🛤️", "Esteem"],
+    "Self-Esteem & Social Recognition": ["💪", "Esteem"],
+    "Competence & Effectiveness": ["🎯", "Esteem"],
+    "Self-Expression & Creativity": ["🎨", "Esteem"],
+    "Exploration, Novelty & Inspiration": ["🌌", "Personal Growth"], //🌎 // réduire à Exploration & Novelty?
+    Learning: ["📚", "Personal Growth"],
+    "Self-Actualization": ["🌱", "Personal Growth"], //merge learning and self-actualization?
+    Challenge: ["⛰️", "Personal Growth"],
+    "Outward Care & Contribution": ["🤲", "Meaning & Transcendence"], //break in 2?
+    "Fairness & Justice": ["⚖️", "Meaning & Transcendence"], //🕊️
+    "Order & Structure": ["📐", "Meaning & Transcendence"],
+    "Meaning & Purpose": ["🧭", "Meaning & Transcendence"], //🌌
+    "Gratitude & Celebration": ["🎈", "Meaning & Transcendence"], //🎉 //🕯️
+    "Spiritual Transcendence": ["🌸", "Meaning & Transcendence"],
+  });
+  const needsCategories = ref({
+    "Physiological & Safety": "health_and_safety",
+    Connection: "diversity_2", //groups
+    Esteem: "palette",
+    "Personal Growth": "landscape", //explore
+    "Meaning & Transcendence": "spa",
   });
 
   const fetchUser = async () => {
@@ -408,6 +415,7 @@ export const useMomentsStore = defineStore("moments", () => {
     aggregateDataFetched,
     hasNeeds,
     needsMap,
+    needsCategories,
     aggregateData,
     getMomentById,
     getFormattedDate,

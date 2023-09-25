@@ -59,8 +59,8 @@
         </div>
 
         <q-card-actions align="center">
-          <q-btn rounded color="primary" @click="filterDialogOpen = false" padding="10px"
-            class="text-body1 q-ma-sm full-width" no-caps>Done</q-btn>
+          <q-btn rounded color="primary" padding="md md" @click="filterDialogOpen = false" class="text-body1
+q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>

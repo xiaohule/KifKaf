@@ -30,7 +30,7 @@
 
             <q-item-section avatar class="q-pr-none">
               <q-avatar square font-size="35px">
-                {{ momentsStore.needsMap[item.needName] }}
+                {{ momentsStore.needsMap[item.needName][0] }}
               </q-avatar>
             </q-item-section>
 
