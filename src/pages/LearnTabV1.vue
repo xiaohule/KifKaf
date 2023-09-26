@@ -154,7 +154,12 @@ watch(() => momentsStore.shouldResetSwiper, (newVal) => {
 
 const secondSegSelectedSatisfaction = ref(false)
 const segmentedControlClicked = ({ value, flag }) => {
-  if (flag === 'satisfaction') secondSegSelectedSatisfaction.value = value
+  if (flag === 'satisfaction') {
+    secondSegSelectedSatisfaction.value = value
+    nextTick(() => {
+      swiperElSatisfaction.value.swiper.updateAutoHeight(300);
+    })
+  }
 }
 const learnCardExpandedSatisfaction = ref(false)
 const learnCardExpandedImportance = ref(false)

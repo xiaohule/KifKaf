@@ -78,7 +78,7 @@
         <q-card-section class="text-h6 text-weight-medium">Moment's needs
         </q-card-section>
 
-        <q-card-section class="q-pt-xs text-outline">These are the needs related to your moment picked from our list of
+        <q-card-section class="q-py-xs text-outline">These are the needs related to your moment picked from our list of
           Universal Human Needs. <br><br>The full list is composed of:<br>
 
           <q-list>

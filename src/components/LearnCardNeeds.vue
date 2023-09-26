@@ -1,34 +1,25 @@
 <template >
-  <q-card class="bg-surface q-px-md q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
+  <q-card class="bg-surface q-px-sm q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
     <segmented-control style="margin-bottom: 8px;" v-if="props.segControl" :modelValue="segStatsId"
       @update:modelValue="newValue => segmentedControlClicked(newValue)" :segments="segStats"
       :element-name="segStatsName" />
 
-
-
     <div
       v-if="momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey].length > 0">
-      <q-card class="bg-primary-container" style="border-radius: 8px;" flat>
-        <q-item class="q-px-md">
-          <q-item-section side>
-            <q-icon name="o_info" color="primary" size="32px" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-primary">{{ props.flag == 'satisfaction' ? (props.secondSegSelected ?
-              satisfactionInfo : unsatisfactionInfo) : importanceInfo }}
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-card>
+      <div class="q-px-sm q-py-xs text-body2 text-outline">{{ props.flag == 'satisfaction' ? (props.secondSegSelected ?
+        satisfactionInfo : unsatisfactionInfo) : importanceInfo }}
+      </div>
       <q-list class="q-mt-xs">
         <!-- <transition-group appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut"> -->
         <transition-group appear enter-active-class="meala" leave-active-class="meala la" move-class="meala"
           enter-from-class="eflt" leave-to-class="eflt">
 
-          <q-item v-for="item in momentsStore.aggregateData[props.dateRange][sortingKey].slice(0, numDisplayed)"
-            :key="item.needName" class="q-pt-sm q-pb-sm q-px-xs" clickable>
+          <q-item v-for="item in momentsStore.aggregateData[props.dateRange][sortingKey].slice(0, numDisplayed).filter(item => item[props.flag == 'satisfaction' ? (props.secondSegSelected ?
+            'satisfactionImpactLabelValue'
+            : 'unsatisfactionImpactLabelValue') : 'importanceValue'] > 0.005)" :key="item.needName"
+            class="q-pt-sm q-pb-sm q-px-xs" clickable>
 
-            <q-item-section avatar class="q-pr-none">
+            <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
               <q-avatar square font-size="35px">
                 {{ momentsStore.needsMap[item.needName][0] }}
               </q-avatar>
@@ -36,17 +27,29 @@
 
             <q-item-section>
 
-              <q-item class="q-px-xs" dense style="min-height: 0px;">
-                <q-item-section>
-                  <q-item-label>{{ item.needName }}</q-item-label>
-                  <q-item-label caption lines="1">{{ item.occurrenceCount }}
-                    {{ item.occurrenceCount == 1 ? 'moment' : 'moments' }}
-                  </q-item-label>
+              <q-item class="q-pa-none" dense style="min-height: 0px;">
+                <q-item-section class="text-subtitle2 text-weight-medium">{{ item.needName }}</q-item-section>
+                <q-item-section side class="text-body2 text-on-surface">{{ parseFloat((item[props.flag == 'satisfaction' ?
+                  (props.secondSegSelected ?
+                    'satisfactionImpactLabelValue'
+                    : 'unsatisfactionImpactLabelValue') : 'importanceValue'] * 100).toFixed(0)) + "%" }}
                 </q-item-section>
+              </q-item>
 
-                <q-item-section side>{{ parseFloat((item[props.flag == 'satisfaction' ? (props.secondSegSelected ?
-                  'satisfactionImpactLabelValue'
-                  : 'unsatisfactionImpactLabelValue') : 'importanceValue'] * 100).toFixed(0)) + "%" }}
+              <q-item class="q-pa-none" dense style="min-height: 0px;">
+                <q-item-section class="text-caption text-outline">
+                  <!-- {{ props.flag == 'satisfaction' ? (props.secondSegSelected ? 'Satisfied in' : 'Unsatisfied in') :
+                    'Popped in' }} -->
+                  {{ item.occurrenceCount }}
+                  {{ item.occurrenceCount == 1 ? 'moment' : 'moments' }}
+                </q-item-section>
+                <q-item-section side class="text-caption text-outline">{{ props.flag ==
+                  'satisfaction' ?
+                  (props.secondSegSelected
+                    ?
+                    'of all satisfaction' :
+                    'of all unsatisfaction'
+                  ) : 'of total importance' }}
                 </q-item-section>
               </q-item>
 
@@ -101,6 +104,9 @@ import { computed, ref, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
+import { date } from "quasar";
+// destructuring to keep only what is needed in date
+const { formatDate } = date;
 
 const momentsStore = useMomentsStore()
 
@@ -130,9 +136,25 @@ const props = defineProps({
 
 const emits = defineEmits(['click:segmentedControl', 'click:showButton', 'ready:aggregateData'])
 
-const unsatisfactionInfo = "Your unsatisfied needs sorted from highest to lowest unsatisfaction impact."
-const satisfactionInfo = "Your satisfied needs sorted from highest to lowest satisfaction impact."
-const importanceInfo = "Your needs sorted from most to less important."
+const currentDate = ref(new Date());
+const currentYear = computed(() => currentDate.value.getFullYear().toString());
+const currentYYYYdMM = computed(() => `${currentYear.value}-${(currentDate.value.getMonth() + 1).toString().padStart(2, "0")}`);
+
+const getPeriodLabel = computed(() => {
+  return (dateRange) => {
+    if (dateRange.length === 7) return (currentYYYYdMM.value === dateRange) ? 'this month' : (dateRange.substring(0, 4) === currentYear.value)
+      ? `last ${date.formatDate(dateRange, 'MMMM')}`
+      : `in ${date.formatDate(dateRange, 'MMMM YYYY')}`
+    else if (dateRange.length === 4) return (currentYear.value === dateRange) ? 'this year' : `in ${dateRange}`;
+  }
+})
+
+// const unsatisfactionInfo = "Your unsatisfied needs sorted from highest to lowest unsatisfaction impact."
+const unsatisfactionInfo = `The needs that brought you the most unsatisfaction ${getPeriodLabel.value(props.dateRange)}.`
+// const satisfactionInfo = "Your satisfied needs sorted from highest to lowest satisfaction impact."
+const satisfactionInfo = `The needs that brought you the most satisfaction ${getPeriodLabel.value(props.dateRange)}.`
+// const importanceInfo = "Your needs sorted from most to less important."
+const importanceInfo = `The needs that held the greatest importance for you  ${getPeriodLabel.value(props.dateRange)}.`
 
 const sortingKey = computed(() => {
   return props.flag == 'satisfaction' ? (props.secondSegSelected ? 'satisfaction' : 'unsatisfaction') : 'importance'
