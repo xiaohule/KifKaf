@@ -55,11 +55,16 @@
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
 
-            <div class="text-caption text-center text-outline q-mt-sm">
-              <!-- <q-icon name="r_crop_square" color="green" size="15px" class="" /> -->
+            <!-- <q-icon name="r_crop_square" color="green" size="15px" class="" /> -->
+            <!-- <div class="text-caption text-center text-outline q-mt-sm">
               <q-chip :ripple="false" color="green" size="xs" label="&nbsp;" />Satisfied&nbsp;
               <q-chip :ripple="false" color="primary" size="xs" label="&nbsp;" />Neutral&nbsp;
               <q-chip :ripple="false" color="red" size="xs" label="&nbsp;" />Unsatisfied
+            </div> -->
+            <div class="text-caption text-center q-mt-sm">
+              <q-chip :ripple="false" outline color="green" size="sm" label="Satisfied need" />
+              <q-chip :ripple="false" outline color="primary" size="sm" label="Neutral need" />
+              <q-chip :ripple="false" outline color="red" size="sm" label="Unsatisfied need" />
             </div>
 
 
