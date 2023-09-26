@@ -1,6 +1,6 @@
 <template>
   <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event.target)" position="bottom"
-    full-width>
+    style="max-width: 600px">
 
     <q-card class="bg-background" flat style="height: 90vh;">
       <q-toolbar class="q-pa-sm">
@@ -57,9 +57,9 @@
 
             <div class="text-caption text-center text-outline q-mt-sm">
               <!-- <q-icon name="r_crop_square" color="green" size="15px" class="" /> -->
-              <q-chip outline color="green" size="xs" label="&nbsp;" />Net satisfied&nbsp;
-              <q-chip outline color="primary" size="xs" label="&nbsp;" />Neutral&nbsp;
-              <q-chip outline color="red" size="xs" label="&nbsp;" />Net unsatisfied
+              <q-chip :ripple="false" color="green" size="xs" label="&nbsp;" />Satisfied&nbsp;
+              <q-chip :ripple="false" color="primary" size="xs" label="&nbsp;" />Neutral&nbsp;
+              <q-chip :ripple="false" color="red" size="xs" label="&nbsp;" />Unsatisfied
             </div>
 
 
@@ -70,7 +70,7 @@
         </q-card>
       </div>
     </q-card>
-    <q-dialog v-model="needsInfoOpened" position="bottom" full-width>
+    <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-px-sm" flat>
         <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
         </div> -->
@@ -142,7 +142,7 @@ const props = defineProps({
   expectedLlmCallDuration: {
     required: true,
     type: Number,
-    default: 40
+    default: 60
   },
 });
 defineEmits(['update:modelValue']);

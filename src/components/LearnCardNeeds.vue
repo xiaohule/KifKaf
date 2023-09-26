@@ -14,7 +14,7 @@
             <q-icon name="o_info" color="primary" size="32px" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>{{ props.flag == 'satisfaction' ? (props.secondSegSelected ?
+            <q-item-label class="text-primary">{{ props.flag == 'satisfaction' ? (props.secondSegSelected ?
               satisfactionInfo : unsatisfactionInfo) : importanceInfo }}
             </q-item-label>
           </q-item-section>

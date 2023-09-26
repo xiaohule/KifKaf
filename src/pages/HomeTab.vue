@@ -108,7 +108,7 @@ const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
 
-const expectedLlmCallDuration = ref(40);
+const expectedLlmCallDuration = ref(60);
 const momPageOpened = ref(false)
 const bottomSheetMomentId = ref("")
 const openBottomSheet = (momentId) => {

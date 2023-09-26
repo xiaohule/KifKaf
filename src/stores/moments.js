@@ -46,7 +46,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const userFetched = ref(false);
   const momentsFetched = ref(false);
   const aggregateDataFetched = ref(false);
-  const isEditorFocused = ref(false);
+  const shouldResetSwiper = ref(false);
   const needsMap = ref({
     //add 'Work-Life Balance'?
     "Physical Well-Being": ["🛡️", "Physiological & Safety"], //readd Physical safety dedans ou split
@@ -359,10 +359,6 @@ export const useMomentsStore = defineStore("moments", () => {
     return sortedTimestamps[0].toDate();
   });
 
-  const setIsEditorFocused = (isFocused) => {
-    isEditorFocused.value = isFocused;
-  };
-
   const updateUser = async (changes) => {
     try {
       if (changes.displayName) {
@@ -400,14 +396,14 @@ export const useMomentsStore = defineStore("moments", () => {
     userFetched.value = false;
     momentsFetched.value = false;
     aggregateDataFetched.value = false;
-    isEditorFocused.value = false;
+    shouldResetSwiper.value = false;
     needsMap.value = {};
   }
 
   return {
     user,
     momentsColl,
-    isEditorFocused,
+    shouldResetSwiper,
     uniqueDays,
     oldestMomentDate,
     userFetched,
@@ -424,7 +420,6 @@ export const useMomentsStore = defineStore("moments", () => {
     fetchMoments,
     fetchAggregateData,
     updateUser,
-    setIsEditorFocused,
     $reset,
   };
 });

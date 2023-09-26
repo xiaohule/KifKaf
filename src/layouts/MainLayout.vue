@@ -28,7 +28,7 @@
       <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-secondary"
         :breakpoint="0" :ripple="false">
         <q-route-tab name="Home" icon="home" label="Home" to="/" />
-        <q-route-tab name="Insights" icon="insights" label="Insights" to="/learn" />
+        <q-route-tab name="Insights" icon="insights" label="Insights" to="/learn" @click="handleInsightsClick" />
         <!-- ou stats ou needs ou learn -->
         <!-- re-add tabs when ready -->
         <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
@@ -40,14 +40,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-const tab = ref('Home')
 /*The reason why using {} allows you to call the ref function directly is because it is a named import.
 When you use named imports, you can import only the specific functions or objects that you need from a module.
 This makes your code more efficient and easier to read. The behavior of using named imports is called destructuring.*/
 /*When you use “import { ref } from ‘vue’”, you can use the ref function directly in your code, like this: const count = ref(0).
  When you use “import ref from ‘vue’”, you need to call the function like this: const count = ref.ref(0)*/
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useMomentsStore } from './../stores/moments.js'
+
+const tab = ref('Home')
+
+const router = useRouter()
+const momentsStore = useMomentsStore()
+
+const handleInsightsClick = () => {
+  if (router.currentRoute.value.path === '/learn') {
+    momentsStore.shouldResetSwiper = true
+  }
+}
 </script>
 
 <style lang="scss">

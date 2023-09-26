@@ -138,6 +138,19 @@ watch(activeIndex, (newVal, oldVal) => {
     }, 1);
   }
 })
+watch(() => momentsStore.shouldResetSwiper, (newVal) => {
+  if (newVal && swiperInitialized.value) {
+    if (segDateId.value === 'Monthly') {
+      activeIndex.value = dateRangesMonths.value.length - 1;
+      updateDateButtonLabel()
+    }
+    else if (segDateId.value === 'Yearly') {
+      activeIndex.value = dateRangesYears.value.length - 1;
+      updateDateButtonLabel()
+    }
+    momentsStore.shouldResetSwiper = false
+  }
+})
 
 const secondSegSelectedSatisfaction = ref(false)
 const segmentedControlClicked = ({ value, flag }) => {
