@@ -19,7 +19,7 @@ describe("Workaround GH actions", () => {
   // });
   it("assert <title> is correct", () => {
     cy.visit("/");
-    cy.title().should("include", "KifKaf");
+    cy.title().should("include", "Home");
   });
 });
 
@@ -108,8 +108,8 @@ describe("Checking main screens & Moments inputting", () => {
   it("contain expected header, tabs, can navigate to Insights>Home>Settings>Home & can input moments in Home", () => {
     cy.visit("/");
     //assert <title> and header title are correct
-    cy.title().should("include", "KifKaf");
-    cy.contains("KifKaf").should("be.visible");
+    cy.title().should("include", "Home");
+    cy.contains("Home").should("be.visible");
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
     cy.contains("Insights").should("be.visible");

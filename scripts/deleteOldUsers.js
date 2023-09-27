@@ -14,10 +14,21 @@ const deleteOldUsers = async () => {
   // Fetch recently active users
   const listUsersResult = await admin.auth().listUsers(1000); // you can adjust the number
   const oldUsers = listUsersResult.users.filter(
-    (user) => new Date(user.metadata.lastSignInTime) < oneMonthAgo,
+    (user) =>
+      new Date(user.metadata.lastSignInTime) < oneMonthAgo &&
+      (user.email.endsWith("@yopmail.com") ||
+        user.email.endsWith("@sharklasers.com") ||
+        user.email.endsWith("@ethereal.email")),
   );
 
-  const oldUserUIDs = oldUsers.map((user) => user.uid);
+  const noDeleteUIDList = [
+    "g1cRqRF9qiQ6Tmp60euu1NFmYYl1", //googleplayreviewkifkaf@yopmail.com
+    "jUMWUBlmpnhb5QjYOdEgHA9rp0E3", //appstorereviewkifkaf@yopmail.com
+  ];
+
+  const oldUserUIDs = oldUsers
+    .map((user) => user.uid)
+    .filter((uid) => !noDeleteUIDList.includes(uid));
   // const oldUserUIDs = [
   //   "IN0UpMBOYTTMYG7S52tQlaTob8B3",
   //   "YajhznggV3TUnc40qboQxMi8eJy1",
