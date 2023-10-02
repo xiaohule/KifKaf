@@ -5,10 +5,12 @@
   "author": "na",
   "private": true,
   "dependencies": {
+    "@capacitor-firebase/app-check": "^5.1.0",
     "@capacitor/android": "^5.4.1",
     "@capacitor/app": "^5.0.6",
     "@capacitor/cli": "^5.4.1",
     "@capacitor/core": "^5.4.1",
-    "@capacitor/ios": "^5.4.1"
+    "@capacitor/ios": "^5.4.1",
+    "firebase": "^10.4.0"
   }
 }
