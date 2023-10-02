@@ -85,6 +85,16 @@ module.exports = configure(function (/* ctx */) {
       // vitePlugins: [
       //   [ 'package-name', { ..options.. } ]
       // ]
+      // alias: {
+      //   // "@capacitor": path.resolve(
+      //   //   __dirname,
+      //   //   "src-capacitor/node_modules/@capacitor",
+      //   // ),
+      //   "@capacitor-firebase": path.resolve(
+      //     __dirname,
+      //     "src-capacitor/node_modules/@capacitor-firebase",
+      //   ),
+      // },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer

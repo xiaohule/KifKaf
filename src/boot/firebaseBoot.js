@@ -22,6 +22,22 @@ import { markRaw } from "vue";
 // import Vue3Lottie from "vue3-lottie";
 import { debounce } from "lodash";
 import axios from "axios";
+import { Platform } from "quasar";
+
+// import { FirebaseAppCheck } from "@capacitor-firebase/app-check";
+
+console.log("In firebaseBoot, Platform.is", Platform.is);
+
+// if (Platform.is.nativeMobile) {
+//   const getName = async () => {
+//     const result = await FirebaseApp.getName();
+//     console.log("getName", result);
+//   };
+//   const getOptions = async () => {
+//     const result = await FirebaseApp.getOptions();
+//     console.log("getOptions", result);
+//   };
+// }
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -58,13 +74,66 @@ console.log(
   "FIREBASE_APPCHECK_DEBUG_TOKEN",
   self.FIREBASE_APPCHECK_DEBUG_TOKEN,
 );
-// Pass your reCAPTCHA v3 site key (public key). Make sure this key is the counterpart to the secret key you set in the Firebase console.
-const appCheck = initializeAppCheck(firebaseApp, {
-  provider: new ReCaptchaV3Provider("6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB"),
-  // Optional argument. If true, the SDK automatically refreshes App Check
-  // tokens as needed.
-  isTokenAutoRefreshEnabled: true,
-});
+
+if (!Platform.is.nativeMobile) {
+  console.log("Platform.is.nativeMobile is false");
+
+  // Pass your reCAPTCHA v3 site key (public key). Make sure this key is the counterpart to the secret key you set in the Firebase console.
+  const appCheck = initializeAppCheck(firebaseApp, {
+    provider: new ReCaptchaV3Provider(
+      "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+    ),
+    // Optional argument. If true, the SDK automatically refreshes App Check
+    // tokens as needed.
+    isTokenAutoRefreshEnabled: true,
+  });
+} else {
+  //if (process.env.MODE === 'capacitor' )
+  // import("@capacitor-firebase/app-check")
+  import("app/src-capacitor/node_modules/@capacitor-firebase/app-check")
+    .then((module) => {
+      FirebaseAppCheck = module.FirebaseAppCheck;
+      console.log("In firebaseBoot, Platform.is.nativeMobile is true");
+
+      const getToken = async () => {
+        const { token } = FirebaseAppCheck.getToken({
+          forceRefresh: false,
+        });
+        return token;
+      };
+
+      const useDebugProvider = process.env.NODE_ENV === "development";
+      console.log("In firebaseBoot, process.env is", process.env);
+      console.log(
+        "In firebaseBoot, FirebaseAppCheck will be initialized with debug:",
+        useDebugProvider,
+      );
+
+      const initialize = async () => {
+        await FirebaseAppCheck.initialize({
+          siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+          debug: useDebugProvider,
+        });
+      };
+      const setTokenAutoRefreshEnabled = async () => {
+        await FirebaseAppCheck.setTokenAutoRefreshEnabled({ enabled: true });
+      };
+      const addTokenChangedListener = async () => {
+        await FirebaseAppCheck.addListener("tokenChanged", (event) => {
+          console.log("tokenChanged", { event });
+        });
+      };
+      const removeAllListeners = async () => {
+        await FirebaseAppCheck.removeAllListeners();
+      };
+    })
+    .catch((error) => {
+      console.error(
+        "Failed to load the @capacitor-firebase/app-check module",
+        error,
+      );
+    });
+}
 
 //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
 const emptyNeedsMomentsRetry = async () => {
