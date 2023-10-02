@@ -24,9 +24,8 @@ import { debounce } from "lodash";
 import axios from "axios";
 import { Platform } from "quasar";
 
-// import { FirebaseAppCheck } from "@capacitor-firebase/app-check";
-
 console.log("In firebaseBoot, Platform.is", Platform.is);
+console.log("In firebaseBoot, process.env is", process.env);
 
 // if (Platform.is.nativeMobile) {
 //   const getName = async () => {
@@ -76,7 +75,7 @@ console.log(
 );
 
 if (!Platform.is.nativeMobile) {
-  console.log("Platform.is.nativeMobile is false");
+  console.log("In firebaseBoot, Platform.is.nativeMobile is false");
 
   // Pass your reCAPTCHA v3 site key (public key). Make sure this key is the counterpart to the secret key you set in the Firebase console.
   const appCheck = initializeAppCheck(firebaseApp, {
@@ -88,22 +87,13 @@ if (!Platform.is.nativeMobile) {
     isTokenAutoRefreshEnabled: true,
   });
 } else {
+  console.log("In firebaseBoot, Platform.is.nativeMobile is true");
   //if (process.env.MODE === 'capacitor' )
   // import("@capacitor-firebase/app-check")
   import("app/src-capacitor/node_modules/@capacitor-firebase/app-check")
     .then((module) => {
-      FirebaseAppCheck = module.FirebaseAppCheck;
-      console.log("In firebaseBoot, Platform.is.nativeMobile is true");
-
-      const getToken = async () => {
-        const { token } = FirebaseAppCheck.getToken({
-          forceRefresh: false,
-        });
-        return token;
-      };
-
+      const FirebaseAppCheck = module.FirebaseAppCheck;
       const useDebugProvider = process.env.NODE_ENV === "development";
-      console.log("In firebaseBoot, process.env is", process.env);
       console.log(
         "In firebaseBoot, FirebaseAppCheck will be initialized with debug:",
         useDebugProvider,
@@ -111,21 +101,28 @@ if (!Platform.is.nativeMobile) {
 
       const initialize = async () => {
         await FirebaseAppCheck.initialize({
-          siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+          // siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
           debug: useDebugProvider,
+          isTokenAutoRefreshEnabled: true,
         });
       };
-      const setTokenAutoRefreshEnabled = async () => {
-        await FirebaseAppCheck.setTokenAutoRefreshEnabled({ enabled: true });
-      };
-      const addTokenChangedListener = async () => {
-        await FirebaseAppCheck.addListener("tokenChanged", (event) => {
-          console.log("tokenChanged", { event });
-        });
-      };
-      const removeAllListeners = async () => {
-        await FirebaseAppCheck.removeAllListeners();
-      };
+      // const setTokenAutoRefreshEnabled = async () => {
+      //   await FirebaseAppCheck.setTokenAutoRefreshEnabled({ enabled: true });
+      // };
+      // const getToken = async () => {
+      //   const { token } = FirebaseAppCheck.getToken({
+      //     forceRefresh: false,
+      //   });
+      //   return token;
+      // };
+      // const addTokenChangedListener = async () => {
+      //   await FirebaseAppCheck.addListener("tokenChanged", (event) => {
+      //     console.log("tokenChanged", { event });
+      //   });
+      // };
+      // const removeAllListeners = async () => {
+      //   await FirebaseAppCheck.removeAllListeners();
+      // };
     })
     .catch((error) => {
       console.error(

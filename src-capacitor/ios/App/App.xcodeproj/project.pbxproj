@@ -36,6 +36,7 @@
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		BD5F5DCB17FCF4CFA582B249 /* Pods-KifKaf.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KifKaf.release.xcconfig"; path = "Pods/Target Support Files/Pods-KifKaf/Pods-KifKaf.release.xcconfig"; sourceTree = "<group>"; };
 		C1EA12CF251600C73D9A3F9D /* Pods-KifKaf.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KifKaf.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KifKaf/Pods-KifKaf.debug.xcconfig"; sourceTree = "<group>"; };
+		C7B527982ACB116400C02BE7 /* KifKaf.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KifKaf.entitlements; sourceTree = "<group>"; };
 		C7DEE8302ACABAE000D08E7A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F578EB5C0C7F53C89543CDB2 /* Pods_KifKaf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KifKaf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
@@ -69,6 +70,7 @@
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
+				C7B527982ACB116400C02BE7 /* KifKaf.entitlements */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
 				7F8756D8B27F46E3366F6CEA /* Pods */,
@@ -383,6 +385,7 @@
 			baseConfigurationReference = C1EA12CF251600C73D9A3F9D /* Pods-KifKaf.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = KifKaf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 236382978W;
@@ -408,6 +411,7 @@
 			baseConfigurationReference = BD5F5DCB17FCF4CFA582B249 /* Pods-KifKaf.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = KifKaf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 236382978W;
