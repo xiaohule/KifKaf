@@ -10,6 +10,8 @@
 
 const { configure } = require("quasar/wrappers");
 
+// console.log("In quasar.config.js, process.env is", process.env);
+
 module.exports = configure(function (/* ctx */) {
   return {
     eslint: {

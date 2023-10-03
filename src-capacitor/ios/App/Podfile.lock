@@ -7,8 +7,6 @@ PODS:
   - CapacitorFirebaseAppCheck (5.1.0):
     - Capacitor
     - FirebaseAppCheck (= 10.8.0)
-  - CapacitorSplashScreen (5.0.6):
-    - Capacitor
   - FirebaseAppCheck (10.8.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
@@ -31,7 +29,6 @@ DEPENDENCIES:
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorFirebaseAppCheck (from `../../node_modules/@capacitor-firebase/app-check`)"
-  - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
 
 SPEC REPOS:
   trunk:
@@ -50,21 +47,18 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorFirebaseAppCheck:
     :path: "../../node_modules/@capacitor-firebase/app-check"
-  CapacitorSplashScreen:
-    :path: "../../node_modules/@capacitor/splash-screen"
 
 SPEC CHECKSUMS:
   Capacitor: 4c0681b47eebeba1f902093d24149cf2f518393e
   CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
   CapacitorCordova: 1222fdd78bfd0d323cc22bf254eed1484fe6c92a
   CapacitorFirebaseAppCheck: f3ee09932a833c0d2a5e7cf2aa2bbdaaefecf824
-  CapacitorSplashScreen: 5fa2ab5e46cf5cc530cf16a51c80c7a986579ccd
   FirebaseAppCheck: 8bde2c5f393518ab98290151188bf196b4bab91e
   FirebaseCore: e78636a990b54be427ce300aa09a0e359f4e0e87
   FirebaseCoreInternal: 2f4bee5ed00301b5e56da0849268797a2dd31fb4
   GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
 
-PODFILE CHECKSUM: bf3ab9b085fb0c0f3896ec37cfb961b8450865f5
+PODFILE CHECKSUM: 0354cb55f2f05003c4abec90bc385b40fa05a496
 
 COCOAPODS: 1.12.1
