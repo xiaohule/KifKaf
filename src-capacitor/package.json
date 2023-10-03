@@ -5,13 +5,13 @@
   "author": "na",
   "private": true,
   "dependencies": {
-    "@capacitor-firebase/app": "^5.1.0",
     "@capacitor-firebase/app-check": "^5.1.0",
-    "@capacitor-firebase/firestore": "^5.1.0-dev.3050d98.1695803101",
     "@capacitor/android": "^5.4.1",
     "@capacitor/app": "^5.0.6",
     "@capacitor/cli": "^5.4.1",
     "@capacitor/core": "^5.4.1",
-    "@capacitor/ios": "^5.4.1"
+    "@capacitor/ios": "^5.4.1",
+    "@capacitor/splash-screen": "^5.0.6",
+    "firebase": "^10.4.0"
   }
 }
