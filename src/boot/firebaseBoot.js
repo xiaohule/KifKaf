@@ -1,7 +1,6 @@
 import { boot } from "quasar/wrappers";
 import { initializeApp } from "firebase/app";
 import {
-  // getFirestore,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
@@ -17,7 +16,11 @@ import {
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 // import { getAnalytics } from "firebase/analytics";
 import { VueFire, VueFireAuth, getCurrentUser } from "vuefire";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  CustomProvider,
+} from "firebase/app-check";
 import { markRaw } from "vue";
 // import Vue3Lottie from "vue3-lottie";
 import { debounce } from "lodash";
@@ -26,17 +29,6 @@ import { Platform } from "quasar";
 
 console.log("In firebaseBoot, Platform.is", Platform.is);
 console.log("In firebaseBoot, process.env is", process.env);
-
-// if (Platform.is.nativeMobile) {
-//   const getName = async () => {
-//     const result = await FirebaseApp.getName();
-//     console.log("getName", result);
-//   };
-//   const getOptions = async () => {
-//     const result = await FirebaseApp.getOptions();
-//     console.log("getOptions", result);
-//   };
-// }
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -48,20 +40,19 @@ const firebaseConfig = {
   measurementId: "G-6KB3RTH5GX",
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
+const firebaseWebApp = initializeApp(firebaseConfig);
 // Use IndexedDb persistence. Cf. https://github.com/firebase/firebase-js-sdk/issues/6087#issuecomment-1233478793 for markRaw
 export const db = markRaw(
-  initializeFirestore(firebaseApp, {
+  initializeFirestore(firebaseWebApp, {
     localCache: persistentLocalCache(
       /*settings*/ { tabManager: persistentMultipleTabManager() },
     ),
   }),
 );
-// console.log("firebaseApp", firebaseApp);
-// console.log("db", db);
+// console.log("firebaseWebApp", firebaseWebApp, "db", db);
 
-export const auth = getAuth(firebaseApp);
-// const analytics = getAnalytics(firebaseApp);
+export const auth = getAuth(firebaseWebApp);
+// const analytics = getAnalytics(firebaseWebApp);
 
 //APP CHECK
 // Set FIREBASE_APPCHECK_DEBUG_TOKEN to the CI one if CI, true (to use the dev whitelisted ones) if no in CI but in dev and false otherwise
@@ -75,60 +66,42 @@ console.log(
 );
 
 if (!Platform.is.nativeMobile) {
-  console.log("In firebaseBoot, Platform.is.nativeMobile is false");
+  console.log("In firebaseBoot, initializing app check for web");
 
-  // Pass your reCAPTCHA v3 site key (public key). Make sure this key is the counterpart to the secret key you set in the Firebase console.
-  const appCheck = initializeAppCheck(firebaseApp, {
+  const appCheck = initializeAppCheck(firebaseWebApp, {
     provider: new ReCaptchaV3Provider(
       "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
     ),
-    // Optional argument. If true, the SDK automatically refreshes App Check
-    // tokens as needed.
     isTokenAutoRefreshEnabled: true,
   });
 } else {
-  console.log("In firebaseBoot, Platform.is.nativeMobile is true");
-  //if (process.env.MODE === 'capacitor' )
-  // import("@capacitor-firebase/app-check")
   import("app/src-capacitor/node_modules/@capacitor-firebase/app-check")
-    .then((module) => {
-      const FirebaseAppCheck = module.FirebaseAppCheck;
-      const useDebugProvider = process.env.NODE_ENV === "development";
-      console.log(
-        "In firebaseBoot, FirebaseAppCheck will be initialized with debug:",
-        useDebugProvider,
-      );
+    .then(async (module) => {
+      console.log("In firebaseBoot, initializing app check for native");
 
-      const initialize = async () => {
-        await FirebaseAppCheck.initialize({
-          // siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
-          debug: useDebugProvider,
-          isTokenAutoRefreshEnabled: true,
-        });
-      };
-      // const setTokenAutoRefreshEnabled = async () => {
-      //   await FirebaseAppCheck.setTokenAutoRefreshEnabled({ enabled: true });
-      // };
-      // const getToken = async () => {
-      //   const { token } = FirebaseAppCheck.getToken({
-      //     forceRefresh: false,
-      //   });
-      //   return token;
-      // };
-      // const addTokenChangedListener = async () => {
-      //   await FirebaseAppCheck.addListener("tokenChanged", (event) => {
-      //     console.log("tokenChanged", { event });
-      //   });
-      // };
-      // const removeAllListeners = async () => {
-      //   await FirebaseAppCheck.removeAllListeners();
-      // };
+      const nativeAppCheck = module.FirebaseAppCheck;
+
+      // 1. Initialize on the native layer
+      await nativeAppCheck.initialize({
+        // siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+        debug: process.env.NODE_ENV === "development",
+        isTokenAutoRefreshEnabled: true,
+      });
+      // 2. Set up a custom provider
+      const appCheckCustomProvider = new CustomProvider({
+        getToken: () => {
+          return nativeAppCheck.getToken();
+        },
+      });
+      // 3. Initialize on the web layer
+      const appCheck = initializeAppCheck(firebaseWebApp, {
+        provider: appCheckCustomProvider,
+        isTokenAutoRefreshEnabled: true,
+      });
+      console.log("In firebaseBoot native,  initialize called");
     })
     .catch((error) => {
-      console.error(
-        "Failed to load the @capacitor-firebase/app-check module",
-        error,
-      );
+      console.error("Failed to initialize app check for native, error:", error);
     });
 }
 
@@ -219,7 +192,7 @@ document.addEventListener("visibilitychange", () => {
 export default boot(({ app, router }) => {
   app.use(VueFire, {
     // imported above but could also just be created here
-    firebaseApp,
+    firebaseApp: firebaseWebApp,
     modules: [
       // we will see other modules later on
       VueFireAuth(),

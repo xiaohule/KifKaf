@@ -42,13 +42,13 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
     appId: "1:296402111022:web:9e147ef8aa0fcb44822dbf",
     measurementId: "G-6KB3RTH5GX",
   };
-  const firebaseApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseApp);
+  const firebaseWebApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseWebApp);
 
   //APP CHECK
   self.FIREBASE_APPCHECK_DEBUG_TOKEN =
     Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI") || true;
-  const appCheck = initializeAppCheck(firebaseApp, {
+  const appCheck = initializeAppCheck(firebaseWebApp, {
     provider: new ReCaptchaV3Provider(
       "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
     ),
