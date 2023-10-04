@@ -12,7 +12,7 @@ const { configure } = require("quasar/wrappers");
 
 // console.log("In quasar.config.js, process.env is", process.env);
 
-module.exports = configure(function (/* ctx */) {
+module.exports = configure(function (ctx) {
   return {
     eslint: {
       // fix: true,
@@ -55,6 +55,9 @@ module.exports = configure(function (/* ctx */) {
       // APP VERSION
       env: {
         __APP_VERSION__: require("./package.json").version,
+        API_URL: ctx.dev
+          ? "http://localhost:3000"
+          : "https://lemon-bay-09625be03.3.azurestaticapps.net",
       },
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],

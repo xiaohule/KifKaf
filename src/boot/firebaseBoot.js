@@ -25,10 +25,11 @@ import {
   ReCaptchaV3Provider,
   CustomProvider,
 } from "firebase/app-check";
-import { markRaw, ref } from "vue";
+import { markRaw, ref, watch } from "vue";
 // import Vue3Lottie from "vue3-lottie";
 import { debounce } from "lodash";
 import axios from "axios";
+axios.defaults.baseURL = process.env.API_URL;
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -141,9 +142,7 @@ if (
 //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
 const emptyNeedsMomentsRetry = async () => {
   console.log(
-    "in firebaseBoot in emptyNeedsMomentsRetry user is",
-    currentUser.value,
-    "and mode is capacitor is",
+    "in firebaseBoot mode is capacitor is",
     process.env.MODE === "capacitor",
   );
 
@@ -256,7 +255,15 @@ export default boot(({ app, router }) => {
   });
 
   // Call llmRetryHandler during app initialization
-  llmRetryHandler();
+  watch(
+    currentUser,
+    (newUser) => {
+      if (newUser) {
+        llmRetryHandler();
+      }
+    },
+    { immediate: true },
+  );
 
   //   window.addEventListener('offline', () => {
   //   console.log("App is offline");

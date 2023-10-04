@@ -418,7 +418,7 @@ export const useMomentsStore = defineStore("moments", () => {
     momentsFetched.value = false;
     aggregateDataFetched.value = false;
     shouldResetSwiper.value = false;
-    needsMap.value = {};
+    // needsMap.value = {};
   }
 
   return {
