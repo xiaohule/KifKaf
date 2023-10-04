@@ -171,7 +171,7 @@ const onSubmit = (event) => {
 // DISPLAY PREVIOUS MOMENTS
 const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
   const dayDate = (new Timestamp(day, 0)).toDate()
-  const ul = momentsStore?.momentsColl?.value?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
+  const ul = momentsStore?.momentsColl?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
   // sort array ul per descending moments.value.date.seconds
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;

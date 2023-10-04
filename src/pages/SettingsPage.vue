@@ -189,7 +189,7 @@
 
 <script setup>
 import { ref, nextTick, watch, onMounted } from 'vue'
-import { auth } from "../boot/firebaseBoot.js";
+import { getFirebaseAuth } from "../boot/firebaseBoot.js";
 import { signOut } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
@@ -331,7 +331,7 @@ const updateSetting = async () => {
 }
 
 const logOut = () => {
-  signOut(auth).then(() => {
+  signOut(getFirebaseAuth()).then(() => {
     setTimeout(() => {
       momentsStore.$reset()
       router.push('/login')

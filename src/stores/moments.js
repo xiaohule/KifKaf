@@ -4,29 +4,19 @@ import {
   doc,
   // addDoc,
   setDoc,
-  updateDoc,
   getDoc,
   getDocs,
   Timestamp,
   arrayUnion,
   writeBatch,
-  query,
-  where,
-  orderBy,
-  limit,
-  increment,
   onSnapshot,
+  query,
 } from "firebase/firestore";
-import {
-  useCollection,
-  useDocument,
-  getCurrentUser,
-  updateCurrentUserProfile,
-} from "vuefire";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed } from "vue";
 import { date } from "quasar";
 import {
+  updateProfile,
   updateEmail,
   updatePassword,
   reauthenticateWithCredential,
@@ -34,11 +24,12 @@ import {
 } from "firebase/auth";
 import axios from "axios";
 import { Notify } from "quasar";
+import { currentUser } from "../boot/firebaseBoot.js";
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
 export const useMomentsStore = defineStore("moments", () => {
-  const user = ref(null);
+  const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
   const momentsColl = ref([]);
@@ -94,7 +85,6 @@ export const useMomentsStore = defineStore("moments", () => {
         return;
       }
 
-      user.value = await getCurrentUser();
       // Check if user exists and has a uid property
       if (!user.value || !user.value.uid) {
         console.log("Failed to fetch user or user.uid");
@@ -112,7 +102,9 @@ export const useMomentsStore = defineStore("moments", () => {
         });
       }
 
-      userDoc.value = useDocument(userDocRef);
+      onSnapshot(userDocRef.value, (doc) => {
+        userDoc.value = doc.data();
+      });
 
       userFetched.value = true;
     } catch (error) {
@@ -131,9 +123,32 @@ export const useMomentsStore = defineStore("moments", () => {
         await fetchUser();
       }
 
-      momentsColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/moments`),
-      );
+      const q = query(collection(db, `users/${user.value.uid}/moments`));
+      onSnapshot(q, (querySnapshot) => {
+        querySnapshot.docChanges().forEach((change) => {
+          const { newIndex, oldIndex, doc, type } = change;
+          if (type === "added") {
+            momentsColl.value.splice(newIndex, 0, {
+              ...doc.data(),
+              id: doc.id,
+            });
+            // if we want to handle references we would do it here
+          } else if (type === "modified") {
+            // remove the old one first
+            momentsColl.value.splice(oldIndex, 1);
+            // if we want to handle references we would have to unsubscribe
+            // from old references' listeners and subscribe to the new ones
+            momentsColl.value.splice(newIndex, 0, {
+              ...doc.data(),
+              id: doc.id,
+            });
+          } else if (type === "removed") {
+            momentsColl.value.splice(oldIndex, 1);
+            // if we want to handle references we need to unsubscribe
+            // from old references
+          }
+        });
+      });
 
       momentsFetched.value = true;
     } catch (error) {
@@ -232,7 +247,7 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const hasNeeds = computed(() => {
-    return userDoc?.value?.data?.hasNeeds ?? false;
+    return userDoc?.value?.hasNeeds ?? false;
   });
 
   const addMoment = async (moment) => {
@@ -315,10 +330,16 @@ export const useMomentsStore = defineStore("moments", () => {
   // },
 
   const uniqueDays = computed(() => {
-    if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
+    console.log(
+      "In uniqueDays, userDoc:",
+      userDoc,
+      "userFetched:",
+      userFetched,
+    );
+    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
       return [];
     }
-    let ul = userDoc.value.data.momentsDays.map((day) => day.seconds);
+    let ul = userDoc.value.momentsDays.map((day) => day.seconds);
     //Sort in descending order (most recent first) & return
     return ul.sort((a, b) => b - a);
   });
@@ -347,11 +368,11 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const oldestMomentDate = computed(() => {
-    if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
+    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
       return;
     }
 
-    const sortedTimestamps = userDoc.value.data.momentsDays.sort(
+    const sortedTimestamps = userDoc.value.momentsDays.sort(
       (a, b) => a.seconds - b.seconds,
     );
 
@@ -362,7 +383,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const updateUser = async (changes) => {
     try {
       if (changes.displayName) {
-        await updateCurrentUserProfile({
+        await updateProfile(user.value, {
           displayName: changes.displayName,
         });
         console.log("displayName updated!");

@@ -130,7 +130,7 @@ module.exports = configure(function (/* ctx */) {
       // components: [],
       // directives: [],
 
-      // plugins: ["Firebase", "VueFire"],
+      // plugins: ["Firebase"],
     },
 
     // animations: "all", // --- includes all animations readd if needed
@@ -191,7 +191,7 @@ module.exports = configure(function (/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
     capacitor: {
-      hideSplashscreen: true,
+      hideSplashscreen: false,
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/developing-electron-apps/configuring-electron

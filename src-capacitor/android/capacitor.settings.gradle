@@ -5,5 +5,8 @@ project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/
 include ':capacitor-firebase-app-check'
 project(':capacitor-firebase-app-check').projectDir = new File('../node_modules/@capacitor-firebase/app-check/android')
 
+include ':capacitor-firebase-authentication'
+project(':capacitor-firebase-authentication').projectDir = new File('../node_modules/@capacitor-firebase/authentication/android')
+
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')

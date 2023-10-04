@@ -5,7 +5,7 @@
       :element-name="segStatsName" />
 
     <div
-      v-if="momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey].length > 0">
+      v-if="momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey]?.length > 0">
       <div class="q-px-sm q-py-xs text-body2 text-outline">{{ props.flag == 'satisfaction' ? (props.secondSegSelected ?
         satisfactionInfo : unsatisfactionInfo) : importanceInfo }}
       </div>
