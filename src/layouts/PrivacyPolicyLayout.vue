@@ -1,8 +1,8 @@
 <template>
   <q-layout view="hHh lpr fFf" class="bg-background">
 
-    <q-header class="bg-transparent" bordered reveal>
-      <q-toolbar class="text-on-surface">
+    <q-header class="bg-transparent" bordered reveal :reveal-offset="150">
+      <q-toolbar class="text-on-surface q-mx-auto" style="max-width: 600px">
         <q-btn flat round icon="arrow_back" @click="goBack" />
         <q-toolbar-title class="absolute-center">Privacy Policy</q-toolbar-title>
       </q-toolbar>

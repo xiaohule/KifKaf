@@ -2,7 +2,7 @@
   <q-layout view="hHh lpr fFf" class="bg-background">
 
     <q-header class="bg-transparent" bordered reveal :reveal-offset="150">
-      <q-toolbar>
+      <q-toolbar class="text-on-surface q-mx-auto" style="max-width: 600px">
         <q-avatar size="sm" square>
           <img src="icon-kifkaf-no-background.svg" />
         </q-avatar>
@@ -25,8 +25,8 @@
     </q-page-container>
 
     <q-footer class="bg-transparent" bordered>
-      <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary" class="text-secondary"
-        :breakpoint="0" :ripple="false">
+      <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
+        class="text-secondary q-mx-auto" style="max-width: 600px" :breakpoint="0" :ripple="false">
         <q-route-tab name="Home" icon="home" label="Home" to="/" />
         <q-route-tab name="Insights" icon="insights" label="Insights" to="/learn" @click="handleInsightsClick" />
         <!-- ou stats ou needs ou learn -->

@@ -5,11 +5,13 @@ PODS:
   - AppAuth/Core (1.6.2)
   - AppAuth/ExternalUserAgent (1.6.2):
     - AppAuth/Core
-  - Capacitor (5.4.1):
+  - Capacitor (5.4.2):
     - CapacitorCordova
   - CapacitorApp (5.0.6):
     - Capacitor
-  - CapacitorCordova (5.4.1)
+  - CapacitorCordova (5.4.2)
+  - CapacitorDevice (5.0.6):
+    - Capacitor
   - CapacitorFirebaseAppCheck (5.1.0):
     - Capacitor
     - FirebaseAppCheck (= 10.8.0)
@@ -70,6 +72,7 @@ DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorFirebaseAppCheck (from `../../node_modules/@capacitor-firebase/app-check`)"
   - "CapacitorFirebaseAuthentication (from `../../node_modules/@capacitor-firebase/authentication`)"
   - "CapacitorFirebaseAuthentication/Google (from `../../node_modules/@capacitor-firebase/authentication`)"
@@ -95,6 +98,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/app"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
+  CapacitorDevice:
+    :path: "../../node_modules/@capacitor/device"
   CapacitorFirebaseAppCheck:
     :path: "../../node_modules/@capacitor-firebase/app-check"
   CapacitorFirebaseAuthentication:
@@ -102,9 +107,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
-  Capacitor: 4c0681b47eebeba1f902093d24149cf2f518393e
+  Capacitor: 8a9db42d105f55843cd8ed2a3cb54e2b78e7f102
   CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
-  CapacitorCordova: 1222fdd78bfd0d323cc22bf254eed1484fe6c92a
+  CapacitorCordova: cfcc06b698481da655415985eeb2b8da363f8451
+  CapacitorDevice: 2c968f98a1ec4d22357418c1521e7ddc46c675e6
   CapacitorFirebaseAppCheck: f3ee09932a833c0d2a5e7cf2aa2bbdaaefecf824
   CapacitorFirebaseAuthentication: a90743b8923b81945c4b5c772b95de1f9c50820f
   FirebaseAppCheck: 8bde2c5f393518ab98290151188bf196b4bab91e
@@ -118,6 +124,6 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
 
-PODFILE CHECKSUM: 96650401e5cb6088c8a5080092263fd14bf059f2
+PODFILE CHECKSUM: 86fbbe453350e29546ac32e7380129927234d313
 
 COCOAPODS: 1.12.1

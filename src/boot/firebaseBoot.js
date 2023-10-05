@@ -30,6 +30,9 @@ import { markRaw, ref, watch } from "vue";
 import { debounce } from "lodash";
 import axios from "axios";
 axios.defaults.baseURL = process.env.API_URL;
+// import { Device } from "app/src-capacitor/node_modules/@capacitor/device";
+// import { Platform, is } from "quasar";
+// console.log("Platform is", Platform.is);
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -84,6 +87,18 @@ onAuthStateChanged(getFirebaseAuth(), (user) => {
 // const analytics = getAnalytics(firebaseApp);
 
 //APP CHECK
+// const checkIfVirtualDevice = async () => {
+//   const info = await Device.getInfo();
+//   // console.log(info);
+//   if (info.isVirtual) {
+//     console.log("Running in a virtual device");
+//     return true;
+//   } else {
+//     console.log("Running in a non-virtual device");
+//     return false;
+//   }
+// };
+// const isVirtualDevice = await checkIfVirtualDevice();
 // Set FIREBASE_APPCHECK_DEBUG_TOKEN to the CI one if CI, true (to use the dev whitelisted ones) if no in CI but in dev and false otherwise
 self.FIREBASE_APPCHECK_DEBUG_TOKEN =
   process.env.CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI ||
@@ -96,6 +111,7 @@ console.log(
 if (
   !process.env.MODE === "capacitor" ||
   process.env.NODE_ENV === "development"
+  // || isVirtualDevice
 ) {
   console.log("In firebaseBoot, initializing app check for web");
   const appCheck = initializeAppCheck(firebaseApp, {
@@ -240,10 +256,10 @@ export default boot(({ app, router }) => {
       // if the user is not logged in, redirect to the login page
       if (!currentUser.value || !currentUser.value.emailVerified) {
         console.log(
-          "In router.beforeEach, no user or email not verified, pushing you to /login",
+          "In router.beforeEach, no user or email not verified, pushing you to /welcome",
         );
         return {
-          path: "/login",
+          path: "/welcome",
           query: {
             // we keep the current path in the query so we can redirect to it after login
             // with `router.push(route.query.redirect || '/')`

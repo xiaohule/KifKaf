@@ -31,4 +31,6 @@ yarn-error.log*
 .nyc_output
 coverage/
 /scripts/serviceAccountKey.json
+/public/compare1.txt
+/public/compare2.txt
 

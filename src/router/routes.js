@@ -11,18 +11,18 @@ const routes = [
     meta: { requiresAuth: true },
     children: [{ path: "", component: () => import("pages/LearnTabV1.vue") }],
   },
-  {
-    path: "/timeline",
-    component: () => import("layouts/MainLayout.vue"),
-    meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/TimelineTab.vue") }],
-  },
-  {
-    path: "/search",
-    component: () => import("layouts/MainLayout.vue"),
-    meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/SearchTab.vue") }],
-  },
+  // {
+  //   path: "/timeline",
+  //   component: () => import("layouts/MainLayout.vue"),
+  //   meta: { requiresAuth: true },
+  //   children: [{ path: "", component: () => import("pages/TimelineTab.vue") }],
+  // },
+  // {
+  //   path: "/search",
+  //   component: () => import("layouts/MainLayout.vue"),
+  //   meta: { requiresAuth: true },
+  //   children: [{ path: "", component: () => import("pages/SearchTab.vue") }],
+  // },
   {
     path: "/settings",
     component: () => import("layouts/SettingsLayout.vue"),
@@ -35,9 +35,33 @@ const routes = [
     ],
   },
   {
+    path: "/welcome",
+    component: () => import("layouts/WelcomeLayout.vue"),
+    children: [{ path: "", component: () => import("pages/WelcomePage.vue") }],
+  },
+  {
     path: "/login",
     component: () => import("layouts/AuthLayout.vue"),
-    children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
+    children: [
+      { path: "", component: () => import("pages/LoginPage.vue") },
+      {
+        path: "email",
+        component: () => import("pages/EmailLogin.vue"),
+      },
+      {
+        path: "google",
+        component: () => import("pages/GoogleLogin.vue"),
+      },
+      {
+        path: "apple",
+        component: () => import("pages/AppleLogin.vue"),
+      },
+    ],
+  },
+  {
+    path: "/signup",
+    component: () => import("layouts/AuthLayout.vue"),
+    children: [{ path: "", component: () => import("pages/SignUpPage.vue") }],
   },
   //TODO:1 make only one layout for terms and privacy policy and auth that can take a title as param
   {

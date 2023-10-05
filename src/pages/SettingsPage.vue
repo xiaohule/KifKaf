@@ -334,7 +334,7 @@ const logOut = () => {
   signOut(getFirebaseAuth()).then(() => {
     setTimeout(() => {
       momentsStore.$reset()
-      router.push('/login')
+      router.push('/welcome')
       console.log('logged out')
     }, 10)
   }).catch((error) => {

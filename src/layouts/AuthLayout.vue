@@ -1,17 +1,16 @@
 <template>
   <q-layout view="hHh lpr fFf" class="bg-background">
 
-    <q-header class="bg-transparent" bordered reveal>
-      <q-toolbar class="text-on-surface">
-        <q-toolbar-title class="absolute-center">KifKaf</q-toolbar-title>
+    <q-header class="bg-transparent">
+      <q-toolbar class="text-on-surface q-mx-auto" style="max-width: 600px">
+        <q-btn flat round icon="arrow_back" @click="goBack" />
+        <q-toolbar-title class="absolute-center"></q-toolbar-title>
       </q-toolbar>
     </q-header>
 
     <q-page-container>
       <router-view v-slot="{ Component }">
-        <!-- <keep-alive> -->
         <component :is="Component" />
-        <!-- </keep-alive> -->
       </router-view>
     </q-page-container>
 
@@ -22,13 +21,14 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const goBack = () => {
+  router.go(-1)
+}
 </script>
 
-<style lang="scss">
-.q-header,
-.q-footer {
-  backdrop-filter: blur(25px);
-}
-</style>
+<style lang="scss"></style>
 
 
