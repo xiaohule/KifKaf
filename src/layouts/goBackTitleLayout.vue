@@ -2,11 +2,11 @@
   <!-- <transition appear enter-active-class="animated slideInRight" leave-active-class="animated slideOutRight"> -->
 
   <q-layout view="hHh lpr fFf" class="bg-background">
-
-    <q-header class="bg-transparent" bordered reveal :reveal-offset="150">
+    <!-- reveal :reveal-offset="150" -->
+    <q-header class="bg-transparent">
       <q-toolbar class="text-on-surface q-mx-auto" style="max-width: 600px">
         <q-btn flat round icon="arrow_back" @click="goBack" />
-        <q-toolbar-title class="absolute-center">Contact Us</q-toolbar-title>
+        <q-toolbar-title class="absolute-center">{{ title }}</q-toolbar-title>
       </q-toolbar>
     </q-header>
 
@@ -19,19 +19,24 @@
         <component :is="Component" />
         <!-- </keep-alive> -->
         <!-- </transition> -->
-
       </router-view>
     </q-page-container>
 
-    <q-footer class="bg-transparent" bordered>
-    </q-footer>
-
+    <!-- <q-footer class="bg-transparent" bordered>
+    </q-footer> -->
   </q-layout>
   <!-- </transition> -->
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
+
+const props = defineProps({
+  title: {
+    type: String,
+    default: '',
+  }
+});
 
 const router = useRouter()
 const goBack = () => {
@@ -53,10 +58,10 @@ const goBack = () => {
 </script>
 
 <style lang="scss">
-.q-header,
-.q-footer {
-  backdrop-filter: blur(25px);
-}
+// .q-header,
+// .q-footer {
+//   backdrop-filter: blur(25px);
+// }
 
 // .slideInRight {
 //   animation-duration: 1.3s;

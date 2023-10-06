@@ -25,7 +25,8 @@ const routes = [
   // },
   {
     path: "/settings",
-    component: () => import("layouts/SettingsLayout.vue"),
+    component: () => import("layouts/goBackTitleLayout.vue"),
+    props: { title: "Settings" },
     meta: { requiresAuth: true },
     children: [
       {
@@ -41,7 +42,7 @@ const routes = [
   },
   {
     path: "/login",
-    component: () => import("layouts/AuthLayout.vue"),
+    component: () => import("layouts/goBackTitleLayout.vue"),
     children: [
       { path: "", component: () => import("pages/LoginPage.vue") },
       {
@@ -60,13 +61,14 @@ const routes = [
   },
   {
     path: "/signup",
-    component: () => import("layouts/AuthLayout.vue"),
+    component: () => import("layouts/goBackTitleLayout.vue"),
     children: [{ path: "", component: () => import("pages/SignUpPage.vue") }],
   },
   //TODO:1 make only one layout for terms and privacy policy and auth that can take a title as param
   {
     path: "/privacy-policy",
-    component: () => import("layouts/PrivacyPolicyLayout.vue"),
+    component: () => import("layouts/goBackTitleLayout.vue"),
+    props: { title: "Privacy Policy" },
     children: [
       {
         path: "",
@@ -76,7 +78,8 @@ const routes = [
   },
   {
     path: "/terms",
-    component: () => import("layouts/TermsLayout.vue"),
+    component: () => import("layouts/goBackTitleLayout.vue"),
+    props: { title: "Terms of Service" },
     children: [
       {
         path: "",
@@ -86,7 +89,8 @@ const routes = [
   },
   {
     path: "/contact",
-    component: () => import("layouts/ContactLayout.vue"),
+    component: () => import("layouts/goBackTitleLayout.vue"),
+    props: { title: "Contact Us" },
     children: [
       {
         path: "",
