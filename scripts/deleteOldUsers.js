@@ -25,6 +25,7 @@ const deleteOldUsers = async () => {
     "g1cRqRF9qiQ6Tmp60euu1NFmYYl1", //googleplayreviewkifkaf@yopmail.com
     "jUMWUBlmpnhb5QjYOdEgHA9rp0E3", //appstorereviewkifkaf@yopmail.com
     "9R4puQOrDSVVqzRBavAaA8nCFRY2", //screenshot_account@yopmail.com
+    "5Emss9WTlNOz35b1FUyeWAWKziM2", //a@yopmail.com, used in cypress test
   ];
 
   const oldUserUIDs = oldUsers

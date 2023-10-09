@@ -23,11 +23,12 @@
     </swiper-container>
 
     <div class="fixed-buttons">
+      <!-- max-width: 300px; -->
       <q-btn rounded color="scrim" padding="sm" label="Log in" @click="() => router.push('/login')"
-        class="text-body1 q-ml-md q-mr-sm" style="width: 100%; max-width: 300px;" no-caps />
-      <q-btn rounded color="on-primary" text-color="scrim" padding="sm" label="Sign up"
+        class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
+      <!-- <q-btn rounded color="on-primary" text-color="scrim" padding="sm" label="Sign up"
         @click="() => router.push('/signup')" class="text-body1 q-ml-sm q-mr-md" style="width: 100%; max-width: 300px;"
-        no-caps />
+        no-caps /> -->
     </div>
   </q-page>
 </template>

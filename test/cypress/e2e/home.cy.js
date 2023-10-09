@@ -30,7 +30,8 @@ describe.skip("Signing in and out", () => {
   it("should let the user sign in with email & log out", () => {
     cy.visit("/");
 
-    cy.contains("Sign in with email").click();
+    cy.contains("Log in").click();
+    cy.contains("email").click();
     cy.signIn("a@yopmail.com", "yopyopyop2");
 
     cy.contains("account_circle").click();
@@ -65,9 +66,11 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
     cy.visit("/");
     //should have sign in options, ToS and Contact us
-    cy.contains("Sign in with email").should("be.visible").click();
-    cy.contains("Cancel").should("be.visible").click();
-    cy.contains("Sign in with Google").should("be.visible");
+    cy.contains("Log in").should("be.visible").click();
+    cy.contains("arrow_back").should("be.visible").click();
+    cy.contains("Log in").should("be.visible").click();
+    cy.contains("Google").should("be.visible");
+    cy.contains("Apple").should("be.visible");
     cy.contains("Terms of Service").should("be.visible").click();
     cy.contains(
       "These Terms will be applied fully and affect your use of this Website. By using this Website, you agreed to accept all terms and conditions written here.",
@@ -84,7 +87,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.contains("arrow_back").click();
 
     //should let a user sign up with email, log out and sign in again
-    cy.contains("Sign in with email").click();
+    cy.contains("email").click();
     cy.get("@username").then((username) => {
       cy.signUp(`${username}@sharklasers.com`, password);
     });
@@ -96,7 +99,8 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
       cy.dataCy("logout-button").click();
     });
 
-    cy.contains("Sign in with email").click();
+    cy.contains("Log in").click();
+    cy.contains("email").click();
     cy.get("@username").then((username) => {
       cy.signIn(`${username}@sharklasers.com`, password);
     });

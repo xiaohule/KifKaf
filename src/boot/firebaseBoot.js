@@ -57,24 +57,22 @@ export const db = markRaw(
 
 //AUTH
 let auth;
-export function getFirebaseAuth() {
+export const getFirebaseAuth = () => {
   if (!auth) {
     console.log("In getFirebaseAuth,!auth");
 
     if (process.env.MODE === "capacitor") {
       console.log("In getFirebaseAuth,capa");
-
       auth = initializeAuth(getApp(), {
         persistence: indexedDBLocalPersistence,
       });
     } else {
       console.log("In getFirebaseAuth,no capa");
-
       auth = getAuth(firebaseApp);
     }
   }
   return auth;
-}
+};
 
 //USER
 export const currentUser = ref(null);
@@ -247,7 +245,7 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-export default boot(({ app, router }) => {
+export default boot(({ router }) => {
   //if targeting a route that needs sign in without being signed in, redirect to login
   router.beforeEach(async (to) => {
     // console.log("router.beforeEach", to);

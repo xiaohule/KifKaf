@@ -74,7 +74,7 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
 Cypress.Commands.add("signIn", (username, password) => {
   cy.url({ timeout: 40000 }).should("include", "login");
   cy.get("input").type(username);
-  cy.contains("Next").click();
+  cy.contains("Continue").click();
   cy.get("[type='password']").type(password);
   //click on the button of type submit that contains "Sign in" text, be careful there is another element that contains text "Sign in" but it is not a button
   cy.get("button[type='submit']").click();
@@ -86,7 +86,7 @@ Cypress.Commands.add("signIn", (username, password) => {
 Cypress.Commands.add("signUp", (username, password) => {
   cy.url({ timeout: 40000 }).should("include", "login");
   cy.get("input").type(username);
-  cy.contains("Next").click();
+  cy.contains("Continue").click();
   cy.get("[type='text'][name='name']").type("Jane Doe");
   cy.get("[type='password']").type(password);
   cy.get("button[type='submit']").click();

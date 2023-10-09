@@ -44,25 +44,12 @@ const routes = [
     path: "/login",
     component: () => import("layouts/goBackTitleLayout.vue"),
     children: [
-      { path: "", component: () => import("pages/LoginPage.vue") },
+      { path: "", component: () => import("pages/login/LoginPage.vue") },
       {
         path: "email",
-        component: () => import("pages/EmailLogin.vue"),
-      },
-      {
-        path: "google",
-        component: () => import("pages/GoogleLogin.vue"),
-      },
-      {
-        path: "apple",
-        component: () => import("pages/AppleLogin.vue"),
+        component: () => import("pages/login/EmailLogin.vue"),
       },
     ],
-  },
-  {
-    path: "/signup",
-    component: () => import("layouts/goBackTitleLayout.vue"),
-    children: [{ path: "", component: () => import("pages/SignUpPage.vue") }],
   },
   //TODO:1 make only one layout for terms and privacy policy and auth that can take a title as param
   {

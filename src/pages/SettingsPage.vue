@@ -330,18 +330,33 @@ const updateSetting = async () => {
   //TODO:2 disable Save button when no change were made and when one validation is not passed
 }
 
-const logOut = () => {
-  signOut(getFirebaseAuth()).then(() => {
+const logOut = async () => {
+  try {
+    if (process.env.MODE === "capacitor") {
+      console.log("In SettingsPage, signing out for native");
+      const { FirebaseAuthentication } = await import(
+        "app/src-capacitor/node_modules/@capacitor-firebase/authentication"
+      );
+      // Sign out on the native layer
+      await FirebaseAuthentication.signOut();
+    }
+
+    console.log("In SettingsPage, signing out for web");
+    const auth = getFirebaseAuth();
+    // Sign out on the web layer
+    await signOut(auth)
+
     setTimeout(() => {
       momentsStore.$reset()
       router.push('/welcome')
       console.log('logged out')
     }, 10)
-  }).catch((error) => {
-    console.log("Error logging out", error);
-  });
-  logoutDialogOpen.value = false
-}
+    logoutDialogOpen.value = false
+  }
+  catch (error) {
+    console.error(error);
+  }
+};
 
 </script>
 
