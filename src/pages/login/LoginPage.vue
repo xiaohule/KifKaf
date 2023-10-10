@@ -1,27 +1,30 @@
 <template>
-  <q-page class="q-mx-auto q-px-md q-pt-none" style="max-width: 600px">
+  <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Log in to KifKaf</div>
 
     <div>
       <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with email"
-        @click="() => router.push('/login/email')" class="text-subtitle2 full-width q-ma-sm" style="height: 40px;" no-caps
+        @click="() => router.push('/login/email')" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
         icon="mail" />
       <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
-        class="text-subtitle2 full-width q-ma-sm" style="height: 40px;" no-caps>
+        class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps>
         <template v-slot:default>
           <img style="width: 24px; height: 24px; margin-right: 12px;" src="~assets/sign_in_icon_google_light_normal.svg"
             alt="Google">
           Continue with Google
         </template>
       </q-btn>
-      <q-btn rounded unelevated color="on-primary" text-color="scrim" padding="none" @click="continueWithApple()"
+      <!-- <q-btn rounded unelevated color="on-primary" text-color="scrim" padding="none" @click="continueWithApple()"
         class="text-subtitle2 full-width q-ma-sm" style="height: 40px;" no-caps>
         <template v-slot:default>
-          <img style="width: 40px; height: 40px; margin-right: 0px;" src="~assets/sign_in_icon_apple_black.svg"
+          <img style="width: 40px; height: 56px; margin-right: 0px;" src="~assets/sign_in_icon_apple_black.svg"
             alt="Apple">
           Continue with Apple
         </template>
-      </q-btn>
+      </q-btn> -->
+      <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with Apple"
+        @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
+        icon="fa-brands fa-apple" />
     </div>
 
 
@@ -31,18 +34,26 @@
     </div>
 
     <!-- <div class="rounded-borders-14 q-my-md" id="firebaseui-auth-container"></div> -->
-    <div v-if="renderLoader" class="flex justify-center">
+    <!-- <div v-if="renderLoader" class="flex justify-center">
       <q-spinner color="primary" size="3em" />
     </div>
     <div class="text-center" v-if="emailSent">A verification email has been sent. Please check your inbox and click on the
-      link in the email to verify your account.</div>
+      link in the email to verify your account.</div> -->
 
     <q-separator class="q-my-md" />
 
     <!-- make hyperlink to /contact page using vue router -->
-    <div class="q-ma-sm text-center"><a class="text-caption text-outline" href="/#/contact"
+    <div class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
         style="text-decoration: none">Contact us</a>
     </div>
+
+    <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
+      <q-card class="bg-background q-pa-lg text-center" flat>
+        <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
+        <q-card-section class="text-h5 text-weight-medium q-py-md">{{ errorDialogText }}
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -61,8 +72,20 @@ const to =
   route.query.redirect && typeof route.query.redirect === 'string'
     ? route.query.redirect
     : '/'
+const errorDialogOpened = ref(false)
+const errorDialogText = ref('')
+
+const isOffline = () => {
+  if (!navigator?.onLine) {
+    errorDialogText.value = `You are offline. Please connect to the internet to sign in.`
+    errorDialogOpened.value = true
+    return true
+  }
+  else return false
+}
 
 const continueWithGoogle = async () => {
+  if (isOffline()) return
   try {
     await signInWithGoogle();
   } catch (error) {
@@ -71,6 +94,7 @@ const continueWithGoogle = async () => {
 }
 
 const continueWithApple = async () => {
+  if (isOffline()) return
   try {
     await signInWithApple();
   } catch (error) {
@@ -103,8 +127,8 @@ watch(currentUser, (newVal, oldVal) => {
   }
 }, { immediate: true });
 
-const emailSent = ref(false); // reactive property to track email sent status
-const renderLoader = ref(false); // reactive property to track loader rendering status
+// const emailSent = ref(false); // reactive property to track email sent status
+// const renderLoader = ref(false); // reactive property to track loader rendering status
 
 // let ui;// Declare variable to store Firebase UI instance
 // // let unsubscribeAuthStateListener; // Declare variable to store the unsubscribe function

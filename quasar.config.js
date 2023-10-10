@@ -48,6 +48,7 @@ module.exports = configure(function (ctx) {
       "material-icons", // optional, you are not bound to it
       "material-icons-outlined",
       "material-icons-round",
+      "fontawesome-v6",
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build

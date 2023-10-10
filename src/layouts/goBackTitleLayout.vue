@@ -58,6 +58,10 @@ const goBack = () => {
 </script>
 
 <style lang="scss">
+// .q-page-container {
+//   padding-top: 50px !important;
+// }
+
 // .q-header,
 // .q-footer {
 //   backdrop-filter: blur(25px);

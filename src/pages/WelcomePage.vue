@@ -11,8 +11,8 @@
       </q-toolbar>
     </q-header>
 
-    <!-- pagination-clickable="true"  class="mySwiper" -->
-    <swiper-container pagination="true" navigation="true" space-between="30" centered-slides="true" autoplay-delay="2500"
+    <!-- pagination-clickable="true"  class="mySwiper" navigation="true" space-between="30"-->
+    <swiper-container pagination="true" centered-slides="true" autoplay-delay="2500"
       autoplay-disable-on-interaction="false">
       <!-- <swiper-slide> <img src="../assets/ios_6_1_home.png" /></swiper-slide> -->
       <swiper-slide> <img src="https://swiperjs.com/demos/images/nature-2.jpg" /></swiper-slide>
@@ -24,7 +24,7 @@
 
     <div class="fixed-buttons">
       <!-- max-width: 300px; -->
-      <q-btn rounded color="scrim" padding="sm" label="Log in" @click="() => router.push('/login')"
+      <q-btn rounded color="scrim" padding="md" label="Log in" @click="() => router.push('/login')"
         class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
       <!-- <q-btn rounded color="on-primary" text-color="scrim" padding="sm" label="Sign up"
         @click="() => router.push('/signup')" class="text-body1 q-ml-sm q-mr-md" style="width: 100%; max-width: 300px;"
@@ -86,6 +86,22 @@ swiper-container {
   width: 100%;
   // height: 100%;
   height: 100vh; // This will make the container fill the entire height of the screen
+  // --swiper-pagination-color: var(--swiper-theme-color);
+  // --swiper-pagination-left: auto;
+  // --swiper-pagination-right: 8px;
+  // --swiper-pagination-bottom: 8px;
+  // --swiper-pagination-top: auto;
+  // --swiper-pagination-fraction-color: inherit;
+  // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
+  // --swiper-pagination-progressbar-size: 4px;
+  --swiper-pagination-bullet-size: 12px;
+  // --swiper-pagination-bullet-width: 8px;
+  // --swiper-pagination-bullet-height: 8px;
+  // --swiper-pagination-bullet-inactive-color: #000;
+  // --swiper-pagination-bullet-inactive-opacity: 0.2;
+  // --swiper-pagination-bullet-opacity: 1;
+  // --swiper-pagination-bullet-horizontal-gap: 4px;
+  // --swiper-pagination-bullet-vertical-gap: 6px;
 }
 
 swiper-slide {

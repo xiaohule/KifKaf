@@ -1,13 +1,13 @@
 <template>
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+  <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
+    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Settings</div>
 
     <div v-if="!momentsStore || !momentsStore.user"></div>
 
     <div v-else>
-      <q-list padding>
+      <q-list class="q-pt-none">
 
         <q-item-label header>Account details</q-item-label>
-
 
         <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
           <q-item clickable v-ripple @click="openEditDialog('displayName')">
@@ -368,5 +368,9 @@ const logOut = async () => {
   // position: fixed;
   // top: 50%;
   // transform: translateY(-50%);
+}
+
+.q-item__label--header {
+  padding: 8px 16px 8px;
 }
 </style>

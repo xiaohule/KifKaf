@@ -32,8 +32,14 @@ describe.skip("Signing in and out", () => {
 
     cy.contains("Log in").click();
     cy.contains("email").click();
-    cy.signIn("a@yopmail.com", "yopyopyop2");
 
+    cy.signIn("a@yopmail.com", "badpassword");
+    cy.contains("Incorrect").should("be.visible");
+    cy.contains("KifKaf").click();
+    cy.contains("arrow_back").should("be.visible").click();
+    cy.contains("email").click();
+
+    cy.signIn("a@yopmail.com", "yopyopyop2");
     cy.contains("account_circle").click();
     cy.contains("Log out").click();
     cy.contains("Cancel").click();

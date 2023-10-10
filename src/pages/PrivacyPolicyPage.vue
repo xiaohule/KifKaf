@@ -1,6 +1,8 @@
 <!-- src/pages/PrivacyPolicy.vue -->
 <template>
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+  <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
+    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Privacy Policy</div>
+
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
       <p>Your privacy is important to us. It is KifKaf's policy to respect your privacy regarding any information we
         may collect from you through our app, KifKaf.</p>

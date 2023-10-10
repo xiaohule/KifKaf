@@ -13,7 +13,7 @@
 <script setup>
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .q-page-container {
   padding-top: 0px !important;
 }
