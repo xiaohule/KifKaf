@@ -48,10 +48,7 @@
         <q-card-section class="q-pt-none">
           Deleting your account, please don't quit the app...
         </q-card-section>
-        <q-card-actions align="center">
-          <q-btn rounded label="Got it" color="primary" class="full-width" padding="md" no-caps
-            @click="() => router.push('/welcome')" v-close-popup />
-        </q-card-actions>
+        <q-spinner color="primary" size="3em" />
       </q-card>
     </q-dialog>
 
@@ -118,8 +115,11 @@ const handleOnline = async () => {
 
     console.log("in AccountDeletionPage, fetchedSignInMethods:", fetchedSignInMethods);
     if (fetchedSignInMethods.includes("apple.com")) {
-      console.log("in AccountDeletionPage, attempting to revoke apple tokens, authorizationCode:", momentsStore.getAuthorizationCode);
-      await revokeAppleTokens(momentsStore.getAuthorizationCode);
+      const authorizationCode = momentsStore.getAuthorizationCode;
+      if (authorizationCode) {
+        console.log("in AccountDeletionPage, attempting to revoke apple tokens, authorizationCode:", authorizationCode);
+        await revokeAppleTokens(authorizationCode);
+      }
     }
     accountDeletedDialogOpened.value = true;
   } catch (error) {

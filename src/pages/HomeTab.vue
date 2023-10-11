@@ -179,10 +179,6 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssS
 </script>
 
 <style lang="scss">
-.q-field--outlined .q-field__control:before {
-  border: none;
-}
-
 .q-field__append.q-field__marginal.row.no-wrap.items-center.q-anchor--skip {
   display: none;
 }

@@ -22,10 +22,11 @@
 
       <!-- TODO:2 add name and email and possibility to edit them -->
       <q-card-section class="q-pb-none">
-        <q-input v-if="!(momentsStore?.user?.email)" v-model="emailAddress" class="q-mx-sm" rounded outlined type="text"
-          bg-color="surface-variant" label="Your email address" lazy-rules :rules="emailRules" />
-        <q-input v-model="contactUsMessage" class="q-mx-sm" rounded outlined type="textarea" rows="5"
-          bg-color="surface-variant" label="Your message" lazy-rules :rules="messageRules" />
+        <q-input v-if="!(momentsStore?.user?.email)" v-model="emailAddress" class="q-mx-sm" color="transparent" rounded
+          outlined type="text" bg-color="surface-variant" placeholder="Your email address" lazy-rules
+          :rules="emailRules" />
+        <q-input v-model="contactUsMessage" class="q-mx-sm" color="transparent" rounded outlined type="textarea" rows="5"
+          bg-color="surface-variant" placeholder="Your message" lazy-rules :rules="messageRules" />
       </q-card-section>
       <q-card-actions align="right">
         <!-- <q-btn flat rounded label="Cancel" @click="contactUsMessage = ''" /> -->

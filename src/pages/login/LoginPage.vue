@@ -89,8 +89,6 @@ const continueWithGoogle = async () => {
   if (isOffline()) return
   try {
     await signInWithGoogle();
-    console.log("In LoginPage>continueWithGoogle, signed i, redirecting to", to);
-    // router.push(to);
   } catch (error) {
     console.error(error);
   }

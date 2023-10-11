@@ -336,14 +336,6 @@ const onSendPasswordRecoveryEmail = async () => {
   }
 }
 
-.q-field__control {
-  border-radius: 14px !important;
-}
-
-.q-field--outlined .q-field__control:before {
-  border: none;
-}
-
 .q-dialog__inner>div {
   border-top-right-radius: 14px;
   border-top-left-radius: 14px;

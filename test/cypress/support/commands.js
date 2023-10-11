@@ -136,7 +136,7 @@ Cypress.Commands.add("signUp", (username, password) => {
     );
   });
 
-  cy.visit("/login");
+  cy.visit("/login/email");
 });
 
 Cypress.Commands.add(

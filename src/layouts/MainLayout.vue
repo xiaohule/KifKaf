@@ -25,10 +25,11 @@
     </q-page-container>
 
     <q-footer class="bg-transparent" bordered>
-      <q-tabs v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
-        class="text-secondary q-mx-auto" style="max-width: 600px" :breakpoint="0" :ripple="false">
-        <q-route-tab name="Home" icon="home" label="Home" to="/" />
-        <q-route-tab name="Insights" icon="insights" label="Insights" to="/learn" @click="handleInsightsClick" />
+      <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
+        class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
+        <q-route-tab name="Home" icon="home" label="Home" to="/" class="q-pt-xs q-pb-lg" />
+        <q-route-tab name="Insights" icon="insights" label="Insights" to="/learn" class="q-pt-xs q-pb-lg"
+          @click="handleInsightsClick" />
         <!-- ou stats ou needs ou learn -->
         <!-- re-add tabs when ready -->
         <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
@@ -54,6 +55,7 @@ const tab = ref('Home')
 const router = useRouter()
 const momentsStore = useMomentsStore()
 
+//reset swiper position to latest month/year when clicking on insights tab
 const handleInsightsClick = () => {
   if (router.currentRoute.value.path === '/learn') {
     momentsStore.shouldResetSwiper = true

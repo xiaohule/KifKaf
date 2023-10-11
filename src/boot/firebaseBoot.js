@@ -199,9 +199,6 @@ const emptyNeedsMomentsRetry = async () => {
     return;
   }
 
-  console.log(
-    "In firebaseBoot > emptyNeedsSatisAndImpQuery, running currentUser.value.getIdToken",
-  );
   const idToken = await currentUser.value.getIdToken(/* forceRefresh */ true);
 
   // Use Promise.all to process all moments concurrently

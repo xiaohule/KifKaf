@@ -4,6 +4,7 @@ import {
   signInWithCredential,
   GoogleAuthProvider,
   OAuthProvider,
+  // signInWithPopup,
 } from "firebase/auth";
 
 const auth = getFirebaseAuth();
@@ -51,19 +52,14 @@ export const signInWithApple = async () => {
     // console.log("In signInWith, process.env.MODE:", process.env.MODE);
     if (process.env.MODE !== "capacitor") {
       console.log("In signInWith, apple sign in for web");
-      await signInWithRedirect(auth, provider);
 
-      result = await getRedirectResult(auth);
-      const credential = OAuthProvider.credentialFromResult(result);
-      console.log("In signInWith>signInWithApple, credential:", credential);
-      console.log(
-        "In signInWith>signInWithApple, credential.authorizationCode:",
-        credential.authorizationCode,
-      );
-      if (credential) {
-        // You can also get the Apple OAuth Access and ID Tokens.
-        authorizationCode = credential.authorizationCode;
-      }
+      await signInWithRedirect(auth, provider);
+      // const result = await signInWithPopup(auth, provider);
+      // console.log("In signInWith>signInWithApple, result:", result);
+      // const credential = OAuthProvider.credentialFromResult(result);
+      // console.log("In signInWith>signInWithApple, credential:", credential);
+      //TODO:1 i'm not able to find the authorizationCode in the credential
+      authorizationCode = "";
     } else {
       console.log("In signInWith, apple sign in for native");
       const { FirebaseAuthentication } = await import(
@@ -71,7 +67,6 @@ export const signInWithApple = async () => {
       );
       // 1. Create credentials on the native layer
       const result = await FirebaseAuthentication.signInWithApple();
-
       authorizationCode = result.credential?.authorizationCode;
 
       // 2. Sign in on the web layer using the id token
@@ -88,3 +83,23 @@ export const signInWithApple = async () => {
     console.error(error);
   }
 };
+
+// // Define a separate function to handle the result of the redirect
+// export const handleRedirectResult = async () => {
+//   try {
+//     const result = await getRedirectResult(auth);
+//     console.log("In handleRedirectResult, result:", result);
+//     const provider = new OAuthProvider("apple.com");
+//     const credential = provider.credentialFromResult(auth, result);
+//     console.log("In handleRedirectResult, credential:", credential);
+//     const credential2 = OAuthProvider.credentialFromResult(result);
+//     console.log("In handleRedirectResult, credential2:", credential2);
+//     console.log(
+//       "In handleRedirectResult, credential.authorizationCode:",
+//       credential.authorizationCode,
+//     );
+//     return credential.authorizationCode;
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
