@@ -81,13 +81,13 @@ export const useMomentsStore = defineStore("moments", () => {
   const fetchUser = async () => {
     try {
       if (userFetched.value) {
-        console.log("In fetchUser, already userFetched");
+        console.log("In moments.js, In fetchUser, already userFetched");
         return;
       }
 
       // Check if user exists and has a uid property
       if (!user.value || !user.value.uid) {
-        console.log("Failed to fetch user or user.uid");
+        console.log("In moments.js, failed to fetch user or user.uid");
         return;
       }
 
@@ -95,11 +95,15 @@ export const useMomentsStore = defineStore("moments", () => {
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       const userDocCheck = await getDoc(userDocRef.value);
       if (!userDocCheck.exists()) {
-        console.log("User doc does not exist, creating it");
-        await setDoc(userDocRef.value, {
-          momentsDays: [],
-          hasNeeds: false,
-        });
+        console.log("In moments.js, User doc does not exist, creating it");
+        await setDoc(
+          userDocRef.value,
+          {
+            momentsDays: [],
+            hasNeeds: false,
+          },
+          { merge: true },
+        );
       }
 
       onSnapshot(userDocRef.value, (doc) => {
@@ -111,6 +115,23 @@ export const useMomentsStore = defineStore("moments", () => {
       console.log("Error in fetchUser", error);
     }
   };
+
+  const setAuthorizationCode = async (authorizationCode) => {
+    try {
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      await setDoc(userDocRef.value, { authorizationCode }, { merge: true });
+    } catch (error) {
+      console.log("Error in setAuthorizationCode", error);
+    }
+  };
+
+  const getAuthorizationCode = computed(() => {
+    return userDoc?.value?.authorizationCode ?? false;
+  });
 
   const fetchMoments = async () => {
     try {
@@ -435,12 +456,14 @@ export const useMomentsStore = defineStore("moments", () => {
     needsCategories,
     aggregateData,
     getMomentById,
+    getAuthorizationCode,
     getFormattedDate,
     addMoment,
     fetchUser,
     fetchMoments,
     fetchAggregateData,
     updateUser,
+    setAuthorizationCode,
     $reset,
   };
 });

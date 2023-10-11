@@ -58,14 +58,15 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import * as firebaseui from 'firebaseui';
-import 'firebaseui/dist/firebaseui.css';
-import { getFirebaseAuth, currentUser } from "../../boot/firebaseBoot.js";
-import { EmailAuthProvider, GoogleAuthProvider, sendEmailVerification, OAuthProvider } from 'firebase/auth';
+// import * as firebaseui from 'firebaseui';
+// import 'firebaseui/dist/firebaseui.css';
+import { currentUser } from "../../boot/firebaseBoot.js";
 import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
+import { useMomentsStore } from '../../stores/moments.js'
 
+const momentsStore = useMomentsStore()
 const route = useRoute(); //TODO:3 remove?
 const router = useRouter();
 const to =
@@ -88,6 +89,8 @@ const continueWithGoogle = async () => {
   if (isOffline()) return
   try {
     await signInWithGoogle();
+    console.log("In LoginPage>continueWithGoogle, signed i, redirecting to", to);
+    // router.push(to);
   } catch (error) {
     console.error(error);
   }
@@ -96,7 +99,8 @@ const continueWithGoogle = async () => {
 const continueWithApple = async () => {
   if (isOffline()) return
   try {
-    await signInWithApple();
+    const authorizationCode = await signInWithApple();
+    momentsStore.setAuthorizationCode(authorizationCode)
   } catch (error) {
     console.error(error);
   }
@@ -110,7 +114,7 @@ watch(currentUser, (newVal, oldVal) => {
     // User is signed in.
     if (newVal.emailVerified) {
       // User's email is already verified. Redirect to expected page.
-      console.log("User's email is already verified. Redirecting to", to);
+      console.log("In LoginPage > watch(currentUser), user's email is already verified. Redirecting to", to);
       router.push(to);
     }
     else {
@@ -213,30 +217,5 @@ watch(currentUser, (newVal, oldVal) => {
 // });
 </script>
 
-<style lang="scss">
-.mdl-card {
-  border-radius: 14px;
-  box-shadow: none
-}
-
-.mdl-button {
-  border-radius: 50px;
-  box-shadow: none;
-
-}
-
-.firebaseui-id-idp-button {
-  background-color: color(surface) !important;
-  box-shadow: none;
-
-}
-
-.firebaseui-idp-text {
-  color: color(on-surface) !important;
-}
-
-#firebaseui-auth-container>div>div.firebaseui-card-content>form>ul>li:nth-child(1)>button>span.firebaseui-idp-icon-wrapper>img {
-  filter: invert(100%);
-}
-</style>
+<style lang="scss"></style>
 

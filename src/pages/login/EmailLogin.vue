@@ -64,7 +64,7 @@
     </div>
 
     <div v-else-if="showPasswordRecovery">
-      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Recover password</div>
+      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Recover your password</div>
       <div class="q-mx-sm q-my-md">Get instructions sent to this email that explain how to reset
         your password.
       </div>
@@ -106,12 +106,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { getFirebaseAuth, currentUser } from "../../boot/firebaseBoot.js";
 import { signInWithEmailAndPassword, fetchSignInMethodsForEmail, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
+import { useMomentsStore } from '../../stores/moments.js'
 
 //   window.addEventListener('offline', () => {
 //   console.log("App is offline");
 //   // Any offline handling logic...
 // });
-
+const momentsStore = useMomentsStore()
 const auth = getFirebaseAuth();
 const route = useRoute();
 const router = useRouter();
@@ -185,7 +186,7 @@ const onSubmit = async (event) => {  //TODO:3 show passwd recovery option, TODO:
         console.log("Signed in:", userCredential);
         if (userCredential.user.emailVerified) {
           // User's email is already verified. Redirect to expected page.
-          console.log("User's email is already verified. Redirecting to", to);
+          console.log("In EmailLogin>onSubmit User's email is already verified. Redirecting to", to);
           router.push(to);
         }
         else {
@@ -263,7 +264,7 @@ watch(currentUser, (newVal, oldVal) => {
     // User is signed in.
     if (newVal.emailVerified) {
       // User's email is already verified. Redirect to expected page.
-      console.log("User's email is already verified. Redirecting to", to);
+      console.log("In EmailLogin > watch (currentUser), User's email is already verified. Redirecting to", to);
       router.push(to);
     }
     else {
@@ -298,7 +299,8 @@ const continueWithGoogle = async () => {
 const continueWithApple = async () => {
   if (isOffline()) return
   try {
-    await signInWithApple();
+    const authorizationCode = await signInWithApple();
+    momentsStore.setAuthorizationCode(authorizationCode)
   } catch (error) {
     console.error(error);
   }

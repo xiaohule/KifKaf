@@ -14,7 +14,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "firebase-admin": "^11.11.0",
-    "langchain": "^0.0.153",
+    "langchain": "^0.0.165",
     "morgan": "~1.10.0",
     "openai": "^4.11.1"
   }

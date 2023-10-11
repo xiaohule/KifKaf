@@ -91,7 +91,7 @@
     </div>
 
     <q-card-actions
-      v-if="momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey].length > 5"
+      v-if="momentsStore.aggregateData && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][sortingKey]?.length > 5"
       align="center">
       <q-btn color="primary" @click="showButtonClicked" class="q-mx-sm q-mt-sm full-width" no-caps flat>{{
         props.learnCardExpanded ? 'Show less' : 'Show more' }}</q-btn>

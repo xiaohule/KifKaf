@@ -26,9 +26,6 @@
       <!-- max-width: 300px; -->
       <q-btn rounded color="scrim" padding="md" label="Log in" @click="() => router.push('/login')"
         class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
-      <!-- <q-btn rounded color="on-primary" text-color="scrim" padding="sm" label="Sign up"
-        @click="() => router.push('/signup')" class="text-body1 q-ml-sm q-mr-md" style="width: 100%; max-width: 300px;"
-        no-caps /> -->
     </div>
   </q-page>
 </template>
@@ -48,13 +45,13 @@ let checkEmailVerifiedInterval; // Declare variable to store the interval ID
 
 onMounted(() => {
   watch(currentUser, (newVal, oldVal) => {
-    console.log('In Login page, watch currentUser:', newVal, ", replaced:", oldVal);
+    console.log('In Welcome page, watch currentUser:', newVal, ", replaced:", oldVal);
 
     if (newVal) {
       // User is signed in.
       if (newVal.emailVerified) {
         // User's email is already verified. Redirect to expected page.
-        console.log("User's email is already verified. Redirecting to", to);
+        console.log("In welcomePage, User's email is already verified. Redirecting to", to);
         router.push(to);
       }
       else {

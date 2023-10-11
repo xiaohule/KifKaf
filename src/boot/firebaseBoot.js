@@ -59,16 +59,16 @@ export const db = markRaw(
 let auth;
 export const getFirebaseAuth = () => {
   if (!auth) {
-    console.log("In getFirebaseAuth,!auth");
+    console.log("In firebaseBoot > getFirebaseAuth,no auth yet");
 
-    if (process.env.MODE === "capacitor") {
-      console.log("In getFirebaseAuth,capa");
+    if (process.env.MODE !== "capacitor") {
+      console.log("In firebaseBoot > getFirebaseAuth, web mode");
+      auth = getAuth(firebaseApp);
+    } else {
+      console.log("In firebaseBoot > getFirebaseAuth, capacitor mode");
       auth = initializeAuth(getApp(), {
         persistence: indexedDBLocalPersistence,
       });
-    } else {
-      console.log("In getFirebaseAuth,no capa");
-      auth = getAuth(firebaseApp);
     }
   }
   return auth;
@@ -107,11 +107,11 @@ console.log(
   self.FIREBASE_APPCHECK_DEBUG_TOKEN,
 );
 if (
-  !process.env.MODE === "capacitor" ||
+  process.env.MODE !== "capacitor" ||
   process.env.NODE_ENV === "development"
   // || isVirtualDevice
 ) {
-  console.log("In firebaseBoot, initializing app check for web");
+  console.log("In firebaseBoot, initializing app check for web or dev");
   const appCheck = initializeAppCheck(firebaseApp, {
     provider: new ReCaptchaV3Provider(
       "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
@@ -125,47 +125,55 @@ if (
 
       const FirebaseAppCheck = module.FirebaseAppCheck;
 
-      const initialize = async () => {
-        // 1. Initialize on the native layer
-        await FirebaseAppCheck.initialize({
-          // siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
-          // debug: process.env.NODE_ENV === "development",
-          isTokenAutoRefreshEnabled: true,
-        });
-        // 2. Set up a custom provider
-        const appCheckCustomProvider = new CustomProvider({
-          getToken: () => {
-            return FirebaseAppCheck.getToken();
-          },
-        });
-        const app = getApp();
-        // 3. Initialize on the web layer
-        const appCheck = initializeAppCheck(app, {
-          provider: appCheckCustomProvider,
-          isTokenAutoRefreshEnabled: true,
-        });
-      };
-      await initialize();
+      // const initialize = async () => {
+
+      // 1. Initialize on the native layer
+      await FirebaseAppCheck.initialize({
+        // siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+        // debug: process.env.NODE_ENV === "development",
+        isTokenAutoRefreshEnabled: true,
+      });
+      // 2. Set up a custom provider
+      const appCheckCustomProvider = new CustomProvider({
+        getToken: () => {
+          console.log("In firebaseBoot, running FirebaseAppCheck.getToken()");
+          return FirebaseAppCheck.getToken();
+        },
+      });
+      const app = getApp();
+      // 3. Initialize on the web layer
+      const appCheck = initializeAppCheck(app, {
+        provider: appCheckCustomProvider,
+        isTokenAutoRefreshEnabled: true,
+      });
+
+      // };
+      // await initialize();
       console.log("In firebaseBoot native and prod,  initialize called");
     })
     .catch((error) => {
-      console.error("Failed to initialize app check for native, error:", error);
+      console.error(
+        "In firebaseBoot, Failed to initialize app check for native, error:",
+        error,
+      );
     });
 }
 
 //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
 const emptyNeedsMomentsRetry = async () => {
   console.log(
-    "in firebaseBoot mode is capacitor is",
+    "In firebaseBoot > emptyNeedsMomentsRetry > capacitor mode is",
     process.env.MODE === "capacitor",
   );
 
   if (!currentUser.value || !currentUser.value.uid) {
-    console.log("In emptyNeedsMomentsRetry, returning early because no user");
+    console.log(
+      "In firebaseBoot, in emptyNeedsMomentsRetry, returning early because no user",
+    );
     return;
   }
 
-  console.log("in firebaseBoot in emptyNeedsMomentsRetry2");
+  console.log("In firebaseBoot in emptyNeedsMomentsRetry2");
 
   // Query moments where needsSatisAndImp is empty
   const emptyNeedsSatisAndImpQuery = query(
@@ -186,18 +194,21 @@ const emptyNeedsMomentsRetry = async () => {
   // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeedsSatisAndImp.empty
   if (!momentsWithEmptyNeedsSatisAndImp.size) {
     console.log(
-      "In emptyNeedsMomentsRetry, no moments with empty needsSatisAndImp found",
+      "In firebaseBoot, in emptyNeedsMomentsRetry, no moments with empty needsSatisAndImp found",
     );
     return;
   }
 
+  console.log(
+    "In firebaseBoot > emptyNeedsSatisAndImpQuery, running currentUser.value.getIdToken",
+  );
   const idToken = await currentUser.value.getIdToken(/* forceRefresh */ true);
 
   // Use Promise.all to process all moments concurrently
   const processPromises = momentsWithEmptyNeedsSatisAndImp.docs.map(
     async (doc) => {
       console.log(
-        "In emptyNeedsMomentsRetry, triggering retry call to llm for moment",
+        "In firebaseBoot, in emptyNeedsMomentsRetry, triggering retry call to llm for moment",
         doc.data().text,
       );
       const response = await axios.get(`/api/learn/needs/`, {
@@ -214,7 +225,7 @@ const emptyNeedsMomentsRetry = async () => {
         retries: increment(1),
       });
       console.log(
-        "Successful retried llm call for moment",
+        "In firebaseBoot, successful retried llm call for moment",
         doc.data().text,
         // "' :",
         // response.data,
@@ -228,9 +239,9 @@ const emptyNeedsMomentsRetry = async () => {
 
 const llmRetryHandler = debounce(
   () => {
-    console.log("calling llmRetryHandler");
+    console.log("In firebaseBoot, calling llmRetryHandler");
     emptyNeedsMomentsRetry();
-    console.log("llmRetryHandler called!");
+    console.log("In firebaseBoot, llmRetryHandler called!");
   },
   60000,
   { leading: true, trailing: false },
@@ -254,7 +265,7 @@ export default boot(({ router }) => {
       // if the user is not logged in, redirect to the login page
       if (!currentUser.value || !currentUser.value.emailVerified) {
         console.log(
-          "In router.beforeEach, no user or email not verified, pushing you to /welcome",
+          "In firebaseBoot > router.beforeEach, no user or email not verified, pushing you to /welcome",
         );
         return {
           path: "/welcome",

@@ -36,7 +36,7 @@
       </swiper-container>
     </div>
 
-    <q-dialog v-model="filterDialogOpen" position="bottom">
+    <q-dialog v-model="filterDialogOpened" position="bottom">
       <q-card class="bg-background q-px-sm">
 
         <div v-if="tappedFilter === 'date'">
@@ -59,7 +59,7 @@
         </div>
 
         <q-card-actions align="center">
-          <q-btn rounded color="primary" padding="md md" @click="filterDialogOpen = false" class="text-body1
+          <q-btn rounded color="primary" padding="md md" @click="filterDialogOpened = false" class="text-body1
 q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
         </q-card-actions>
       </q-card>
@@ -248,11 +248,11 @@ const dateRangesMonthsIdxToDate = (idx) => {
 }
 
 //DATE FILTER DIALOG
-const filterDialogOpen = ref(false)
+const filterDialogOpened = ref(false)
 const tappedFilter = ref('date')
 const openFilterDialog = (filter) => {
   tappedFilter.value = filter
-  filterDialogOpen.value = true
+  filterDialogOpened.value = true
 }
 
 //before pickedDateYYYYsMMsDD was initialized as the first day of the current year with format YYYY/MM/DD
