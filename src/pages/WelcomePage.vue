@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-mx-auto" style="max-width: 600px; position: relative;">
+  <q-page class="q-mx-auto bg-primary" style="max-width: 600px; position: relative;">
 
     <q-header class="bg-transparent overlay-header">
       <q-toolbar>
@@ -12,14 +12,16 @@
     </q-header>
 
     <!-- pagination-clickable="true"  class="mySwiper" navigation="true" space-between="30"-->
-    <swiper-container pagination="true" centered-slides="true" autoplay-delay="2500"
-      autoplay-disable-on-interaction="false">
+    <swiper-container pagination="true" centered-slides="true" autoplay-delay="5000" autoplay-pause-on-mouse-enter="true"
+      grab-cursor="true" autoplay-disable-on-interaction="false">
       <!-- <swiper-slide> <img src="../assets/ios_6_1_home.png" /></swiper-slide> -->
-      <swiper-slide> <img src="https://swiperjs.com/demos/images/nature-2.jpg" /></swiper-slide>
-      <swiper-slide> <img src="https://swiperjs.com/demos/images/nature-3.jpg" /></swiper-slide>
-      <swiper-slide>
-        <img src="https://swiperjs.com/demos/images/nature-1.jpg" />
-      </swiper-slide>
+      <swiper-slide> <img src="/screenshot1.png"
+          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
+      <swiper-slide> <img src="/screenshot2.png"
+          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
+      <swiper-slide> <img src="/screenshot3.png"
+          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
+      <!-- <swiper-slide> <img src="https://swiperjs.com/demos/images/nature-3.jpg" /></swiper-slide> -->
     </swiper-container>
 
     <div class="fixed-buttons">
@@ -104,7 +106,7 @@ swiper-container {
 swiper-slide {
   text-align: center;
   font-size: 18px;
-  background: #fff;
+  // background: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -128,7 +130,7 @@ swiper-slide img {
 
 .fixed-buttons {
   position: fixed;
-  bottom: 10%;
+  bottom: 6%;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;

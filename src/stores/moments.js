@@ -46,7 +46,7 @@ export const useMomentsStore = defineStore("moments", () => {
     "Financial Security": ["💰", "Physiological & Safety"],
     "Rest & Relaxation": ["🌙", "Physiological & Safety"], //🛋️ //🛌
     "Physical Movement": ["🤸", "Physiological & Safety"],
-    "Emotional Safety & Inner Peace": ["🧘‍♂️", "Physiological & Safety"], //"🤗",""],
+    "Emotional Safety & Inner Peace": ["🧘", "Physiological & Safety"], //"🤗",""],
     "Boundaries & Privacy": ["🚪", "Physiological & Safety"],
     "Physical Contact & Intimacy": ["👐", "Connection"],
     "Contact with Nature": ["🏞️", "Connection"],
