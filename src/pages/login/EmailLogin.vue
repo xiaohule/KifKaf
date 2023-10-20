@@ -14,7 +14,12 @@
         </q-input>
 
         <q-input v-if="onSubmitWasPressed" ref="pwdInputRef" v-model="userPassword" placeholder="Enter your password"
-          type='password' class="q-my-md" outlined bg-color="surface-variant" color="transparent" clearable>
+          :type="pwdVisible ? 'text' : 'password'" class="q-my-md" outlined bg-color="surface-variant"
+          color="transparent">
+          <template v-slot:append>
+            <q-icon :name="pwdVisible ? 'visibility' : 'visibility_off'" class="cursor-pointer"
+              @click="pwdVisible = !pwdVisible" />
+          </template>
         </q-input>
 
         <div>
@@ -133,6 +138,8 @@ const isSignUp = ref(false)
 const showWaitingForEmailVerif = ref(false)
 const showPasswordRecovery = ref(false)
 const showWaitingForPwdRecoveryEmail = ref(false)
+const pwdVisible = ref(false)
+
 
 const isValidEmail = computed(() => {
   return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(userEmail.value)

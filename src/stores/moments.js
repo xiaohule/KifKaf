@@ -133,6 +133,10 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.authorizationCode ?? false;
   });
 
+  const getDeviceLanguage = computed(() => {
+    return userDoc?.value?.deviceLanguage ?? false;
+  });
+
   const fetchMoments = async () => {
     try {
       if (momentsFetched.value) {
@@ -453,6 +457,7 @@ export const useMomentsStore = defineStore("moments", () => {
     aggregateData,
     getMomentById,
     getAuthorizationCode,
+    getDeviceLanguage,
     getFormattedDate,
     addMoment,
     fetchUser,

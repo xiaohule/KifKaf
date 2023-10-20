@@ -8,10 +8,12 @@ import {
   collection,
   where,
   getDocs,
+  setDoc,
   updateDoc,
   increment,
   orderBy,
   limit,
+  doc,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -30,7 +32,7 @@ import { markRaw, ref, watch } from "vue";
 import { debounce } from "lodash";
 import axios from "axios";
 axios.defaults.baseURL = process.env.API_URL;
-// import { Device } from "app/src-capacitor/node_modules/@capacitor/device";
+import { Device } from "app/src-capacitor/node_modules/@capacitor/device";
 // import { Platform, is } from "quasar";
 // console.log("Platform is", Platform.is);
 
@@ -159,6 +161,27 @@ if (
     });
 }
 
+//DEVICE LANGUAGE
+const setDeviceLanguage = async () => {
+  let deviceLanguage = "";
+  if (process.env.MODE !== "capacitor") {
+    deviceLanguage = navigator.language || navigator.userLanguage;
+    console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
+  } else {
+    deviceLanguage = (await Device.getLanguageTag()).value;
+    console.log(
+      "In firebaseBoot native mode, deviceLanguage is",
+      deviceLanguage,
+    );
+  }
+  await setDoc(
+    doc(db, "users", currentUser.value.uid),
+    { deviceLanguage },
+    { merge: true },
+  );
+  console.log("In firebaseBoot, just set deviceLanguage to", deviceLanguage);
+};
+
 //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
 const emptyNeedsMomentsRetry = async () => {
   console.log(
@@ -281,6 +304,7 @@ export default boot(({ router }) => {
     currentUser,
     (newUser) => {
       if (newUser) {
+        setDeviceLanguage();
         llmRetryHandler();
       }
     },
