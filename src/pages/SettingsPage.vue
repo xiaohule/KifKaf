@@ -173,7 +173,7 @@
           <q-card-section>
             Create a new password
           </q-card-section>
-          <!-- TODO:2 for we should provide pwd guidelines (character, length) and have validation in place -->
+          <!-- TODO:2 for we should provide pwd guidelines (character, length) and have adequate validation in place -->
           <q-input ref="mainInputRef" class="q-mx-md q-mb-sm" color="transparent" rounded outlined
             v-model="newSettingValue" placeholder="New Password" :type="isPwd ? 'password' : 'text'"
             bg-color="surface-variant" lazy-rules :rules="passwordRules">

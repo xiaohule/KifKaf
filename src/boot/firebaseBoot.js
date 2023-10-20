@@ -78,7 +78,7 @@ export const getFirebaseAuth = () => {
 
 //USER
 export const currentUser = ref(null);
-//if signed out in one tab, sign out in all tabs //TODO:3 ensure this
+//if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 onAuthStateChanged(getFirebaseAuth(), (user) => {
   // console.log("onAuthStateChanged", user);
   if (user) currentUser.value = user;
@@ -121,7 +121,7 @@ if (
     isTokenAutoRefreshEnabled: true,
   });
 } else {
-  import("app/src-capacitor/node_modules/@capacitor-firebase/app-check") //TODO:3 use alias instead? make this more safe
+  import("app/src-capacitor/node_modules/@capacitor-firebase/app-check") //TODO:1 use alias instead? make this more safe
     .then(async (module) => {
       console.log("In firebaseBoot, initializing app check for native");
 

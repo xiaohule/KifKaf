@@ -67,7 +67,7 @@ import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.
 import { useMomentsStore } from '../../stores/moments.js'
 
 const momentsStore = useMomentsStore()
-const route = useRoute(); //TODO:3 remove?
+const route = useRoute();
 const router = useRouter();
 const to =
   route.query.redirect && typeof route.query.redirect === 'string'

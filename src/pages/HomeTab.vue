@@ -2,7 +2,6 @@
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px;">
     <!-- <q-list> -->
     <q-item-label class="text-body1 text-weight-medium q-my-sm">Log a new Moment</q-item-label>
-    <!-- TODO:2 welcome user -->
     <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
@@ -12,7 +11,6 @@
 
     <q-card class="bg-surface q-mb-lg q-px-none q-py-sm rounded-borders-14" flat>
       <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
-      <!-- TODO:3 add a signal that speech recognition is on -->
       <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
         lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text"
         autogrow rounded outlined bg-color="surface-variant" color="transparent" :placeholder="placeholderText">
@@ -73,7 +71,7 @@ import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 const { formatDate } = date; // destructuring to keep only what is needed in date
-import { showSpeechRecognitionButton, isRecognizing, webRecognitionInstance, useSpeechRecognition } from '../composables/speechRecognition.js' // TODO:2 make this dynamic imports?
+import { showSpeechRecognitionButton, isRecognizing, webRecognitionInstance, useSpeechRecognition } from '../composables/speechRecognition.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
@@ -150,7 +148,7 @@ const newMomRules = [
   val => (val && (val.split(/\s+/).filter(word => word.length > 0)).length >= 4) || "That's short 😊, can you add more details?",
   //ensure text is not fully non-alphanumeric
   val => (val && regex.test(val)) || "Oops! 😅 Got a bit lost there. Can you rephrase that for me?",
-]//TODO:3 check what happen when quote char is used
+]
 
 //SPEECH RECOGNITION
 let toggleSpeech
@@ -189,7 +187,7 @@ const onSubmit = (event) => {
 }
 
 // DISPLAY PREVIOUS MOMENTS
-const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
+const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssStore directly
   const dayDate = (new Timestamp(day, 0)).toDate()
   const ul = momentsStore?.momentsColl?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
   // sort array ul per descending moments.value.date.seconds

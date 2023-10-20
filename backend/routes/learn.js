@@ -490,7 +490,7 @@ router.get("/needs/", async (req, res) => {
     );
     // returns {'Emotional Safety & Inner Peace': [ 0.3, 0.8 ],'Self-Esteem & Social Recognition': [ 0.4, 0.7 ]} or {} if error or llm didn't understand the moment
 
-    // TODO:4 find a way to handle Oops to put it in needsSatisAndImp so that doesn't trigger moments store retry
+    // TODO:3 find a way to handle Oops to put it in needsSatisAndImp so that doesn't trigger moments store retry
     const userDocRef = db.collection("users").doc(req.uid);
     const momentDocRef = userDocRef
       .collection("moments")

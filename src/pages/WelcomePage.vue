@@ -36,7 +36,7 @@ import { onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { currentUser } from "../boot/firebaseBoot.js";
 
-const route = useRoute(); //TODO:3 remove?
+const route = useRoute();
 const router = useRouter();
 const to =
   route.query.redirect && typeof route.query.redirect === 'string'

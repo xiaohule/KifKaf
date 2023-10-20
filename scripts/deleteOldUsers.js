@@ -6,7 +6,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-//TODO:2 the below doesn't delete the user doc's subcollections if any
+//TODO:1 the below doesn't delete the user doc's subcollections if any
 const deleteOldUsers = async () => {
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);

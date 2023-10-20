@@ -168,7 +168,7 @@ const isKnownEmail = async (email) => {
   }
 };
 
-const onSubmit = async (event) => {  //TODO:3 show passwd recovery option, TODO:3 show make pwd visible button
+const onSubmit = async (event) => {
 
   if (isOffline()) return
 

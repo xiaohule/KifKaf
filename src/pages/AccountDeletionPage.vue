@@ -129,7 +129,7 @@ const handleOnline = async () => {
     deletingAccountDialogOpened.value = false;
     accountDeletedDialogOpened.value = false;
     return
-    //TODO:3 reauthentication needed to get momentsStore.userCredentials
+    //TODO:1 reauthentication needed to get momentsStore.userCredentials
     // console.log("in handleOnline, currentUser.value:", currentUser.value);
     // console.log("in handleOnline, momentsStore.userCredentials:", momentsStore.userCredentials);
     // await reauthenticateWithCredential(currentUser.value, momentsStore.userCredentials);
