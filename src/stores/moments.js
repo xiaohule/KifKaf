@@ -351,12 +351,8 @@ export const useMomentsStore = defineStore("moments", () => {
   // },
 
   const uniqueDays = computed(() => {
-    console.log(
-      "In uniqueDays, userDoc:",
-      userDoc,
-      "userFetched:",
-      userFetched,
-    );
+    console.log("In uniqueDays");
+    // console.log("In uniqueDays, userDoc:",userDoc,"userFetched:",userFetched);
     if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
       return [];
     }

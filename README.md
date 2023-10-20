@@ -1,3 +1,3 @@
 # KifKaf app
 
-The social network between you and you.
+KifKaf - Feelings Journal - Log moments & meet your needs

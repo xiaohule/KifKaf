@@ -55,16 +55,12 @@
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
 
-            <!-- <q-icon name="r_crop_square" color="green" size="15px" class="" /> -->
-            <!-- <div class="text-caption text-center text-outline q-mt-sm">
-              <q-chip :ripple="false" color="green" size="xs" label="&nbsp;" />Satisfied&nbsp;
-              <q-chip :ripple="false" color="primary" size="xs" label="&nbsp;" />Neutral&nbsp;
-              <q-chip :ripple="false" color="red" size="xs" label="&nbsp;" />Unsatisfied
-            </div> -->
+            <!-- <div class="q-chip row inline no-wrap items-center text-green q-chip--colored q-chip--outline needs" style="background-color: red;"> -->
+
             <div class="text-caption text-center q-mt-sm">
-              <q-chip :ripple="false" outline color="green" size="sm" label="Satisfied need" />
-              <q-chip :ripple="false" outline color="primary" size="sm" label="Neutral need" />
-              <q-chip :ripple="false" outline color="red" size="sm" label="Unsatisfied need" />
+              <q-chip :ripple="false" outline color="green" size="sm" label="Satisfied need" class="bg-error" />
+              <q-chip :ripple="false" outline color="primary" size="sm" label="Neutral need" class="bg-scrim-dark" />
+              <q-chip :ripple="false" outline color="red" size="sm" label="Unsatisfied need" class="bg-transparent-red" />
             </div>
 
 
@@ -182,6 +178,10 @@ const needsInfoOpened = ref(false)
   border-top-right-radius: 14px;
   border-top-left-radius: 14px;
 }
+
+// .bg-transparent-red {
+//   background-color: rgba(255, 0, 0, 0.15) !important;
+// }
 
 // .overlapping {
 //   // border: 2px solid white;

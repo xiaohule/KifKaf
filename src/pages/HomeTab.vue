@@ -18,9 +18,9 @@
         autogrow rounded outlined bg-color="surface-variant" color="transparent">
         <template v-slot:append>
           <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
-            @click="toggleSpeechRecognition" />
+            @click="toggleSpeech" />
           <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
-            class="pulse-animation" @click="toggleSpeechRecognition" />
+            class="pulse-animation" @click="toggleSpeech" />
         </template>
         <template v-slot:after>
           <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense unelevated color="primary"
@@ -56,6 +56,14 @@
       <moment-bottom-sheet v-model="momPageOpened" :moment-id="bottomSheetMomentId"
         :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
+    <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
+      <q-card class="bg-background q-pa-lg text-center" flat>
+        <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
+        <q-card-section class="text-h6 text-weight-medium q-py-md text-left	">
+          <div v-html="errorDialogText"></div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -65,7 +73,7 @@ import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 const { formatDate } = date; // destructuring to keep only what is needed in date
-import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js' // TODO:2 make this dynamic imports?
+import { showSpeechRecognitionButton, isRecognizing, webRecognitionInstance, useSpeechRecognition } from '../composables/speechRecognition.js' // TODO:2 make this dynamic imports?
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
@@ -90,19 +98,21 @@ onActivated(() => {
 
 onDeactivated(() => {
   // console.log('HomeTab onDeactivate recog fired');
-  if (recognition) {
-    recognition.stop();
+  if (webRecognitionInstance) {
+    webRecognitionInstance.stop();
     isRecognizing.value = false;
   }
 })
 onBeforeUnmount(() => {
   // console.log('onBeforeUnmount recog fired');
-  if (recognition) {
-    recognition.stop();
+  if (webRecognitionInstance) {
+    webRecognitionInstance.stop();
     isRecognizing.value = false;
   }
 })
 
+const errorDialogOpened = ref(false)
+const errorDialogText = ref('')
 const placeholderText = 'Feeling...when/at/to...bec...'
 const newMomInputRef = ref(null)
 const newMomText = ref('')
@@ -143,10 +153,20 @@ const newMomRules = [
 ]//TODO:3 check what happen when quote char is used
 
 //SPEECH RECOGNITION
-const {
-  showSpeechRecognitionButton,
-  toggleSpeechRecognition,
-} = useSpeechRecognition(newMomText)
+let toggleSpeech
+onMounted(async () => {
+  const { toggleSpeechRecognition } = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
+  toggleSpeech = async () => {
+    console.log('toggleSpeech fired');
+    try {
+      await toggleSpeechRecognition();
+    } catch (error) {
+      console.error('Error toggling speech recognition:', error);
+    }
+  }
+});
+
+//focus on textarea when speech recognition is turned off
 watch(isRecognizing, (val) => {
   if (!val) newMomInputRef.value.$el.querySelector('textarea').select();
 })
@@ -193,7 +213,7 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssS
   }
 
   50% {
-    transform: scale(1.1);
+    transform: scale(1.3);
   }
 
   100% {
@@ -202,7 +222,7 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssS
 }
 
 .pulse-animation {
-  animation: pulse 1s infinite;
+  animation: pulse 1.3s infinite;
 }
 </style>
 

@@ -57,7 +57,7 @@ module.exports = configure(function (ctx) {
       env: {
         __APP_VERSION__: require("./package.json").version,
         API_URL: ctx.dev
-          ? "http://localhost:3000"
+          ? "http://192.168.1.12:3000" //"http://localhost:3000"
           : "https://lemon-bay-09625be03.3.azurestaticapps.net",
       },
       target: {
@@ -109,7 +109,7 @@ module.exports = configure(function (ctx) {
       // proxy all calls to /api to http://localhost:3000/api
       proxy: {
         "/api": {
-          target: "http://localhost:3000",
+          target: "http://192.168.1.12:3000", //"http://localhost:3000",
           changeOrigin: true,
         },
       },

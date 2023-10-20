@@ -183,7 +183,8 @@ const onSubmit = async (event) => {  //TODO:3 show passwd recovery option, TODO:
     if (!isSignUp.value) {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, userEmail.value, userPassword.value)
-        console.log("Signed in:", userCredential);
+        console.log("In EmailLogin, Signed in");
+        // console.log("Signed in:", userCredential);
         if (userCredential.user.emailVerified) {
           // User's email is already verified. Redirect to expected page.
           console.log("In EmailLogin>onSubmit User's email is already verified. Redirecting to", to);

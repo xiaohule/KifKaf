@@ -5,25 +5,27 @@ PODS:
   - AppAuth/Core (1.6.2)
   - AppAuth/ExternalUserAgent (1.6.2):
     - AppAuth/Core
-  - Capacitor (5.4.2):
+  - Capacitor (5.5.0):
     - CapacitorCordova
   - CapacitorApp (5.0.6):
     - Capacitor
-  - CapacitorCordova (5.4.2)
+  - CapacitorCommunitySpeechRecognition (2.1.0):
+    - Capacitor
+  - CapacitorCordova (5.5.0)
   - CapacitorDevice (5.0.6):
     - Capacitor
-  - CapacitorFirebaseAppCheck (5.1.0):
+  - CapacitorFirebaseAppCheck (5.2.0):
     - Capacitor
     - FirebaseAppCheck (= 10.8.0)
-  - CapacitorFirebaseAuthentication (5.1.0):
+  - CapacitorFirebaseAuthentication (5.2.0):
     - Capacitor
-    - CapacitorFirebaseAuthentication/Lite (= 5.1.0)
+    - CapacitorFirebaseAuthentication/Lite (= 5.2.0)
     - FirebaseAuth (= 10.8.0)
-  - CapacitorFirebaseAuthentication/Google (5.1.0):
+  - CapacitorFirebaseAuthentication/Google (5.2.0):
     - Capacitor
     - FirebaseAuth (= 10.8.0)
     - GoogleSignIn (= 7.0.0)
-  - CapacitorFirebaseAuthentication/Lite (5.1.0):
+  - CapacitorFirebaseAuthentication/Lite (5.2.0):
     - Capacitor
     - FirebaseAuth (= 10.8.0)
   - FirebaseAppCheck (10.8.0):
@@ -71,6 +73,7 @@ PODS:
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorCommunitySpeechRecognition (from `../../node_modules/@capacitor-community/speech-recognition`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
   - "CapacitorFirebaseAppCheck (from `../../node_modules/@capacitor-firebase/app-check`)"
@@ -96,6 +99,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
+  CapacitorCommunitySpeechRecognition:
+    :path: "../../node_modules/@capacitor-community/speech-recognition"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorDevice:
@@ -107,12 +112,13 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
-  Capacitor: 8a9db42d105f55843cd8ed2a3cb54e2b78e7f102
+  Capacitor: 57890b363df14d5d2d5d8461aa23e886cb34da2a
   CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
-  CapacitorCordova: cfcc06b698481da655415985eeb2b8da363f8451
+  CapacitorCommunitySpeechRecognition: b404ef82fa846dd48f6417eb0c47955645ca0996
+  CapacitorCordova: 3d3908a3d208a11a75f9df3b18c4405c4de76e1d
   CapacitorDevice: 2c968f98a1ec4d22357418c1521e7ddc46c675e6
-  CapacitorFirebaseAppCheck: f3ee09932a833c0d2a5e7cf2aa2bbdaaefecf824
-  CapacitorFirebaseAuthentication: a90743b8923b81945c4b5c772b95de1f9c50820f
+  CapacitorFirebaseAppCheck: eba071266612be9f851d6caffed4aaa24ada4134
+  CapacitorFirebaseAuthentication: 1278b10587edcf1adba0d136d367e024e9c38400
   FirebaseAppCheck: 8bde2c5f393518ab98290151188bf196b4bab91e
   FirebaseAppCheckInterop: 82358cff9f33452dd44259e88eea5e562500b1cb
   FirebaseAuth: 28e6fff787467cd15ab51c8c7aa904003b2f57aa
@@ -124,6 +130,6 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
 
-PODFILE CHECKSUM: 86fbbe453350e29546ac32e7380129927234d313
+PODFILE CHECKSUM: 3ee2bc7545ae971b9a4c493a306ec630a8c0a718
 
 COCOAPODS: 1.12.1

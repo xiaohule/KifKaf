@@ -1,7 +1,7 @@
 <template>
-  <q-page class="q-mx-auto bg-primary" style="max-width: 600px; position: relative;">
+  <q-page class="q-mx-auto" style="max-width: 600px; position: relative;">
 
-    <q-header class="bg-transparent overlay-header">
+    <!-- <q-header class="bg-transparent overlay-header">
       <q-toolbar>
         <q-avatar size="sm" square>
           <img src="icon-kifkaf-no-background.svg" />
@@ -9,12 +9,11 @@
         <q-toolbar-title class="text-on-surface text-subtitle1 text-weight-medium
 ">Welcome to KifKaf</q-toolbar-title>
       </q-toolbar>
-    </q-header>
+    </q-header> -->
 
     <!-- pagination-clickable="true"  class="mySwiper" navigation="true" space-between="30"-->
     <swiper-container pagination="true" centered-slides="true" autoplay-delay="5000" autoplay-pause-on-mouse-enter="true"
       grab-cursor="true" autoplay-disable-on-interaction="false">
-      <!-- <swiper-slide> <img src="../assets/ios_6_1_home.png" /></swiper-slide> -->
       <swiper-slide> <img src="/screenshot1.png"
           style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
       <swiper-slide> <img src="/screenshot2.png"
@@ -47,7 +46,8 @@ let checkEmailVerifiedInterval; // Declare variable to store the interval ID
 
 onMounted(() => {
   watch(currentUser, (newVal, oldVal) => {
-    console.log('In Welcome page, watch currentUser:', newVal, ", replaced:", oldVal);
+    console.log('In Welcome page, watch currentUser');
+    // console.log('In Welcome page, watch currentUser:', newVal, ", replaced:", oldVal);
 
     if (newVal) {
       // User is signed in.
@@ -85,10 +85,10 @@ swiper-container {
   width: 100%;
   // height: 100%;
   height: 100vh; // This will make the container fill the entire height of the screen
-  // --swiper-pagination-color: var(--swiper-theme-color);
+  --swiper-pagination-color: #000;
   // --swiper-pagination-left: auto;
   // --swiper-pagination-right: 8px;
-  // --swiper-pagination-bottom: 8px;
+  --swiper-pagination-bottom: 15px;
   // --swiper-pagination-top: auto;
   // --swiper-pagination-fraction-color: inherit;
   // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
@@ -130,7 +130,7 @@ swiper-slide img {
 
 .fixed-buttons {
   position: fixed;
-  bottom: 6%;
+  bottom: 5%;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;

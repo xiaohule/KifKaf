@@ -1,7 +1,7 @@
 {
   "name": "kifkaf-app",
   "version": "1.0.1",
-  "description": "The social network between you & you",
+  "description": "KifKaf - Feelings Journal - Log moments & meet your needs",
   "productName": "KifKaf",
   "author": "na",
   "private": true,
@@ -27,7 +27,7 @@
     "mailparser": "^3.6.5",
     "nodemailer": "^6.9.6",
     "pinia": "^2.1.6",
-    "quasar": "^2.12.7",
+    "quasar": "^2.13.0",
     "swiper": "^10.3.1",
     "tippy.js": "^6.3.7",
     "vue": "^3.3.4",
