@@ -19,7 +19,7 @@
             </q-item-section>
           </q-item>
 
-          <q-item clickable v-ripple @click="openEditDialog('email')">
+          <q-item :clickable="signInMethodsIncludePassword === true" v-ripple @click="openEditDialog('email')">
             <q-item-section>
               <q-item-label caption>
                 Email
@@ -29,7 +29,7 @@
           </q-item>
 
 
-          <q-item v-if="showPassword === true" clickable v-ripple @click="openEditDialog('password')">
+          <q-item v-if="signInMethodsIncludePassword === true" clickable v-ripple @click="openEditDialog('password')">
             <q-item-section>
               <q-item-label caption>
                 Password
@@ -239,7 +239,7 @@ const router = useRouter()
 const momentsStore = useMomentsStore()
 const auth = getFirebaseAuth();
 const signInMethods = ref(null);
-const showPassword = ref(true)
+const signInMethodsIncludePassword = ref(true)
 const currentSetting = ref('')
 const newSettingValue = ref('')
 const oldPassword = ref('')
@@ -261,12 +261,10 @@ onMounted(async () => {
   }
   console.log("signInMethods.value:", signInMethods.value);
   console.log("signInMethods.value[0]:", signInMethods.value[0]); //"apple.com", "google.com", "password"
-  //if signInMethods.value contains "password" set showPassword.value to true
-  if (!signInMethods.value.includes("password")) showPassword.value = false;
+  //if signInMethods.value contains "password" set signInMethodsIncludePassword.value to true
+  if (!signInMethods.value.includes("password")) signInMethodsIncludePassword.value = false;
 }
 )
-
-
 
 const displayNameRules = [
   val => (val && val.length > 0) || 'Please type your name'

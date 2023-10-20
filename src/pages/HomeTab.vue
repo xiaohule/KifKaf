@@ -1,7 +1,7 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px;">
     <!-- <q-list> -->
-    <q-item-label class="text-body1 text-weight-medium q-my-sm">Add a new Moment</q-item-label>
+    <q-item-label class="text-body1 text-weight-medium q-my-sm">Log a new Moment</q-item-label>
     <!-- TODO:2 welcome user -->
     <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
@@ -15,7 +15,7 @@
       <!-- TODO:3 add a signal that speech recognition is on -->
       <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
         lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text"
-        autogrow rounded outlined bg-color="surface-variant" color="transparent">
+        autogrow rounded outlined bg-color="surface-variant" color="transparent" :placeholder="placeholderText">
         <template v-slot:append>
           <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
             @click="toggleSpeech" />
@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
 
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
-const placeholderText = 'Feeling...when/at/to...bec...'
+const placeholderText = 'Feeling...'
 const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)

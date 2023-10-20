@@ -171,7 +171,7 @@ const needsInfoOpened = ref(false)
 }
 
 .q-chip__icon {
-  margin-bottom: 1.5px;
+  margin-bottom: 2px;
 }
 
 .q-dialog__inner>div {

@@ -48,7 +48,9 @@
         <q-card-section class="q-pt-none">
           Deleting your account, please don't quit the app...
         </q-card-section>
-        <q-spinner color="primary" size="3em" />
+        <div class="text-center q-px-auto q-mx-auto">
+          <q-spinner color="primary" size="3em" />
+        </div>
       </q-card>
     </q-dialog>
 
