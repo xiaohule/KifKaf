@@ -32,7 +32,7 @@ import { markRaw, ref, watch } from "vue";
 import { debounce } from "lodash";
 import axios from "axios";
 axios.defaults.baseURL = process.env.API_URL;
-import { Device } from "app/src-capacitor/node_modules/@capacitor/device";
+// import { Device } from "app/src-capacitor/node_modules/@capacitor/device";
 // import { Platform, is } from "quasar";
 // console.log("Platform is", Platform.is);
 
@@ -168,7 +168,9 @@ const setDeviceLanguage = async () => {
     deviceLanguage = navigator.language || navigator.userLanguage;
     console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
   } else {
-    deviceLanguage = (await Device.getLanguageTag()).value;
+    // deviceLanguage = (await Device.getLanguageTag()).value;
+    deviceLanguage = "en-US";
+
     console.log(
       "In firebaseBoot native mode, deviceLanguage is",
       deviceLanguage,

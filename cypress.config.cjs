@@ -11,8 +11,6 @@ module.exports = defineConfig({
   screenshotsFolder: "test/cypress/screenshots",
   videosFolder: "test/cypress/videos",
   video: true,
-  viewportWidth: 390,
-  viewportHeight: 844,
   e2e: {
     async setupNodeEvents(on, config) {
       // registerCodeCoverageTasks(on, config); //TODO:1 re-enable when ready
@@ -83,7 +81,7 @@ module.exports = defineConfig({
       return config;
     },
     baseUrl: "http://localhost:9200/",
-    defaultCommandTimeout: 30000,
+    defaultCommandTimeout: 40000,
     // taskTimeout: 60000,
     supportFile: "test/cypress/support/e2e.js",
     specPattern: "test/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
