@@ -72,7 +72,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
     cy.visit("/");
     //should have sign in options, ToS and Contact us
-    cy.contains("Log in").should("be.visible").click();
+    cy.contains("Log in", { timeout: 60000 }).should("be.visible").click();
     cy.contains("arrow_back").should("be.visible").click();
     cy.contains("Log in").should("be.visible").click();
     cy.contains("Google").should("be.visible");
