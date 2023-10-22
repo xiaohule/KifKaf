@@ -72,6 +72,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
     cy.visit("/");
     cy.wait(1000);
+    cy.reload(true);
     cy.visit("/", { timeout: 60000 });
     //should have sign in options, ToS and Contact us
     cy.contains("Log in", { timeout: 60000 }).should("be.visible").click();
@@ -164,6 +165,7 @@ describe("Insights Stats validation", () => {
     cy.visit("/");
     cy.contains("Insights").click();
     cy.url().should("include", "learn");
+    cy.reload();
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
       cy.contains("2023").should("be.visible");

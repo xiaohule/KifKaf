@@ -1,4 +1,3 @@
-const registerCodeCoverageTasks = require("@cypress/code-coverage/task");
 const {
   injectQuasarDevServerConfig,
 } = require("@quasar/quasar-app-extension-testing-e2e-cypress/cct-dev-server");
@@ -91,10 +90,7 @@ module.exports = defineConfig({
     experimentalWebKitSupport: true,
   },
   component: {
-    setupNodeEvents(on, config) {
-      registerCodeCoverageTasks(on, config);
-      return config;
-    },
+    // setupNodeEvents(on, config) {},
     supportFile: "test/cypress/support/component.js",
     specPattern: "src/**/*.cy.{js,jsx,ts,tsx}",
     indexHtmlFile: "test/cypress/support/component-index.html",

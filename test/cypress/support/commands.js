@@ -106,11 +106,6 @@ Cypress.Commands.add("signUp", (username, password) => {
       cy.get("#inbox-id > input").type(usernameHandle);
       cy.contains("Set").click({ force: true });
       cy.wait(1000);
-      // cy.visit("/");
-      cy.wait(1000);
-      // cy.wait(5000);
-      // cy.reload();
-      // cy.wait(5000);
       cy.reload(true);
 
       cy.contains("kifkaf", { timeout: 120000 })

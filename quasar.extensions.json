@@ -1,8 +1,7 @@
 {
   "@quasar/testing-e2e-cypress": {
     "options": [
-      "scripts",
-      "code-coverage"
+      "scripts"
     ]
   }
 }
