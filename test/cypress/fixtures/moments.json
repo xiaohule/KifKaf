@@ -215,21 +215,6 @@
     "comment": "s explicit - imp deduc ,s deduc - imp deduc, s deduc - imp deduc, s deduc - imp deduc "
   },
   {
-    "date": "2023-03-14",
-    "intensity": 2,
-    "text": "Feeling completely relaxed and epic at the end of movement course when lying down",
-    "tags": ["rest", "movement"],
-    "needs": [
-      "Rest & Relaxation",
-      "Spiritual Transcendence",
-      "Emotional Safety & Inner Peace",
-      "Physical Movement"
-    ],
-    "satisfactions": [],
-    "importances": [],
-    "comment": "s explicit - imp ded, s deduc - imp deduc, s deduc - imp deduc, s deduc - imp deduc"
-  },
-  {
     "date": "2023-03-15",
     "intensity": 2,
     "text": "Feeling aroused and capable when playfight jamming with bastos caro and new ppl",
@@ -255,20 +240,6 @@
     "satisfactions": [],
     "importances": [],
     "comment": "ex, deduc"
-  },
-  {
-    "date": "2023-03-28",
-    "intensity": -2,
-    "text": "Feeling guilty to have let Maria down yest. night",
-    "tags": ["proud", "maria"],
-    "needs": [
-      "Emotional Safety & Inner Peace",
-      "Outward Care & Contribution",
-      "Autonomy"
-    ],
-    "satisfactions": [],
-    "importances": [],
-    "comment": "ex, deduc, "
   },
   {
     "date": "2023-04-08",
@@ -310,16 +281,6 @@
     "comment": ""
   },
   {
-    "date": "2023-04-21",
-    "intensity": 2,
-    "text": "Feeling grateful and cuddled to have my tea prepared by Maria bec. proof of love",
-    "tags": ["maria", "rest", "proofoflove"],
-    "needs": ["Affection & Love", "Gratitude & Celebration"],
-    "satisfactions": [],
-    "importances": [],
-    "comment": ""
-  },
-  {
     "date": "2023-04-29",
     "intensity": -4,
     "text": "Feeling stressed of not knowing what I'm gonna do today",
@@ -328,16 +289,6 @@
     "satisfactions": [],
     "importances": [],
     "comment": ""
-  },
-  {
-    "date": "2023-04-29",
-    "intensity": -1,
-    "text": "Feeling moody bec. of the grey weather",
-    "tags": ["weather"],
-    "needs": ["Emotional Safety & Inner Peace", "Contact with Nature"],
-    "satisfactions": [],
-    "importances": [],
-    "comment": "is explicit - imp deduc, imp deduc"
   },
   {
     "date": "2023-09-06",
@@ -361,16 +312,6 @@
     "date": "2023-09-06",
     "intensity": -1,
     "text": "jkdaoglda",
-    "tags": [""],
-    "needs": [""],
-    "satisfactions": [],
-    "importances": [],
-    "comment": ""
-  },
-  {
-    "date": "2023-09-06",
-    "intensity": -1,
-    "text": "l líder del PSOE avanza hacia los 17",
     "tags": [""],
     "needs": [""],
     "satisfactions": [],

@@ -57,7 +57,9 @@ module.exports = configure(function (ctx) {
       env: {
         __APP_VERSION__: require("./package.json").version,
         API_URL: ctx.dev
-          ? "http://192.168.1.12:3000" //"http://localhost:3000"
+          ? ctx.mode.capacitor
+            ? "http://192.168.1.51:3000"
+            : "http://localhost:3000"
           : "https://lemon-bay-09625be03.3.azurestaticapps.net",
       },
       target: {
@@ -106,10 +108,14 @@ module.exports = configure(function (ctx) {
     devServer: {
       // https: true, enable so that Workbox will load your service workers during quasar dev
       open: true, // opens browser window automatically
+      // port: ctx.mode.spa ? 9000 : ctx.mode.pwa ? 9200 : 8080,
       // proxy all calls to /api to http://localhost:3000/api
       proxy: {
         "/api": {
-          target: "http://192.168.1.12:3000", //"http://localhost:3000",
+          target: ctx.mode.capacitor
+            ? "http://192.168.1.51:3000" //attribuer bail static (dhcp reservation from fbx settings http://192.168.1.254/) to wifi mac address if needed
+            : "http://localhost:3000",
+          // target: "http://192.168.1.12:3000", //"http://localhost:3000",
           changeOrigin: true,
         },
       },
