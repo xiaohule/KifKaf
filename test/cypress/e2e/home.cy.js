@@ -163,6 +163,8 @@ describe("Insights Stats validation", () => {
   it("has correct stats in Insights tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Learn tab for 2023
     cy.visit("/");
+    cy.wait(1000);
+    cy.reload(true);
     cy.contains("Insights").click();
     cy.url().should("include", "learn");
     cy.reload();

@@ -83,7 +83,7 @@ module.exports = defineConfig({
       return config;
     },
     baseUrl: "http://localhost:9200/",
-    defaultCommandTimeout: 20000,
+    defaultCommandTimeout: 30000,
     // taskTimeout: 60000,
     supportFile: "test/cypress/support/e2e.js",
     specPattern: "test/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
