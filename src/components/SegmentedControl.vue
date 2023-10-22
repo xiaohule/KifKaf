@@ -28,7 +28,6 @@ const props = defineProps({
   elementName: {
     type: String,
     required: true,
-    //default: () => uniqueId('segmented-control-')
   }
 });
 const emits = defineEmits(['update:modelValue']);
