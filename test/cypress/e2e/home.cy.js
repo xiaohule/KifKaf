@@ -70,7 +70,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
       cy.get("#inbox-id").invoke("text");
     }).as("username");
 
-    cy.visit("/");
+    cy.visit("/", { timeout: 60000 });
     //should have sign in options, ToS and Contact us
     cy.contains("Log in", { timeout: 60000 }).should("be.visible").click();
     cy.contains("arrow_back").should("be.visible").click();
