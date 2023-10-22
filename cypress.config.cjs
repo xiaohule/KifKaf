@@ -2,7 +2,7 @@ const {
   injectQuasarDevServerConfig,
 } = require("@quasar/quasar-app-extension-testing-e2e-cypress/cct-dev-server");
 const { defineConfig } = require("cypress");
-const webpackPreprocessor = require("@cypress/webpack-preprocessor");
+// const webpackPreprocessor = require("@cypress/webpack-preprocessor");
 
 module.exports = defineConfig({
   // chromeWebSecurity: false,
@@ -12,80 +12,80 @@ module.exports = defineConfig({
   videosFolder: "test/cypress/videos",
   video: true,
   e2e: {
-    async setupNodeEvents(on, config) {
-      // registerCodeCoverageTasks(on, config); //TODO:1 re-enable when ready
-      const options = {
-        webpackOptions: {
-          resolve: {
-            extensions: [".ts", ".js"],
-          },
-          module: {
-            rules: [
-              {
-                test: /\.m?js/,
-                resolve: {
-                  fullySpecified: false,
-                },
-              },
-              {
-                test: /\.ts$/,
-                exclude: [/node_modules/],
-                use: [
-                  {
-                    loader: "babel-loader",
-                    options: {
-                      presets: [
-                        [
-                          "@babel/preset-env",
-                          {
-                            targets: {
-                              node: "current",
-                              esmodules: true,
-                            },
-                          },
-                        ],
-                        "@babel/preset-typescript",
-                      ],
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      };
-      on("file:preprocessor", webpackPreprocessor(options));
-      on("before:browser:launch", (browser = {}, launchOptions) => {
-        // `args` is an array of all the arguments that will
-        // be passed to browsers when it launches
-        console.log(launchOptions.args); // print all current args
+    // async setupNodeEvents(on, config) {
+    //   // registerCodeCoverageTasks(on, config); //TODO:1 re-enable when ready
+    //   const options = {
+    //     webpackOptions: {
+    //       resolve: {
+    //         extensions: [".ts", ".js"],
+    //       },
+    //       module: {
+    //         rules: [
+    //           {
+    //             test: /\.m?js/,
+    //             resolve: {
+    //               fullySpecified: false,
+    //             },
+    //           },
+    //           {
+    //             test: /\.ts$/,
+    //             exclude: [/node_modules/],
+    //             use: [
+    //               {
+    //                 loader: "babel-loader",
+    //                 options: {
+    //                   presets: [
+    //                     [
+    //                       "@babel/preset-env",
+    //                       {
+    //                         targets: {
+    //                           node: "current",
+    //                           esmodules: true,
+    //                         },
+    //                       },
+    //                     ],
+    //                     "@babel/preset-typescript",
+    //                   ],
+    //                 },
+    //               },
+    //             ],
+    //           },
+    //         ],
+    //       },
+    //     },
+    //   };
+    //   on("file:preprocessor", webpackPreprocessor(options));
+    //   on("before:browser:launch", (browser = {}, launchOptions) => {
+    //     // `args` is an array of all the arguments that will
+    //     // be passed to browsers when it launches
+    //     console.log(launchOptions.args); // print all current args
 
-        if (browser.family === "chromium" && browser.name !== "electron") {
-          // auto open devtools
-          launchOptions.args.push("--auto-open-devtools-for-tabs");
-        }
+    //     if (browser.family === "chromium" && browser.name !== "electron") {
+    //       // auto open devtools
+    //       launchOptions.args.push("--auto-open-devtools-for-tabs");
+    //     }
 
-        if (browser.family === "firefox") {
-          // auto open devtools
-          launchOptions.args.push("-devtools");
-        }
+    //     if (browser.family === "firefox") {
+    //       // auto open devtools
+    //       launchOptions.args.push("-devtools");
+    //     }
 
-        if (browser.name === "electron") {
-          // auto open devtools
-          launchOptions.preferences.devTools = true;
-        }
+    //     if (browser.name === "electron") {
+    //       // auto open devtools
+    //       launchOptions.preferences.devTools = true;
+    //     }
 
-        // whatever you return here becomes the launchOptions
-        return launchOptions;
-      });
-      return config;
-    },
+    //     // whatever you return here becomes the launchOptions
+    //     return launchOptions;
+    //   });
+    //   return config;
+    // },
     baseUrl: "http://localhost:9200/",
     defaultCommandTimeout: 40000,
     // taskTimeout: 60000,
     supportFile: "test/cypress/support/e2e.js",
     specPattern: "test/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
-    experimentalWebKitSupport: true,
+    // experimentalWebKitSupport: true,
   },
   component: {
     // setupNodeEvents(on, config) {},
