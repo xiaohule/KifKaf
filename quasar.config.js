@@ -13,6 +13,8 @@ const { configure } = require("quasar/wrappers");
 // console.log("In quasar.config.js, process.env is", process.env);
 
 module.exports = configure(function (ctx) {
+  console.log(ctx);
+
   return {
     eslint: {
       // fix: true,
@@ -108,7 +110,7 @@ module.exports = configure(function (ctx) {
     devServer: {
       // https: true, enable so that Workbox will load your service workers during quasar dev
       open: true, // opens browser window automatically
-      // port: ctx.mode.spa ? 9000 : ctx.mode.pwa ? 9200 : 8080,
+      port: ctx.mode.spa ? 9000 : ctx.mode.pwa ? 9200 : 8080,
       // proxy all calls to /api to http://localhost:3000/api
       proxy: {
         "/api": {
