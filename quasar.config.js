@@ -83,15 +83,15 @@ module.exports = configure(function (ctx) {
       // polyfillModulePreload: true,
       // distDir
 
-      extendViteConf(viteConf) {
-        viteConf.optimizeDeps = {
-          entries: [
-            "tests/cypress/**/*.js",
-            "src/**/*.{ts,js,vue}",
-            "index.html",
-          ],
-        };
-      },
+      // extendViteConf(viteConf) {
+      //   viteConf.optimizeDeps = {
+      //     entries: [
+      //       "tests/cypress/**/*.js",
+      //       "src/**/*.{ts,js,vue}",
+      //       "index.html",
+      //     ],
+      //   };
+      // },
       viteVuePluginOptions: {
         template: {
           compilerOptions: {
