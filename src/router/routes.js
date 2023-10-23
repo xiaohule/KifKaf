@@ -1,3 +1,5 @@
+import GoBackTitleLayout from "layouts/GoBackTitleLayout.vue";
+
 const routes = [
   {
     path: "/",
@@ -42,7 +44,8 @@ const routes = [
   },
   {
     path: "/login",
-    component: () => import("layouts/GoBackTitleLayout.vue"),
+    // component: () => import("layouts/GoBackTitleLayout.vue"),
+    component: GoBackTitleLayout,
     children: [
       { path: "", component: () => import("pages/login/LoginPage.vue") },
       {
@@ -51,7 +54,6 @@ const routes = [
       },
     ],
   },
-  //TODO:1 make only one layout for terms and privacy policy and auth that can take a title as param
   {
     path: "/privacy-policy",
     component: () => import("layouts/GoBackTitleLayout.vue"),

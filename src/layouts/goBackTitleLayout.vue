@@ -6,7 +6,7 @@
     <q-header class="bg-transparent">
       <q-toolbar class="text-on-surface q-mx-auto" style="max-width: 600px">
         <q-btn flat round icon="arrow_back" @click="goBack" />
-        <q-toolbar-title class="absolute-center">{{ title }}</q-toolbar-title>
+        <!-- <q-toolbar-title class="absolute-center">{{ title }}</q-toolbar-title> -->
       </q-toolbar>
     </q-header>
 
@@ -31,12 +31,12 @@
 <script setup>
 import { useRouter } from 'vue-router'
 
-const props = defineProps({
-  title: {
-    type: String,
-    default: '',
-  }
-});
+// const props = defineProps({
+//   title: {
+//     type: String,
+//     default: '',
+//   }
+// });
 
 const router = useRouter()
 const goBack = () => {
