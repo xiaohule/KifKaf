@@ -6,6 +6,7 @@ import {
   OAuthProvider,
   // signInWithPopup,
 } from "firebase/auth";
+import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 
 const auth = getFirebaseAuth();
 
@@ -24,9 +25,6 @@ export const signInWithGoogle = async () => {
     } else {
       console.log("In signInWith, google sign in for native");
 
-      const { FirebaseAuthentication } = await import(
-        "app/src-capacitor/node_modules/@capacitor-firebase/authentication"
-      );
       // 1. Create credentials on the native layer
       const result = await FirebaseAuthentication.signInWithGoogle();
       // 2. Sign in on the web layer using the id token
@@ -62,9 +60,6 @@ export const signInWithApple = async () => {
       authorizationCode = "";
     } else {
       console.log("In signInWith, apple sign in for native");
-      const { FirebaseAuthentication } = await import(
-        "app/src-capacitor/node_modules/@capacitor-firebase/authentication"
-      );
       // 1. Create credentials on the native layer
       const result = await FirebaseAuthentication.signInWithApple();
       authorizationCode = result.credential?.authorizationCode;

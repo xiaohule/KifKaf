@@ -9,6 +9,7 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 const { configure } = require("quasar/wrappers");
+const path = require("path");
 
 // console.log("In quasar.config.js, process.env is", process.env);
 
@@ -85,12 +86,17 @@ module.exports = configure(function (ctx) {
 
       // extendViteConf(viteConf) {
       //   viteConf.optimizeDeps = {
-      //     entries: [
-      //       // "tests/cypress/**/*.js",
-      //       "test/cypress/**/*.{js,jsx,ts,tsx}",
-      //       "**/*.cy.{js,jsx,ts,tsx}",
-      //       "src/**/*.{js,jsx,ts,tsx,vue}",
-      //       "index.html",
+      //     // entries: [
+      //     //   // "tests/cypress/**/*.js",
+      //     //   "test/cypress/**/*.{js,jsx,ts,tsx}",
+      //     //   "**/*.cy.{js,jsx,ts,tsx}",
+      //     //   "src/**/*.{js,jsx,ts,tsx,vue}",
+      //     //   "index.html",
+      //     // ],
+      //     include: [
+      //       "@capacitor",
+      //       "@capacitor-firebase",
+      //       "@capacitor-community",
       //     ],
       //   };
       // },
@@ -104,16 +110,20 @@ module.exports = configure(function (ctx) {
       // vitePlugins: [
       //   [ 'package-name', { ..options.. } ]
       // ]
-      // alias: {
-      //   // "@capacitor": path.resolve(
-      //   //   __dirname,
-      //   //   "src-capacitor/node_modules/@capacitor",
-      //   // ),
-      //   "@capacitor-firebase": path.resolve(
-      //     __dirname,
-      //     "src-capacitor/node_modules/@capacitor-firebase",
-      //   ),
-      // },
+      alias: {
+        "@capacitor": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capacitor",
+        ),
+        "@capacitor-firebase": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capacitor-firebase",
+        ),
+        "@capacitor-community": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capacitor-community",
+        ),
+      },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer

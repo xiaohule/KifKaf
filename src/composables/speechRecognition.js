@@ -14,7 +14,7 @@
 //mic buttons visible
 //wworks in whatpwacandotoday in mobile chrome safari standalone pwa but not in my app
 import { ref } from "vue";
-import { SpeechRecognition } from "app/src-capacitor/node_modules/@capacitor-community/speech-recognition";
+import { SpeechRecognition } from "@capacitor-community/speech-recognition";
 import { useMomentsStore } from "./../stores/moments.js";
 const momentsStore = useMomentsStore();
 

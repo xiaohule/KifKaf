@@ -32,7 +32,7 @@ import { markRaw, ref, watch } from "vue";
 import { debounce } from "lodash";
 import axios from "axios";
 axios.defaults.baseURL = process.env.API_URL;
-// import { Device } from "app/src-capacitor/node_modules/@capacitor/device";
+// import { Device } from "@capacitor/device";
 // import { Platform, is } from "quasar";
 // console.log("Platform is", Platform.is);
 
@@ -121,7 +121,7 @@ if (
     isTokenAutoRefreshEnabled: true,
   });
 } else {
-  import("app/src-capacitor/node_modules/@capacitor-firebase/app-check") //TODO:1 use alias instead? make this more safe
+  import("@capacitor-firebase/app-check")
     .then(async (module) => {
       console.log("In firebaseBoot, initializing app check for native");
 
@@ -168,7 +168,7 @@ const setDeviceLanguage = async () => {
     deviceLanguage = navigator.language || navigator.userLanguage;
     console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
   } else {
-    import("app/src-capacitor/node_modules/@capacitor/device")
+    import("@capacitor/device")
       .then(async (module) => {
         const Device = module.Device;
         deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";

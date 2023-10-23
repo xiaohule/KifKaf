@@ -226,12 +226,13 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { getFirebaseAuth } from "../boot/firebaseBoot.js";
 import { signOut, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 const version = process.env.__APP_VERSION__
 
 const $q = useQuasar()
@@ -389,10 +390,6 @@ const logOut = async () => {
   try {
     if (process.env.MODE === "capacitor") {
       console.log("In SettingsPage, signing out for native");
-      const { FirebaseAuthentication } = await import(
-        "app/src-capacitor/node_modules/@capacitor-firebase/authentication"
-      );
-      // Sign out on the native layer
       await FirebaseAuthentication.signOut();
     }
 
