@@ -121,7 +121,7 @@ module.exports = configure(function (ctx) {
       // https: true, enable so that Workbox will load your service workers during quasar dev
       open: true, // opens browser window automatically
       // port: ctx.mode.spa ? 9000 : ctx.mode.pwa ? 9200 : 8080,
-      port: 9200,
+      // port: 9200,
 
       // proxy all calls to /api to http://localhost:3000/api
       proxy: {
