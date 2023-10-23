@@ -22,7 +22,7 @@ describe("Workaround GH actions", () => {
     cy.title().should("include", "KifKaf");
     cy.visit("/");
 
-    cy.wait(120000);
+    cy.wait(10000);
     cy.contains("Log in", { timeout: 60000 }).should("be.visible").click();
     cy.wait(1000);
   });
@@ -77,7 +77,6 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
     // cy.visit("/");
     // cy.wait(1000);
-    cy.visit();
     cy.wait(10000);
     cy.visit("/", { timeout: 60000 });
     cy.wait(10000);
