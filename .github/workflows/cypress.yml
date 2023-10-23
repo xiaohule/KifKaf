@@ -21,7 +21,7 @@ jobs:
           node -v
           echo "NPM version:"
           npm -v
-          echo "Cypress version:"
+          echo "Cypress version :"
           npx cypress --version
 
       - name: Cypress run
