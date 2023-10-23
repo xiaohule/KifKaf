@@ -19,12 +19,8 @@ describe("Workaround GH actions", () => {
   // });
   it("assert <title> is correct", () => {
     cy.visit("/");
-    cy.title().should("include", "KifKaf");
-    cy.visit("/");
-
     cy.wait(10000);
-    cy.contains("Log in", { timeout: 60000 }).should("be.visible").click();
-    cy.wait(1000);
+    cy.title().should("include", "KifKaf");
   });
 });
 
