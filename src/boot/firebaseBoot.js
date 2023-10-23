@@ -168,13 +168,21 @@ const setDeviceLanguage = async () => {
     deviceLanguage = navigator.language || navigator.userLanguage;
     console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
   } else {
-    // deviceLanguage = (await Device.getLanguageTag()).value;
-    deviceLanguage = "en-US";
-
-    console.log(
-      "In firebaseBoot native mode, deviceLanguage is",
-      deviceLanguage,
-    );
+    import("app/src-capacitor/node_modules/@capacitor/device")
+      .then(async (module) => {
+        const Device = module.Device;
+        deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";
+        console.log(
+          "In firebaseBoot native mode, deviceLanguage is",
+          deviceLanguage,
+        );
+      })
+      .catch((error) => {
+        console.error(
+          "In firebaseBoot, Failed to set deviceLanguage for native, error:",
+          error,
+        );
+      });
   }
   await setDoc(
     doc(db, "users", currentUser.value.uid),

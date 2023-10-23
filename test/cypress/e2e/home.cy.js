@@ -73,18 +73,25 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
     // cy.visit("/");
     // cy.wait(1000);
-    cy.wait(10000);
+    cy.wait(1000);
     cy.visit("/", { timeout: 60000 });
-    cy.wait(10000);
-    cy.visit("/", { timeout: 60000 });
-    cy.wait(10000);
-    cy.visit("/welcome", { timeout: 60000 });
-    cy.wait(10000);
-    cy.visit("/#/welcome", { timeout: 60000 });
-    cy.wait(10000);
+    // cy.wait(10000);
+    // cy.visit("/", { timeout: 60000 });
+    // cy.wait(10000);
+    // cy.visit("/welcome", { timeout: 60000 });
+    // cy.wait(10000);
+    // cy.visit("/#/welcome", { timeout: 60000 });
+    // cy.wait(10000);
     // cy.reload();
     //should have sign in options, ToS and Contact us
-    cy.contains("Log in", { timeout: 60000 }).should("be.visible").click();
+    cy.wait(1000);
+    cy.contains("Log in", { timeout: 60000 }).click();
+    cy.wait(1000);
+    cy.contains("Log in", { timeout: 60000 }).click({ force: true });
+    cy.wait(1000);
+    cy.contains("Log in", { timeout: 60000 })
+      .should("be.visible")
+      .click({ force: true });
     cy.wait(1000);
     cy.contains("arrow_back", { timeout: 60000 }).click({ force: true });
     cy.contains("Log in").should("be.visible").click();
