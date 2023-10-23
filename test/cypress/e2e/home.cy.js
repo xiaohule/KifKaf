@@ -20,6 +20,7 @@ describe("Workaround GH actions", () => {
   it("assert <title> is correct", () => {
     cy.visit("/");
     cy.title().should("include", "KifKaf");
+    cy.wait(10000);
   });
 });
 
@@ -73,10 +74,13 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     // cy.visit("/");
     // cy.wait(1000);
     cy.visit("/", { timeout: 60000 });
-    cy.wait(1000);
+    cy.wait(10000);
     cy.visit("/", { timeout: 60000 });
-    cy.wait(1000);
+    cy.wait(10000);
     cy.visit("/welcome", { timeout: 60000 });
+    cy.wait(10000);
+    cy.visit("/#/welcome", { timeout: 60000 });
+    cy.wait(10000);
     // cy.reload();
     //should have sign in options, ToS and Contact us
     cy.contains("Log in", { timeout: 60000 }).should("be.visible").click();
