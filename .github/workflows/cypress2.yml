@@ -1,4 +1,4 @@
-name: Cypress Tests
+name: Cypress Tests Headed
 on: [push]
 jobs:
   cypress-run:
@@ -29,6 +29,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
+          headed: true
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
           start: npm start
