@@ -27,7 +27,7 @@ const routes = [
   // },
   {
     path: "/settings",
-    component: () => import("layouts/GoBackTitleLayout.vue"),
+    component: GoBackTitleLayout,
     // props: { title: "Settings" },
     meta: { requiresAuth: true },
     children: [
@@ -56,7 +56,7 @@ const routes = [
   },
   {
     path: "/privacy-policy",
-    component: () => import("layouts/GoBackTitleLayout.vue"),
+    component: GoBackTitleLayout,
     // props: { title: "Privacy Policy" },
     children: [
       {
@@ -67,7 +67,7 @@ const routes = [
   },
   {
     path: "/terms",
-    component: () => import("layouts/GoBackTitleLayout.vue"),
+    component: GoBackTitleLayout,
     // props: { title: "Terms of Service" },
     children: [
       {
@@ -78,7 +78,7 @@ const routes = [
   },
   {
     path: "/contact",
-    component: () => import("layouts/GoBackTitleLayout.vue"),
+    component: GoBackTitleLayout,
     // props: { title: "Contact Us" },
     children: [
       {
@@ -89,7 +89,7 @@ const routes = [
   },
   {
     path: "/account-deletion",
-    component: () => import("layouts/GoBackTitleLayout.vue"),
+    component: GoBackTitleLayout,
     children: [
       {
         path: "",

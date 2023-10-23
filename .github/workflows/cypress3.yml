@@ -42,6 +42,7 @@ jobs:
           #   DEBUG: cypress:*
         env:
           DEBUG: cypress:*
+          ELECTRON_ENABLE_LOGGING: 1
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
           # in GitHub repo → Settings → Secrets → Actions
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
