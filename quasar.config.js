@@ -63,7 +63,7 @@ module.exports = configure(function (ctx) {
           ? ctx.mode.capacitor
             ? "http://192.168.1.51:3000"
             : "http://localhost:3000"
-          : "https://lemon-bay-09625be03.3.azurestaticapps.net",
+          : "https://www.kifkaf.app", // "https://lemon-bay-09625be03.3.azurestaticapps.net",
       },
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
