@@ -31,20 +31,13 @@ jobs:
           npx cypress --version
 
       # Install dependencies in src-capacitor
-      - name: Install dependencies in src-capacitor
+      - name: Install src-capacitor & backend dependencies
         run: |
           cd src-capacitor
           npm install
           cd ../backend
           npm install
-          npm start
           cd ..
-        # run: |
-        #   cd src-capacitor
-        #   npm install
-        #   cd ../backend
-        #   npm start
-        #   cd ..
 
       - name: Cypress run
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
@@ -52,22 +45,19 @@ jobs:
         with:
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
-          # build:
-          #   npm run build:capacitor
           # build: npm run build
-          start: npm start
+          start: npm run api, npm start
           browser:
             chrome # comment for electron mode or try firefox
             # headed: true
-          wait-on: "http://localhost:9000" # Waits for above
+          wait-on: "http://localhost:3000, http://localhost:9000"
           # Records to Cypress Cloud
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
           record: true
           parallel: true # Runs test in parallel using settings above
         env:
-          DEBUG: backend:* #cypress:*
+          # DEBUG: backend:* #cypress:*
           # ELECTRON_ENABLE_LOGGING: 1 #uncomment for more logs
-
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
           # in GitHub repo → Settings → Secrets → Actions
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
