@@ -8,8 +8,8 @@ jobs:
     # Also see warning here https://github.com/cypress-io/github-action#parallel
     strategy:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
-      # matrix:
-      #   containers: [1, 2] # Uses 2 parallel instances
+      matrix:
+        containers: [1, 2] # Uses 2 parallel instances
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +35,8 @@ jobs:
         run: |
           cd src-capacitor
           npm install
+          cd ../backend
+          npm start
           cd ..
 
       - name: Cypress run
@@ -54,11 +56,9 @@ jobs:
           # Records to Cypress Cloud
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
           record: true
-          # parallel: true # Runs test in parallel using settings above
-          # env: # Adding the DEBUG environment variable here
-          #   DEBUG: cypress:*
+          parallel: true # Runs test in parallel using settings above
         env:
-          DEBUG: cypress:*
+          DEBUG: backend:* #cypress:*
           # ELECTRON_ENABLE_LOGGING: 1 #uncomment for more logs
 
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY

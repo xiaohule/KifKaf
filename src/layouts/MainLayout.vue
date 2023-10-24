@@ -4,7 +4,7 @@
     <q-header class="bg-transparent" bordered reveal :reveal-offset="150">
       <q-toolbar class="text-on-surface q-mx-auto" style="max-width: 600px">
         <q-avatar size="sm" square>
-          <img src="icon-kifkaf-no-background.svg" />
+          <img src="~assets/icon-kifkaf-no-background.svg" />
         </q-avatar>
         <q-toolbar-title class="text-on-surface text-center text-subtitle1 text-weight-medium
 ">{{ tab }}</q-toolbar-title>
