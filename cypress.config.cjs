@@ -83,7 +83,7 @@ module.exports = defineConfig({
       require("cypress-terminal-report/src/installLogsPrinter")(on);
       return config;
     },
-    baseUrl: "http://localhost:9000/",
+    baseUrl: "http://localhost:9200/",
     defaultCommandTimeout: 40000,
     // taskTimeout: 60000,
     supportFile: "test/cypress/support/e2e.js",

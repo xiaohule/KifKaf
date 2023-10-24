@@ -50,7 +50,7 @@ jobs:
           browser:
             chrome # comment for electron mode or try firefox
             # headed: true
-          wait-on: "http://localhost:3000, http://localhost:9000"
+          wait-on: "http://localhost:3000, http://localhost:9200"
           # Records to Cypress Cloud
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
           record: true
