@@ -35,6 +35,8 @@ jobs:
         run: |
           cd src-capacitor
           npm install
+          cd ../backend
+          npm install
           cd ..
         # run: |
         #   cd src-capacitor
