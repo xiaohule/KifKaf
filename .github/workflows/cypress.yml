@@ -66,7 +66,7 @@ jobs:
           record: true
           parallel: true # Runs test in parallel using settings above
         env:
-          # DEBUG: backend:* #cypress:*
+          DEBUG: backend:* #cypress:*
           # ELECTRON_ENABLE_LOGGING: 1 #uncomment for more logs
 
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
