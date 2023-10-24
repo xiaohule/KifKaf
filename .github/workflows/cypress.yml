@@ -37,6 +37,7 @@ jobs:
           npm install
           cd ../backend
           npm install
+          npm start
           cd ..
         # run: |
         #   cd src-capacitor
@@ -54,7 +55,7 @@ jobs:
           # build:
           #   npm run build:capacitor
           # build: npm run build
-          start: cd backend && DEBUG=backend:* npm start && cd ..
+          # start: cd backend && DEBUG=backend:* npm start && cd ..
           browser:
             chrome # comment for electron mode or try firefox
             # headed: true
