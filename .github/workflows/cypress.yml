@@ -52,7 +52,7 @@ jobs:
           # build:
           #   npm run build:capacitor
           # build: npm run build
-          start: cd backend && npm start && cd ..
+          start: cd backend && DEBUG=backend:* npm start && cd ..
           browser:
             chrome # comment for electron mode or try firefox
             # headed: true
@@ -62,7 +62,7 @@ jobs:
           record: true
           parallel: true # Runs test in parallel using settings above
         env:
-          DEBUG: backend:* #cypress:*
+          # DEBUG: backend:* #cypress:*
           # ELECTRON_ENABLE_LOGGING: 1 #uncomment for more logs
 
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
