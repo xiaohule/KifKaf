@@ -1,5 +1,3 @@
-import GoBackTitleLayout from "layouts/GoBackTitleLayout.vue";
-
 const routes = [
   {
     path: "/",
@@ -27,7 +25,7 @@ const routes = [
   // },
   {
     path: "/settings",
-    component: GoBackTitleLayout,
+    component: () => import("layouts/GoBackTitleLayout.vue"),
     // props: { title: "Settings" },
     meta: { requiresAuth: true },
     children: [
@@ -45,7 +43,7 @@ const routes = [
   {
     path: "/login",
     // component: () => import("layouts/GoBackTitleLayout.vue"),
-    component: GoBackTitleLayout,
+    component: () => import("layouts/GoBackTitleLayout.vue"),
     children: [
       { path: "", component: () => import("pages/login/LoginPage.vue") },
       {
@@ -56,7 +54,7 @@ const routes = [
   },
   {
     path: "/privacy-policy",
-    component: GoBackTitleLayout,
+    component: () => import("layouts/GoBackTitleLayout.vue"),
     // props: { title: "Privacy Policy" },
     children: [
       {
@@ -67,7 +65,7 @@ const routes = [
   },
   {
     path: "/terms",
-    component: GoBackTitleLayout,
+    component: () => import("layouts/GoBackTitleLayout.vue"),
     // props: { title: "Terms of Service" },
     children: [
       {
@@ -78,7 +76,7 @@ const routes = [
   },
   {
     path: "/contact",
-    component: GoBackTitleLayout,
+    component: () => import("layouts/GoBackTitleLayout.vue"),
     // props: { title: "Contact Us" },
     children: [
       {
@@ -89,7 +87,7 @@ const routes = [
   },
   {
     path: "/account-deletion",
-    component: GoBackTitleLayout,
+    component: () => import("layouts/GoBackTitleLayout.vue"),
     children: [
       {
         path: "",
