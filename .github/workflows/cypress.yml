@@ -14,7 +14,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-        # Print important versions
+      # uncomment for specific node version
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 19.7.0
+
+      # Print important versions
       - name: Print versions
         run: |
           echo "Node version:"
@@ -28,7 +34,9 @@ jobs:
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome
+          browser:
+            chrome # comment for electron mode or try firefox
+            # headed: true
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
           start: npm start
@@ -41,6 +49,8 @@ jobs:
           #   DEBUG: cypress:*
         env:
           DEBUG: cypress:*
+          # ELECTRON_ENABLE_LOGGING: 1 #uncomment for more logs
+
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
           # in GitHub repo → Settings → Secrets → Actions
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
