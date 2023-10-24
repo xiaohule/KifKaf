@@ -30,15 +30,22 @@ jobs:
           echo "Cypress version :"
           npx cypress --version
 
+      # Install dependencies in src-capacitor
+      - name: Install dependencies in src-capacitor
+        run: |
+          cd src-capacitor
+          npm install
+          cd ..
+
       - name: Cypress run
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
         uses: cypress-io/github-action@v6
         with:
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
-          build:
-            npm run build:capacitor
-            # build: npm run build
+          # build:
+          #   npm run build:capacitor
+          # build: npm run build
           start: npm start
           browser:
             chrome # comment for electron mode or try firefox
