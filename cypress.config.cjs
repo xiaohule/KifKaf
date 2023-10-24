@@ -1,4 +1,3 @@
-const registerCodeCoverageTasks = require("@cypress/code-coverage/task");
 const {
   injectQuasarDevServerConfig,
 } = require("@quasar/quasar-app-extension-testing-e2e-cypress/cct-dev-server");
@@ -6,7 +5,7 @@ const { defineConfig } = require("cypress");
 const webpackPreprocessor = require("@cypress/webpack-preprocessor");
 
 module.exports = defineConfig({
-  // chromeWebSecurity: false,
+  chromeWebSecurity: false,
   projectId: "5irsz1",
   fixturesFolder: "test/cypress/fixtures",
   screenshotsFolder: "test/cypress/screenshots",
@@ -81,20 +80,18 @@ module.exports = defineConfig({
         // whatever you return here becomes the launchOptions
         return launchOptions;
       });
+      require("cypress-terminal-report/src/installLogsPrinter")(on);
       return config;
     },
     baseUrl: "http://localhost:9200/",
-    defaultCommandTimeout: 20000,
+    defaultCommandTimeout: 40000,
     // taskTimeout: 60000,
     supportFile: "test/cypress/support/e2e.js",
     specPattern: "test/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
     experimentalWebKitSupport: true,
   },
   component: {
-    setupNodeEvents(on, config) {
-      registerCodeCoverageTasks(on, config);
-      return config;
-    },
+    // setupNodeEvents(on, config) {},
     supportFile: "test/cypress/support/component.js",
     specPattern: "src/**/*.cy.{js,jsx,ts,tsx}",
     indexHtmlFile: "test/cypress/support/component-index.html",

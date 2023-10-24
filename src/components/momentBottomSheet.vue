@@ -1,6 +1,6 @@
 <template>
   <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event.target)" position="bottom"
-    full-width>
+    style="max-width: 600px">
 
     <q-card class="bg-background" flat style="height: 90vh;">
       <q-toolbar class="q-pa-sm">
@@ -55,11 +55,12 @@
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
 
-            <div class="text-caption text-center text-outline q-mt-sm">
-              <!-- <q-icon name="r_crop_square" color="green" size="15px" class="" /> -->
-              <q-chip outline color="green" size="xs" label="&nbsp;" />Net satisfied&nbsp;
-              <q-chip outline color="primary" size="xs" label="&nbsp;" />Neutral&nbsp;
-              <q-chip outline color="red" size="xs" label="&nbsp;" />Net unsatisfied
+            <!-- <div class="q-chip row inline no-wrap items-center text-green q-chip--colored q-chip--outline needs" style="background-color: red;"> -->
+
+            <div class="text-caption text-center q-mt-sm">
+              <q-chip :ripple="false" outline color="green" size="sm" label="Satisfied need" class="bg-error" />
+              <q-chip :ripple="false" outline color="primary" size="sm" label="Neutral need" class="bg-scrim-dark" />
+              <q-chip :ripple="false" outline color="red" size="sm" label="Unsatisfied need" class="bg-transparent-red" />
             </div>
 
 
@@ -70,7 +71,7 @@
         </q-card>
       </div>
     </q-card>
-    <q-dialog v-model="needsInfoOpened" position="bottom" full-width>
+    <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-px-sm" flat>
         <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
         </div> -->
@@ -78,7 +79,7 @@
         <q-card-section class="text-h6 text-weight-medium">Moment's needs
         </q-card-section>
 
-        <q-card-section class="q-pt-xs text-outline">These are the needs related to your moment picked from our list of
+        <q-card-section class="q-py-xs text-outline">These are the needs related to your moment picked from our list of
           Universal Human Needs. <br><br>The full list is composed of:<br>
 
           <q-list>
@@ -142,7 +143,7 @@ const props = defineProps({
   expectedLlmCallDuration: {
     required: true,
     type: Number,
-    default: 40
+    default: 60
   },
 });
 defineEmits(['update:modelValue']);
@@ -170,13 +171,17 @@ const needsInfoOpened = ref(false)
 }
 
 .q-chip__icon {
-  margin-bottom: 1.5px;
+  margin-bottom: 2px;
 }
 
 .q-dialog__inner>div {
   border-top-right-radius: 14px;
   border-top-left-radius: 14px;
 }
+
+// .bg-transparent-red {
+//   background-color: rgba(255, 0, 0, 0.15) !important;
+// }
 
 // .overlapping {
 //   // border: 2px solid white;

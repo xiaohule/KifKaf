@@ -1,6 +1,8 @@
 <!-- src/pages/PrivacyPolicy.vue -->
 <template>
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+  <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
+    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Contact us</div>
+
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
       <q-card-section class="q-py-xs">
         <p>
@@ -20,10 +22,11 @@
 
       <!-- TODO:2 add name and email and possibility to edit them -->
       <q-card-section class="q-pb-none">
-        <q-input v-if="!(momentsStore?.user?.email)" v-model="emailAddress" class="q-mx-sm" rounded outlined type="text"
-          bg-color="surface-variant" label="Your email address" lazy-rules :rules="emailRules" />
-        <q-input v-model="contactUsMessage" class="q-mx-sm" rounded outlined type="textarea" rows="5"
-          bg-color="surface-variant" label="Your message" lazy-rules :rules="messageRules" />
+        <q-input v-if="!(momentsStore?.user?.email)" v-model="emailAddress" class="q-mx-sm" color="transparent" rounded
+          outlined type="text" bg-color="surface-variant" placeholder="Your email address" lazy-rules
+          :rules="emailRules" />
+        <q-input v-model="contactUsMessage" class="q-mx-sm" color="transparent" rounded outlined type="textarea" rows="5"
+          bg-color="surface-variant" placeholder="Your message" lazy-rules :rules="messageRules" />
       </q-card-section>
       <q-card-actions align="right">
         <!-- <q-btn flat rounded label="Cancel" @click="contactUsMessage = ''" /> -->

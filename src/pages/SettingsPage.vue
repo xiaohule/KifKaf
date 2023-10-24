@@ -1,13 +1,13 @@
 <template>
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+  <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
+    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Settings</div>
 
     <div v-if="!momentsStore || !momentsStore.user"></div>
 
     <div v-else>
-      <q-list padding>
+      <q-list class="q-pt-none">
 
         <q-item-label header>Account details</q-item-label>
-
 
         <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
           <q-item clickable v-ripple @click="openEditDialog('displayName')">
@@ -19,7 +19,7 @@
             </q-item-section>
           </q-item>
 
-          <q-item clickable v-ripple @click="openEditDialog('email')">
+          <q-item :clickable="signInMethodsIncludePassword === true" v-ripple @click="openEditDialog('email')">
             <q-item-section>
               <q-item-label caption>
                 Email
@@ -29,7 +29,7 @@
           </q-item>
 
 
-          <q-item clickable v-ripple @click="openEditDialog('password')">
+          <q-item v-if="signInMethodsIncludePassword === true" clickable v-ripple @click="openEditDialog('password')">
             <q-item-section>
               <q-item-label caption>
                 Password
@@ -69,7 +69,7 @@
             </q-item-section>
           </q-item>
           <!-- TODO:1 fail if no internet connection and ask user for connection -->
-          <!-- <q-item clickable v-ripple @click="contactUsDialogOpen = true"> -->
+          <!-- <q-item clickable v-ripple @click="contactUsDialogOpened = true"> -->
           <q-item clickable v-ripple to="/contact">
             <q-item-section>
               <q-item-label>Contact us</q-item-label>
@@ -84,7 +84,7 @@
         </q-card>
 
         <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
-          @click="logoutDialogOpen = true">
+          @click="logoutDialogOpened = true">
           <q-item>
             <q-item-section>
               <q-item-label>Log out</q-item-label>
@@ -92,9 +92,19 @@
           </q-item>
         </q-card>
 
-        <q-item>
+        <q-item-label header>Danger zone</q-item-label>
+        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
+          @click="deleteDialogOpened = true">
+          <q-item>
+            <q-item-section class="text-error">
+              <q-item-label>Delete account</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
+
+        <q-item dense>
           <q-item-section>
-            <q-item-label>KifKaf version {{ version }}</q-item-label>
+            <q-item-label class="text-center">KifKaf version {{ version }}</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -102,29 +112,43 @@
     </div>
 
     <!--TODO:1 allow for not re-inputting email if not needed -->
-    <q-dialog v-model="editDialogOpen" position="top">
-      <q-card class="bg-surface">
+    <q-dialog v-model="editDialogOpened" position="bottom" style="max-width: 600px">
+
+      <q-card class="bg-background" flat style="height: 90vh;">
+        <q-toolbar class="q-pa-sm">
+          <q-btn flat v-close-popup round dense icon="close" />
+        </q-toolbar>
+
+        <!-- <div class="q-px-md">
+        <q-item class="q-px-none">
+          <q-item-section class="text-h6 text-weight-medium">{{
+            momentsStore.getFormattedDate(moment?.date?.seconds, true) }}</q-item-section>
+        </q-item> -->
+        <!-- <q-card class="bg-surface"> -->
 
         <div v-if="currentSetting === 'displayName'">
-          <q-card-section class="text-h6">Change name</q-card-section>
+          <q-card-section class="text-h6 text-weight-medium">Change name</q-card-section>
           <q-card-section>
-            <q-input ref="mainInputRef" class="q-mx-sm q-mb-md" clearable rounded outlined v-model="newSettingValue"
-              type="text" bg-color="surface-variant" label="First & last name" lazy-rules :rules="displayNameRules" />
+            <q-input ref="mainInputRef" class="q-mx-sm q-mb-md" color="transparent" clearable rounded outlined
+              v-model="newSettingValue" type="text" bg-color="surface-variant" placeholder="First & last name" lazy-rules
+              :rules="displayNameRules" />
           </q-card-section>
         </div>
 
         <div v-else-if="currentSetting === 'email'">
-          <q-card-section class="text-h6">Change email</q-card-section>
+          <q-card-section class="text-h6 text-weight-medium">Change email</q-card-section>
           <q-card-section>
             Enter your email address
           </q-card-section>
-          <q-input ref="mainInputRef" class="q-mx-md q-mb-md" clearable rounded outlined v-model="newSettingValue"
-            type='email' bg-color="surface-variant" placeholder="jane.doe@mail.com" lazy-rules :rules="emailRules" />
+          <q-input ref="mainInputRef" class="q-mx-md q-mb-md" color="transparent" clearable rounded outlined
+            v-model="newSettingValue" type='email' bg-color="surface-variant" placeholder="jane.doe@mail.com" lazy-rules
+            :rules="emailRules" />
           <q-card-section>
             Enter your password to confirm
           </q-card-section>
-          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="oldPassword" label="Password"
-            :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant" lazy-rules :rules="passwordRules">
+          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" color="transparent" rounded outlined v-model="oldPassword"
+            placeholder="Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant" lazy-rules
+            :rules="passwordRules">
             <template v-slot:append>
               <q-icon :name="isPwdOld ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                 @click="isPwdOld = !isPwdOld" />
@@ -133,12 +157,12 @@
         </div>
 
         <div v-else-if="currentSetting === 'password'">
-          <q-card-section class="text-h6">Change Password</q-card-section>
+          <q-card-section class="text-h6 text-weight-medium">Change Password</q-card-section>
           <q-card-section>
             Enter your existing password
           </q-card-section>
-          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="oldPassword"
-            label="Existing Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant" lazy-rules
+          <q-input ref="oldPwdInputRef" class="q-mx-md q-mb-sm" color="transparent" rounded outlined v-model="oldPassword"
+            placeholder="Existing Password" :type="isPwdOld ? 'password' : 'text'" bg-color="surface-variant" lazy-rules
             :rules="passwordRules">
             <template v-slot:append>
               <q-icon :name="isPwdOld ? 'visibility_off' : 'visibility'" class="cursor-pointer"
@@ -149,38 +173,52 @@
           <q-card-section>
             Create a new password
           </q-card-section>
-          <!-- TODO:2 for we should provide pwd guidelines (character, length) and have validation in place -->
-          <q-input ref="mainInputRef" class="q-mx-md q-mb-md" rounded outlined v-model="newSettingValue"
-            label="New Password" :type="isPwd ? 'password' : 'text'" bg-color="surface-variant" lazy-rules
-            :rules="passwordRules">
+          <!-- TODO:2 for we should provide pwd guidelines (character, length) and have adequate validation in place -->
+          <q-input ref="mainInputRef" class="q-mx-md q-mb-sm" color="transparent" rounded outlined
+            v-model="newSettingValue" placeholder="New Password" :type="isPwd ? 'password' : 'text'"
+            bg-color="surface-variant" lazy-rules :rules="passwordRules">
             <template v-slot:append>
               <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="isPwd = !isPwd" />
             </template>
           </q-input>
         </div>
 
-        <q-separator />
-        <q-card-actions align="right">
-          <q-btn flat rounded label="Cancel" v-close-popup />
-          <q-btn rounded color="primary" @click="updateSetting" padding="5px 25px">Save</q-btn>
+        <q-card-actions align="center" class="q-mx-sm">
+          <q-btn rounded label="Save" color="primary" @click="updateSetting" class="full-width" padding="md" no-caps />
           <!-- TODO:2 for email should be "verify" instead of save and we should have a verifying flow -->
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="logoutDialogOpen">
-      <q-card class="bg-surface">
+    <q-dialog v-model="logoutDialogOpened">
+      <q-card class="bg-background q-py-sm">
         <!-- <q-card> -->
         <q-card-section>
-          <div class="text-h6">Log out</div>
+          <div class="text-h6 text-weight-medium">Log out</div>
         </q-card-section>
-        <q-card-section>
+        <q-card-section class="q-pt-none">
           You will be returned to the login screen.
         </q-card-section>
         <q-separator />
         <q-card-actions align="right">
-          <q-btn flat rounded label="Cancel" color="primary" v-close-popup />
+          <q-btn flat rounded label="Cancel" color="primary" padding="sm md" v-close-popup />
           <q-btn flat rounded data-cy="logout-button" label="Log out" color="primary" v-close-popup @click="logOut" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="deleteDialogOpened">
+      <q-card class="bg-background q-py-sm">
+        <!-- <q-card> -->
+        <q-card-section>
+          <div class="text-h6 text-weight-medium">Delete account</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          Deleting your account is permanent. All your moments, insights, and associated data will be permanently erased.
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn rounded label="Cancel" color="primary" padding="sm md" v-close-popup />
+          <q-btn flat rounded label="Delete account" color="primary" v-close-popup @click="deleteAccount" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -188,17 +226,27 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch, onMounted } from 'vue'
-import { auth } from "../boot/firebaseBoot.js";
-import { signOut } from "firebase/auth";
+import { ref, watch, onMounted } from 'vue'
+import { getFirebaseAuth } from "../boot/firebaseBoot.js";
+import { signOut, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 const version = process.env.__APP_VERSION__
 
 const $q = useQuasar()
 const router = useRouter()
 const momentsStore = useMomentsStore()
+const auth = getFirebaseAuth();
+const signInMethods = ref(null);
+const signInMethodsIncludePassword = ref(true)
+const currentSetting = ref('')
+const newSettingValue = ref('')
+const oldPassword = ref('')
+const isPwdOld = ref(true)
+const isPwd = ref(true)
+
 onMounted(async () => {
   try {
     if (!momentsStore.userFetched) {
@@ -207,13 +255,17 @@ onMounted(async () => {
   } catch (error) {
     console.error('await momentsStore.fetchUser() error:', error);
   }
-})
-
-const currentSetting = ref('')
-const newSettingValue = ref('')
-const oldPassword = ref('')
-const isPwdOld = ref(true)
-const isPwd = ref(true)
+  try {
+    signInMethods.value = await fetchSignInMethodsForEmail(auth, momentsStore.user.email);
+  } catch (error) {
+    console.error('Error fetching sign-in methods:', error);
+  }
+  console.log("signInMethods.value:", signInMethods.value);
+  console.log("signInMethods.value[0]:", signInMethods.value[0]); //"apple.com", "google.com", "password"
+  //if signInMethods.value contains "password" set signInMethodsIncludePassword.value to true
+  if (!signInMethods.value.includes("password")) signInMethodsIncludePassword.value = false;
+}
+)
 
 const displayNameRules = [
   val => (val && val.length > 0) || 'Please type your name'
@@ -228,8 +280,9 @@ const passwordRules = [
   val => val.length >= 6 || 'Password must be at least 6 characters'
 ]
 
-const editDialogOpen = ref(false)
-const logoutDialogOpen = ref(false)
+const editDialogOpened = ref(false)
+const logoutDialogOpened = ref(false)
+const deleteDialogOpened = ref(false)
 
 const oldPwdInputRef = ref(null)
 const mainInputRef = ref(null)
@@ -237,14 +290,14 @@ const mainInputRef = ref(null)
 const openEditDialog = (setting) => {
   currentSetting.value = setting
   newSettingValue.value = setting === 'password' ? '' : momentsStore.user[setting]
-  editDialogOpen.value = true
-  nextTick(() => {
-    if (setting === 'password') oldPwdInputRef.value.$el.querySelector('input').focus();
-    else mainInputRef.value.$el.querySelector('input').focus();
-  })
+  editDialogOpened.value = true
+  // nextTick(() => {
+  //   if (setting === 'password') oldPwdInputRef.value.$el.querySelector('input').focus();
+  //   else mainInputRef.value.$el.querySelector('input').focus();
+  // })
 }
 
-watch(editDialogOpen, (val) => {
+watch(editDialogOpened, (val) => {
   if (!val) {
     currentSetting.value = ''
     newSettingValue.value = ''
@@ -253,6 +306,9 @@ watch(editDialogOpen, (val) => {
     isPwd.value = true
   }
 })
+
+
+
 
 // let keyboardOpen = false
 // onMounted(() => {
@@ -294,7 +350,7 @@ const updateSetting = async () => {
       return
     }
     await momentsStore.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
-    editDialogOpen.value = false
+    editDialogOpened.value = false
     $q.notify({
       icon: 'done',
       color: 'positive',
@@ -330,19 +386,39 @@ const updateSetting = async () => {
   //TODO:2 disable Save button when no change were made and when one validation is not passed
 }
 
-const logOut = () => {
-  signOut(auth).then(() => {
+const logOut = async () => {
+  try {
+    if (process.env.MODE === "capacitor") {
+      console.log("In SettingsPage, signing out for native");
+      await FirebaseAuthentication.signOut();
+    }
+
+    console.log("In SettingsPage, signing out for web");
+    // Sign out on the web layer
+    await signOut(auth)
+
     setTimeout(() => {
       momentsStore.$reset()
-      router.push('/login')
+      router.push('/welcome')
       console.log('logged out')
     }, 10)
-  }).catch((error) => {
-    console.log("Error logging out", error);
-  });
-  logoutDialogOpen.value = false
-}
+    logoutDialogOpened.value = false
+  }
+  catch (error) {
+    console.error(error);
+  }
+};
 
+const deleteAccount = async () => {
+  deleteDialogOpened.value = false
+  console.log("In SettingsPage, heading to account deletion page");
+  router.push('/account-deletion')
+  // setTimeout(() => {
+  //   momentsStore.$reset()
+  //   router.push('/welcome')
+  //   console.log('logged out')
+  // }, 10)
+}
 </script>
 
 <style lang="scss">
@@ -353,5 +429,9 @@ const logOut = () => {
   // position: fixed;
   // top: 50%;
   // transform: translateY(-50%);
+}
+
+.q-item__label--header {
+  padding: 8px 16px 8px;
 }
 </style>

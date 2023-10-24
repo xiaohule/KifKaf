@@ -42,13 +42,13 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
     appId: "1:296402111022:web:9e147ef8aa0fcb44822dbf",
     measurementId: "G-6KB3RTH5GX",
   };
-  const firebaseApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseApp);
+  const firebaseWebApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseWebApp);
 
   //APP CHECK
   self.FIREBASE_APPCHECK_DEBUG_TOKEN =
     Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI") || true;
-  const appCheck = initializeAppCheck(firebaseApp, {
+  const appCheck = initializeAppCheck(firebaseWebApp, {
     provider: new ReCaptchaV3Provider(
       "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
     ),
@@ -74,7 +74,7 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
 Cypress.Commands.add("signIn", (username, password) => {
   cy.url({ timeout: 40000 }).should("include", "login");
   cy.get("input").type(username);
-  cy.contains("Next").click();
+  cy.contains("Continue").click();
   cy.get("[type='password']").type(password);
   //click on the button of type submit that contains "Sign in" text, be careful there is another element that contains text "Sign in" but it is not a button
   cy.get("button[type='submit']").click();
@@ -86,7 +86,7 @@ Cypress.Commands.add("signIn", (username, password) => {
 Cypress.Commands.add("signUp", (username, password) => {
   cy.url({ timeout: 40000 }).should("include", "login");
   cy.get("input").type(username);
-  cy.contains("Next").click();
+  cy.contains("Continue").click();
   cy.get("[type='text'][name='name']").type("Jane Doe");
   cy.get("[type='password']").type(password);
   cy.get("button[type='submit']").click();
@@ -106,11 +106,6 @@ Cypress.Commands.add("signUp", (username, password) => {
       cy.get("#inbox-id > input").type(usernameHandle);
       cy.contains("Set").click({ force: true });
       cy.wait(1000);
-      // cy.visit("/");
-      cy.wait(1000);
-      // cy.wait(5000);
-      // cy.reload();
-      // cy.wait(5000);
       cy.reload(true);
 
       cy.contains("kifkaf", { timeout: 120000 })
@@ -136,7 +131,7 @@ Cypress.Commands.add("signUp", (username, password) => {
     );
   });
 
-  cy.visit("/login");
+  cy.visit("/login/email");
 });
 
 Cypress.Commands.add(

@@ -1,8 +1,7 @@
 <template >
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px;">
     <!-- <q-list> -->
-    <q-item-label class="text-body1 text-weight-medium q-my-sm">Add a new Moment</q-item-label>
-    <!-- TODO:2 welcome user -->
+    <q-item-label class="text-body1 text-weight-medium q-my-sm">Log a new Moment</q-item-label>
     <!-- <template>
       <p v-if="user">Hello {{ user.providerData.displayName }}</p>
     </template> -->
@@ -12,15 +11,14 @@
 
     <q-card class="bg-surface q-mb-lg q-px-none q-py-sm rounded-borders-14" flat>
       <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
-      <!-- TODO:3 add a signal that speech recognition is on -->
       <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
         lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text"
-        autogrow rounded outlined bg-color="surface-variant" color="transparent">
+        autogrow rounded outlined bg-color="surface-variant" color="transparent" :placeholder="placeholderText">
         <template v-slot:append>
           <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
-            @click="toggleSpeechRecognition" />
+            @click="toggleSpeech" />
           <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
-            class="pulse-animation" @click="toggleSpeechRecognition" />
+            class="pulse-animation" @click="toggleSpeech" />
         </template>
         <template v-slot:after>
           <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense unelevated color="primary"
@@ -56,6 +54,14 @@
       <moment-bottom-sheet v-model="momPageOpened" :moment-id="bottomSheetMomentId"
         :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
+    <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
+      <q-card class="bg-background q-pa-lg text-center" flat>
+        <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
+        <q-card-section class="text-h6 text-weight-medium q-py-md text-left	">
+          <div v-html="errorDialogText"></div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -65,7 +71,7 @@ import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { date } from "quasar";
 const { formatDate } = date; // destructuring to keep only what is needed in date
-import { isRecognizing, recognition, useSpeechRecognition } from '../composables/speechRecognition.js' // TODO:2 make this dynamic imports?
+import { showSpeechRecognitionButton, isRecognizing, webRecognitionInstance, useSpeechRecognition } from '../composables/speechRecognition.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
@@ -90,25 +96,27 @@ onActivated(() => {
 
 onDeactivated(() => {
   // console.log('HomeTab onDeactivate recog fired');
-  if (recognition) {
-    recognition.stop();
+  if (webRecognitionInstance) {
+    webRecognitionInstance.stop();
     isRecognizing.value = false;
   }
 })
 onBeforeUnmount(() => {
   // console.log('onBeforeUnmount recog fired');
-  if (recognition) {
-    recognition.stop();
+  if (webRecognitionInstance) {
+    webRecognitionInstance.stop();
     isRecognizing.value = false;
   }
 })
 
-const placeholderText = 'Feeling...when/at/to...bec...'
+const errorDialogOpened = ref(false)
+const errorDialogText = ref('')
+const placeholderText = 'Feeling...'
 const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
 
-const expectedLlmCallDuration = ref(40);
+const expectedLlmCallDuration = ref(60);
 const momPageOpened = ref(false)
 const bottomSheetMomentId = ref("")
 const openBottomSheet = (momentId) => {
@@ -140,13 +148,23 @@ const newMomRules = [
   val => (val && (val.split(/\s+/).filter(word => word.length > 0)).length >= 4) || "That's short 😊, can you add more details?",
   //ensure text is not fully non-alphanumeric
   val => (val && regex.test(val)) || "Oops! 😅 Got a bit lost there. Can you rephrase that for me?",
-]//TODO:3 check what happen when quote char is used
+]
 
 //SPEECH RECOGNITION
-const {
-  showSpeechRecognitionButton,
-  toggleSpeechRecognition,
-} = useSpeechRecognition(newMomText)
+let toggleSpeech
+onMounted(async () => {
+  const { toggleSpeechRecognition } = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
+  toggleSpeech = async () => {
+    console.log('toggleSpeech fired');
+    try {
+      await toggleSpeechRecognition();
+    } catch (error) {
+      console.error('Error toggling speech recognition:', error);
+    }
+  }
+});
+
+//focus on textarea when speech recognition is turned off
 watch(isRecognizing, (val) => {
   if (!val) newMomInputRef.value.$el.querySelector('textarea').select();
 })
@@ -169,9 +187,9 @@ const onSubmit = (event) => {
 }
 
 // DISPLAY PREVIOUS MOMENTS
-const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssStore directly
+const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssStore directly
   const dayDate = (new Timestamp(day, 0)).toDate()
-  const ul = momentsStore?.momentsColl?.value?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
+  const ul = momentsStore?.momentsColl?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
   // sort array ul per descending moments.value.date.seconds
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;
@@ -179,10 +197,6 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssS
 </script>
 
 <style lang="scss">
-.q-field--outlined .q-field__control:before {
-  border: none;
-}
-
 .q-field__append.q-field__marginal.row.no-wrap.items-center.q-anchor--skip {
   display: none;
 }
@@ -197,7 +211,7 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssS
   }
 
   50% {
-    transform: scale(1.1);
+    transform: scale(1.3);
   }
 
   100% {
@@ -206,7 +220,7 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:2 this should be in momentssS
 }
 
 .pulse-animation {
-  animation: pulse 1s infinite;
+  animation: pulse 1.3s infinite;
 }
 </style>
 

@@ -21,5 +21,36 @@ textarea {
 }
 
 .q-notifications__list--bottom {
-  bottom: 72px;
+  bottom: 78px;
+}
+
+.q-field__control {
+  border-radius: 14px !important;
+}
+
+.q-field--outlined .q-field__control:before {
+  border: none;
+}
+
+.q-dialog__inner > div {
+  border-top-right-radius: 14px;
+  border-top-left-radius: 14px;
+}
+
+// .q-dialog__inner--bottom {
+//   padding-bottom: 0 !important;
+// }
+
+// .q-dialog__inner {
+//   padding-bottom: 0 !important;
+// }
+
+// .q-dialog__inner--top,
+// .q-dialog__inner--bottom {
+//   padding-top: 0 !important;
+//   padding-bottom: 0 !important;
+// }
+
+body.q-ios-padding .q-dialog__inner {
+  padding-bottom: 0 !important;
 }

@@ -1,7 +1,6 @@
 import { boot } from "quasar/wrappers";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import {
-  // getFirestore,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
@@ -9,19 +8,33 @@ import {
   collection,
   where,
   getDocs,
+  setDoc,
   updateDoc,
   increment,
   orderBy,
   limit,
+  doc,
 } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getAuth,
+  onAuthStateChanged,
+  indexedDBLocalPersistence,
+  initializeAuth,
+} from "firebase/auth";
 // import { getAnalytics } from "firebase/analytics";
-import { VueFire, VueFireAuth, getCurrentUser } from "vuefire";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import { markRaw } from "vue";
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  CustomProvider,
+} from "firebase/app-check";
+import { markRaw, ref, watch } from "vue";
 // import Vue3Lottie from "vue3-lottie";
 import { debounce } from "lodash";
 import axios from "axios";
+axios.defaults.baseURL = process.env.API_URL;
+// import { Device } from "@capacitor/device";
+// import { Platform, is } from "quasar";
+// console.log("Platform is", Platform.is);
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -42,13 +55,50 @@ export const db = markRaw(
     ),
   }),
 );
-// console.log("firebaseApp", firebaseApp);
-// console.log("db", db);
+// console.log("firebaseApp", firebaseApp, "db", db);
 
-export const auth = getAuth(firebaseApp);
+//AUTH
+let auth;
+export const getFirebaseAuth = () => {
+  if (!auth) {
+    console.log("In firebaseBoot > getFirebaseAuth,no auth yet");
+
+    if (process.env.MODE !== "capacitor") {
+      console.log("In firebaseBoot > getFirebaseAuth, web mode");
+      auth = getAuth(firebaseApp);
+    } else {
+      console.log("In firebaseBoot > getFirebaseAuth, capacitor mode");
+      auth = initializeAuth(getApp(), {
+        persistence: indexedDBLocalPersistence,
+      });
+    }
+  }
+  return auth;
+};
+
+//USER
+export const currentUser = ref(null);
+//if signed out in one tab, sign out in all tabs //TODO:2 ensure this
+onAuthStateChanged(getFirebaseAuth(), (user) => {
+  // console.log("onAuthStateChanged", user);
+  if (user) currentUser.value = user;
+  // else router.push("/login");
+});
 // const analytics = getAnalytics(firebaseApp);
 
 //APP CHECK
+// const checkIfVirtualDevice = async () => {
+//   const info = await Device.getInfo();
+//   // console.log(info);
+//   if (info.isVirtual) {
+//     console.log("Running in a virtual device");
+//     return true;
+//   } else {
+//     console.log("Running in a non-virtual device");
+//     return false;
+//   }
+// };
+// const isVirtualDevice = await checkIfVirtualDevice();
 // Set FIREBASE_APPCHECK_DEBUG_TOKEN to the CI one if CI, true (to use the dev whitelisted ones) if no in CI but in dev and false otherwise
 self.FIREBASE_APPCHECK_DEBUG_TOKEN =
   process.env.CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI ||
@@ -58,32 +108,117 @@ console.log(
   "FIREBASE_APPCHECK_DEBUG_TOKEN",
   self.FIREBASE_APPCHECK_DEBUG_TOKEN,
 );
-// Pass your reCAPTCHA v3 site key (public key). Make sure this key is the counterpart to the secret key you set in the Firebase console.
-const appCheck = initializeAppCheck(firebaseApp, {
-  provider: new ReCaptchaV3Provider("6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB"),
-  // Optional argument. If true, the SDK automatically refreshes App Check
-  // tokens as needed.
-  isTokenAutoRefreshEnabled: true,
-});
+if (
+  process.env.MODE !== "capacitor" ||
+  process.env.NODE_ENV === "development"
+  // || isVirtualDevice
+) {
+  console.log("In firebaseBoot, initializing app check for web or dev");
+  const appCheck = initializeAppCheck(firebaseApp, {
+    provider: new ReCaptchaV3Provider(
+      "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+    ),
+    isTokenAutoRefreshEnabled: true,
+  });
+} else {
+  import("@capacitor-firebase/app-check")
+    .then(async (module) => {
+      console.log("In firebaseBoot, initializing app check for native");
+
+      const FirebaseAppCheck = module.FirebaseAppCheck;
+
+      // const initialize = async () => {
+
+      // 1. Initialize on the native layer
+      await FirebaseAppCheck.initialize({
+        // siteKey: "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+        // debug: process.env.NODE_ENV === "development",
+        isTokenAutoRefreshEnabled: true,
+      });
+      // 2. Set up a custom provider
+      const appCheckCustomProvider = new CustomProvider({
+        getToken: () => {
+          console.log("In firebaseBoot, running FirebaseAppCheck.getToken()");
+          return FirebaseAppCheck.getToken();
+        },
+      });
+      const app = getApp();
+      // 3. Initialize on the web layer
+      const appCheck = initializeAppCheck(app, {
+        provider: appCheckCustomProvider,
+        isTokenAutoRefreshEnabled: true,
+      });
+
+      // };
+      // await initialize();
+      console.log("In firebaseBoot native and prod,  initialize called");
+    })
+    .catch((error) => {
+      console.error(
+        "In firebaseBoot, Failed to initialize app check for native, error:",
+        error,
+      );
+    });
+}
+
+//DEVICE LANGUAGE
+const setDeviceLanguage = async () => {
+  let deviceLanguage = "";
+  if (process.env.MODE !== "capacitor") {
+    deviceLanguage = navigator.language || navigator.userLanguage;
+    console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
+  } else {
+    import("@capacitor/device")
+      .then(async (module) => {
+        const Device = module.Device;
+        deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";
+        console.log(
+          "In firebaseBoot native mode, deviceLanguage is",
+          deviceLanguage,
+        );
+      })
+      .catch((error) => {
+        console.error(
+          "In firebaseBoot, Failed to set deviceLanguage for native, error:",
+          error,
+        );
+      });
+  }
+  await setDoc(
+    doc(db, "users", currentUser.value.uid),
+    { deviceLanguage },
+    { merge: true },
+  );
+  console.log("In firebaseBoot, just set deviceLanguage to", deviceLanguage);
+};
 
 //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
 const emptyNeedsMomentsRetry = async () => {
-  const user = await getCurrentUser();
-  // const user = auth.currentUser;
-  if (!user || !user.uid) {
-    console.log("In emptyNeedsMomentsRetry, returning early because no user");
+  console.log(
+    "In firebaseBoot > emptyNeedsMomentsRetry > capacitor mode is",
+    process.env.MODE === "capacitor",
+  );
+
+  if (!currentUser.value || !currentUser.value.uid) {
+    console.log(
+      "In firebaseBoot, in emptyNeedsMomentsRetry, returning early because no user",
+    );
     return;
   }
 
+  console.log("In firebaseBoot in emptyNeedsMomentsRetry2");
+
   // Query moments where needsSatisAndImp is empty
   const emptyNeedsSatisAndImpQuery = query(
-    collection(db, `users/${user.uid}/moments`),
+    collection(db, `users/${currentUser.value.uid}/moments`),
     where("needsSatisAndImp", "==", {}),
     where("retries", "<", 3),
     orderBy("retries"),
     orderBy("date", "desc"),
     limit(5),
   );
+
+  console.log("in firebaseBoot in emptyNeedsMomentsRetry3");
 
   const momentsWithEmptyNeedsSatisAndImp = await getDocs(
     emptyNeedsSatisAndImpQuery,
@@ -92,18 +227,18 @@ const emptyNeedsMomentsRetry = async () => {
   // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeedsSatisAndImp.empty
   if (!momentsWithEmptyNeedsSatisAndImp.size) {
     console.log(
-      "In emptyNeedsMomentsRetry, no moments with empty needsSatisAndImp found",
+      "In firebaseBoot, in emptyNeedsMomentsRetry, no moments with empty needsSatisAndImp found",
     );
     return;
   }
 
-  const idToken = await user.getIdToken(/* forceRefresh */ true);
+  const idToken = await currentUser.value.getIdToken(/* forceRefresh */ true);
 
   // Use Promise.all to process all moments concurrently
   const processPromises = momentsWithEmptyNeedsSatisAndImp.docs.map(
     async (doc) => {
       console.log(
-        "In emptyNeedsMomentsRetry, triggering retry call to llm for moment",
+        "In firebaseBoot, in emptyNeedsMomentsRetry, triggering retry call to llm for moment",
         doc.data().text,
       );
       const response = await axios.get(`/api/learn/needs/`, {
@@ -120,7 +255,7 @@ const emptyNeedsMomentsRetry = async () => {
         retries: increment(1),
       });
       console.log(
-        "Successful retried llm call for moment",
+        "In firebaseBoot, successful retried llm call for moment",
         doc.data().text,
         // "' :",
         // response.data,
@@ -134,8 +269,9 @@ const emptyNeedsMomentsRetry = async () => {
 
 const llmRetryHandler = debounce(
   () => {
-    console.log("llmRetryHandler called!");
+    console.log("In firebaseBoot, calling llmRetryHandler");
     emptyNeedsMomentsRetry();
+    console.log("In firebaseBoot, llmRetryHandler called!");
   },
   60000,
   { leading: true, trailing: false },
@@ -150,26 +286,19 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-export default boot(({ app, router }) => {
-  app.use(VueFire, {
-    // imported above but could also just be created here
-    firebaseApp,
-    modules: [
-      // we will see other modules later on
-      VueFireAuth(),
-    ],
-  });
-
+export default boot(({ router }) => {
   //if targeting a route that needs sign in without being signed in, redirect to login
   router.beforeEach(async (to) => {
     // console.log("router.beforeEach", to);
     // routes with `meta: { requiresAuth: true }` will check for the users, others won't
     if (to.meta.requiresAuth) {
-      const currentUser = await getCurrentUser();
       // if the user is not logged in, redirect to the login page
-      if (!currentUser || !currentUser.emailVerified) {
+      if (!currentUser.value || !currentUser.value.emailVerified) {
+        console.log(
+          "In firebaseBoot > router.beforeEach, no user or email not verified, pushing you to /welcome",
+        );
         return {
-          path: "/login",
+          path: "/welcome",
           query: {
             // we keep the current path in the query so we can redirect to it after login
             // with `router.push(route.query.redirect || '/')`
@@ -181,15 +310,16 @@ export default boot(({ app, router }) => {
   });
 
   // Call llmRetryHandler during app initialization
-  llmRetryHandler();
-
-  //if signed out in one tab, sign out in all tabs
-  onAuthStateChanged(auth, (user) => {
-    // console.log("onAuthStateChanged", user);
-    if (!user) {
-      router.push("/login");
-    }
-  });
+  watch(
+    currentUser,
+    (newUser) => {
+      if (newUser) {
+        setDeviceLanguage();
+        llmRetryHandler();
+      }
+    },
+    { immediate: true },
+  );
 
   //   window.addEventListener('offline', () => {
   //   console.log("App is offline");

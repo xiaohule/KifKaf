@@ -11,21 +11,22 @@ const routes = [
     meta: { requiresAuth: true },
     children: [{ path: "", component: () => import("pages/LearnTabV1.vue") }],
   },
-  {
-    path: "/timeline",
-    component: () => import("layouts/MainLayout.vue"),
-    meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/TimelineTab.vue") }],
-  },
-  {
-    path: "/search",
-    component: () => import("layouts/MainLayout.vue"),
-    meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/SearchTab.vue") }],
-  },
+  // {
+  //   path: "/timeline",
+  //   component: () => import("layouts/MainLayout.vue"),
+  //   meta: { requiresAuth: true },
+  //   children: [{ path: "", component: () => import("pages/TimelineTab.vue") }],
+  // },
+  // {
+  //   path: "/search",
+  //   component: () => import("layouts/MainLayout.vue"),
+  //   meta: { requiresAuth: true },
+  //   children: [{ path: "", component: () => import("pages/SearchTab.vue") }],
+  // },
   {
     path: "/settings",
-    component: () => import("layouts/SettingsLayout.vue"),
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    // props: { title: "Settings" },
     meta: { requiresAuth: true },
     children: [
       {
@@ -35,14 +36,26 @@ const routes = [
     ],
   },
   {
-    path: "/login",
-    component: () => import("layouts/AuthLayout.vue"),
-    children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
+    path: "/welcome",
+    component: () => import("layouts/WelcomeLayout.vue"),
+    children: [{ path: "", component: () => import("pages/WelcomePage.vue") }],
   },
-  //TODO:1 make only one layout for terms and privacy policy and auth that can take a title as param
+  {
+    path: "/login",
+    // component: () => import("layouts/GoBackTitleLayout.vue"),
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    children: [
+      { path: "", component: () => import("pages/login/LoginPage.vue") },
+      {
+        path: "email",
+        component: () => import("pages/login/EmailLogin.vue"),
+      },
+    ],
+  },
   {
     path: "/privacy-policy",
-    component: () => import("layouts/PrivacyPolicyLayout.vue"),
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    // props: { title: "Privacy Policy" },
     children: [
       {
         path: "",
@@ -52,7 +65,8 @@ const routes = [
   },
   {
     path: "/terms",
-    component: () => import("layouts/TermsLayout.vue"),
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    // props: { title: "Terms of Service" },
     children: [
       {
         path: "",
@@ -62,11 +76,22 @@ const routes = [
   },
   {
     path: "/contact",
-    component: () => import("layouts/ContactLayout.vue"),
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    // props: { title: "Contact Us" },
     children: [
       {
         path: "",
         component: () => import("pages/ContactUsPage.vue"),
+      },
+    ],
+  },
+  {
+    path: "/account-deletion",
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("pages/AccountDeletionPage.vue"),
       },
     ],
   },

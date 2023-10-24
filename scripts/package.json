@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "deleteOldUsers.js",
   "scripts": {
@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "firebase-admin": "^11.10.1"
+    "firebase-admin": "^11.11.0"
   }
 }

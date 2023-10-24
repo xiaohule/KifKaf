@@ -3,7 +3,18 @@
   "appName": "KifKaf",
   "webDir": "www",
   "server": {
-    "androidScheme": "https",
-    "url": "http://192.168.1.11:9500"
+    "androidScheme": "https"
+  },
+  "ios": {
+    "scheme": "KifKaf"
+  },
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": true,
+      "providers": [
+        "google.com",
+        "apple.com"
+      ]
+    }
   }
 }

@@ -13,5 +13,15 @@
       "vue$": ["node_modules/vue/dist/vue.runtime.esm-bundler.js"]
     }
   },
-  "exclude": ["dist", ".quasar", "node_modules"]
+  "exclude": [
+    "dist",
+    "src-capacitor/www",
+    "src-capacitor/node_modules",
+    ".quasar",
+    "node_modules",
+    "coverage",
+    "cypress",
+    "functions",
+    "scripts"
+  ]
 }

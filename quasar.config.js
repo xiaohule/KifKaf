@@ -9,8 +9,13 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 const { configure } = require("quasar/wrappers");
+const path = require("path");
 
-module.exports = configure(function (/* ctx */) {
+// console.log("In quasar.config.js, process.env is", process.env);
+
+module.exports = configure(function (ctx) {
+  console.log(ctx);
+
   return {
     eslint: {
       // fix: true,
@@ -46,6 +51,7 @@ module.exports = configure(function (/* ctx */) {
       "material-icons", // optional, you are not bound to it
       "material-icons-outlined",
       "material-icons-round",
+      "fontawesome-v6",
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
@@ -53,6 +59,11 @@ module.exports = configure(function (/* ctx */) {
       // APP VERSION
       env: {
         __APP_VERSION__: require("./package.json").version,
+        API_URL: ctx.dev
+          ? ctx.mode.capacitor
+            ? "http://192.168.1.51:3000"
+            : "http://localhost:3000"
+          : "https://lemon-bay-09625be03.3.azurestaticapps.net",
       },
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
@@ -67,14 +78,28 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
       // polyfillModulePreload: true,
       // distDir
 
-      // extendViteConf (viteConf) {},
+      // extendViteConf(viteConf) {
+      //   viteConf.optimizeDeps = {
+      //     // entries: [
+      //     //   // "tests/cypress/**/*.js",
+      //     //   "test/cypress/**/*.{js,jsx,ts,tsx}",
+      //     //   "**/*.cy.{js,jsx,ts,tsx}",
+      //     //   "src/**/*.{js,jsx,ts,tsx,vue}",
+      //     //   "index.html",
+      //     // ],
+      //     include: [
+      //       "@capacitor",
+      //       "@capacitor-firebase",
+      //       "@capacitor-community",
+      //     ],
+      //   };
+      // },
       viteVuePluginOptions: {
         template: {
           compilerOptions: {
@@ -85,16 +110,36 @@ module.exports = configure(function (/* ctx */) {
       // vitePlugins: [
       //   [ 'package-name', { ..options.. } ]
       // ]
+      alias: {
+        "@capacitor": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capacitor",
+        ),
+        "@capacitor-firebase": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capacitor-firebase",
+        ),
+        "@capacitor-community": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capacitor-community",
+        ),
+      },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
       // https: true, enable so that Workbox will load your service workers during quasar dev
       open: true, // opens browser window automatically
+      // port: ctx.mode.spa ? 9000 : ctx.mode.pwa ? 9200 : 8080,
+      // port: 9200,
+
       // proxy all calls to /api to http://localhost:3000/api
       proxy: {
         "/api": {
-          target: "http://localhost:3000",
+          target: ctx.mode.capacitor
+            ? "http://192.168.1.51:3000" //attribuer bail static (dhcp reservation from fbx settings http://192.168.1.254/) to wifi mac address if needed
+            : "http://localhost:3000",
+          // target: "http://192.168.1.12:3000", //"http://localhost:3000",
           changeOrigin: true,
         },
       },
@@ -119,7 +164,7 @@ module.exports = configure(function (/* ctx */) {
       // components: [],
       // directives: [],
 
-      // plugins: ["Firebase", "VueFire"],
+      // plugins: ["Firebase"],
     },
 
     // animations: "all", // --- includes all animations readd if needed
@@ -180,7 +225,7 @@ module.exports = configure(function (/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
     capacitor: {
-      hideSplashscreen: true,
+      hideSplashscreen: false,
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/developing-electron-apps/configuring-electron

@@ -36,7 +36,7 @@
       </swiper-container>
     </div>
 
-    <q-dialog v-model="filterDialogOpen" position="bottom">
+    <q-dialog v-model="filterDialogOpened" position="bottom">
       <q-card class="bg-background q-px-sm">
 
         <div v-if="tappedFilter === 'date'">
@@ -59,7 +59,7 @@
         </div>
 
         <q-card-actions align="center">
-          <q-btn rounded color="primary" padding="md md" @click="filterDialogOpen = false" class="text-body1
+          <q-btn rounded color="primary" padding="md md" @click="filterDialogOpened = false" class="text-body1
 q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
         </q-card-actions>
       </q-card>
@@ -138,10 +138,28 @@ watch(activeIndex, (newVal, oldVal) => {
     }, 1);
   }
 })
+watch(() => momentsStore.shouldResetSwiper, (newVal) => {
+  if (newVal && swiperInitialized.value) {
+    if (segDateId.value === 'Monthly') {
+      activeIndex.value = dateRangesMonths.value.length - 1;
+      updateDateButtonLabel()
+    }
+    else if (segDateId.value === 'Yearly') {
+      activeIndex.value = dateRangesYears.value.length - 1;
+      updateDateButtonLabel()
+    }
+    momentsStore.shouldResetSwiper = false
+  }
+})
 
 const secondSegSelectedSatisfaction = ref(false)
 const segmentedControlClicked = ({ value, flag }) => {
-  if (flag === 'satisfaction') secondSegSelectedSatisfaction.value = value
+  if (flag === 'satisfaction') {
+    secondSegSelectedSatisfaction.value = value
+    nextTick(() => {
+      swiperElSatisfaction.value.swiper.updateAutoHeight(300);
+    })
+  }
 }
 const learnCardExpandedSatisfaction = ref(false)
 const learnCardExpandedImportance = ref(false)
@@ -230,11 +248,11 @@ const dateRangesMonthsIdxToDate = (idx) => {
 }
 
 //DATE FILTER DIALOG
-const filterDialogOpen = ref(false)
+const filterDialogOpened = ref(false)
 const tappedFilter = ref('date')
 const openFilterDialog = (filter) => {
   tappedFilter.value = filter
-  filterDialogOpen.value = true
+  filterDialogOpened.value = true
 }
 
 //before pickedDateYYYYsMMsDD was initialized as the first day of the current year with format YYYY/MM/DD

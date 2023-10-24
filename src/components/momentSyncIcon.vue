@@ -30,7 +30,7 @@ const props = defineProps({
   expectedLlmCallDuration: {
     required: true,
     type: Number,
-    default: 40
+    default: 60
   },
 });
 

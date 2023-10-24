@@ -4,29 +4,19 @@ import {
   doc,
   // addDoc,
   setDoc,
-  updateDoc,
   getDoc,
   getDocs,
   Timestamp,
   arrayUnion,
   writeBatch,
-  query,
-  where,
-  orderBy,
-  limit,
-  increment,
   onSnapshot,
+  query,
 } from "firebase/firestore";
-import {
-  useCollection,
-  useDocument,
-  getCurrentUser,
-  updateCurrentUserProfile,
-} from "vuefire";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed } from "vue";
 import { date } from "quasar";
 import {
+  updateProfile,
   updateEmail,
   updatePassword,
   reauthenticateWithCredential,
@@ -34,11 +24,12 @@ import {
 } from "firebase/auth";
 import axios from "axios";
 import { Notify } from "quasar";
+import { currentUser } from "../boot/firebaseBoot.js";
 // destructuring to keep only what is needed in date
 const { formatDate } = date;
 
 export const useMomentsStore = defineStore("moments", () => {
-  const user = ref(null);
+  const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
   const momentsColl = ref([]);
@@ -46,7 +37,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const userFetched = ref(false);
   const momentsFetched = ref(false);
   const aggregateDataFetched = ref(false);
-  const isEditorFocused = ref(false);
+  const shouldResetSwiper = ref(false);
   const needsMap = ref({
     //add 'Work-Life Balance'?
     "Physical Well-Being": ["🛡️", "Physiological & Safety"], //readd Physical safety dedans ou split
@@ -55,7 +46,7 @@ export const useMomentsStore = defineStore("moments", () => {
     "Financial Security": ["💰", "Physiological & Safety"],
     "Rest & Relaxation": ["🌙", "Physiological & Safety"], //🛋️ //🛌
     "Physical Movement": ["🤸", "Physiological & Safety"],
-    "Emotional Safety & Inner Peace": ["🧘‍♂️", "Physiological & Safety"], //"🤗",""],
+    "Emotional Safety & Inner Peace": ["🧘", "Physiological & Safety"], //"🤗",""],
     "Boundaries & Privacy": ["🚪", "Physiological & Safety"],
     "Physical Contact & Intimacy": ["👐", "Connection"],
     "Contact with Nature": ["🏞️", "Connection"],
@@ -90,14 +81,13 @@ export const useMomentsStore = defineStore("moments", () => {
   const fetchUser = async () => {
     try {
       if (userFetched.value) {
-        console.log("In fetchUser, already userFetched");
+        console.log("In moments.js, In fetchUser, already userFetched");
         return;
       }
 
-      user.value = await getCurrentUser();
       // Check if user exists and has a uid property
       if (!user.value || !user.value.uid) {
-        console.log("Failed to fetch user or user.uid");
+        console.log("In moments.js, failed to fetch user or user.uid");
         return;
       }
 
@@ -105,20 +95,47 @@ export const useMomentsStore = defineStore("moments", () => {
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       const userDocCheck = await getDoc(userDocRef.value);
       if (!userDocCheck.exists()) {
-        console.log("User doc does not exist, creating it");
-        await setDoc(userDocRef.value, {
-          momentsDays: [],
-          hasNeeds: false,
-        });
+        console.log("In moments.js, User doc does not exist, creating it");
+        await setDoc(
+          userDocRef.value,
+          {
+            momentsDays: [],
+            hasNeeds: false,
+          },
+          { merge: true },
+        );
       }
 
-      userDoc.value = useDocument(userDocRef);
+      onSnapshot(userDocRef.value, (doc) => {
+        userDoc.value = doc.data();
+      });
 
       userFetched.value = true;
     } catch (error) {
       console.log("Error in fetchUser", error);
     }
   };
+
+  const setAuthorizationCode = async (authorizationCode) => {
+    try {
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      await setDoc(userDocRef.value, { authorizationCode }, { merge: true });
+    } catch (error) {
+      console.log("Error in setAuthorizationCode", error);
+    }
+  };
+
+  const getAuthorizationCode = computed(() => {
+    return userDoc?.value?.authorizationCode ?? false;
+  });
+
+  const getDeviceLanguage = computed(() => {
+    return userDoc?.value?.deviceLanguage ?? false;
+  });
 
   const fetchMoments = async () => {
     try {
@@ -131,9 +148,32 @@ export const useMomentsStore = defineStore("moments", () => {
         await fetchUser();
       }
 
-      momentsColl.value = useCollection(
-        collection(db, `users/${user.value.uid}/moments`),
-      );
+      const q = query(collection(db, `users/${user.value.uid}/moments`));
+      onSnapshot(q, (querySnapshot) => {
+        querySnapshot.docChanges().forEach((change) => {
+          const { newIndex, oldIndex, doc, type } = change;
+          if (type === "added") {
+            momentsColl.value.splice(newIndex, 0, {
+              ...doc.data(),
+              id: doc.id,
+            });
+            // if we want to handle references we would do it here
+          } else if (type === "modified") {
+            // remove the old one first
+            momentsColl.value.splice(oldIndex, 1);
+            // if we want to handle references we would have to unsubscribe
+            // from old references' listeners and subscribe to the new ones
+            momentsColl.value.splice(newIndex, 0, {
+              ...doc.data(),
+              id: doc.id,
+            });
+          } else if (type === "removed") {
+            momentsColl.value.splice(oldIndex, 1);
+            // if we want to handle references we need to unsubscribe
+            // from old references
+          }
+        });
+      });
 
       momentsFetched.value = true;
     } catch (error) {
@@ -232,7 +272,7 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const hasNeeds = computed(() => {
-    return userDoc?.value?.data?.hasNeeds ?? false;
+    return userDoc?.value?.hasNeeds ?? false;
   });
 
   const addMoment = async (moment) => {
@@ -315,10 +355,12 @@ export const useMomentsStore = defineStore("moments", () => {
   // },
 
   const uniqueDays = computed(() => {
-    if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
+    console.log("In uniqueDays");
+    // console.log("In uniqueDays, userDoc:",userDoc,"userFetched:",userFetched);
+    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
       return [];
     }
-    let ul = userDoc.value.data.momentsDays.map((day) => day.seconds);
+    let ul = userDoc.value.momentsDays.map((day) => day.seconds);
     //Sort in descending order (most recent first) & return
     return ul.sort((a, b) => b - a);
   });
@@ -347,11 +389,11 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   const oldestMomentDate = computed(() => {
-    if (!userFetched.value || !userDoc?.value?.data?.momentsDays?.length) {
+    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
       return;
     }
 
-    const sortedTimestamps = userDoc.value.data.momentsDays.sort(
+    const sortedTimestamps = userDoc.value.momentsDays.sort(
       (a, b) => a.seconds - b.seconds,
     );
 
@@ -359,14 +401,10 @@ export const useMomentsStore = defineStore("moments", () => {
     return sortedTimestamps[0].toDate();
   });
 
-  const setIsEditorFocused = (isFocused) => {
-    isEditorFocused.value = isFocused;
-  };
-
   const updateUser = async (changes) => {
     try {
       if (changes.displayName) {
-        await updateCurrentUserProfile({
+        await updateProfile(user.value, {
           displayName: changes.displayName,
         });
         console.log("displayName updated!");
@@ -400,14 +438,14 @@ export const useMomentsStore = defineStore("moments", () => {
     userFetched.value = false;
     momentsFetched.value = false;
     aggregateDataFetched.value = false;
-    isEditorFocused.value = false;
-    needsMap.value = {};
+    shouldResetSwiper.value = false;
+    // needsMap.value = {};
   }
 
   return {
     user,
     momentsColl,
-    isEditorFocused,
+    shouldResetSwiper,
     uniqueDays,
     oldestMomentDate,
     userFetched,
@@ -418,13 +456,15 @@ export const useMomentsStore = defineStore("moments", () => {
     needsCategories,
     aggregateData,
     getMomentById,
+    getAuthorizationCode,
+    getDeviceLanguage,
     getFormattedDate,
     addMoment,
     fetchUser,
     fetchMoments,
     fetchAggregateData,
     updateUser,
-    setIsEditorFocused,
+    setAuthorizationCode,
     $reset,
   };
 });

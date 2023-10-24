@@ -2,7 +2,7 @@ name: Cypress Tests
 on: [push]
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # ubuntu-latest #macos-latest
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel
@@ -12,21 +12,52 @@ jobs:
         containers: [1, 2] # Uses 2 parallel instances
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      # uncomment for specific node version
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 20.8.1
+
+      # Print important versions
+      - name: Print versions
+        run: |
+          echo "Node version:"
+          node -v
+          echo "NPM version:"
+          npm -v
+          echo "Cypress version :"
+          npx cypress --version
+
+      # Install dependencies in src-capacitor
+      - name: Install src-capacitor & backend dependencies
+        run: |
+          cd src-capacitor
+          npm install
+          cd ../backend
+          npm install
+          cd ..
+
       - name: Cypress run
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v6
         with:
-          browser: chrome
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
-          start: npm start
-          wait-on: "http://localhost:9200" # Waits for above
+          # build: npm run build
+          start: npm run api, npm start
+          browser:
+            chrome # comment for electron mode or try firefox
+            # headed: true
+          wait-on: "http://localhost:3000, http://localhost:9200"
           # Records to Cypress Cloud
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
           record: true
           parallel: true # Runs test in parallel using settings above
         env:
+          # DEBUG: backend:* #cypress:*
+          # ELECTRON_ENABLE_LOGGING: 1 #uncomment for more logs
           # For recording and parallelization to work you must set your CYPRESS_RECORD_KEY
           # in GitHub repo → Settings → Secrets → Actions
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

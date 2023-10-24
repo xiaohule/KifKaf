@@ -1,14 +1,18 @@
 {
   "name": "kifkaf-app",
-  "version": "0.0.1",
-  "description": "The social network between you & you",
+  "version": "1.0.1",
+  "description": "KifKaf - Feelings Journal - Log moments & meet your needs",
   "author": "na",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^5.4.1",
+    "@capacitor-community/speech-recognition": "^5.0.0",
+    "@capacitor-firebase/app-check": "^5.2.0",
+    "@capacitor-firebase/authentication": "^5.2.0",
+    "@capacitor/android": "^5.5.0",
     "@capacitor/app": "^5.0.6",
-    "@capacitor/cli": "^5.4.1",
-    "@capacitor/core": "^5.4.1",
-    "@capacitor/ios": "^5.4.1"
+    "@capacitor/cli": "^5.5.0",
+    "@capacitor/core": "^5.5.0",
+    "@capacitor/device": "^5.0.6",
+    "@capacitor/ios": "^5.5.0"
   }
 }

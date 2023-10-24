@@ -1,6 +1,8 @@
 <!-- src/pages/PrivacyPolicy.vue -->
 <template>
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+  <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
+    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Terms of Service</div>
+
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
       <p>These Website Standard Terms of Service written on this webpage shall manage your use of our website,
         KifKaf accessible at www.kifkaf.app.</p>
