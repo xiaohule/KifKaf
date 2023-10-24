@@ -36,7 +36,9 @@ jobs:
         with:
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
-          # build: npm run build
+          build:
+            npm run build:capacitor
+            # build: npm run build
           start: npm start
           browser:
             chrome # comment for electron mode or try firefox
