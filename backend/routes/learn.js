@@ -425,7 +425,9 @@ const authenticate = async (req, res, next) => {
   const idToken = req.headers.authorization?.split("Bearer ")[1];
 
   if (!idToken) {
-    return res.status(403).send("Unauthorized: No ID token provided.");
+    return res
+      .status(403)
+      .json({ message: "Unauthorized: No ID token provided." });
   }
 
   try {
@@ -434,7 +436,7 @@ const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Token verification error", error);
-    return res.status(403).send("Unauthorized: Invalid ID token.");
+    return res.status(403).json({ message: "Unauthorized: Invalid ID token." });
   }
 };
 
@@ -446,6 +448,14 @@ const lockedMomentIds = new Set(); //Since the code is running in a stateful ser
 router.get("/needs/", async (req, res) => {
   //TODO:1 make this a post request? pro and cons of post vs get?
   try {
+    //TODO:2 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
+    if (!req.query.momentText || typeof req.query.momentText !== "string") {
+      return res.status(400).json({
+        message: "Error: invalid momentText provided",
+        query: req.query,
+      });
+    }
+
     if (lockedMomentIds.has(req.query.momentId)) {
       console.log(
         "Error: duplicate request detected for query",
@@ -453,19 +463,15 @@ router.get("/needs/", async (req, res) => {
         "lockedMomentIds:",
         lockedMomentIds,
       );
-      return res
-        .status(409)
-        .send(
-          "Error: duplicate request detected for query" +
-            JSON.stringify(req.query),
-        );
+      return res.status(409).json({
+        message: "Error: duplicate request detected for query",
+        query: req.query,
+      });
     }
     lockedMomentIds.add(req.query.momentId);
 
     // console.log("req.headers", req.headers);
     // console.log("GET request received", req.query); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
-
-    //TODO:2 Make sure you validate the data coming from the client before processing. For instance, before calling the OpenAI API, validate req.query.momentText to ensure it's in the expected format.
 
     // LLM CALL
     const request_options = createOpenAIRequestOptions(req.query.momentText);
@@ -653,11 +659,10 @@ router.get("/needs/", async (req, res) => {
     } else {
       console.error("Invalid momentdate provided in the headers.");
       lockedMomentIds.delete(req.query.momentId);
-      return res
-        .status(400)
-        .send(
-          "Invalid momentdate provided for query" + JSON.stringify(req.query),
-        );
+      return res.status(400).json({
+        message: "Invalid momentdate provided for query",
+        query: req.query,
+      });
     }
 
     //batch persist llm data in firestore
@@ -746,31 +751,27 @@ router.get("/needs/", async (req, res) => {
         e,
       );
       lockedMomentIds.delete(req.query.momentId);
-      return res
-        .status(500)
-        .send(
-          "Internal server error when updating moment needs or aggregate data for query" +
-            JSON.stringify(req.query),
-        );
+      return res.status(500).json({
+        message:
+          "Internal server error when updating moment needs or aggregate data for query",
+        query: req.query,
+      });
     }
 
     lockedMomentIds.delete(req.query.momentId);
-    return res
-      .status(200)
-      .send(
-        "Llm response received and processed for query" +
-          JSON.stringify(req.query),
-      );
+    return res.status(200).json({
+      message: "Llm response received and processed for query",
+      query: req.query,
+    });
     // return res.json(parsedContent);
   } catch (err) {
     console.error(err);
     lockedMomentIds.delete(req.query.momentId);
-    return res
-      .status(500)
-      .send(
-        "An error occurred while making or saving the prediction for query" +
-          JSON.stringify(req.query),
-      );
+    return res.status(500).json({
+      message:
+        "An error occurred while making or saving the prediction for query",
+      query: req.query,
+    });
   }
 });
 
