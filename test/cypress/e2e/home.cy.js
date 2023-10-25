@@ -19,7 +19,6 @@ describe("Workaround GH actions", () => {
   // });
   it("assert <title> is correct", () => {
     cy.visit("/");
-    cy.wait(10000);
     cy.title().should("include", "KifKaf");
   });
 });
@@ -71,29 +70,10 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
       cy.get("#inbox-id").invoke("text");
     }).as("username");
 
-    // cy.visit("/");
-    // cy.wait(1000);
-    cy.wait(1000);
     cy.visit("/", { timeout: 60000 });
-    // cy.wait(10000);
-    // cy.visit("/", { timeout: 60000 });
-    // cy.wait(10000);
-    // cy.visit("/welcome", { timeout: 60000 });
-    // cy.wait(10000);
-    // cy.visit("/#/welcome", { timeout: 60000 });
-    // cy.wait(10000);
-    // cy.reload();
     //should have sign in options, ToS and Contact us
-    cy.wait(1000);
-    cy.contains("Log in", { timeout: 60000 }).click();
-    cy.wait(1000);
-    cy.contains("Log in", { timeout: 60000 }).click({ force: true });
-    cy.wait(1000);
-    cy.contains("Log in", { timeout: 60000 })
-      .should("be.visible")
-      .click({ force: true });
-    cy.wait(1000);
-    cy.contains("arrow_back", { timeout: 60000 }).click({ force: true });
+    cy.contains("Log in").should("be.visible").click();
+    cy.contains("arrow_back").click();
     cy.contains("Log in").should("be.visible").click();
     cy.contains("Google").should("be.visible");
     cy.contains("Apple").should("be.visible");
@@ -169,7 +149,7 @@ describe("Checking main screens & Moments inputting", () => {
         clock.restore();
       });
     }
-    cy.wait(15000);
+    cy.wait(5000);
     for (const item of momentsData) {
       cy.contains(item.text);
     }
@@ -180,8 +160,6 @@ describe("Insights Stats validation", () => {
   it("has correct stats in Insights tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Learn tab for 2023
     cy.visit("/");
-    cy.wait(1000);
-    cy.reload(true);
     cy.contains("Insights").click();
     cy.url().should("include", "learn");
     cy.reload();
@@ -191,7 +169,7 @@ describe("Insights Stats validation", () => {
       cy.contains("May").should("be.visible").click();
       cy.contains("Done").should("be.visible").click();
     });
-    cy.wait(3000);
+    cy.wait(1000);
     //expand Needs Satisfaction section
     cy.get(".swiper-slide-active").first().contains("Show more").click();
     // cy.get(".swiper-slide-active").then(($els) => {

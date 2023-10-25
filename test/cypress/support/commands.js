@@ -134,20 +134,6 @@ Cypress.Commands.add("signUp", (username, password) => {
   cy.visit("/login/email");
 });
 
-Cypress.Commands.add(
-  "clickVSlider",
-  { prevSubject: true },
-  (subject, intensity) => {
-    const sliderWidth = subject.width();
-    const sliderHeight = subject.height();
-    // cy.log("sliderWidth", sliderWidth);
-    // cy.log("sliderHeight", sliderHeight);
-    const pixelsFromLeft = (intensity / 10 + 0.5) * sliderWidth;
-    const pixelsFromTop = 0.5 * sliderHeight;
-    cy.wrap(subject).click(pixelsFromLeft, pixelsFromTop, { force: true });
-  },
-);
-
 export const generateRandomTestEmail = (string_length) => {
   let random_string = "test_";
   let random_ascii;
