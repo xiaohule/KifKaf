@@ -1,6 +1,7 @@
 import { getFirebaseAuth } from "../boot/firebaseBoot.js";
 import {
-  signInWithRedirect,
+  // signInWithRedirect,
+  signInWithPopup,
   signInWithCredential,
   GoogleAuthProvider,
   OAuthProvider,
@@ -21,7 +22,8 @@ export const signInWithGoogle = async () => {
     ) {
       console.log("In signInWith, google sign in for web");
 
-      await signInWithRedirect(auth, provider);
+      // await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     } else {
       console.log("In signInWith, google sign in for native");
 
@@ -51,7 +53,8 @@ export const signInWithApple = async () => {
     if (process.env.MODE !== "capacitor") {
       console.log("In signInWith, apple sign in for web");
 
-      await signInWithRedirect(auth, provider);
+      // await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
       // const result = await signInWithPopup(auth, provider);
       // console.log("In signInWith>signInWithApple, result:", result);
       // const credential = OAuthProvider.credentialFromResult(result);

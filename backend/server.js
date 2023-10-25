@@ -57,6 +57,7 @@ const allowedDomains = [
   "https://www.kifkaf.app",
   "https://kifkaf.app",
   "https://lemon-bay-09625be03.3.azurestaticapps.net",
+  "https://kifkaf-d4850.firebaseapp.com",
   "capacitor://localhost",
 ];
 // app.use(cors()); // Enable All CORS Requests Be careful with this in a production setting as it allows any website to interact with your API. In a production setting, you should restrict this to just your own domains.
