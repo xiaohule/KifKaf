@@ -11,18 +11,6 @@ const routes = [
     meta: { requiresAuth: true },
     children: [{ path: "", component: () => import("pages/LearnTabV1.vue") }],
   },
-  // {
-  //   path: "/timeline",
-  //   component: () => import("layouts/MainLayout.vue"),
-  //   meta: { requiresAuth: true },
-  //   children: [{ path: "", component: () => import("pages/TimelineTab.vue") }],
-  // },
-  // {
-  //   path: "/search",
-  //   component: () => import("layouts/MainLayout.vue"),
-  //   meta: { requiresAuth: true },
-  //   children: [{ path: "", component: () => import("pages/SearchTab.vue") }],
-  // },
   {
     path: "/settings",
     component: () => import("layouts/GoBackTitleLayout.vue"),
