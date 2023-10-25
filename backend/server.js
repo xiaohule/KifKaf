@@ -73,6 +73,8 @@ app.use(
       }
       return callback(null, true);
     },
+    methods: ["GET"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use("/api/chat", chatRouter);
