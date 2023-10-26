@@ -60,7 +60,10 @@ export const useSpeechRecognition = async (
       }
 
       if (!isRecognizing.value) {
-        webRecognitionInstance.lang = momentsStore.getDeviceLanguage || "en-US";
+        webRecognitionInstance.lang =
+          momentsStore.getSpeechRecoLanguage ||
+          momentsStore.getDeviceLanguage ||
+          "en-US";
         webRecognitionInstance.onresult = (event) => {
           try {
             let finalTranscript = "";
@@ -149,7 +152,10 @@ export const useSpeechRecognition = async (
             });
 
             SpeechRecognition.start({
-              language: momentsStore.getDeviceLanguage || "en-US",
+              language:
+                momentsStore.getSpeechRecoLanguage ||
+                momentsStore.getDeviceLanguage ||
+                "en-US",
               maxResults: 1,
               prompt: "Say something",
               partialResults: true,

@@ -129,12 +129,51 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
+  const setSpeechRecoLanguage = async (speechRecoLanguage) => {
+    try {
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      await setDoc(userDocRef.value, { speechRecoLanguage }, { merge: true });
+      console.log(
+        "In moment.js, just set speechRecoLanguage to",
+        speechRecoLanguage,
+      );
+    } catch (error) {
+      console.log("Error in setSpeechRecoLanguage", error);
+    }
+  };
+
   const getAuthorizationCode = computed(() => {
     return userDoc?.value?.authorizationCode ?? false;
   });
 
   const getDeviceLanguage = computed(() => {
     return userDoc?.value?.deviceLanguage ?? false;
+  });
+
+  const getSpeechRecoLanguage = computed(() => {
+    return userDoc?.value?.speechRecoLanguage ?? false;
+  });
+
+  const getReadableSpeechRecoLanguage = computed(() => {
+    if (!getSpeechRecoLanguage.value) return false;
+    switch (getSpeechRecoLanguage.value) {
+      case "en-US":
+        return "English";
+      case "fr-FR":
+        return "Français";
+      case "es-ES":
+        return "Español";
+      case "it-IT":
+        return "Italiano";
+      case "de-DE":
+        return "Deutsch";
+      default:
+        return false;
+    }
   });
 
   const fetchMoments = async () => {
@@ -458,6 +497,8 @@ export const useMomentsStore = defineStore("moments", () => {
     getMomentById,
     getAuthorizationCode,
     getDeviceLanguage,
+    getSpeechRecoLanguage,
+    getReadableSpeechRecoLanguage,
     getFormattedDate,
     addMoment,
     fetchUser,
@@ -465,6 +506,7 @@ export const useMomentsStore = defineStore("moments", () => {
     fetchAggregateData,
     updateUser,
     setAuthorizationCode,
+    setSpeechRecoLanguage,
     $reset,
   };
 });

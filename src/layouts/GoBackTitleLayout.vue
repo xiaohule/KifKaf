@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 // const props = defineProps({
 //   title: {
@@ -39,8 +39,14 @@ import { useRouter } from 'vue-router'
 // });
 
 const router = useRouter()
+const route = useRoute()
+
 const goBack = () => {
-  router.go(-1)
+  if (route.fullPath === router.currentRoute.value.fullPath) {
+    router.push({ path: '/' }) // Redirect to root if there's no history
+  } else {
+    router.go(-1) // Go back to the previous page if there's a history
+  }
 }
 
 // onBeforeRouteLeave((to, from, next) => {
