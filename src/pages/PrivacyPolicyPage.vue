@@ -1,77 +1,86 @@
-<!-- src/pages/PrivacyPolicy.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Privacy Policy</div>
 
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
-      <p>Your privacy is important to us. It is KifKaf's policy to respect your privacy regarding any information we
-        may collect from you through our app, KifKaf.</p>
 
-      <h5>Information we collect</h5>
+      <p>At KifKaf, your privacy is paramount. This policy refer to the KifKaf mobile application, web
+        platform, and associated services. It describes the data we collect,
+        why we collect it, and how we
+        manage it.</p>
 
-      <p>We collect information in two ways: directly from your input and automatically through KifKaf's
-        technologies.</p>
+      <h5>Information Collection</h5>
 
-      <h6>1. Information you provide to us</h6>
+      <h6>1. Direct Information</h6>
 
-      <p>When you create a KifKaf Account, you provide us with personal information that includes your email
-        address, name and a
-        password. Even if you aren’t signed in to a KifKaf
-        Account, you might choose to provide us with information — like an email address to receive updates about
-        our services.</p>
+      <p>Upon creating a KifKaf Account, you supply personal information such as:</p>
+      <ul>
+        <li>Email address</li>
+        <li>Password (encrypted and not directly accessible)</li>
+        <li>Name (optional)</li>
+      </ul>
 
-      <h6>2. Information we collect automatically</h6>
+      <p>Even without signing in to a KifKaf Account, you might opt to share information with us— for instance, an email
+        address to receive updates about our services.</p>
 
-      <p>We also collect information about how you use KifKaf and the devices you use to access KifKaf. This
-        includes:</p>
+      <h6>2. Automated Data Collection</h6>
+
+      <p>We also gather technical and usage data:</p>
 
       <ul>
-        <li>Device information</li>
+        <li>Device language</li>
+        <li>Permissions state for microphone and speech recognition</li>
         <li>Log information</li>
-        <!-- <li>Location information</li>
-              <li>Unique application numbers</li> -->
+        <li>User interactions with our services features</li>
+        <li>Crash and performance analytics</li>
       </ul>
 
-      <h5>How we use information we collect</h5>
+      <h5>Data Utilization</h5>
 
-      <p>We use the information we collect from all of our services for the following purposes:</p>
-
+      <p>We utilize the data for various purposes, including:</p>
       <ul>
-        <li>Provide, maintain, protect and improve our services</li>
-        <li>Develop new services</li>
-        <li>Protect KifKaf and our users</li>
-        <!-- <li>We also use this information to offer you tailored content – like giving you more relevant search
-                results and ads.</li> -->
+        <li>Providing and refining our services</li>
+        <li>Launching new features</li>
+        <li>Ensuring the security of our users and services</li>
+        <li>Analyzing product interaction, crashes, and performance for improvement</li>
       </ul>
 
-      <h5>Information we share</h5>
-
-      <p>We do not share your personal information with companies, organizations, or individuals outside of KifKaf
-        except in the following cases:</p>
-
+      <h5>Third-party Processors</h5>
+      <p>To provide the best experience and functionality, KifKaf collaborates with third-party processors for data
+        processing. The third-party services we employ include:</p>
       <ul>
-        <li>With your consent</li>
-        <li>For external processing (We provide personal information to our affiliates or other trusted businesses
-          or persons to process it for us, based on our instructions and in compliance with our Privacy Policy and
-          any other appropriate confidentiality and security measures.)</li>
-        <li>For legal reasons</li>
+        <li>Firebase: We use Firebase for authentication, data storage, and other backend services. You can read
+          Firebase's privacy policy <a href="https://firebase.google.com/support/privacy" target="_blank">here</a>.</li>
+        <li>OpenAI: Moments's text entered into KifKaf are analyzed by OpenAI's GPT-3.5 or GPT-4 to infer
+          insights. You can read OpenAI's privacy policy <a href="https://openai.com/policies/privacy-policy"
+            target="_blank">here</a>.</li>
       </ul>
 
-      <h5>Information security</h5>
-
-      <p>We work hard to protect KifKaf and our users from unauthorized access to or unauthorized alteration,
-        disclosure, or destruction of information we hold.</p>
+      <p>Note:While we've taken steps to protect user privacy, please be aware that user content might be analyzed by
+        third-party services. We encourage users to be careful and avoid sharing sensitive or personally identifiable
+        information through the platform.</p>
 
       <h5>Changes</h5>
 
-      <p>Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy
-        without your explicit consent.</p>
+      <p>We may periodically update our Privacy Policy. Rest assured, we will not diminish your rights under this policy
+        without obtaining your explicit consent.</p>
+
+      <h5>User Rights</h5>
+      <p>We value and respect the data rights of our users. Specifically, your rights encompass:</p>
+      <ul>
+        <li>Access: You're entitled to view the personal data we have on you.</li>
+        <li>Rectification: If any of your personal data appears inaccurate or incomplete, you can request an amendment.
+        </li>
+        <li>Erasure: You hold the right to ask us to delete or remove your personal data from our systems.</li>
+      </ul>
+      <p>To exercise any of these rights or for inquiries about your rights, reach out to us at hello@kifkaf.app.</p>
 
       <h5>Contact</h5>
 
-      <p>If you have any questions about this Privacy Policy, please contact us at hello@kifkaf.app.</p>
+      <p>For any queries related to this Privacy Policy, kindly email us at hello@kifkaf.app.</p>
       <br />
-      <p>Effective Date: July 6, 2023</p>
+      <p>Effective Date: January 1, 2023</p>
+      <p>Last Updated: October 26, 2023</p>
     </q-card>
   </q-page>
 </template>
