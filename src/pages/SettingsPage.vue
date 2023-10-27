@@ -9,7 +9,7 @@
 
         <q-item-label header>Account details</q-item-label>
 
-        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
+        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat>
           <q-item clickable v-ripple @click="openEditDialog('displayName')">
             <q-item-section>
               <q-item-label caption>
@@ -29,7 +29,7 @@
           </q-item>
 
 
-          <q-item v-if="signInMethodsIncludePassword === true" clickable v-ripple @click="openEditDialog('password')">
+          <q-item :clickable="signInMethodsIncludePassword === true" v-ripple @click="openEditDialog('password')">
             <q-item-section>
               <q-item-label caption>
                 Password
@@ -39,20 +39,20 @@
           </q-item>
         </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-          <q-item clickable v-ripple>
+        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
+          @click="languageDialogOpened = true">
+          <q-item>
             <q-item-section>
-
-              <q-item-label>Language</q-item-label>
+              <q-item-label>Speech recognition language</q-item-label>
               <q-item-label caption>
-                English
+                {{ speechRecoLanguageOptions[pickedLanguage] }}
               </q-item-label>
             </q-item-section>
           </q-item>
         </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat>
-          <!-- TODO:1 later do About us section -->
+        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat>
+          <!-- TODO:2 later do About us/manual section -->
           <!-- <q-item clickable v-ripple>
           <q-item-section>
             <q-item-label>About us</q-item-label>
@@ -65,25 +65,17 @@
           </q-item>
           <q-item clickable v-ripple to="/terms">
             <q-item-section>
-              <q-item-label>Terms of Service</q-item-label>
+              <q-item-label>Terms of service</q-item-label>
             </q-item-section>
           </q-item>
-          <!-- TODO:1 fail if no internet connection and ask user for connection -->
-          <!-- <q-item clickable v-ripple @click="contactUsDialogOpened = true"> -->
           <q-item clickable v-ripple to="/contact">
             <q-item-section>
               <q-item-label>Contact us</q-item-label>
             </q-item-section>
           </q-item>
-          <!-- TODO:1 later allow to Close account -->
-          <!-- <q-item clickable v-ripple>
-          <q-item-section>
-            <q-item-label>Close account</q-item-label>
-          </q-item-section>
-        </q-item> -->
         </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
+        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
           @click="logoutDialogOpened = true">
           <q-item>
             <q-item-section>
@@ -93,7 +85,7 @@
         </q-card>
 
         <q-item-label header>Danger zone</q-item-label>
-        <q-card class="bg-surface q-mb-md q-px-xs q-py-sm rounded-borders-14" flat clickable v-ripple
+        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
           @click="deleteDialogOpened = true">
           <q-item>
             <q-item-section class="text-error">
@@ -118,13 +110,6 @@
         <q-toolbar class="q-pa-sm">
           <q-btn flat v-close-popup round dense icon="close" />
         </q-toolbar>
-
-        <!-- <div class="q-px-md">
-        <q-item class="q-px-none">
-          <q-item-section class="text-h6 text-weight-medium">{{
-            momentsStore.getFormattedDate(moment?.date?.seconds, true) }}</q-item-section>
-        </q-item> -->
-        <!-- <q-card class="bg-surface"> -->
 
         <div v-if="currentSetting === 'displayName'">
           <q-card-section class="text-h6 text-weight-medium">Change name</q-card-section>
@@ -190,9 +175,32 @@
       </q-card>
     </q-dialog>
 
+    <q-dialog v-model="languageDialogOpened" position="bottom" style="max-width: 600px">
+      <q-card class="bg-background" flat style="height: 90vh;">
+        <q-toolbar class="q-pa-sm">
+          <q-btn flat v-close-popup round dense icon="close" />
+        </q-toolbar>
+        <q-card-section class="text-h6 text-weight-medium">Change speech recognition language</q-card-section>
+        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none" style="border-radius: 14px;">
+
+          <q-item tag="label" v-ripple v-for="(value, key) in speechRecoLanguageOptions" :key="key" class="">
+            <q-item-section>
+              <q-item-label>{{ value }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-radio v-model="pickedLanguage" checked-icon="check" unchecked-icon="none" :val="key" />
+            </q-item-section>
+          </q-item>
+        </q-card-section>
+        <!-- <q-card-actions align="center" class="q-mx-sm">
+          <q-btn rounded label="Done" color="primary" @click="languageDialogOpened = false" class="full-width"
+            padding="md" no-caps />
+        </q-card-actions> -->
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="logoutDialogOpened">
       <q-card class="bg-background q-py-sm">
-        <!-- <q-card> -->
         <q-card-section>
           <div class="text-h6 text-weight-medium">Log out</div>
         </q-card-section>
@@ -209,7 +217,6 @@
 
     <q-dialog v-model="deleteDialogOpened">
       <q-card class="bg-background q-py-sm">
-        <!-- <q-card> -->
         <q-card-section>
           <div class="text-h6 text-weight-medium">Delete account</div>
         </q-card-section>
@@ -239,19 +246,42 @@ const $q = useQuasar()
 const router = useRouter()
 const momentsStore = useMomentsStore()
 const auth = getFirebaseAuth();
+
 const signInMethods = ref(null);
 const signInMethodsIncludePassword = ref(true)
+
 const currentSetting = ref('')
 const newSettingValue = ref('')
 const oldPassword = ref('')
 const isPwdOld = ref(true)
 const isPwd = ref(true)
+const oldPwdInputRef = ref(null)
+const mainInputRef = ref(null)
+
+const pickedLanguage = ref('en-US')
+const speechRecoLanguageOptions = {
+  "en-US": "English",
+  "fr-FR": "Français",
+  "es-ES": "Español",
+  "it-IT": "Italiano",
+  "de-DE": "Deutsch"
+};
+
+const editDialogOpened = ref(false)
+const logoutDialogOpened = ref(false)
+const deleteDialogOpened = ref(false)
+const languageDialogOpened = ref(false)
 
 onMounted(async () => {
   try {
     if (!momentsStore.userFetched) {
       await momentsStore.fetchUser();
     }
+    console.log("In SettingsPage > onMounted before pickedLang setting, currently set at:", pickedLanguage.value);
+    pickedLanguage.value = momentsStore.getSpeechRecoLanguage ||
+      momentsStore.getDeviceLanguage ||
+      "en-US";
+    console.log("In SettingsPage > onMounted pickedLanguage set at:", pickedLanguage.value);
   } catch (error) {
     console.error('await momentsStore.fetchUser() error:', error);
   }
@@ -280,12 +310,6 @@ const passwordRules = [
   val => val.length >= 6 || 'Password must be at least 6 characters'
 ]
 
-const editDialogOpened = ref(false)
-const logoutDialogOpened = ref(false)
-const deleteDialogOpened = ref(false)
-
-const oldPwdInputRef = ref(null)
-const mainInputRef = ref(null)
 
 const openEditDialog = (setting) => {
   currentSetting.value = setting
@@ -306,32 +330,6 @@ watch(editDialogOpened, (val) => {
     isPwd.value = true
   }
 })
-
-
-
-
-// let keyboardOpen = false
-// onMounted(() => {
-//   window.visualViewport.addEventListener('resize', adjustDialogPosition)
-// })
-// onBeforeUnmount(() => {
-//   window.visualViewport.removeEventListener('resize', adjustDialogPosition)
-// })
-// const adjustDialogPosition = () => {
-//   // console.log('window.screen.height', window.screen.height) //844
-//   // console.log('viewportHeight', window.innerHeight) //664
-//   // console.log('window.visualViewport.height', window.visualViewport.height) //394.65625
-//   nextTick(() => {
-//     const dialogElement = document.querySelector('.q-dialog__inner>div')
-//     if (!keyboardOpen && window.visualViewport.height < window.innerHeight) {
-//       keyboardOpen = true
-//       dialogElement.style.top = '10%'
-//     } else if (keyboardOpen && window.visualViewport.height < window.innerHeight) {
-//       keyboardOpen = false
-//       dialogElement.style.top = '50%'
-//     }
-//   })
-// }
 
 const updateSetting = async () => {
   try {
@@ -386,6 +384,11 @@ const updateSetting = async () => {
   //TODO:2 disable Save button when no change were made and when one validation is not passed
 }
 
+watch(pickedLanguage, (newVal, oldVal) => {
+  console.log("In SettingsPage, pickedLanguage changed from", oldVal, "to", newVal);
+  momentsStore?.setSpeechRecoLanguage(newVal);
+})
+
 const logOut = async () => {
   try {
     if (process.env.MODE === "capacitor") {
@@ -434,4 +437,20 @@ const deleteAccount = async () => {
 .q-item__label--header {
   padding: 8px 16px 8px;
 }
+
+// .checkmark-icon {
+//   color: blue;
+//   float: right;
+// }
+
+// .checkmark-icon {
+//     display: none;  /* Initially hidden */
+//     color: blue;
+//     float: right;   /* For right alignment */
+// }
+
+// .q-radio__inner,
+// .q-radio__bg {
+//   display: none;
+// }
 </style>

@@ -28,6 +28,7 @@ export const useSpeechRecognition = async (
   errorDialogText,
 ) => {
   let toggleSpeechRecognition;
+  let stopSpeechRecognition;
 
   if (process.env.MODE !== "capacitor") {
     //TODO:2 test if Speech Recognition requires an Internet connection, so will not function when your PWA users are offline -> have graceful fail
@@ -60,7 +61,10 @@ export const useSpeechRecognition = async (
       }
 
       if (!isRecognizing.value) {
-        webRecognitionInstance.lang = momentsStore.getDeviceLanguage || "en-US";
+        webRecognitionInstance.lang =
+          momentsStore.getSpeechRecoLanguage ||
+          momentsStore.getDeviceLanguage ||
+          "en-US";
         webRecognitionInstance.onresult = (event) => {
           try {
             let finalTranscript = "";
@@ -86,6 +90,17 @@ export const useSpeechRecognition = async (
         webRecognitionInstance.start(); // Start listening
         isRecognizing.value = true;
       } else {
+        await stopSpeechRecognition();
+      }
+    };
+
+    stopSpeechRecognition = async () => {
+      if (
+        showSpeechRecognitionButton.value === false ||
+        !webRecognitionInstance
+      ) {
+        return; // return early if the API is not available
+      } else if (isRecognizing.value) {
         webRecognitionInstance.stop(); // Stop listening
         isRecognizing.value = false;
       }
@@ -107,7 +122,10 @@ export const useSpeechRecognition = async (
       );
 
       // const suplang = await SpeechRecognition.getSupportedLanguages();
-      // console.log("In useSpeechRecognition,  SpeechRecognition.getSupportedLanguages():",suplang,);
+      // console.log(
+      //   "In useSpeechRecognition,  SpeechRecognition.getSupportedLanguages():",
+      //   suplang,
+      // );
 
       toggleSpeechRecognition = async () => {
         let previousMatch = "";
@@ -149,7 +167,10 @@ export const useSpeechRecognition = async (
             });
 
             SpeechRecognition.start({
-              language: momentsStore.getDeviceLanguage || "en-US",
+              language:
+                momentsStore.getSpeechRecoLanguage ||
+                momentsStore.getDeviceLanguage ||
+                "en-US",
               maxResults: 1,
               prompt: "Say something",
               partialResults: true,
@@ -175,20 +196,31 @@ export const useSpeechRecognition = async (
                 }
               });
           } else {
-            SpeechRecognition.removeAllListeners();
-            SpeechRecognition.stop();
-            isRecognizing.value = false;
+            await stopSpeechRecognition();
           }
+        }
+      };
+
+      stopSpeechRecognition = async () => {
+        if (
+          showSpeechRecognitionButton.value === false ||
+          hasPermissions !== "granted"
+        ) {
+          return; // return early if the API is not available
+        } else if (isRecognizing.value) {
+          SpeechRecognition.removeAllListeners();
+          SpeechRecognition.stop();
+          isRecognizing.value = false;
         }
       };
     } catch (error) {
       showSpeechRecognitionButton.value = false;
       console.log("In useSpeechRecognition, error:", error);
-      console.error("Error in native speech reco", error);
     }
   }
 
   return {
     toggleSpeechRecognition,
+    stopSpeechRecognition,
   };
 };

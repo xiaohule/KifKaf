@@ -129,12 +129,46 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
+  const setSpeechRecoLanguage = async (speechRecoLanguage) => {
+    try {
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      await setDoc(userDocRef.value, { speechRecoLanguage }, { merge: true });
+    } catch (error) {
+      console.log("Error in setSpeechRecoLanguage", error);
+    }
+  };
+
+  const setSignInMethods = async (signInMethods) => {
+    try {
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      await setDoc(userDocRef.value, { signInMethods }, { merge: true });
+    } catch (error) {
+      console.log("Error in setSignInMethods", error);
+    }
+  };
+
   const getAuthorizationCode = computed(() => {
     return userDoc?.value?.authorizationCode ?? false;
   });
 
   const getDeviceLanguage = computed(() => {
     return userDoc?.value?.deviceLanguage ?? false;
+  });
+
+  const getSpeechRecoLanguage = computed(() => {
+    return userDoc?.value?.speechRecoLanguage ?? false;
+  });
+
+  const getSignInMethods = computed(() => {
+    return userDoc?.value?.signInMethods ?? false;
   });
 
   const fetchMoments = async () => {
@@ -458,6 +492,8 @@ export const useMomentsStore = defineStore("moments", () => {
     getMomentById,
     getAuthorizationCode,
     getDeviceLanguage,
+    getSpeechRecoLanguage,
+    getSignInMethods,
     getFormattedDate,
     addMoment,
     fetchUser,
@@ -465,6 +501,8 @@ export const useMomentsStore = defineStore("moments", () => {
     fetchAggregateData,
     updateUser,
     setAuthorizationCode,
+    setSpeechRecoLanguage,
+    setSignInMethods,
     $reset,
   };
 });

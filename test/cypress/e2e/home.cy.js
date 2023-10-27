@@ -78,13 +78,11 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.contains("Google").should("be.visible");
     cy.contains("Apple").should("be.visible");
     cy.contains("Terms of Service").should("be.visible").click();
-    cy.contains(
-      "These Terms will be applied fully and affect your use of this Website. By using this Website, you agreed to accept all terms and conditions written here.",
-    );
+    cy.contains("Welcome to KifKaf. These Terms of Service");
     cy.contains("arrow_back").click();
     cy.contains("Privacy Policy").should("be.visible").click();
     cy.contains(
-      "Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy without your explicit consent.",
+      "At KifKaf, your privacy is paramount. This policy refer to the KifKaf",
     );
     cy.contains("arrow_back").click();
     cy.contains("Contact us").should("be.visible").click();
@@ -133,8 +131,13 @@ describe("Checking main screens & Moments inputting", () => {
     ).should("be.visible");
     cy.get("footer").contains("Home").click();
     cy.url({ timeout: 40000 }).should("not.include", "learn");
+    //Settings
     cy.contains("account_circle").click();
     cy.url().should("include", "settings");
+    cy.contains("Speech").should("be.visible").click();
+    cy.contains("Français").should("be.visible").click();
+    cy.contains("close").click();
+    cy.contains("Français").should("be.visible");
     cy.contains("arrow_back").click();
     cy.url().should("not.include", "settings");
 

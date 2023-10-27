@@ -94,21 +94,6 @@ onActivated(() => {
   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
 })
 
-onDeactivated(() => {
-  // console.log('HomeTab onDeactivate recog fired');
-  if (webRecognitionInstance) {
-    webRecognitionInstance.stop();
-    isRecognizing.value = false;
-  }
-})
-onBeforeUnmount(() => {
-  // console.log('onBeforeUnmount recog fired');
-  if (webRecognitionInstance) {
-    webRecognitionInstance.stop();
-    isRecognizing.value = false;
-  }
-})
-
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
 const placeholderText = 'Feeling...'
@@ -151,22 +136,30 @@ const newMomRules = [
 ]
 
 //SPEECH RECOGNITION
-let toggleSpeech
+let toggleSpeech, stopSpeech
 onMounted(async () => {
-  const { toggleSpeechRecognition } = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
-  toggleSpeech = async () => {
-    console.log('toggleSpeech fired');
-    try {
-      await toggleSpeechRecognition();
-    } catch (error) {
-      console.error('Error toggling speech recognition:', error);
-    }
-  }
+  const result = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
+  toggleSpeech = result.toggleSpeechRecognition;
+  stopSpeech = result.stopSpeechRecognition;
 });
+
 
 //focus on textarea when speech recognition is turned off
 watch(isRecognizing, (val) => {
   if (!val) newMomInputRef.value.$el.querySelector('textarea').select();
+})
+
+onDeactivated(async () => {
+  console.log('HomeTab onDeactivate fired');
+  if (isRecognizing.value) {
+    await stopSpeech();
+  }
+})
+onBeforeUnmount(async () => {
+  console.log('onBeforeUnmount fired');
+  if (isRecognizing.value) {
+    await stopSpeech();
+  }
 })
 
 // ADD MOMENT
