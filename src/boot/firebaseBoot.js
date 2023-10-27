@@ -77,11 +77,14 @@ export const getFirebaseAuth = () => {
 };
 
 //USER
+export const isLoadingAuth = ref(true);
+
 export const currentUser = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 onAuthStateChanged(getFirebaseAuth(), (user) => {
-  // console.log("onAuthStateChanged", user);
-  if (user) currentUser.value = user;
+  console.log("onAuthStateChanged", user);
+  currentUser.value = user;
+  isLoadingAuth.value = false;
   // else router.push("/login");
 });
 // const analytics = getAnalytics(firebaseApp);
@@ -194,10 +197,10 @@ const setDeviceLanguage = async () => {
 
 //LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
 const emptyNeedsMomentsRetry = async () => {
-  console.log(
-    "In firebaseBoot > emptyNeedsMomentsRetry > capacitor mode is",
-    process.env.MODE === "capacitor",
-  );
+  // console.log(
+  //   "In firebaseBoot > emptyNeedsMomentsRetry > capacitor mode is",
+  //   process.env.MODE === "capacitor",
+  // );
 
   if (!currentUser.value || !currentUser.value.uid) {
     console.log(
@@ -205,8 +208,6 @@ const emptyNeedsMomentsRetry = async () => {
     );
     return;
   }
-
-  console.log("In firebaseBoot in emptyNeedsMomentsRetry2");
 
   // Query moments where needsSatisAndImp is empty
   const emptyNeedsSatisAndImpQuery = query(
@@ -217,8 +218,6 @@ const emptyNeedsMomentsRetry = async () => {
     orderBy("date", "desc"),
     limit(5),
   );
-
-  console.log("in firebaseBoot in emptyNeedsMomentsRetry3");
 
   const momentsWithEmptyNeedsSatisAndImp = await getDocs(
     emptyNeedsSatisAndImpQuery,
@@ -278,7 +277,6 @@ const llmRetryHandler = debounce(
   () => {
     console.log("In firebaseBoot, calling llmRetryHandler");
     emptyNeedsMomentsRetry();
-    console.log("In firebaseBoot, llmRetryHandler called!");
   },
   60000,
   { leading: true, trailing: false },
@@ -295,23 +293,37 @@ document.addEventListener("visibilitychange", () => {
 
 export default boot(({ router }) => {
   //if targeting a route that needs sign in without being signed in, redirect to login
-  router.beforeEach(async (to) => {
-    // console.log("router.beforeEach", to);
-    // routes with `meta: { requiresAuth: true }` will check for the users, others won't
-    if (to.meta.requiresAuth) {
-      // if the user is not logged in, redirect to the login page
-      if (!currentUser.value || !currentUser.value.emailVerified) {
+  router.beforeEach((to, from, next) => {
+    console.log(
+      "In router.beforeEach, window.history:",
+      window.history,
+      "isLoadingAuth.value:",
+      isLoadingAuth.value,
+    );
+    if (isLoadingAuth.value) {
+      watch(isLoadingAuth, (newValue) => {
         console.log(
-          "In firebaseBoot > router.beforeEach, no user or email not verified, pushing you to /welcome",
+          "In router.beforeEach, isLoadingAuth watcher, newValue:",
+          newValue,
         );
-        return {
-          path: "/welcome",
-          query: {
-            // we keep the current path in the query so we can redirect to it after login
-            // with `router.push(route.query.redirect || '/')`
-            redirect: to.fullPath,
-          },
-        };
+        if (!newValue) {
+          // Once loading completes, call this guard recursively.
+          next(to.path);
+        }
+      });
+    } else {
+      if (to.meta.requiresAuth && !currentUser.value?.emailVerified) {
+        console.log(
+          "In router.beforeEach, NO user yet or email NOT verified, redirected to /welcome?redirect=",
+          to.fullPath,
+        );
+        next({ path: "/welcome", query: { redirect: to.fullPath } });
+      } else {
+        console.log(
+          "In router.beforeEach, no redirection, going to",
+          to.fullPath,
+        );
+        next();
       }
     }
   });
@@ -319,8 +331,8 @@ export default boot(({ router }) => {
   // Call llmRetryHandler during app initialization
   watch(
     currentUser,
-    (newUser) => {
-      if (newUser) {
+    (newVal, oldVal) => {
+      if (newVal) {
         setDeviceLanguage();
         llmRetryHandler();
       }

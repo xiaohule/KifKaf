@@ -39,13 +39,14 @@ import { useRouter, useRoute } from 'vue-router'
 // });
 
 const router = useRouter()
-const route = useRoute()
 
-const goBack = () => {
-  if (route.fullPath === router.currentRoute.value.fullPath) {
-    router.push({ path: '/' }) // Redirect to root if there's no history
-  } else {
+const goBack = async () => {
+  if (window.history.length > 1) {
+    console.log('In goBack, history.length:', window.history.length)
     router.go(-1) // Go back to the previous page if there's a history
+  } else {
+    console.log('In goBack, history.length:', window.history.length, "going to home")
+    router.push({ path: '/' }) // Redirect to root if there's no history
   }
 }
 

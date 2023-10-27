@@ -137,12 +137,21 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       await setDoc(userDocRef.value, { speechRecoLanguage }, { merge: true });
-      console.log(
-        "In moment.js, just set speechRecoLanguage to",
-        speechRecoLanguage,
-      );
     } catch (error) {
       console.log("Error in setSpeechRecoLanguage", error);
+    }
+  };
+
+  const setSignInMethods = async (signInMethods) => {
+    try {
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+
+      await setDoc(userDocRef.value, { signInMethods }, { merge: true });
+    } catch (error) {
+      console.log("Error in setSignInMethods", error);
     }
   };
 
@@ -158,22 +167,8 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.speechRecoLanguage ?? false;
   });
 
-  const getReadableSpeechRecoLanguage = computed(() => {
-    if (!getSpeechRecoLanguage.value) return false;
-    switch (getSpeechRecoLanguage.value) {
-      case "en-US":
-        return "English";
-      case "fr-FR":
-        return "Français";
-      case "es-ES":
-        return "Español";
-      case "it-IT":
-        return "Italiano";
-      case "de-DE":
-        return "Deutsch";
-      default:
-        return false;
-    }
+  const getSignInMethods = computed(() => {
+    return userDoc?.value?.signInMethods ?? false;
   });
 
   const fetchMoments = async () => {
@@ -498,7 +493,7 @@ export const useMomentsStore = defineStore("moments", () => {
     getAuthorizationCode,
     getDeviceLanguage,
     getSpeechRecoLanguage,
-    getReadableSpeechRecoLanguage,
+    getSignInMethods,
     getFormattedDate,
     addMoment,
     fetchUser,
@@ -507,6 +502,7 @@ export const useMomentsStore = defineStore("moments", () => {
     updateUser,
     setAuthorizationCode,
     setSpeechRecoLanguage,
+    setSignInMethods,
     $reset,
   };
 });

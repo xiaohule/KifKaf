@@ -29,7 +29,7 @@
           </q-item>
 
 
-          <q-item v-if="signInMethodsIncludePassword === true" clickable v-ripple @click="openEditDialog('password')">
+          <q-item :clickable="signInMethodsIncludePassword === true" v-ripple @click="openEditDialog('password')">
             <q-item-section>
               <q-item-label caption>
                 Password
@@ -45,7 +45,7 @@
             <q-item-section>
               <q-item-label>Speech recognition language</q-item-label>
               <q-item-label caption>
-                {{ momentsStore.getReadableSpeechRecoLanguage }}
+                {{ speechRecoLanguageOptions[pickedLanguage] }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -183,12 +183,12 @@
         <q-card-section class="text-h6 text-weight-medium">Change speech recognition language</q-card-section>
         <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none" style="border-radius: 14px;">
 
-          <q-item tag="label" v-ripple v-for="(option, index) in options" :key="index" class="">
+          <q-item tag="label" v-ripple v-for="(value, key) in speechRecoLanguageOptions" :key="key" class="">
             <q-item-section>
-              <q-item-label>{{ option.label }}</q-item-label>
+              <q-item-label>{{ value }}</q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-radio v-model="pickedLanguage" checked-icon="check" unchecked-icon="none" :val="option.value" />
+              <q-radio v-model="pickedLanguage" checked-icon="check" unchecked-icon="none" :val="key" />
             </q-item-section>
           </q-item>
         </q-card-section>
@@ -259,6 +259,13 @@ const oldPwdInputRef = ref(null)
 const mainInputRef = ref(null)
 
 const pickedLanguage = ref('en-US')
+const speechRecoLanguageOptions = {
+  "en-US": "English",
+  "fr-FR": "Français",
+  "es-ES": "Español",
+  "it-IT": "Italiano",
+  "de-DE": "Deutsch"
+};
 
 const editDialogOpened = ref(false)
 const logoutDialogOpened = ref(false)
@@ -270,9 +277,11 @@ onMounted(async () => {
     if (!momentsStore.userFetched) {
       await momentsStore.fetchUser();
     }
+    console.log("In SettingsPage > onMounted before pickedLang setting, currently set at:", pickedLanguage.value);
     pickedLanguage.value = momentsStore.getSpeechRecoLanguage ||
       momentsStore.getDeviceLanguage ||
       "en-US";
+    console.log("In SettingsPage > onMounted pickedLanguage set at:", pickedLanguage.value);
   } catch (error) {
     console.error('await momentsStore.fetchUser() error:', error);
   }
@@ -375,32 +384,9 @@ const updateSetting = async () => {
   //TODO:2 disable Save button when no change were made and when one validation is not passed
 }
 
-const options = [
-  {
-    label: 'English',
-    value: 'en-US'
-  },
-  {
-    label: 'Français',
-    value: 'fr-FR'
-  },
-  {
-    label: 'Español',
-    value: 'es-ES'
-  },
-  {
-    label: 'Italiano',
-    value: 'it-IT'
-  },
-  {
-    label: 'Deutsch',
-    value: 'de-DE'
-  }
-]
-
-watch(pickedLanguage, (val) => {
-  console.log("pickedLanguage.value:", pickedLanguage.value);
-  momentsStore.setSpeechRecoLanguage(val);
+watch(pickedLanguage, (newVal, oldVal) => {
+  console.log("In SettingsPage, pickedLanguage changed from", oldVal, "to", newVal);
+  momentsStore?.setSpeechRecoLanguage(newVal);
 })
 
 const logOut = async () => {
