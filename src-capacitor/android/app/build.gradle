@@ -7,7 +7,7 @@ android {
         applicationId "app.kifkaf.kifkaf"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2 //You must increment the versionCode by at least one with every release that you push to the Google Play Store, irrespective of the changes in the release (major, minor, patch, etc.).
+        versionCode 3 //You must increment the versionCode by at least one with every release that you push to the Google Play Store, irrespective of the changes in the release (major, minor, patch, etc.).
         versionName "1.0.2" //The versionName can be any string value that you would like to use as the version number displayed to users.
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
