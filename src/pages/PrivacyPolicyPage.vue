@@ -4,10 +4,8 @@
 
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
 
-      <p>At KifKaf, your privacy is paramount. This policy refer to the KifKaf mobile application, web
-        platform, and associated services. It describes the data we collect,
-        why we collect it, and how we
-        manage it.</p>
+      <p>At KifKaf, your privacy is paramount. This policy refers to the KifKaf mobile application, web platform, and
+        associated services. It describes the data we collect, why we collect it, and how we manage it.</p>
 
       <h5>Information Collection</h5>
 
@@ -18,9 +16,10 @@
         <li>Email address</li>
         <li>Password (encrypted and not directly accessible)</li>
         <li>Name (optional)</li>
+        <li>Moments you add to your KifKaf journal</li>
       </ul>
 
-      <p>Even without signing in to a KifKaf Account, you might opt to share information with us— for instance, an email
+      <p>Even without signing in to a KifKaf Account, you might opt to share information with us — for instance, an email
         address to receive updates about our services.</p>
 
       <h6>2. Automated Data Collection</h6>
@@ -30,9 +29,9 @@
       <ul>
         <li>Device language</li>
         <li>Permissions state for microphone and speech recognition</li>
-        <li>Log information</li>
         <li>User interactions with our services features</li>
-        <li>Crash and performance analytics</li>
+        <li>Error and performance logs and diagnostics including device type, operating system, browser version, IP
+          address, general location information (such as inferred from an IP address)</li>
       </ul>
 
       <h5>Data Utilization</h5>
@@ -51,13 +50,15 @@
       <ul>
         <li>Firebase: We use Firebase for authentication, data storage, and other backend services. You can read
           Firebase's privacy policy <a href="https://firebase.google.com/support/privacy" target="_blank">here</a>.</li>
+        <li>Sentry: We use Sentry for error and performance monitoring. You can read
+          Sentry's privacy policy <a href="https://sentry.io/privacy/" target="_blank">here</a>.</li>
         <li>OpenAI: Moments's text entered into KifKaf are analyzed by OpenAI's GPT-3.5 or GPT-4 to infer
           insights. You can read OpenAI's privacy policy <a href="https://openai.com/policies/privacy-policy"
             target="_blank">here</a>.</li>
       </ul>
 
       <p>Note:While we've taken steps to protect user privacy, please be aware that user content might be analyzed by
-        third-party services. We encourage users to be careful and avoid sharing sensitive or personally identifiable
+        third-party services. We encourage users to exercise caution and avoid sharing personally identifiable
         information through the platform.</p>
 
       <h5>Changes</h5>

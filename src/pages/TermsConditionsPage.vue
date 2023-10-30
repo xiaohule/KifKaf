@@ -34,7 +34,7 @@
       </ul>
 
       <h5>Third-Party Integrations</h5>
-      <p>Our Service integrates with third-party services, such as Firebase and OpenAI. While we strive to ensure
+      <p>Our Service integrates with third-party services, such as Firebase, Sentry and OpenAI. While we strive to ensure
         the safety and privacy of user data, KifKaf cannot be held responsible for the actions or policies of these third
         parties. By using our Service, you release KifKaf from any claims and damages arising out of or connected with any
         claim you have against such third parties.</p>
