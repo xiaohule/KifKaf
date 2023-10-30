@@ -81,9 +81,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.contains("Welcome to KifKaf. These Terms of Service");
     cy.contains("arrow_back").click();
     cy.contains("Privacy Policy").should("be.visible").click();
-    cy.contains(
-      "At KifKaf, your privacy is paramount. This policy refer to the KifKaf",
-    );
+    cy.contains("At KifKaf, your privacy is paramount");
     cy.contains("arrow_back").click();
     cy.contains("Contact us").should("be.visible").click();
     cy.contains("hello@kifkaf.app");
