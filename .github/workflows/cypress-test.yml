@@ -65,3 +65,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.CYPRESS_GITHUB_TOKEN }}
           #make Firebase App Check token available to the firebaseBoot.js and commands.js when in distant test
           CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI: ${{ secrets.CYPRESS_APP_CHECK_DEBUG_TOKEN_FROM_CI }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

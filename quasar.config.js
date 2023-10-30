@@ -11,6 +11,25 @@
 const { configure } = require("quasar/wrappers");
 const path = require("path");
 
+const { sentryVitePlugin } = require("@sentry/vite-plugin");
+
+//automatically created vite.config.js after sentry init
+// import { defineConfig } from "vite";
+// import { sentryVitePlugin } from "@sentry/vite-plugin";
+// export default defineConfig({
+//   build: {
+//     sourcemap: true, // Source map generation must be turned on
+//   },
+//   plugins: [
+//     // Put the Sentry vite plugin after all other plugins
+//     sentryVitePlugin({
+//       authToken: process.env.SENTRY_AUTH_TOKEN,
+//       org: "kifkaf",
+//       project: "javascript-vue",
+//     }),
+//   ],
+// });
+
 // console.log("In quasar.config.js, process.env is", process.env);
 
 module.exports = configure(function (ctx) {
@@ -84,22 +103,32 @@ module.exports = configure(function (ctx) {
       // polyfillModulePreload: true,
       // distDir
 
-      // extendViteConf(viteConf) {
-      //   viteConf.optimizeDeps = {
-      //     // entries: [
-      //     //   // "tests/cypress/**/*.js",
-      //     //   "test/cypress/**/*.{js,jsx,ts,tsx}",
-      //     //   "**/*.cy.{js,jsx,ts,tsx}",
-      //     //   "src/**/*.{js,jsx,ts,tsx,vue}",
-      //     //   "index.html",
-      //     // ],
-      //     include: [
-      //       "@capacitor",
-      //       "@capacitor-firebase",
-      //       "@capacitor-community",
-      //     ],
-      //   };
-      // },
+      extendViteConf(viteConf, { isServer, isClient }) {
+        viteConf.build.sourcemap = true;
+
+        viteConf.plugins.push(
+          sentryVitePlugin({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: "kifkaf",
+            project: "javascript-vue",
+          }),
+        );
+
+        // viteConf.optimizeDeps = {
+        //   // entries: [
+        //   //   // "tests/cypress/**/*.js",
+        //   //   "test/cypress/**/*.{js,jsx,ts,tsx}",
+        //   //   "**/*.cy.{js,jsx,ts,tsx}",
+        //   //   "src/**/*.{js,jsx,ts,tsx,vue}",
+        //   //   "index.html",
+        //   // ],
+        //   include: [
+        //     "@capacitor",
+        //     "@capacitor-firebase",
+        //     "@capacitor-community",
+        //   ],
+        // };
+      },
       viteVuePluginOptions: {
         template: {
           compilerOptions: {
@@ -108,8 +137,16 @@ module.exports = configure(function (ctx) {
         },
       },
       // vitePlugins: [
-      //   [ 'package-name', { ..options.. } ]
-      // ]
+      //   // [ 'package-name', { ..options.. } ]
+      //   [
+      //     // Put the Sentry vite plugin after all other plugins
+      //     sentryVitePlugin({
+      //       authToken: process.env.SENTRY_AUTH_TOKEN,
+      //       org: "kifkaf",
+      //       project: "javascript-vue",
+      //     }),
+      //   ],
+      // ],
       alias: {
         "@capacitor": path.resolve(
           __dirname,

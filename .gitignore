@@ -6,16 +6,6 @@ node_modules
 .quasar
 /dist
 
-# Cordova related directories and files
-/src-cordova/node_modules
-/src-cordova/platforms
-/src-cordova/plugins
-/src-cordova/www
-
-# Capacitor related directories and files
-/src-capacitor/www
-/src-capacitor/node_modules
-
 # Log files
 npm-debug.log*
 yarn-debug.log*
@@ -29,8 +19,34 @@ yarn-error.log*
 *.sln
 
 .nyc_output
+
+# backend/
+/backend/node_modules
+/backend/bin/www
+/backend/.env
+
+# coverage/
 coverage/
-/scripts/serviceAccountKey.json
+
+# functions/
+/functions/node_modules
+
+# public/
 /public/compare1.txt
 /public/compare2.txt
+
+# scripts/
+/scripts/serviceAccountKey.json
+
+# src-capacitor/
+/src-capacitor/www
+/src-capacitor/node_modules
+
+# test/
+/test/cypress/videos/*
+/test/cypress/screenshots/*
+
+# Sentry Config File
+.env.sentry-build-plugin
+
 
