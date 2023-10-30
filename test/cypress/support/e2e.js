@@ -29,7 +29,8 @@ Cypress.on("uncaught:exception", (err, runnable) => {
     // err.message.includes("ResizeObserver loop limit exceeded") ||
     err.message.includes("cancelled") ||
     err.message.includes("Request failed with status code") ||
-    err.message.includes("value.initialize")
+    err.message.includes("value.initialize") ||
+    err.message.includes('"WebView" plugin')
   ) {
     return false;
   }

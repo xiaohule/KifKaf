@@ -1,6 +1,5 @@
 var express = require("express");
 var admin = require("firebase-admin");
-var serviceAccount = require("./../serviceAccountKey.json");
 const {
   getFirestore,
   Timestamp,
@@ -16,7 +15,9 @@ var router = express.Router();
 //TODO:2 unify and clean error handling
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(
+    JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY),
+  ),
 });
 const db = getFirestore();
 
