@@ -1,6 +1,7 @@
 {
   "name": "kifkaf-app",
   "version": "1.0.2",
+  "buildNumber": "3",
   "description": "KifKaf - Feelings Journal - Log moments & meet your needs",
   "productName": "KifKaf",
   "author": "na",
@@ -21,8 +22,9 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.7",
+    "@sentry/vue": "7.73.0",
+    "@sentry/capacitor": "0.14.0",
     "@sentry/vite-plugin": "^2.9.0",
-    "@sentry/vue": "^7.76.0",
     "axios": "^1.5.1",
     "firebase": "^10.5.0",
     "pinia": "^2.1.7",

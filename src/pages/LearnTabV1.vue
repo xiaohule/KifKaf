@@ -118,6 +118,9 @@ onActivated(() => {
     swiperElImportance.value.swiper.slideTo(activeIndex.value, 0)
     swiperInitialized.value = true
   }
+  console.log("In LearnTabV1, SentryCapacitor throw new Error");
+  throw new Error("Test Thrown Error");
+  //TODO:5 remove this test error
 });
 onDeactivated(() => {
   console.log('ONDEACTIVATED')
