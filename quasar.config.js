@@ -166,10 +166,10 @@ module.exports = configure(function (ctx) {
           __dirname,
           "src-capacitor/node_modules/@capacitor-community",
         ),
-        // "@sentry/capacitor": path.resolve(
-        //   __dirname,
-        //   "src-capacitor/node_modules/@sentry/capacitor",
-        // ),
+        "@sentry/capacitor": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@sentry/capacitor",
+        ),
       },
     },
 

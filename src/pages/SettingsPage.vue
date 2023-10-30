@@ -396,7 +396,7 @@ watch(pickedLanguage, (newVal, oldVal) => {
 const logOut = async () => {
   try {
     if (process.env.MODE === "capacitor") {
-      console.log("In SettingsPage, signing out for native");
+      console.log("In SettingsPage, signing out for Capacitor");
       await FirebaseAuthentication.signOut();
     }
 

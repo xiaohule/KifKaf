@@ -128,7 +128,7 @@ if (
 } else {
   import("@capacitor-firebase/app-check")
     .then(async (module) => {
-      console.log("In firebaseBoot, initializing app check for native");
+      console.log("In firebaseBoot, initializing app check for Capacitor");
 
       const FirebaseAppCheck = module.FirebaseAppCheck;
 
@@ -158,11 +158,11 @@ if (
 
       // };
       // await initialize();
-      console.log("In firebaseBoot native and prod, app check initialized");
+      console.log("In firebaseBoot Capacitor && prod, app check initialized");
     })
     .catch((error) => {
       console.error(
-        "In firebaseBoot, Failed to initialize app check for native, error:",
+        "In firebaseBoot, Failed to initialize app check for Capacitor, error:",
         error,
       );
     });
@@ -180,13 +180,13 @@ const setDeviceLanguage = async () => {
         const Device = module.Device;
         deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";
         console.log(
-          "In firebaseBoot native mode, deviceLanguage is",
+          "In firebaseBoot Capacitor mode, deviceLanguage is",
           deviceLanguage,
         );
       })
       .catch((error) => {
         console.error(
-          "In firebaseBoot, Failed to set deviceLanguage for native, error:",
+          "In firebaseBoot, Failed to set deviceLanguage for Capacitor, error:",
           error,
         );
       });
@@ -297,14 +297,18 @@ document.addEventListener("visibilitychange", () => {
 
 export default boot(({ app, router }) => {
   if (process.env.MODE !== "capacitor") {
-    console.log("In firebaseBoot, will init Sentry for web");
+    // console.log("In firebaseBoot, will init Sentry for web");
     SentryVue.init({
       app,
       dsn: "https://14d302e6de1ed16a581dea3f4d90aec6@o4506138007961600.ingest.sentry.io/4506138013204480",
       integrations: [
         new SentryVue.BrowserTracing({
           // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-          tracePropagationTargets: ["localhost", /^https:\/\/kifkaf\.app\/api/],
+          tracePropagationTargets: [
+            "localhost",
+            "https://kifkaf.app/api",
+            /^https:\/\/kifkaf\.app\/api/,
+          ],
           routingInstrumentation: SentryVue.vueRouterInstrumentation(router),
         }),
         new SentryVue.Replay(),
@@ -315,9 +319,9 @@ export default boot(({ app, router }) => {
       replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
       replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
     });
-    console.log("In firebaseBoot, Sentry initialized for native");
+    console.log("In firebaseBoot, Sentry initialized for web");
   } else {
-    console.log("In firebaseBoot, will init Sentry for capacitor");
+    // console.log("In firebaseBoot, will init Sentry for capacitor");
     // console.log("In firebaseBoot, CapacitorSentry:", SentryCapacitor);
     SentryCapacitor.init(
       {
@@ -340,24 +344,16 @@ export default boot(({ app, router }) => {
             ],
             routingInstrumentation: SentryVue.vueRouterInstrumentation(router),
           }),
-          // new SentryVue.Replay(),
+          new SentryVue.Replay(),
         ],
         tracesSampleRate: 1.0, // Capture 100% of the transactions
+        // Session Replay
+        replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+        replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
       },
       SentryVue.init,
     );
-    console.log("In firebaseBoot, Sentry initialized for native");
-
-    console.log(
-      "In firebaseBoot, SentryCapacitor.captureException(Test Captured Exception)",
-    );
-    SentryCapacitor.captureException("Test Captured Exception");
-
-    // console.log("In firebaseBoot, SentryCapacitor throw new Error");
-    // throw new Error("Test Thrown Error");
-
-    // console.log("In firebaseBoot, SentryCapacitor.nativeCrash()");
-    // SentryCapacitor.nativeCrash();
+    console.log("In firebaseBoot, Sentry initialized for capacitor");
   }
 
   //if targeting a route that needs sign in without being signed in, redirect to login

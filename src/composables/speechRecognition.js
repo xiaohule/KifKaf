@@ -107,7 +107,7 @@ export const useSpeechRecognition = async (
     };
   } else {
     try {
-      console.log("In useSpeechRecognition, speech recognition for native");
+      console.log("In useSpeechRecognition, speech recognition for Capacitor");
       const isAvailable = (await SpeechRecognition.available()).available;
       console.log(
         "In useSpeechRecognition,  SpeechRecognition.available():",
@@ -130,7 +130,7 @@ export const useSpeechRecognition = async (
       toggleSpeechRecognition = async () => {
         let previousMatch = "";
         console.log(
-          "In useSpeechRecognition, toggleSpeechRecognition for Native called",
+          "In useSpeechRecognition, toggleSpeechRecognition for Capacitor called",
         );
 
         if (hasPermissions === "denied") {
@@ -154,8 +154,8 @@ export const useSpeechRecognition = async (
           if (!isRecognizing.value) {
             SpeechRecognition.addListener("partialResults", (data) => {
               // newMomText.value = data.matches[0];
-              // console.log("In speechReco native previousMatch:", previousMatch);
-              // console.log("In speechReco native partialResults:", data.matches);
+              // console.log("In speechReco Capacitor previousMatch:", previousMatch);
+              // console.log("In speechReco Capacitor partialResults:", data.matches);
               if (newMomText.value.endsWith(previousMatch)) {
                 newMomText.value =
                   newMomText.value.substring(

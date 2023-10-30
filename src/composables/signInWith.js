@@ -25,7 +25,7 @@ export const signInWithGoogle = async () => {
       // await signInWithRedirect(auth, provider);
       await signInWithPopup(auth, provider);
     } else {
-      console.log("In signInWith, google sign in for native");
+      console.log("In signInWith, google sign in for Capacitor");
 
       // 1. Create credentials on the native layer
       const result = await FirebaseAuthentication.signInWithGoogle();
@@ -62,7 +62,7 @@ export const signInWithApple = async () => {
       //TODO:1 i'm not able to find the authorizationCode in the credential
       authorizationCode = "";
     } else {
-      console.log("In signInWith, apple sign in for native");
+      console.log("In signInWith, apple sign in for Capacitor");
       // 1. Create credentials on the native layer
       const result = await FirebaseAuthentication.signInWithApple();
       authorizationCode = result.credential?.authorizationCode;

@@ -16,6 +16,7 @@ def capacitor_pods
   pod 'CapacitorFirebaseAuthentication', :path => '../../node_modules/@capacitor-firebase/authentication'
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
   pod 'CapacitorDevice', :path => '../../node_modules/@capacitor/device'
+  pod 'SentryCapacitor', :path => '../../node_modules/@sentry/capacitor'
 end
 
 target 'KifKaf' do
