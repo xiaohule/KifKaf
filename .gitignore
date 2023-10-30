@@ -23,7 +23,6 @@ yarn-error.log*
 # backend/
 /backend/node_modules
 /backend/bin/www
-/backend/.env
 
 # coverage/
 coverage/
