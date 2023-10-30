@@ -13,6 +13,7 @@
 import { onMounted } from 'vue';
 import { useMomentsStore } from './stores/moments.js';
 
+//TODO:5 is this needed to fetchUser here?
 const momentsStore = useMomentsStore()
 
 onMounted(async () => {

@@ -102,6 +102,10 @@
 
       </q-list>
     </div>
+    <br />
+    <br />
+    <br />
+    <br />
 
     <!--TODO:1 allow for not re-inputting email if not needed -->
     <q-dialog v-model="editDialogOpened" position="bottom" style="max-width: 600px">
