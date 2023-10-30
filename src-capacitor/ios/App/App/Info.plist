@@ -36,9 +36,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string></string>
+	<string>Microphone allows you to log moments using voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string></string>
+	<string>Speech recognition allows you to log moments using voice.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
