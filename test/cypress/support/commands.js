@@ -42,18 +42,31 @@ Cypress.Commands.add("toggleFirebasePersistence", () => {
     appId: "1:296402111022:web:9e147ef8aa0fcb44822dbf",
     measurementId: "G-6KB3RTH5GX",
   };
-  const firebaseWebApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseWebApp);
 
+  let firebaseWebApp;
+  let auth;
+  try {
+    firebaseWebApp = initializeApp(firebaseConfig);
+    auth = getAuth(firebaseWebApp);
+  } catch (error) {
+    console.error(
+      "In command.js, error initializing firebaseWebApp or auth:",
+      error,
+    );
+  }
   //APP CHECK
   self.FIREBASE_APPCHECK_DEBUG_TOKEN =
     Cypress.env("APP_CHECK_DEBUG_TOKEN_FROM_CI") || true;
-  const appCheck = initializeAppCheck(firebaseWebApp, {
-    provider: new ReCaptchaV3Provider(
-      "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
-    ),
-    isTokenAutoRefreshEnabled: true,
-  });
+  try {
+    const appCheck = initializeAppCheck(firebaseWebApp, {
+      provider: new ReCaptchaV3Provider(
+        "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+      ),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (error) {
+    console.error("In command.js, Error initializing app check:", error);
+  }
 
   return auth
     .signOut()
