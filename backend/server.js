@@ -99,7 +99,12 @@ app.use(
       return callback(null, true);
     },
     methods: ["GET"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "baggage",
+      "sentry-trace",
+    ],
   }),
 );
 app.use("/api/chat", chatRouter);

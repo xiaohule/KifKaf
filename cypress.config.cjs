@@ -80,7 +80,7 @@ module.exports = defineConfig({
         // whatever you return here becomes the launchOptions
         return launchOptions;
       });
-      require("cypress-terminal-report/src/installLogsPrinter")(on);
+      // require("cypress-terminal-report/src/installLogsPrinter")(on);
       return config;
     },
     baseUrl: "http://localhost:9200/",

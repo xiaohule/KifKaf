@@ -1,5 +1,4 @@
 import { boot } from "quasar/wrappers";
-import * as Sentry from "@sentry/vue";
 import { initializeApp, getApp } from "firebase/app";
 import {
   initializeFirestore,
@@ -32,10 +31,14 @@ import { markRaw, ref, watch } from "vue";
 // import Vue3Lottie from "vue3-lottie";
 import { debounce } from "lodash";
 import axios from "axios";
-axios.defaults.baseURL = process.env.API_URL;
+import * as SentryVue from "@sentry/vue";
+// import * as SentryCapacitor from "@sentry/capacitor";
+
 // import { Device } from "@capacitor/device";
 // import { Platform, is } from "quasar";
 // console.log("Platform is", Platform.is);
+
+axios.defaults.baseURL = process.env.API_URL;
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -47,31 +50,43 @@ const firebaseConfig = {
   measurementId: "G-6KB3RTH5GX",
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
+let firebaseApp;
+try {
+  firebaseApp = initializeApp(firebaseConfig);
+} catch (error) {
+  console.error("Error initializing Firebase app:", error);
+}
 // Use IndexedDb persistence. Cf. https://github.com/firebase/firebase-js-sdk/issues/6087#issuecomment-1233478793 for markRaw
-export const db = markRaw(
-  initializeFirestore(firebaseApp, {
+let dbInstance;
+try {
+  dbInstance = initializeFirestore(firebaseApp, {
     localCache: persistentLocalCache(
       /*settings*/ { tabManager: persistentMultipleTabManager() },
     ),
-  }),
-);
+  });
+} catch (error) {
+  console.error("Error initializing Firestore database:", error);
+}
+export const db = markRaw(dbInstance);
 // console.log("firebaseApp", firebaseApp, "db", db);
 
 //AUTH
 let auth;
 export const getFirebaseAuth = () => {
   if (!auth) {
-    console.log("In firebaseBoot > getFirebaseAuth,no auth yet");
-
-    if (process.env.MODE !== "capacitor") {
-      console.log("In firebaseBoot > getFirebaseAuth, web mode");
-      auth = getAuth(firebaseApp);
-    } else {
-      console.log("In firebaseBoot > getFirebaseAuth, capacitor mode");
-      auth = initializeAuth(getApp(), {
-        persistence: indexedDBLocalPersistence,
-      });
+    try {
+      console.log("In firebaseBoot > getFirebaseAuth,no auth yet");
+      if (process.env.MODE !== "capacitor") {
+        console.log("In firebaseBoot > getFirebaseAuth, web mode");
+        auth = getAuth(firebaseApp);
+      } else {
+        console.log("In firebaseBoot > getFirebaseAuth, capacitor mode");
+        auth = initializeAuth(getApp(), {
+          persistence: indexedDBLocalPersistence,
+        });
+      }
+    } catch (error) {
+      console.error("Error initializing authentication:", error);
     }
   }
   return auth;
@@ -82,12 +97,16 @@ export const isLoadingAuth = ref(true);
 
 export const currentUser = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
-onAuthStateChanged(getFirebaseAuth(), (user) => {
-  console.log("onAuthStateChanged", user);
-  currentUser.value = user;
-  isLoadingAuth.value = false;
-  // else router.push("/login");
-});
+try {
+  onAuthStateChanged(getFirebaseAuth(), (user) => {
+    console.log("onAuthStateChanged", user);
+    currentUser.value = user;
+    isLoadingAuth.value = false;
+    // else router.push("/login");
+  });
+} catch (error) {
+  console.error("Error with onAuthStateChanged:", error);
+}
 // const analytics = getAnalytics(firebaseApp);
 
 //APP CHECK
@@ -117,17 +136,21 @@ if (
   process.env.NODE_ENV === "development"
   // || isVirtualDevice
 ) {
-  console.log("In firebaseBoot, initializing app check for web or dev");
-  const appCheck = initializeAppCheck(firebaseApp, {
-    provider: new ReCaptchaV3Provider(
-      "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
-    ),
-    isTokenAutoRefreshEnabled: true,
-  });
+  try {
+    console.log("In firebaseBoot, initializing app check for web or dev");
+    const appCheck = initializeAppCheck(firebaseApp, {
+      provider: new ReCaptchaV3Provider(
+        "6Lcwc_AmAAAAALodsOgDWM_0W3Ts1yrj_SKoPEfB",
+      ),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (error) {
+    console.error("In firebaseBoot, Error initializing app check:", error);
+  }
 } else {
   import("@capacitor-firebase/app-check")
     .then(async (module) => {
-      console.log("In firebaseBoot, initializing app check for native");
+      console.log("In firebaseBoot, initializing app check for Capacitor");
 
       const FirebaseAppCheck = module.FirebaseAppCheck;
 
@@ -141,9 +164,11 @@ if (
       });
       // 2. Set up a custom provider
       const appCheckCustomProvider = new CustomProvider({
-        getToken: () => {
+        getToken: async () => {
           console.log("In firebaseBoot, running FirebaseAppCheck.getToken()");
-          return FirebaseAppCheck.getToken();
+          const token = await FirebaseAppCheck.getToken();
+          // return FirebaseAppCheck.getToken();
+          return token;
         },
       });
       const app = getApp();
@@ -155,11 +180,11 @@ if (
 
       // };
       // await initialize();
-      console.log("In firebaseBoot native and prod,  initialize called");
+      console.log("In firebaseBoot Capacitor && prod, app check initialized");
     })
     .catch((error) => {
       console.error(
-        "In firebaseBoot, Failed to initialize app check for native, error:",
+        "In firebaseBoot, Failed to initialize app check for Capacitor, error:",
         error,
       );
     });
@@ -177,13 +202,13 @@ const setDeviceLanguage = async () => {
         const Device = module.Device;
         deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";
         console.log(
-          "In firebaseBoot native mode, deviceLanguage is",
+          "In firebaseBoot Capacitor mode, deviceLanguage is",
           deviceLanguage,
         );
       })
       .catch((error) => {
         console.error(
-          "In firebaseBoot, Failed to set deviceLanguage for native, error:",
+          "In firebaseBoot, Failed to set deviceLanguage for Capacitor, error:",
           error,
         );
       });
@@ -293,35 +318,84 @@ document.addEventListener("visibilitychange", () => {
 });
 
 export default boot(({ app, router }) => {
-  Sentry.init({
-    app,
-    dsn: "https://14d302e6de1ed16a581dea3f4d90aec6@o4506138007961600.ingest.sentry.io/4506138013204480",
-    integrations: [
-      new Sentry.BrowserTracing({
-        // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-        tracePropagationTargets: [
-          "localhost",
-          /^https:\/\/yourserver\.io\/api/,
-        ],
-        routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-      }),
-      new Sentry.Replay(),
-    ],
-    // Performance Monitoring
-    tracesSampleRate: 1.0, // Capture 100% of the transactions
-    // Session Replay
-    replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-    replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
-  });
+  if (process.env.MODE !== "capacitor") {
+    // console.log("In firebaseBoot, will init Sentry for web");
+    SentryVue.init({
+      app,
+      dsn: "https://14d302e6de1ed16a581dea3f4d90aec6@o4506138007961600.ingest.sentry.io/4506138013204480",
+      integrations: [
+        new SentryVue.BrowserTracing({
+          // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+          tracePropagationTargets: [
+            "localhost",
+            "https://kifkaf.app/api",
+            /^https:\/\/kifkaf\.app\/api/,
+          ],
+          routingInstrumentation: SentryVue.vueRouterInstrumentation(router),
+        }),
+        new SentryVue.Replay(),
+      ],
+      // Performance Monitoring
+      tracesSampleRate: 1.0, // Capture 100% of the transactions
+      // Session Replay
+      replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+      replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+    });
+    console.log("In firebaseBoot, Sentry initialized for web");
+  } else {
+    import("@sentry/capacitor")
+      .then((module) => {
+        console.log("SentryCapacitor module:", module);
+        const SentryCapacitor = module;
+        SentryCapacitor.init(
+          {
+            app,
+            // dsn: "https://14d302e6de1ed16a581dea3f4d90aec6@o4506138007961600.ingest.sentry.io/4506138013204480",
+            dsn: "https://c2f9d0933e8f0e2fa9ddcf74448d9f2d@o4506138007961600.ingest.sentry.io/4506139126071296",
+            // Set your release version, such as 'getsentry@1.0.0'
+            release: `kifkaf-app@${process.env.__APP_VERSION__}`,
+            // Set your dist version, such as "1"
+            dist: process.env.__BUILD_NUMBER__,
+            integrations: [
+              // Registers and configures the Tracing integration,
+              // which automatically instruments your application to monitor its
+              // performance, including custom Angular routing instrumentation
+              new SentryVue.BrowserTracing({
+                tracePropagationTargets: [
+                  "localhost",
+                  "https://kifkaf.app/api",
+                  /^https:\/\/kifkaf\.app\/api/,
+                ],
+                routingInstrumentation:
+                  SentryVue.vueRouterInstrumentation(router),
+              }),
+              new SentryVue.Replay(),
+            ],
+            tracesSampleRate: 1.0, // Capture 100% of the transactions
+            // Session Replay
+            replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+            replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+          },
+          SentryVue.init,
+        );
+        console.log("In firebaseBoot, Sentry initialized for capacitor");
+      })
+      .catch((error) => {
+        console.error(
+          "In firebaseBoot, Failed to initialize Sentry for Capacitor, error:",
+          error,
+        );
+      });
+  }
 
   //if targeting a route that needs sign in without being signed in, redirect to login
   router.beforeEach((to, from, next) => {
-    console.log(
-      "In router.beforeEach, window.history:",
-      window.history,
-      "isLoadingAuth.value:",
-      isLoadingAuth.value,
-    );
+    // console.log(
+    //   "In router.beforeEach, window.history:",
+    //   window.history,
+    //   "isLoadingAuth.value:",
+    //   isLoadingAuth.value,
+    // );
     if (isLoadingAuth.value) {
       watch(isLoadingAuth, (newValue) => {
         console.log(

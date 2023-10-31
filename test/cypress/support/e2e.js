@@ -14,7 +14,7 @@
 // ***********************************************************
 
 import "./commands";
-require("cypress-terminal-report/src/installLogsCollector")();
+// require("cypress-terminal-report/src/installLogsCollector")();
 // console.log("support/e2e.js loaded");
 
 Cypress.on("uncaught:exception", (err, runnable) => {

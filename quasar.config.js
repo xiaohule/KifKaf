@@ -78,6 +78,7 @@ module.exports = configure(function (ctx) {
       // APP VERSION
       env: {
         __APP_VERSION__: require("./package.json").version,
+        __BUILD_NUMBER__: require("./package.json").buildNumber,
         API_URL: ctx.dev
           ? ctx.mode.capacitor
             ? "http://192.168.1.51:3000"
@@ -112,6 +113,11 @@ module.exports = configure(function (ctx) {
             org: "kifkaf",
             project: "javascript-vue",
           }),
+          // sentryVitePlugin({
+          //   authToken: process.env.SENTRY_AUTH_TOKEN_CAPACITOR,
+          //   org: "kifkaf",
+          //   project: "capacitor",
+          // }),
         );
 
         // viteConf.optimizeDeps = {
@@ -159,6 +165,10 @@ module.exports = configure(function (ctx) {
         "@capacitor-community": path.resolve(
           __dirname,
           "src-capacitor/node_modules/@capacitor-community",
+        ),
+        "@sentry/capacitor": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@sentry/capacitor",
         ),
       },
     },

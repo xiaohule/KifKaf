@@ -5,13 +5,13 @@ PODS:
   - AppAuth/Core (1.6.2)
   - AppAuth/ExternalUserAgent (1.6.2):
     - AppAuth/Core
-  - Capacitor (5.5.0):
+  - Capacitor (5.5.1):
     - CapacitorCordova
   - CapacitorApp (5.0.6):
     - Capacitor
   - CapacitorCommunitySpeechRecognition (2.1.0):
     - Capacitor
-  - CapacitorCordova (5.5.0)
+  - CapacitorCordova (5.5.1)
   - CapacitorDevice (5.0.6):
     - Capacitor
   - CapacitorFirebaseAppCheck (5.2.0):
@@ -69,6 +69,12 @@ PODS:
     - GTMSessionFetcher/Core (< 4.0, >= 1.5)
   - GTMSessionFetcher/Core (3.1.1)
   - PromisesObjC (2.3.1)
+  - Sentry/HybridSDK (8.8.0):
+    - SentryPrivate (= 8.8.0)
+  - SentryCapacitor (0.14.0):
+    - Capacitor
+    - Sentry/HybridSDK (= 8.8.0)
+  - SentryPrivate (8.8.0)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -79,6 +85,7 @@ DEPENDENCIES:
   - "CapacitorFirebaseAppCheck (from `../../node_modules/@capacitor-firebase/app-check`)"
   - "CapacitorFirebaseAuthentication (from `../../node_modules/@capacitor-firebase/authentication`)"
   - "CapacitorFirebaseAuthentication/Google (from `../../node_modules/@capacitor-firebase/authentication`)"
+  - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
   trunk:
@@ -93,6 +100,8 @@ SPEC REPOS:
     - GTMAppAuth
     - GTMSessionFetcher
     - PromisesObjC
+    - Sentry
+    - SentryPrivate
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -109,13 +118,15 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor-firebase/app-check"
   CapacitorFirebaseAuthentication:
     :path: "../../node_modules/@capacitor-firebase/authentication"
+  SentryCapacitor:
+    :path: "../../node_modules/@sentry/capacitor"
 
 SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
-  Capacitor: 57890b363df14d5d2d5d8461aa23e886cb34da2a
+  Capacitor: 9da0a2415e3b6098511f8b5ffdb578d91ee79f8f
   CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
   CapacitorCommunitySpeechRecognition: b404ef82fa846dd48f6417eb0c47955645ca0996
-  CapacitorCordova: 3d3908a3d208a11a75f9df3b18c4405c4de76e1d
+  CapacitorCordova: e128cc7688c070ca0bfa439898a5f609da8dbcfe
   CapacitorDevice: 2c968f98a1ec4d22357418c1521e7ddc46c675e6
   CapacitorFirebaseAppCheck: eba071266612be9f851d6caffed4aaa24ada4134
   CapacitorFirebaseAuthentication: 1278b10587edcf1adba0d136d367e024e9c38400
@@ -129,7 +140,10 @@ SPEC CHECKSUMS:
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
+  Sentry: 927dfb29d18a14d924229a59cc2ad149f43349f2
+  SentryCapacitor: 24d2fdc00e259b9cd9454a2331444ab6c41141be
+  SentryPrivate: 4350d865f898224ab9fa02b37d6ee7fbb623f47e
 
-PODFILE CHECKSUM: 3ee2bc7545ae971b9a4c493a306ec630a8c0a718
+PODFILE CHECKSUM: 0f3606729a759af0cb88b0919cc07c2036d11cce
 
 COCOAPODS: 1.12.1
