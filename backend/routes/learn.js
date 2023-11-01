@@ -169,14 +169,16 @@ router.post("/needs/", validateRequest, async (req, res) => {
       return res.status(500).json({
         message:
           "Internal server error when updating moment needs or aggregate data for body",
-        body: req.body,
+        moment: req.body.momentText,
+        momentId: req.body.momentId,
       });
     }
 
     unlockMomentId(req.body.momentId);
     return res.status(200).json({
       message: "Llm response received and processed for body",
-      body: req.body,
+      moment: req.body.momentText,
+      momentId: req.body.momentId,
     });
   } catch (err) {
     console.error(err);
@@ -184,7 +186,8 @@ router.post("/needs/", validateRequest, async (req, res) => {
     return res.status(500).json({
       message:
         "An error occurred while making or saving the prediction for body",
-      body: req.body,
+      moment: req.body.momentText,
+      momentId: req.body.momentId,
     });
   }
 });

@@ -21,11 +21,13 @@ function validateRequest(req, res, next) {
     });
   }
 
+  //TODO:2 also check that momentId is a string of 20 chars
   const momentdateObject = JSON.parse(req.body.momentDate);
   if (!momentdateObject || !momentdateObject.seconds) {
     return res.status(400).json({
       message: "Error: Invalid momentDate in body",
-      body: req.body,
+      moment: req.body.momentText,
+      momentId: req.body.momentId,
     });
   }
 
@@ -38,7 +40,8 @@ function validateRequest(req, res, next) {
     );
     return res.status(409).json({
       message: "Error: duplicate request detected for body",
-      body: req.body,
+      moment: req.body.momentText,
+      momentId: req.body.momentId,
     });
   }
 
