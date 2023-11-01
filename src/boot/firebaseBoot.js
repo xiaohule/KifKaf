@@ -267,16 +267,19 @@ const emptyNeedsMomentsRetry = async () => {
         doc.data().text,
       );
       try {
-        const response = await axios.get(`/api/learn/needs/`, {
-          params: {
+        const response = await axios.post(
+          `/api/learn/needs/`,
+          {
             momentText: doc.data().text,
             momentDate: JSON.stringify(doc.data().date),
             momentId: doc.id,
           },
-          headers: {
-            authorization: `Bearer ${idToken}`,
+          {
+            headers: {
+              authorization: `Bearer ${idToken}`,
+            },
           },
-        });
+        );
         await updateDoc(doc.ref, {
           retries: increment(1),
         });

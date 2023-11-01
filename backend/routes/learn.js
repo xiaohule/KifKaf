@@ -50,22 +50,22 @@ var router = express.Router();
 router.use(authenticateUser); // Use the middleware for all routes in this router
 
 // ROUTE
-router.get("/needs/", validateRequest, async (req, res) => {
+router.post("/needs/", validateRequest, async (req, res) => {
   //TODO:1 make this a post request? pro and cons of post vs get?
   try {
     // console.log("req.headers", req.headers);
-    // console.log("GET request received", req.query); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
+    console.log("POST request received, req.body:", req.body); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
 
     // DEFINE DOC REFS
     const userDocRef = db.collection("users").doc(req.uid);
     const momentDocRef = userDocRef
       .collection("moments")
-      .doc(req.query.momentId);
+      .doc(req.body.momentId);
 
     // 1ST CALL TO LLM
     let openaiRequestOptions = createOpenaiRequestOptions(
       gptModel,
-      req.query.momentText,
+      req.body.momentText,
     );
     let openaiResponseMessage = (
       await openai.chat.completions.create(openaiRequestOptions)
@@ -74,7 +74,7 @@ router.get("/needs/", validateRequest, async (req, res) => {
 
     console.log(
       "LLM response received and parsed for",
-      req.query,
+      req.body,
       ", momentNeedsData=",
       momentNeedsData,
     );
@@ -93,7 +93,7 @@ router.get("/needs/", validateRequest, async (req, res) => {
 
       throw new Error(
         "momentNeedsData empty or erroneous, for mom " +
-          JSON.stringify(req.query) +
+          JSON.stringify(req.body) +
           " here is momentNeedsData: " +
           JSON.stringify(momentNeedsData),
         // " and here is the full response: " +
@@ -105,7 +105,7 @@ router.get("/needs/", validateRequest, async (req, res) => {
     //if able to return needs rating, but erroneous ones, retry
     const issueType = needRatingsIssueType(momentNeedsData);
     if (issueType) {
-      console.log("Error:", issueType, "for", req.query, momentNeedsData);
+      console.log("Error:", issueType, "for", req.body, momentNeedsData);
 
       openaiRequestOptions = updateOpenaiRequestOptions(
         gptModel,
@@ -120,7 +120,7 @@ router.get("/needs/", validateRequest, async (req, res) => {
 
       console.log(
         "Retried for ",
-        req.query,
+        req.body,
         "bec. it had Error ",
         issueType,
         ", new momentNeedsData after reply: ",
@@ -137,7 +137,7 @@ router.get("/needs/", validateRequest, async (req, res) => {
 
         throw new Error(
           "Error in retry: momentNeedsData empty or erroneous, for mom " +
-            JSON.stringify(req.query) +
+            JSON.stringify(req.body) +
             " here is openaiResponseMessage: " +
             JSON.stringify(openaiResponseMessage),
           // " and here is the full response: " +
@@ -161,44 +161,32 @@ router.get("/needs/", validateRequest, async (req, res) => {
     } catch (e) {
       console.log(
         "Transaction failure, ",
-        req.query,
+        req.body,
         "NOT enriched by needs rating and aggregate docs NOT updated: ",
         e,
       );
-      unlockMomentId(req.query.momentId);
+      unlockMomentId(req.body.momentId);
       return res.status(500).json({
         message:
-          "Internal server error when updating moment needs or aggregate data for query",
-        query: req.query,
+          "Internal server error when updating moment needs or aggregate data for body",
+        body: req.body,
       });
     }
 
-    unlockMomentId(req.query.momentId);
+    unlockMomentId(req.body.momentId);
     return res.status(200).json({
-      message: "Llm response received and processed for query",
-      query: req.query,
+      message: "Llm response received and processed for body",
+      body: req.body,
     });
   } catch (err) {
     console.error(err);
-    unlockMomentId(req.query.momentId);
+    unlockMomentId(req.body.momentId);
     return res.status(500).json({
       message:
-        "An error occurred while making or saving the prediction for query",
-      query: req.query,
+        "An error occurred while making or saving the prediction for body",
+      body: req.body,
     });
   }
 });
 
 module.exports = router;
-
-//route to test performance
-// router.get("/dummy", async (req, res) => {
-//   try {
-//     return res.json("Dummy response");
-//   } catch (err) {
-//     console.error(err);
-//     return res
-//       .status(500)
-//       .send("An error occurred while making the prediction");
-//   }
-// });

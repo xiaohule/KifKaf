@@ -32,13 +32,13 @@ async function persistInvalidMomentNeedsData(
   momentDocRef,
   momentNeedsData,
 ) {
-  const invalidMomentDocId = generateFirestoreDocId(req.query.momentText);
+  const invalidMomentDocId = generateFirestoreDocId(req.body.momentText);
   const invalidMomentsDocRef = db
     .collection("invalidMoments")
     .doc(invalidMomentDocId);
   const batch = db.batch();
   batch.set(invalidMomentsDocRef, {
-    moment: req.query.momentText,
+    moment: req.body.momentText,
     reason: momentNeedsData,
     user: req.uid,
     lastUpdate: FieldValue.serverTimestamp(),
@@ -57,10 +57,10 @@ async function persistUnexpectedNeedsIfAny(db, req, momentNeedsData) {
         .collection("offlistNeeds")
         .doc(need)
         .collection("moments")
-        .doc(req.query.momentId);
+        .doc(req.body.momentId);
       //TODO:2 make it append and not overwrite
       await offlisNeedsRef.set({
-        moment: req.query.momentText,
+        moment: req.body.momentText,
         needsSatisAndImp: momentNeedsData,
         user: req.uid,
         lastUpdate: FieldValue.serverTimestamp(),

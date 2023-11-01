@@ -14,35 +14,35 @@ function isMomentIdLocked(momentId) {
 }
 
 function validateRequest(req, res, next) {
-  if (!req.query.momentText || typeof req.query.momentText !== "string") {
+  if (!req.body.momentText || typeof req.body.momentText !== "string") {
     return res.status(400).json({
-      message: "Error: invalid momentText in query",
-      query: req.query,
+      message: "Error: invalid momentText in body",
+      body: req.body,
     });
   }
 
-  const momentdateObject = JSON.parse(req.query.momentDate);
+  const momentdateObject = JSON.parse(req.body.momentDate);
   if (!momentdateObject || !momentdateObject.seconds) {
     return res.status(400).json({
-      message: "Error: Invalid momentDate in query",
-      query: req.query,
+      message: "Error: Invalid momentDate in body",
+      body: req.body,
     });
   }
 
-  if (isMomentIdLocked(req.query.momentId)) {
+  if (isMomentIdLocked(req.body.momentId)) {
     console.log(
-      "Error: duplicate request detected for query",
-      req.query,
+      "Error: duplicate request detected for body",
+      req.body,
       "lockedMomentIds:",
       lockedMomentIds,
     );
     return res.status(409).json({
-      message: "Error: duplicate request detected for query",
-      query: req.query,
+      message: "Error: duplicate request detected for body",
+      body: req.body,
     });
   }
 
-  lockMomentId(req.query.momentId);
+  lockMomentId(req.body.momentId);
 
   next();
 }

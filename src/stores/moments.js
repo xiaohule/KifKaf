@@ -353,16 +353,19 @@ export const useMomentsStore = defineStore("moments", () => {
         newMomDocRef.id,
         moment.text,
       );
-      const response = await axios.get(`/api/learn/needs/`, {
-        params: {
+      const response = await axios.post(
+        `/api/learn/needs/`,
+        {
           momentText: moment.text,
           momentDate: JSON.stringify(moment.date),
           momentId: newMomDocRef.id,
         },
-        headers: {
-          authorization: `Bearer ${idToken}`,
+        {
+          headers: {
+            authorization: `Bearer ${idToken}`,
+          },
         },
-      });
+      );
       Notify.create("Needs analysis complete.");
 
       console.log("In addMoment", response.data);

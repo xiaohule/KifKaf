@@ -98,7 +98,7 @@ app.use(
       }
       return callback(null, true);
     },
-    methods: ["GET"],
+    methods: ["POST"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",

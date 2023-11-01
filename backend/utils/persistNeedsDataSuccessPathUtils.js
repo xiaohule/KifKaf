@@ -95,7 +95,7 @@ const persistNeedsData = async (
     aggregateMonthlyRawDocRef,
     aggregateYearlyDocRef,
     aggregateMonthlyDocRef,
-  } = await getAggregateDocRefs(userDocRef, req.query.momentDate);
+  } = await getAggregateDocRefs(userDocRef, req.body.momentDate);
 
   //persist llm data in firestore
   await db.runTransaction(async (t) => {
@@ -166,7 +166,7 @@ const persistNeedsData = async (
 
   console.log(
     "Transaction success for ",
-    req.query,
+    req.body,
     "docs updated: ",
     //keep only the last two part of the path
     aggregateYearlyDocRef.path.split("/").slice(-2).join("/"),
