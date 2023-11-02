@@ -35,7 +35,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 const allowedDomains = [
   "http://localhost:8080",
@@ -114,11 +114,11 @@ app.use("/api/learn", learnRouter);
 app.use(Sentry.Handlers.errorHandler());
 
 // Optional fallthrough error handler
-// app.use(function onError(err, req, res, next) {
-//   // The error id is attached to `res.sentry` to be returned
-//   // and optionally displayed to the user for support.
-//   res.statusCode = 500;
-//   res.end(res.sentry + "\n");
-// });
+app.use(function onError(err, req, res, next) {
+  // The error id is attached to `res.sentry` to be returned
+  // and optionally displayed to the user for support.
+  res.statusCode = 500;
+  res.end(res.sentry + "\n");
+});
 
 module.exports = app;

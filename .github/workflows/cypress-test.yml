@@ -51,6 +51,7 @@ jobs:
             chrome # comment for electron mode or try firefox
             # headed: true
           wait-on: "http://localhost:3000, http://localhost:9200"
+          wait-on-timeout: 120 # seconds
           # Records to Cypress Cloud
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
           record: true
