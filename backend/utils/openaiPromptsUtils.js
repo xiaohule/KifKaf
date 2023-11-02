@@ -216,7 +216,7 @@ const gpt4_params = (momentText) => {
     // frequency_penalty: 0, //Defaults to 0
     // presence_penalty: 0, //Defaults to 0
     // stream: true,
-    //user:"user123456" //https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids
+    //user:"user123456" //https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids //TODO:2  to do for safety
   };
 };
 
