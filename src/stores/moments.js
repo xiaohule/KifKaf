@@ -370,7 +370,6 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
-  //just to trigger distant tests again
   // async updateMoment(momentId, moment) {
   //   try {
   //     const momentRef = doc(db, `users/${this.userId}/moments/${momentId}`);
