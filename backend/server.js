@@ -3,7 +3,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
-const chatRouter = require("./routes/chat");
+// const chatRouter = require("./routes/chat");
 const learnRouter = require("./routes/learn");
 
 const Sentry = require("@sentry/node");
@@ -107,7 +107,7 @@ app.use(
     ],
   }),
 );
-app.use("/api/chat", chatRouter);
+// app.use("/api/chat", chatRouter);
 app.use("/api/learn", learnRouter);
 
 // The error handler must be registered before any other error middleware and after all controllers
