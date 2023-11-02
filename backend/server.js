@@ -3,7 +3,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
-const chatRouter = require("./routes/chat");
+// const chatRouter = require("./routes/chat");
 const learnRouter = require("./routes/learn");
 
 const Sentry = require("@sentry/node");
@@ -35,7 +35,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
 
 const allowedDomains = [
   "http://localhost:8080",
@@ -98,7 +98,7 @@ app.use(
       }
       return callback(null, true);
     },
-    methods: ["GET"],
+    methods: ["POST"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -107,18 +107,18 @@ app.use(
     ],
   }),
 );
-app.use("/api/chat", chatRouter);
+// app.use("/api/chat", chatRouter);
 app.use("/api/learn", learnRouter);
 
 // The error handler must be registered before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
 
 // Optional fallthrough error handler
-app.use(function onError(err, req, res, next) {
-  // The error id is attached to `res.sentry` to be returned
-  // and optionally displayed to the user for support.
-  res.statusCode = 500;
-  res.end(res.sentry + "\n");
-});
+// app.use(function onError(err, req, res, next) {
+//   // The error id is attached to `res.sentry` to be returned
+//   // and optionally displayed to the user for support.
+//   res.statusCode = 500;
+//   res.end(res.sentry + "\n");
+// });
 
 module.exports = app;

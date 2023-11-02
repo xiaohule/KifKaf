@@ -38,7 +38,7 @@ module.exports = {
     "no-underscore-dangle": ["error", { allow: ["_id"] }],
     "consistent-return": "off",
     "func-names": "off",
-    "max-len": ["error", { code: 120 }],
+    // "max-len": ["error", { code: 120 }],
     "object-curly-newline": ["error", { consistent: true }],
     "quote-props": ["error", "consistent"],
     semi: ["error", "always"],

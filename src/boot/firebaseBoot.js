@@ -263,29 +263,28 @@ const emptyNeedsMomentsRetry = async () => {
   const processPromises = momentsWithEmptyNeedsSatisAndImp.docs.map(
     async (doc) => {
       console.log(
-        "In firebaseBoot, in emptyNeedsMomentsRetry, triggering retry call to llm for moment",
-        doc.data().text,
+        "In firebaseBoot > emptyNeedsMomentsRetry, will trigger retry call to llm for:",
+        doc.data(),
       );
       try {
-        const response = await axios.get(`/api/learn/needs/`, {
-          params: {
+        const response = await axios.post(
+          `/api/learn/needs/`,
+          {
             momentText: doc.data().text,
             momentDate: JSON.stringify(doc.data().date),
             momentId: doc.id,
           },
-          headers: {
-            authorization: `Bearer ${idToken}`,
+          {
+            headers: {
+              authorization: `Bearer ${idToken}`,
+            },
           },
-        });
+        );
+        console.log("In addMoment", response.data);
+
         await updateDoc(doc.ref, {
           retries: increment(1),
         });
-        console.log(
-          "In firebaseBoot, successful retried llm call for moment",
-          doc.data().text,
-          // "' :",
-          // response.data,
-        );
       } catch (error) {
         console.error(
           "In firebaseBoot.js > emptyNeedsMomentsRetry error:",
