@@ -41,7 +41,7 @@ const openai = new OpenAI({
   // maxRetries: 0, // default is 2
   // timeout: 20 * 1000, // 20 seconds (default is 10 minutes, requests which time out will be retried twice by default.)
 });
-const gptModel = "gpt-3.5-turbo"; //gpt-3.5-turbo or gpt-4
+const gptModel = "gpt-4"; //gpt-3.5-turbo or gpt-4
 
 // ROUTER SETUP
 var router = express.Router();
@@ -67,9 +67,16 @@ router.post("/needs/", validateRequest, async (req, res) => {
       gptModel,
       req.body.momentText,
     );
-    let openaiResponseMessage = (
-      await openai.chat.completions.create(openaiRequestOptions)
-    ).choices[0].message;
+    const response = await openai.chat.completions.create(openaiRequestOptions);
+    let openaiResponseMessage = response.choices[0].message;
+    console.log(
+      "For",
+      req.body,
+      "XXX response=",
+      response,
+      "openaiResponseMessage=",
+      openaiResponseMessage,
+    );
     let momentNeedsData = parseMomentNeedsData(openaiResponseMessage.content);
 
     console.log(
