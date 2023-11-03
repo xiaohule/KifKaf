@@ -69,22 +69,19 @@ router.post("/needs/", validateRequest, async (req, res) => {
     );
     const response = await openai.chat.completions.create(openaiRequestOptions);
     let openaiResponseMessage = response.choices[0].message;
-    console.log(
-      "For",
-      req.body,
-      "XXX response=",
-      response,
-      "openaiResponseMessage=",
-      openaiResponseMessage,
-    );
     let momentNeedsData = parseMomentNeedsData(openaiResponseMessage.content);
 
     console.log(
-      "LLM response received and parsed for",
+      "LLM response received for",
       req.body,
-      ", momentNeedsData=",
+      "XXX response=",
+      response,
+      "openaiResponseMessage.content=",
+      openaiResponseMessage.content,
+      "momentNeedsData=",
       momentNeedsData,
     );
+
     // returns {'Emotional Safety & Inner Peace': [ 0.3, 0.8 ],'Self-Esteem & Social Recognition': [ 0.4, 0.7 ]} or {} if error or llm didn't understand the moment
 
     // 1ST VALIDATION OF LLM RESPONSE: IF INVALID LLM REPLY PERSIST & QUIT

@@ -60,6 +60,7 @@ export const useSpeechRecognition = async (
         return; // return early if the API is not available
       }
 
+      //TODO:2 here in the case of no user setting we're implicitly hoping that device language will be supported by the speech reco API
       if (!isRecognizing.value) {
         webRecognitionInstance.lang =
           momentsStore.getSpeechRecoLanguage ||

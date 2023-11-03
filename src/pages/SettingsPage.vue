@@ -45,7 +45,7 @@
             <q-item-section>
               <q-item-label>Speech recognition language</q-item-label>
               <q-item-label caption>
-                {{ speechRecoLanguageOptions[pickedLanguage] }}
+                {{ displayPickedLanguage }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -237,7 +237,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { getFirebaseAuth } from "../boot/firebaseBoot.js";
 import { signOut, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useQuasar } from 'quasar'
@@ -270,6 +270,21 @@ const speechRecoLanguageOptions = {
   "it-IT": "Italiano",
   "de-DE": "Deutsch"
 };
+const displayPickedLanguage = computed(() => {
+  // Direct match
+  if (speechRecoLanguageOptions[pickedLanguage.value]) {
+    return speechRecoLanguageOptions[pickedLanguage.value];
+  }
+  // Fallback to the closest locale based on the language code
+  const languageCode = pickedLanguage.value.split('-')[0];
+  for (const key in speechRecoLanguageOptions) {
+    if (key.startsWith(languageCode)) {
+      return speechRecoLanguageOptions[key];
+    }
+  }
+  // Default to English if no match is found
+  return 'English';
+});
 
 const editDialogOpened = ref(false)
 const logoutDialogOpened = ref(false)

@@ -193,31 +193,35 @@ if (
 //DEVICE LANGUAGE
 const setDeviceLanguage = async () => {
   let deviceLanguage = "";
+
   if (process.env.MODE !== "capacitor") {
     deviceLanguage = navigator.language || navigator.userLanguage;
-    console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
+    // console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
+    await setDoc(
+      doc(db, "users", currentUser.value.uid),
+      { deviceLanguage },
+      { merge: true },
+    );
   } else {
-    import("@capacitor/device")
-      .then(async (module) => {
-        const Device = module.Device;
-        deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";
-        console.log(
-          "In firebaseBoot Capacitor mode, deviceLanguage is",
-          deviceLanguage,
-        );
-      })
-      .catch((error) => {
-        console.error(
-          "In firebaseBoot, Failed to set deviceLanguage for Capacitor, error:",
-          error,
-        );
-      });
+    try {
+      const { Device } = await import("@capacitor/device");
+      deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";
+      // console.log(
+      //   "In firebaseBoot Capacitor mode, deviceLanguage is",
+      //   deviceLanguage,
+      // );
+      await setDoc(
+        doc(db, "users", currentUser.value.uid),
+        { deviceLanguage },
+        { merge: true },
+      );
+    } catch (error) {
+      console.error(
+        "In firebaseBoot, Failed to get deviceLanguage for Capacitor, error:",
+        error,
+      );
+    }
   }
-  await setDoc(
-    doc(db, "users", currentUser.value.uid),
-    { deviceLanguage },
-    { merge: true },
-  );
   console.log("In firebaseBoot, just set deviceLanguage to", deviceLanguage);
 };
 
