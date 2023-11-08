@@ -4,7 +4,7 @@
 // the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
 
 //Quasar colors: keep to avoid breaking the app and keep aligned with $colors
-$primary: #0666eb;
+$primary: #4f55f1; //#4F55F1 //#0666eb;
 $secondary: #585e71;
 $accent: #286c2a; //same as tertiary
 
@@ -18,7 +18,7 @@ $warning: #f2c037;
 
 //What we get from setting primary #0666EB, secondary #8a90a5, tertiary #7c9876 and neutral #919094 on https://m3.material.io/theme-builder#/custom
 $colors: (
-  /* light */ primary: #0666eb,
+  /* light */ primary: #4f55f1,
   // #0057cd,
   on-primary: #ffffff,
   primary-container: #d9e2ff,

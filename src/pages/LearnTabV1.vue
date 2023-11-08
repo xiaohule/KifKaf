@@ -72,9 +72,8 @@ import { ref, computed, watch, nextTick, onActivated, onDeactivated } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCardNeeds from "./../components/LearnCardNeeds.vue";
-import { date } from "quasar";
-// destructuring to keep only what is needed in date
-const { formatDate, getDateDiff, startOfDate, addToDate } = date;
+import { date } from 'quasar'
+const { formatDate, getDateDiff, startOfDate, addToDate, getMaxDate } = date;
 // import styles bundle //import 'swiper/css/bundle';
 
 defineOptions({
@@ -195,7 +194,7 @@ const currentDate = computed(() => {
   return new Date()
 })
 const currentDateYYYYsMM = computed(() => {
-  return date.formatDate(currentDate.value, "YYYY/MM")
+  return formatDate(currentDate.value, "YYYY/MM")
 })
 const currentYYYYdMM = computed(() => {
   return `${currentDate.value.getFullYear()}-${(currentDate.value.getMonth() + 1).toString().padStart(2, '0')}`
@@ -205,14 +204,14 @@ const oldestMomentDate = computed(() => {
   return momentsStore.oldestMomentDate ?? currentDate.value;
 })
 const oldestMomentDateYYYYsMM = computed(() => {
-  return date.formatDate(oldestMomentDate.value, "YYYY/MM")
+  return formatDate(oldestMomentDate.value, "YYYY/MM")
 })
 
 const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
 const segDateId = ref("Monthly")
 const dateRangesYears = computed(() => {
   const dateRanges = [];
-  const yearsSinceOldestMoment = date.getDateDiff(currentDate.value, oldestMomentDate.value, 'years')
+  const yearsSinceOldestMoment = getDateDiff(currentDate.value, oldestMomentDate.value, 'years')
   for (let i = yearsSinceOldestMoment; i >= 0; i--) {
     dateRanges.push((currentDate.value.getFullYear() - i).toString());
   }
@@ -227,11 +226,11 @@ watch(dateRangesYears, (newValue) => {
 
 const dateRangesMonths = computed(() => {
   const dateRanges = [];
-  const monthsSinceOldestMoment = date.getDateDiff(currentDate.value, oldestMomentDate.value, 'months')
-  let trackingDate = date.startOfDate(oldestMomentDate.value, 'month');
+  const monthsSinceOldestMoment = getDateDiff(currentDate.value, oldestMomentDate.value, 'months')
+  let trackingDate = startOfDate(oldestMomentDate.value, 'month');
   for (let i = 0; i <= monthsSinceOldestMoment; i++) {
     dateRanges.push(`${trackingDate.getFullYear()}-${(trackingDate.getMonth() + 1).toString().padStart(2, '0')}`);
-    trackingDate = date.addToDate(trackingDate, { months: 1 });
+    trackingDate = addToDate(trackingDate, { months: 1 });
   }
   console.log('in computed dateRangesMonths, dateRanges is', dateRanges)
   return dateRanges;
@@ -256,7 +255,7 @@ const openFilterDialog = (filter) => {
 }
 
 //before pickedDateYYYYsMMsDD was initialized as the first day of the current year with format YYYY/MM/DD
-const pickedDateYYYYsMMsDD = ref(date.formatDate(currentDate.value, "YYYY/MM/DD"))
+const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"))
 const monthsKey = ref(Date.now())
 const yearsKey = ref(Date.now())
 const optionsFn = (date) => {
@@ -273,8 +272,8 @@ const updateDateButtonLabel = () => {
       dateRangeButtonLabel.value = 'This month';
     } else {
       dateRangeButtonLabel.value = (dateRangesMonthsIdxToDate(activeIndex.value).getFullYear() === currentDate.value.getFullYear())
-        ? date.formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM')
-        : date.formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM YYYY');
+        ? formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM')
+        : formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM YYYY');
     }
   }
 }
@@ -285,10 +284,10 @@ const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:
   if (newVal) {
     if (segDateId.value === 'Monthly') {
       monthsKey.value = Date.now()
-      activeIndex.value = date.getDateDiff(newVal, oldestMomentDate.value, 'months');
+      activeIndex.value = getDateDiff(newVal, oldestMomentDate.value, 'months');
     } else if (segDateId.value === 'Yearly') {
       yearsKey.value = Date.now()
-      activeIndex.value = date.getDateDiff(newVal, oldestMomentDate.value, 'years');
+      activeIndex.value = getDateDiff(newVal, oldestMomentDate.value, 'years');
     }
     console.log('onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and oldestMomentDate.value", oldestMomentDate.value, "and segDateId.value", segDateId.value)
     updateDateButtonLabel()
@@ -299,8 +298,8 @@ const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:
 watch(segDateId, (newVal, oldVal) => {
   console.log('watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "oldestMomentDate.value", oldestMomentDate.value)
   if (newVal) {
-    let max = date.getMaxDate(pickedDateYYYYsMMsDD.value, oldestMomentDate.value)
-    pickedDateYYYYsMMsDD.value = date.formatDate(max, "YYYY/MM/DD")
+    let max = getMaxDate(pickedDateYYYYsMMsDD.value, oldestMomentDate.value)
+    pickedDateYYYYsMMsDD.value = formatDate(max, "YYYY/MM/DD")
     console.log('watch(segDateId) changed pickedDateYYYYsMMsDD.value to', pickedDateYYYYsMMsDD.value)
     onUpdatePickedDate(pickedDateYYYYsMMsDD.value)
   }
@@ -315,9 +314,9 @@ const onActiveIndexChangeBySwiper = (event, flag) => {
 
   updateDateButtonLabel()
   if (segDateId.value === 'Monthly') {
-    pickedDateYYYYsMMsDD.value = date.formatDate(dateRangesMonthsIdxToDate(activeIndex.value), "YYYY/MM/DD")
+    pickedDateYYYYsMMsDD.value = formatDate(dateRangesMonthsIdxToDate(activeIndex.value), "YYYY/MM/DD")
   } else if (segDateId.value === 'Yearly') {
-    pickedDateYYYYsMMsDD.value = date.formatDate(dateRangesYears.value[activeIndex.value], "YYYY/MM/DD")
+    pickedDateYYYYsMMsDD.value = formatDate(dateRangesYears.value[activeIndex.value], "YYYY/MM/DD")
   }
 }
 
@@ -326,5 +325,27 @@ const onActiveIndexChangeBySwiper = (event, flag) => {
 <style lang="scss">
 .bg-button-on-background .q-icon {
   margin-right: 8px;
+}
+
+swiper-container {
+  // width: 100%;
+  // height: 100%;
+  // height: 100vh; // This will make the container fill the entire height of the screen
+  --swiper-pagination-color: #{$primary};
+  // --swiper-pagination-left: auto;
+  // --swiper-pagination-right: 8px;
+  // --swiper-pagination-bottom: 15px;
+  // --swiper-pagination-top: auto;
+  // --swiper-pagination-fraction-color: inherit;
+  // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
+  // --swiper-pagination-progressbar-size: 4px;
+  // --swiper-pagination-bullet-size: 12px;
+  // --swiper-pagination-bullet-width: 8px;
+  // --swiper-pagination-bullet-height: 8px;
+  // --swiper-pagination-bullet-inactive-color: #000;
+  // --swiper-pagination-bullet-inactive-opacity: 0.2;
+  // --swiper-pagination-bullet-opacity: 1;
+  // --swiper-pagination-bullet-horizontal-gap: 4px;
+  // --swiper-pagination-bullet-vertical-gap: 6px;
 }
 </style>

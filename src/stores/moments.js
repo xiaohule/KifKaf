@@ -14,7 +14,6 @@ import {
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed } from "vue";
-import { date } from "quasar";
 import {
   updateProfile,
   updateEmail,
@@ -25,8 +24,8 @@ import {
 import axios from "axios";
 import { Notify } from "quasar";
 import { currentUser } from "../boot/firebaseBoot.js";
-// destructuring to keep only what is needed in date
-const { formatDate } = date;
+import { date } from "quasar";
+const { formatDate, isSameDate } = date;
 
 export const useMomentsStore = defineStore("moments", () => {
   const user = currentUser;
@@ -407,17 +406,17 @@ export const useMomentsStore = defineStore("moments", () => {
     const dt = ts.toDate(); //Tue Mar 28 2023 02:00:00 GMT+0200 (Central European Summer Time)
     const today = new Date();
 
-    if (!forDisplay) return date.formatDate(dt, "MMMM D, YYYY");
+    if (!forDisplay) return formatDate(dt, "MMMM D, YYYY");
 
-    const day = date.isSameDate(dt, today, "day")
+    const day = isSameDate(dt, today, "day")
       ? "Today"
-      : date.isSameDate(dt, today - 86400000, "day")
+      : isSameDate(dt, today - 86400000, "day")
       ? "Yesterday"
-      : date.isSameDate(dt, today, "year")
-      ? date.formatDate(dt, "MMMM D")
-      : date.formatDate(dt, "MMMM D, YYYY");
+      : isSameDate(dt, today, "year")
+      ? formatDate(dt, "MMMM D")
+      : formatDate(dt, "MMMM D, YYYY");
 
-    if (showHour) return day + ", " + date.formatDate(dt, "HH:mm");
+    if (showHour) return day + ", " + formatDate(dt, "HH:mm");
     else return day;
   };
 

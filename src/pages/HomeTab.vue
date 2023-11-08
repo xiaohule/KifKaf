@@ -1,39 +1,63 @@
 <template >
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px;">
-    <!-- <q-list> -->
-    <q-item-label class="text-body1 text-weight-medium q-my-sm">Log a new Moment</q-item-label>
-    <!-- <template>
-      <p v-if="user">Hello {{ user.providerData.displayName }}</p>
-    </template> -->
-    <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
-    <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
+  <q-page class="q-mx-auto q-pa-none" style="max-width: 600px;">
+    <q-parallax style="height: 60vh; margin-top: -100px;" :speed="0.5">
+      <template v-slot:media>
+        <img src="~assets/home-background-1-tinified.png">
+      </template>
+      <!-- <template v-slot:content="scope"> -->
+      <!-- <div class="absolute column items-center" :style="{
+          opacity: 0.45 + (1 - scope.percentScrolled) * 0.55,
+          top: (scope.percentScrolled * 60) + '%',
+          left: 0,
+          right: 0
+        }"> -->
+      <template v-slot:content>
+
+        <!-- margin-top: 100px; -->
+        <div style="width: 100%; margin-top: 100px; ">
+          <q-item-label class="text-h5 text-weight-medium text-on-primary q-px-md q-mt-lg text-center">{{ greeting }}{{
+            userFirstName }}</q-item-label>
+          <q-item-label class="text-h6 text-on-primary q-px-md q-pt-xl">Got a feeling?</q-item-label>
+          <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
+          <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
       :width="200" :scale="2" /> -->
 
-    <q-card class="bg-surface q-mb-lg q-px-none q-py-sm rounded-borders-14" flat>
-      <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
-      <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
-        lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="q-ma-md q-pb-none text-body1" type="text"
-        autogrow rounded outlined bg-color="surface-variant" color="transparent" :placeholder="placeholderText">
-        <template v-slot:append>
-          <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
-            @click="toggleSpeech" />
-          <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
-            class="pulse-animation" @click="toggleSpeech" />
-        </template>
-        <template v-slot:after>
-          <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense unelevated color="primary"
-            icon="arrow_forward" />
-          <q-btn v-else round dense unelevated color="primary" disable icon="arrow_forward" />
-        </template>
-      </q-input>
-    </q-card>
+          <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
+          <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
+            lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="text-body1 q-pa-md" type="text"
+            autogrow rounded outlined bg-color="surface" color="transparent" :placeholder="placeholderText"
+            input-class="new-moment-input">
+            <template v-slot:append>
+              <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
+                size="17px" @click="toggleSpeech" />
+              <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
+                size="17px" class="pulse-animation" @click="toggleSpeech" />
+            </template>
+            <template v-slot:after>
+              <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense color="surface"
+                text-color="primary" icon="r_arrow_forward" size="20px" padding="xs" />
+              <q-btn v-else round dense unelevated color="surface" text-color="primary" disable icon="r_arrow_forward"
+                size="20px" padding="sm" />
+            </template>
+          </q-input>
+        </div>
+      </template>
+
+    </q-parallax>
 
     <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
-    <div v-else>
+    <div v-else class="q-px-md">
       <q-list>
-        <div v-for="day in momentsStore.uniqueDays" :key="day">
-          <q-item-label header class="text-body1 text-weight-medium text-on-background q-pa-none q-mt-lg q-mb-sm">{{
-            momentsStore.getFormattedDate(day) }}</q-item-label>
+        <div v-for="(day, index) in momentsStore.uniqueDays" :key="day">
+          <q-item-label :class="[
+            'text-body1',
+            'text-weight-medium',
+            'q-pa-none',
+            'q-mb-sm',
+            { 'q-mt-lg': index !== 0, 'negative-margin-first-item': index === 0 },
+            { 'text-on-background': index !== 0, 'text-on-primary': index === 0 }
+          ]" header>{{
+  momentsStore.getFormattedDate(day) }}</q-item-label>
 
           <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
             <q-list full-width style="width: 100%;">
@@ -69,13 +93,13 @@
 import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, onActivated, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
-import { date } from "quasar";
-const { formatDate } = date; // destructuring to keep only what is needed in date
-import { showSpeechRecognitionButton, isRecognizing, webRecognitionInstance, useSpeechRecognition } from '../composables/speechRecognition.js'
+import { showSpeechRecognitionButton, isRecognizing, useSpeechRecognition } from '../composables/speechRecognition.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
 // import AstronautJSON from './astronaut.json'
+import { date } from 'quasar'
+const { isSameDate } = date;
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
@@ -96,10 +120,30 @@ onActivated(() => {
 
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
-const placeholderText = 'Feeling...'
+const placeholderText = 'Feeling ... because ...'
 const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
+const userFirstName = computed(() => {
+  if (momentsStore?.user?.displayName) {
+    const firstName = momentsStore.user.displayName.split(' ')[0];
+    let capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    return ", " + capitalizedFirstName;
+  }
+  return ''
+})
+const greeting = computed(() => {
+  // Get the current hour using the Date object
+  const hour = new Date().getHours()
+  // Determine the greeting based on the hour
+  if (hour < 12) {
+    return 'Good Morning'
+  } else if (hour >= 12 && hour <= 17) {
+    return 'Good Afternoon'
+  } else {
+    return 'Good Evening'
+  }
+})
 
 const expectedLlmCallDuration = ref(60);
 const momPageOpened = ref(false)
@@ -182,7 +226,7 @@ const onSubmit = (event) => {
 // DISPLAY PREVIOUS MOMENTS
 const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssStore directly
   const dayDate = (new Timestamp(day, 0)).toDate()
-  const ul = momentsStore?.momentsColl?.filter(moment => date.isSameDate(moment.date.toDate(), dayDate, "day"))
+  const ul = momentsStore?.momentsColl?.filter(moment => isSameDate(moment.date.toDate(), dayDate, "day"))
   // sort array ul per descending moments.value.date.seconds
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;
@@ -214,6 +258,36 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
 
 .pulse-animation {
   animation: pulse 1.3s infinite;
+}
+
+.negative-margin-first-item {
+  margin-top: -7vh !important; // Use !important to override any existing margins if necessary.
+  position: relative; // This gives the element a positioning context.
+  z-index: 10; // Adjust the z-index so it is higher than the q-parallax's z-index.
+}
+
+// .white-blurred {
+//   background: rgba(255, 255, 255, 0.33);
+//   backdrop-filter: blur(10px);
+// }
+
+// div.q-field__control {
+//   padding: 0 0px 0px 12px;
+//   // background: rgba(255, 255, 255, 0.83);
+//   // backdrop-filter: blur(1px);
+// }
+
+.q-field--outlined .q-field__control {
+  padding: 0 6px 0px 12px;
+}
+
+.q-parallax__content {
+  justify-content: flex-start;
+}
+
+.new-moment-input {
+  max-height: 20vh;
+  overflow-y: auto;
 }
 </style>
 

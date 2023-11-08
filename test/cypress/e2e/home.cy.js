@@ -144,7 +144,7 @@ describe("Checking main screens & Moments inputting", () => {
     for (const item of momentsData) {
       const now = new Date(item.date);
       cy.clock(now.getTime(), ["Date"]);
-      cy.dataCy("new-moment-textarea").type(item.text);
+      cy.dataCy("new-moment-textarea").type(item.text); //add {force: true}?
       cy.contains("arrow_forward").click();
       cy.clock().then((clock) => {
         clock.restore();
