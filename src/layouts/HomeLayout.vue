@@ -59,7 +59,7 @@ const isScrolled = ref(false) // assuming the default is dark
 
 const handleScroll = debounce(() => {
   isScrolled.value = window.scrollY > 0;
-  const threshold = window.innerHeight * 0.5 - 100; // 50vh - 70px
+  const threshold = window.innerHeight * 0.6 - 100; // 60vh - 100px
   isBackgroundDark.value = window.scrollY < threshold;
 }, 10)
 

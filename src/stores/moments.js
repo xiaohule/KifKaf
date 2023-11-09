@@ -13,7 +13,7 @@ import {
   query,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import {
   updateProfile,
   updateEmail,
@@ -100,6 +100,7 @@ export const useMomentsStore = defineStore("moments", () => {
           {
             momentsDays: [],
             hasNeeds: false,
+            welcomeTutorialStep: 0,
           },
           { merge: true },
         );
@@ -168,6 +169,27 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const getSignInMethods = computed(() => {
     return userDoc?.value?.signInMethods ?? false;
+  });
+
+  const showWelcomeTutorial = computed(() => {
+    return true;
+    // return userDoc?.value?.showWelcomeTutorial ?? false;
+  });
+
+  const setWelcomeTutorialStep = async (welcomeTutorialStep) => {
+    try {
+      if (!userFetched.value) {
+        console.log("User not yet fetched, fetching it");
+        await fetchUser();
+      }
+      await setDoc(userDocRef.value, { welcomeTutorialStep }, { merge: true });
+    } catch (error) {
+      console.log("Error in setWelcomeTutorialStep", error);
+    }
+  };
+
+  const getWelcomeTutorialStep = computed(() => {
+    return userDoc?.value?.welcomeTutorialStep ?? false;
   });
 
   const fetchMoments = async () => {
@@ -308,6 +330,19 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.hasNeeds ?? false;
   });
 
+  watch(
+    hasNeeds,
+    async (newVal) => {
+      if (
+        newVal &&
+        (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
+      ) {
+        await setWelcomeTutorialStep(1);
+      }
+    },
+    { immediate: true },
+  );
+
   const addMoment = async (moment) => {
     try {
       console.log("In addMoment for:", moment);
@@ -433,6 +468,33 @@ export const useMomentsStore = defineStore("moments", () => {
     return sortedTimestamps[0].toDate();
   });
 
+  const getLatestMomentId = computed(() => {
+    if (!momentsFetched.value || !hasNeeds.value || !momentsColl.value.length) {
+      return;
+    }
+    const sortedTimestamps = [...momentsColl.value].sort(
+      (a, b) => b.date.seconds - a.date.seconds,
+    );
+    return sortedTimestamps[0].id;
+  });
+
+  // async function getLastUserMomentId(userId) {
+  //   const momentsRef = collection(db, `/users/${userId}/moments`);
+  //   const q = query(momentsRef, orderBy('date', 'desc'), limit(1));
+
+  //   try {
+  //     const querySnapshot = await getDocs(q);
+  //     // Instead of getting the document data, just get the document ID
+  //     const lastMomentId = querySnapshot.docs[0]?.id || null;
+
+  //     console.log(lastMomentId);
+  //     return lastMomentId;
+  //   } catch (error) {
+  //     console.error("Error fetching last moment ID:", error);
+  //     throw error;
+  //   }
+  // }
+
   const updateUser = async (changes) => {
     try {
       if (changes.displayName) {
@@ -492,6 +554,10 @@ export const useMomentsStore = defineStore("moments", () => {
     getDeviceLanguage,
     getSpeechRecoLanguage,
     getSignInMethods,
+    showWelcomeTutorial,
+    getWelcomeTutorialStep,
+    getLatestMomentId,
+    setWelcomeTutorialStep,
     getFormattedDate,
     addMoment,
     fetchUser,

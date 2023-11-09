@@ -1,67 +1,181 @@
 <template >
   <q-page class="q-mx-auto q-pa-none" style="max-width: 600px;">
-    <q-parallax style="height: 60vh; margin-top: -100px;" :speed="0.5">
+    <q-parallax style="height: 60vh; max-height:600px; margin-top: -100px;" :speed="0.5">
       <template v-slot:media>
         <img src="~assets/home-background-1-tinified.png">
       </template>
-      <!-- <template v-slot:content="scope"> -->
-      <!-- <div class="absolute column items-center" :style="{
-          opacity: 0.45 + (1 - scope.percentScrolled) * 0.55,
-          top: (scope.percentScrolled * 60) + '%',
-          left: 0,
-          right: 0
-        }"> -->
+      <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
+      <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
+      :width="200" :scale="2" /> -->
       <template v-slot:content>
 
-        <!-- margin-top: 100px; -->
-        <div style="width: 100%; margin-top: 100px; ">
-          <q-item-label class="text-h5 text-weight-medium text-on-primary q-px-md q-mt-lg text-center">{{ greeting }}{{
-            userFirstName }}</q-item-label>
-          <q-item-label class="text-h6 text-on-primary q-px-md q-pt-xl">Got a feeling?</q-item-label>
-          <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
-          <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
-      :width="200" :scale="2" /> -->
-
-          <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
-          <q-input data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText" :shadow-text="inputShadowText"
-            lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" class="text-body1 q-pa-md" type="text"
-            autogrow rounded outlined bg-color="surface" color="transparent" :placeholder="placeholderText"
-            input-class="new-moment-input">
-            <template v-slot:append>
-              <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
-                size="17px" @click="toggleSpeech" />
-              <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
-                size="17px" class="pulse-animation" @click="toggleSpeech" />
-            </template>
-            <template v-slot:after>
-              <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense color="surface"
-                text-color="primary" icon="r_arrow_forward" size="20px" padding="xs" />
-              <q-btn v-else round dense unelevated color="surface" text-color="primary" disable icon="r_arrow_forward"
-                size="20px" padding="sm" />
-            </template>
-          </q-input>
+        <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
+        <!-- /* display: grid; */
+  /* grid-template-rows: 1fr 2fr; Ratio for B and C */
+  /* overflow: hidden; Hide B when the container is too small */     -->
+        <div style="width: 100%;  margin-top: 100px; height: 100vh;position: relative; z-index: 20;">
+          <div class="welcoming-title text-h5 text-weight-medium text-on-primary q-pa-md text-center"
+            style=" position: absolute; top: 12%; transform: translateY(-50%); left: 0; right: 0;">{{ greeting }}{{
+              userFirstName }}</div>
+          <div class="cta-div q-py-md"
+            style="position: absolute; top: 45%; transform: translateY(-50%); left: 0; right: 0;">
+            <div class="cta-title text-h6 text-on-primary q-px-md">Got a feeling?</div>
+            <q-input class="text-body1 q-pa-md" data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText"
+              :shadow-text="inputShadowText" lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" type="text"
+              autogrow rounded outlined bg-color="surface" color="transparent" :placeholder="placeholderText"
+              input-class="new-moment-input">
+              <template v-slot:append>
+                <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
+                  size="17px" @click="toggleSpeech" />
+                <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
+                  size="17px" class="pulse-animation" @click="toggleSpeech" />
+              </template>
+              <template v-slot:after>
+                <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense color="surface"
+                  text-color="primary" icon="r_arrow_forward" size="20px" padding="xs" />
+                <q-btn v-else round dense unelevated color="surface" text-color="primary" disable icon="r_arrow_forward"
+                  size="20px" padding="sm" />
+              </template>
+            </q-input>
+          </div>
         </div>
       </template>
-
     </q-parallax>
+
+    <div v-if="momentsStore.showWelcomeTutorial" class="q-px-md negative-margin-welcome-tutorial">
+      <q-list>
+        <q-item-label class="q-py-none q-px-xs text-body1 text-weight-medium text-on-primary" header>Welcome to
+          KifKaf</q-item-label>
+        <q-item class="q-px-xs q-py-xs" style="min-height: 0px;">
+          <q-item-section class="text-subtitle2 text-weight-medium">
+            <q-linear-progress :value="momentsStore.getWelcomeTutorialStep / 3" color="white" track-color="grey" rounded
+              animation-speed="500" />
+          </q-item-section>
+          <q-item-section side class="text-caption text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
+            "/3 complete" }}
+          </q-item-section>
+        </q-item>
+
+        <q-item class="q-pt-sm q-pb-sm q-px-xs">
+          <!-- ref="swiperWelcomeTutorial"  init="false"  auto-height="true" grab-cursor="true" centered-slides="true" pagination-dynamic-bullets="true"-->
+          <swiper-container pagination="true" style=" width: 100%;">
+            <swiper-slide>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 1"
+                class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label class="text-body1">
+                      Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section thumbnail>
+                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                  </q-item-section>
+                </q-item>
+                <q-btn rounded color="primary" padding="xs" label="Log a Moment" @click="tutoLogMoment"
+                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps />
+              </q-card>
+              <q-card v-else class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
+                      First Moment logged</q-item-label>
+                    <q-item-label class="text-body1">
+                      Embracing the habit of observing and noting down your emotional moments can already be
+                      transformative.</q-item-label>
+                  </q-item-section>
+                  <q-item-section thumbnail>
+                    <q-icon size="50px" color="tertiary" name="r_check_circle" class="q-mx-md" />
+                  </q-item-section>
+                </q-item>
+              </q-card>
+            </swiper-slide>
+            <swiper-slide>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 2"
+                class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label class="text-body1">
+                      For each Moment, KifKaf surfaces the related needs and how well they’re being met.
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section thumbnail>
+                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                  </q-item-section>
+                </q-item>
+                <q-btn rounded color="primary" padding="xs" label="View needs" @click="tutoViewNeeds"
+                  :disable="!momentsStore.getLatestMomentId" class="text-subtitle1 text-weight-medium"
+                  style="width: 100%; " no-caps />
+              </q-card>
+              <q-card v-else class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label class="text-body1">
+                      Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section thumbnail>
+                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                  </q-item-section>
+                </q-item>
+                <q-btn rounded color="primary" padding="xs" label="Log a Moment" @click="tutoLogMoment"
+                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps />
+              </q-card>
+            </swiper-slide>
+            <swiper-slide>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 3"
+                class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label class="text-body1">
+                      Your emotions tell a story. After 5 Moments patterns start emerging.
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section thumbnail>
+                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                  </q-item-section>
+                </q-item>
+                <q-btn rounded color="primary" padding="xs" label="Explore Insights" @click="tutoExploreInsights"
+                  :disable="!momentsStore.getLatestMomentId" class="text-subtitle1 text-weight-medium"
+                  style="width: 100%; " no-caps />
+              </q-card>
+              <q-card v-else class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label class="text-body1">
+                      Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section thumbnail>
+                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                  </q-item-section>
+                </q-item>
+                <q-btn rounded color="primary" padding="xs" label="Log a Moment" @click="tutoLogMoment"
+                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps />
+              </q-card>
+            </swiper-slide>
+          </swiper-container>
+        </q-item>
+      </q-list>
+    </div>
 
     <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
     <div v-else class="q-px-md">
       <q-list>
-        <div v-for="(day, index) in momentsStore.uniqueDays" :key="day">
+        <div v-for="( day, index ) in  momentsStore.uniqueDays " :key="day">
           <q-item-label :class="[
             'text-body1',
             'text-weight-medium',
             'q-pa-none',
             'q-mb-sm',
-            { 'q-mt-lg': index !== 0, 'negative-margin-first-item': index === 0 },
-            { 'text-on-background': index !== 0, 'text-on-primary': index === 0 }
+            { 'q-mt-lg': index !== 0, 'negative-margin-first-item': index === 0 && !momentsStore.showWelcomeTutorial },
+            { 'text-on-background': index !== 0, 'text-on-primary': index === 0 && !momentsStore.showWelcomeTutorial }
           ]" header>{{
   momentsStore.getFormattedDate(day) }}</q-item-label>
 
           <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
             <q-list full-width style="width: 100%;">
-              <q-item v-for="moment in getSortedMomentsOfTheDay(day)" :key="moment.id" clickable v-ripple
+              <q-item v-for=" moment  in  getSortedMomentsOfTheDay(day) " :key="moment.id" clickable v-ripple
                 class="q-px-none q-py-md" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
 
                 <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
@@ -92,6 +206,7 @@
 <script setup>
 import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, onActivated, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useRouter } from 'vue-router'
 import { Timestamp } from 'firebase/firestore'
 import { showSpeechRecognitionButton, isRecognizing, useSpeechRecognition } from '../composables/speechRecognition.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
@@ -103,6 +218,11 @@ const { isSameDate } = date;
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
+const router = useRouter()
+
+// const swiperWelcomeTutorial = ref(null)
+// const swiperInitialized = ref(false)
+
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
   try {
@@ -116,7 +236,16 @@ onMounted(async () => {
 
 onActivated(() => {
   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
+  // if (!swiperInitialized.value) {
+  //   swiperWelcomeTutorial.value.initialize();
+  //   swiperInitialized.value = true
+  // }
 })
+
+// onDeactivated(() => {
+//   console.log('ONDEACTIVATED')
+//   swiperInitialized.value = false
+// });
 
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
@@ -152,6 +281,20 @@ const openBottomSheet = (momentId) => {
   console.log('in openBottomSheet momentId:', momentId)
   bottomSheetMomentId.value = momentId
   momPageOpened.value = true
+}
+
+//WELCOME TUTORIAL
+const tutoLogMoment = () => {
+  newMomText.value = 'Feeling excited to get to know myself better with KifKaf!'
+  newMomInputRef.value.focus()
+}
+const tutoViewNeeds = async () => {
+  openBottomSheet(momentsStore.getLatestMomentId);
+  await momentsStore.setWelcomeTutorialStep(2);
+}
+const tutoExploreInsights = async () => {
+  await router.push('/learn')
+  await momentsStore.setWelcomeTutorialStep(3);
 }
 
 // INPUT
@@ -260,8 +403,14 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
   animation: pulse 1.3s infinite;
 }
 
+.negative-margin-welcome-tutorial {
+  margin-top: -80px !important; // Use !important to override any existing margins if necessary.
+  position: relative; // This gives the element a positioning context.
+  z-index: 10; // Adjust the z-index so it is higher than the q-parallax's z-index.
+}
+
 .negative-margin-first-item {
-  margin-top: -7vh !important; // Use !important to override any existing margins if necessary.
+  margin-top: -50px !important; // Use !important to override any existing margins if necessary.
   position: relative; // This gives the element a positioning context.
   z-index: 10; // Adjust the z-index so it is higher than the q-parallax's z-index.
 }
@@ -269,12 +418,6 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
 // .white-blurred {
 //   background: rgba(255, 255, 255, 0.33);
 //   backdrop-filter: blur(10px);
-// }
-
-// div.q-field__control {
-//   padding: 0 0px 0px 12px;
-//   // background: rgba(255, 255, 255, 0.83);
-//   // backdrop-filter: blur(1px);
 // }
 
 .q-field--outlined .q-field__control {
@@ -288,6 +431,71 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
 .new-moment-input {
   max-height: 20vh;
   overflow-y: auto;
+  // transition: height 0.5s;   /* Transition effect when growing */
+}
+
+.welcoming-title {
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Media query for smaller heights */
+@media (max-height: 650px) {
+  .welcoming-title {
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+  }
+}
+
+.cta-title {
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+.cta-div {
+  transition: top 0.5s ease;
+}
+
+@media (max-height: 450px) {
+  .cta-title {
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+  }
+
+  .cta-div {
+    top: 15% !important;
+  }
+}
+
+.q-linear-progress__track,
+.q-linear-progress__model {
+  border-radius: 4px;
+}
+
+swiper-container {
+  // width: 100%;
+  // // height: 100%;
+  // // height: 100vh; // This will make the container fill the entire height of the screen
+  --swiper-pagination-color: #{$primary};
+  // // --swiper-pagination-left: auto;
+  // // --swiper-pagination-right: 8px;
+  // --swiper-pagination-bottom: -5px;
+  // // --swiper-pagination-top: auto;
+  // // --swiper-pagination-fraction-color: inherit;
+  // // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
+  // // --swiper-pagination-progressbar-size: 4px;
+  // // --swiper-pagination-bullet-size: 12px;
+  // // --swiper-pagination-bullet-width: 8px;
+  // // --swiper-pagination-bullet-height: 8px;
+  // // --swiper-pagination-bullet-inactive-color: #000;
+  // // --swiper-pagination-bullet-inactive-opacity: 0.2;
+  // // --swiper-pagination-bullet-opacity: 1;
+  // // --swiper-pagination-bullet-horizontal-gap: 4px;
+  // // --swiper-pagination-bullet-vertical-gap: 6px;
 }
 </style>
 
