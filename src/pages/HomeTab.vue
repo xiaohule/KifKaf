@@ -37,11 +37,11 @@
               userFirstName }}</div>
           <div class="cta-div q-py-md"
             style="position: absolute; top: 45%; transform: translateY(-50%); left: 0; right: 0;">
-            <div class="cta-title text-h6 text-on-primary q-px-md">Got a feeling?</div>
-            <q-input class="text-body1 q-pa-md" data-cy="new-moment-textarea" ref="newMomInputRef" v-model="newMomText"
-              :shadow-text="inputShadowText" lazy-rules="ondemand" :rules="newMomRules" @blur="inputBlurred" type="text"
-              autogrow rounded outlined bg-color="surface" color="transparent" :placeholder="placeholderText"
-              input-class="new-moment-input">
+            <div class="cta-title text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
+            <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
+              v-model="newMomText" :shadow-text="inputShadowText" lazy-rules="ondemand" :rules="newMomRules"
+              @blur="inputBlurred" type="text" autogrow rounded outlined bg-color="surface" color="transparent"
+              :placeholder="placeholderText" input-class="new-moment-input">
               <template v-slot:append>
                 <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
                   size="17px" @click="toggleSpeech" />
@@ -78,8 +78,9 @@
             <q-linear-progress :value="momentsStore.getWelcomeTutorialStep / 3" color="surface" track-color="grey" rounded
               animation-speed="500" />
           </q-item-section>
-          <q-item-section side class="text-caption text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
-            "/3 complete" }}
+          <q-item-section side class="text-caption
+text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
+  "/3 complete" }}
           </q-item-section>
         </q-item>
 
@@ -91,7 +92,7 @@
                 style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
-                    <q-item-label class="text-body1">
+                    <q-item-label>
                       Capture life's ups and downs with micro-journaling. Your moments are private; only you can see them.
                     </q-item-label>
                   </q-item-section>
@@ -110,7 +111,7 @@
                     <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
                       First Moment logged
                     </q-item-label>
-                    <q-item-label class="text-body1">
+                    <q-item-label>
                       Emotions are your body's language. Embrace the habit of noting them down and you're halfway there.
                     </q-item-label>
                   </q-item-section>
@@ -125,7 +126,7 @@
                 style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
-                    <q-item-label class="text-body1">
+                    <q-item-label>
                       For each moment, KifKaf surfaces the related needs and how well they're being met. </q-item-label>
                   </q-item-section>
                   <q-item-section thumbnail>
@@ -143,7 +144,7 @@
                     <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
                       Needs Revealed
                     </q-item-label>
-                    <q-item-label class="text-body1">
+                    <q-item-label>
                       Understanding the deeper needs behind your feelings paves the way to fulfillment.
                     </q-item-label>
                   </q-item-section>
@@ -158,7 +159,7 @@
                 style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
-                    <q-item-label class="text-body1">
+                    <q-item-label>
                       Your emotions tell a story. After 5 Moments, patterns start emerging.
                     </q-item-label>
                   </q-item-section>
@@ -177,7 +178,7 @@
                     <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
                       You’re all set!
                     </q-item-label>
-                    <q-item-label class="text-body1">
+                    <q-item-label>
                       Keep logging Moments to fine-tune KifKaf and get the most out of it.
                     </q-item-label>
                   </q-item-section>
@@ -201,7 +202,7 @@
             'text-weight-medium',
             'q-pa-none',
             'q-mb-sm',
-            (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : 'q-mt-lg',
+            (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
             (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
           ]" header>{{
   momentsStore.getFormattedDate(day) }}</q-item-label>
@@ -214,7 +215,7 @@
                 <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
                   <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
                 </q-item-section>
-                <q-item-section class=" q-pb-none q-pl-none q-pr-md">{{ moment.text
+                <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
                 }}</q-item-section>
               </q-item>
 
