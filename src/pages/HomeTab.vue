@@ -3,6 +3,24 @@
     <q-parallax style="height: 60vh; max-height:600px; margin-top: -100px;" :speed="0.5">
       <template v-slot:media>
         <img src="~assets/home-background-1-tinified.png">
+        <!-- trop dark mais pas mal-->
+        <!-- <img src="~assets/ink.png"> -->
+        <!-- pas mal -->
+        <!-- <img src="~assets/pexels-brakou-abdelghani-1723637.png"> -->
+        <!-- pas mal -->
+        <!-- <img src="~assets/pexels-brakou-abdelghani-11723637.png"> -->
+
+        <!-- trop froid -->
+        <!-- <img src="~assets/luke-chesser-3rWagdKBF7U-unsplash.png"> -->
+        <!-- pas mal à réorienter -->
+        <!-- <img src="~assets/luke-chesser-eICUFSeirc0-unsplash.png"> -->
+
+        <!-- <img src="~assets/home2.png"> -->
+        <!-- <img src="~assets/basicGradient.png"> -->
+        <!-- pas mal -->
+        <!-- <img src="~assets/Rectangle29.png"> -->
+        <!-- <img src="~assets/Rectangle31.png"> -->
+        <!-- <img src="~assets/Rectangle32.png"> -->
       </template>
       <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
       <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
@@ -13,7 +31,7 @@
         <!-- /* display: grid; */
   /* grid-template-rows: 1fr 2fr; Ratio for B and C */
   /* overflow: hidden; Hide B when the container is too small */     -->
-        <div style="width: 100%;  margin-top: 100px; height: 100vh;position: relative; z-index: 20;">
+        <div style="width: 100%;  margin-top: 100px; height: 60vh;position: relative; z-index: 20;">
           <div class="welcoming-title text-h5 text-weight-medium text-on-primary q-pa-md text-center"
             style=" position: absolute; top: 12%; transform: translateY(-50%); left: 0; right: 0;">{{ greeting }}{{
               userFirstName }}</div>
@@ -27,7 +45,7 @@
               <template v-slot:append>
                 <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
                   size="17px" @click="toggleSpeech" />
-                <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="stop"
+                <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="r_stop"
                   size="17px" class="pulse-animation" @click="toggleSpeech" />
               </template>
               <template v-slot:after>
@@ -42,13 +60,22 @@
       </template>
     </q-parallax>
 
-    <div v-if="momentsStore.showWelcomeTutorial" class="q-px-md negative-margin-welcome-tutorial">
+    <div v-if="momentsStore.getShowWelcomeTutorial" class="q-px-md negative-margin-welcome-tutorial"
+      style="position: relative; z-index: 25;">
       <q-list>
-        <q-item-label class="q-py-none q-px-xs text-body1 text-weight-medium text-on-primary" header>Welcome to
-          KifKaf</q-item-label>
-        <q-item class="q-px-xs q-py-xs" style="min-height: 0px;">
+
+        <q-item class="q-px-xs q-py-none" style="min-height: 0px;">
+          <q-item-section class="text-body1 text-weight-medium text-on-primary">Welcome to
+            KifKaf</q-item-section>
+          <q-item-section side>
+            <q-btn flat dense icon="r_close" color="background" size="12px"
+              @click=" momentsStore.setShowWelcomeTutorial(false)" padding="none" />
+          </q-item-section>
+        </q-item>
+
+        <q-item class="q-pl-xs q-pr-sm q-pt-xs q-pb-xs" style="min-height: 0px;">
           <q-item-section class="text-subtitle2 text-weight-medium">
-            <q-linear-progress :value="momentsStore.getWelcomeTutorialStep / 3" color="white" track-color="grey" rounded
+            <q-linear-progress :value="momentsStore.getWelcomeTutorialStep / 3" color="surface" track-color="grey" rounded
               animation-speed="500" />
           </q-item-section>
           <q-item-section side class="text-caption text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
@@ -56,102 +83,108 @@
           </q-item-section>
         </q-item>
 
-        <q-item class="q-pt-sm q-pb-sm q-px-xs">
-          <!-- ref="swiperWelcomeTutorial"  init="false"  auto-height="true" grab-cursor="true" centered-slides="true" pagination-dynamic-bullets="true"-->
-          <swiper-container pagination="true" style=" width: 100%;">
+        <q-item class="q-px-none q-py-xs">
+          <!-- ref="swiperWelcomeTutorial"  init="false"  auto-height="true" pagination-dynamic-bullets="true" slides-per-view="1.05"-->
+          <swiper-container pagination="true" grab-cursor="true" space-between="10" style="width: 100%;">
             <swiper-slide>
-              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 1"
-                class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 1" class="bg-surface q-pa-md rounded-borders-14"
+                style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label class="text-body1">
-                      Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
+                      Capture life's ups and downs with micro-journaling. Your moments are private; only you can see them.
                     </q-item-label>
                   </q-item-section>
                   <q-item-section thumbnail>
-                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                    <img src="~assets/tuto1.svg"
+                      style="max-height: 100%; width: auto; object-fit: contain; margin-right:16px;" />
                   </q-item-section>
                 </q-item>
                 <q-btn rounded color="primary" padding="xs" label="Log a Moment" @click="tutoLogMoment"
-                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps />
+                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps
+                  :disable="newMomText.length !== 0" />
               </q-card>
-              <q-card v-else class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+              <q-card v-else class="bg-surface q-pa-md rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
-                      First Moment logged</q-item-label>
+                      First Moment logged
+                    </q-item-label>
                     <q-item-label class="text-body1">
-                      Embracing the habit of observing and noting down your emotional moments can already be
-                      transformative.</q-item-label>
+                      Emotions are your body's language. Embrace the habit of noting them down and you're halfway there.
+                    </q-item-label>
                   </q-item-section>
                   <q-item-section thumbnail>
-                    <q-icon size="50px" color="tertiary" name="r_check_circle" class="q-mx-md" />
+                    <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
                   </q-item-section>
                 </q-item>
               </q-card>
             </swiper-slide>
             <swiper-slide>
-              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 2"
-                class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 2" class="bg-surface q-pa-md rounded-borders-14"
+                style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label class="text-body1">
-                      For each Moment, KifKaf surfaces the related needs and how well they’re being met.
-                    </q-item-label>
+                      For each moment, KifKaf surfaces the related needs and how well they're being met. </q-item-label>
                   </q-item-section>
                   <q-item-section thumbnail>
-                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                    <img src="~assets/tuto2.svg"
+                      style="max-height: 100%; width: auto; object-fit: contain; margin-right:8px;" />
                   </q-item-section>
                 </q-item>
                 <q-btn rounded color="primary" padding="xs" label="View needs" @click="tutoViewNeeds"
                   :disable="!momentsStore.getLatestMomentId" class="text-subtitle1 text-weight-medium"
                   style="width: 100%; " no-caps />
               </q-card>
-              <q-card v-else class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+              <q-card v-else class="bg-surface q-pa-md rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
+                    <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
+                      Needs Revealed
+                    </q-item-label>
                     <q-item-label class="text-body1">
-                      Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
+                      Understanding the deeper needs behind your feelings paves the way to fulfillment.
                     </q-item-label>
                   </q-item-section>
                   <q-item-section thumbnail>
-                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                    <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
                   </q-item-section>
                 </q-item>
-                <q-btn rounded color="primary" padding="xs" label="Log a Moment" @click="tutoLogMoment"
-                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps />
               </q-card>
             </swiper-slide>
             <swiper-slide>
-              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 3"
-                class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 3" class="bg-surface q-pa-md rounded-borders-14"
+                style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label class="text-body1">
-                      Your emotions tell a story. After 5 Moments patterns start emerging.
+                      Your emotions tell a story. After 5 Moments, patterns start emerging.
                     </q-item-label>
                   </q-item-section>
                   <q-item-section thumbnail>
-                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                    <img src="~assets/tuto3_1.png"
+                      style="max-height: 100%; width: auto; object-fit: contain; margin-right:8px;" />
                   </q-item-section>
                 </q-item>
                 <q-btn rounded color="primary" padding="xs" label="Explore Insights" @click="tutoExploreInsights"
                   :disable="!momentsStore.getLatestMomentId" class="text-subtitle1 text-weight-medium"
                   style="width: 100%; " no-caps />
               </q-card>
-              <q-card v-else class="bg-surface q-pa-md q-mb-xl rounded-borders-14" flat>
+              <q-card v-else class="bg-surface q-pa-md rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
+                    <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
+                      You’re all set!
+                    </q-item-label>
                     <q-item-label class="text-body1">
-                      Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
+                      Keep logging Moments to fine-tune KifKaf and get the most out of it.
                     </q-item-label>
                   </q-item-section>
                   <q-item-section thumbnail>
-                    <img src="~assets/icon-kifkaf-no-background.svg" />
+                    <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
                   </q-item-section>
                 </q-item>
-                <q-btn rounded color="primary" padding="xs" label="Log a Moment" @click="tutoLogMoment"
-                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps />
               </q-card>
             </swiper-slide>
           </swiper-container>
@@ -168,8 +201,8 @@
             'text-weight-medium',
             'q-pa-none',
             'q-mb-sm',
-            { 'q-mt-lg': index !== 0, 'negative-margin-first-item': index === 0 && !momentsStore.showWelcomeTutorial },
-            { 'text-on-background': index !== 0, 'text-on-primary': index === 0 && !momentsStore.showWelcomeTutorial }
+            (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : 'q-mt-lg',
+            (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
           ]" header>{{
   momentsStore.getFormattedDate(day) }}</q-item-label>
 
@@ -204,7 +237,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, onActivated, watch } from 'vue'
+import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, onActivated, watch, nextTick } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import { useRouter } from 'vue-router'
 import { Timestamp } from 'firebase/firestore'
@@ -285,8 +318,11 @@ const openBottomSheet = (momentId) => {
 
 //WELCOME TUTORIAL
 const tutoLogMoment = () => {
-  newMomText.value = 'Feeling excited to get to know myself better with KifKaf!'
-  newMomInputRef.value.focus()
+  newMomText.value = 'Feeling excited to get to know me better with KifKaf!'
+  // newMomInputRef.value.focus()
+  nextTick(() => {
+    newMomInputRef.value.$el.querySelector('textarea').select()
+  })
 }
 const tutoViewNeeds = async () => {
   openBottomSheet(momentsStore.getLatestMomentId);

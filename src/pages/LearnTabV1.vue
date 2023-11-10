@@ -3,8 +3,8 @@
     <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
     <q-item class="q-px-none q-pt-none">
       <q-item-section class=" col-auto">
-        <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background" icon="calendar_today"
-          no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
+        <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background"
+          icon="r_calendar_today" no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
       </q-item-section>
     </q-item>
 

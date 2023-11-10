@@ -5,7 +5,7 @@
     <div>
       <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with email"
         @click="() => router.push('/login/email')" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
-        icon="mail" />
+        icon="r_mail" />
       <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
         class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps>
         <template v-slot:default>

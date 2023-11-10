@@ -58,7 +58,7 @@
                   'satisfactionImpactDisplayValue'
                   : 'unsatisfactionImpactDisplayValue') : 'importanceDisplayValue']"
                   :buffer="item['importanceDisplayValue']"
-                  :color="props.flag == 'satisfaction' ? (props.secondSegSelected ? 'green' : 'red') : '#{$primary}'"
+                  :color="props.flag == 'satisfaction' ? (props.secondSegSelected ? 'positive' : 'negative') : '#{$primary}'"
                   track-color="grey" :reverse="props.secondSegSelected" class="q-mt-sm" rounded animation-speed="500" />
               </q-item>
 
