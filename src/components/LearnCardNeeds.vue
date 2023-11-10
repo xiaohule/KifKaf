@@ -58,7 +58,7 @@
                   'satisfactionImpactDisplayValue'
                   : 'unsatisfactionImpactDisplayValue') : 'importanceDisplayValue']"
                   :buffer="item['importanceDisplayValue']"
-                  :color="props.flag == 'satisfaction' ? (props.secondSegSelected ? 'green' : 'red') : 'blue'"
+                  :color="props.flag == 'satisfaction' ? (props.secondSegSelected ? 'positive' : 'negative') : '#{$primary}'"
                   track-color="grey" :reverse="props.secondSegSelected" class="q-mt-sm" rounded animation-speed="500" />
               </q-item>
 
@@ -104,8 +104,7 @@ import { computed, ref, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { uid } from 'quasar'
-import { date } from "quasar";
-// destructuring to keep only what is needed in date
+import { date } from 'quasar'
 const { formatDate } = date;
 
 const momentsStore = useMomentsStore()
@@ -143,14 +142,14 @@ const currentYYYYdMM = computed(() => `${currentYear.value}-${(currentDate.value
 const getPeriodLabel = computed(() => {
   return (dateRange) => {
     if (dateRange.length === 7) return (currentYYYYdMM.value === dateRange) ? 'this month' : (dateRange.substring(0, 4) === currentYear.value)
-      ? `last ${date.formatDate(dateRange, 'MMMM')}`
-      : `in ${date.formatDate(dateRange, 'MMMM YYYY')}`
+      ? `last ${formatDate(dateRange, 'MMMM')}`
+      : `in ${formatDate(dateRange, 'MMMM YYYY')}`
     else if (dateRange.length === 4) return (currentYear.value === dateRange) ? 'this year' : `in ${dateRange}`;
   }
 })
 
 // const unsatisfactionInfo = "Your unsatisfied needs sorted from highest to lowest unsatisfaction impact."
-const unsatisfactionInfo = `The needs that brought you the most unsatisfaction ${getPeriodLabel.value(props.dateRange)}.`
+const unsatisfactionInfo = `The needs that caused you the most unsatisfaction ${getPeriodLabel.value(props.dateRange)}.`
 // const satisfactionInfo = "Your satisfied needs sorted from highest to lowest satisfaction impact."
 const satisfactionInfo = `The needs that brought you the most satisfaction ${getPeriodLabel.value(props.dateRange)}.`
 // const importanceInfo = "Your needs sorted from most to less important."

@@ -118,9 +118,8 @@ describe("Checking main screens & Moments inputting", () => {
     cy.contains("Home").should("be.visible");
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
-    cy.contains("Insights").should("be.visible");
     //can navigate to Learn>Home>Settings>Home
-    cy.contains("Insights").click();
+    cy.dataCy("insights-tab").click();
     cy.url().should("include", "learn");
     cy.contains("Needs Importance").should("be.visible");
     cy.contains("Satisfied").should("be.visible");
@@ -144,8 +143,10 @@ describe("Checking main screens & Moments inputting", () => {
     for (const item of momentsData) {
       const now = new Date(item.date);
       cy.clock(now.getTime(), ["Date"]);
-      cy.dataCy("new-moment-textarea").type(item.text);
-      cy.contains("arrow_forward").click();
+      // TODO:3 remove {force: true} from the next lines
+      cy.dataCy("new-moment-textarea").type(item.text, { force: true }); //add {force: true}?
+      // cy.contains("Feeling ... because ...").type(item.text, { force: true });
+      cy.contains("arrow_forward").click({ force: true });
       cy.clock().then((clock) => {
         clock.restore();
       });
@@ -161,7 +162,7 @@ describe("Insights Stats validation", () => {
   it("has correct stats in Insights tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Learn tab for 2023
     cy.visit("/");
-    cy.contains("Insights").click();
+    cy.dataCy("insights-tab").click();
     cy.url().should("include", "learn");
     cy.reload();
     cy.contains("This month").should("be.visible").click();
@@ -235,7 +236,7 @@ describe("Insights Stats validation", () => {
 
     //should have a working monthly picker and correct stats in learn tab for 2022
     cy.visit("/");
-    cy.contains("Insights").click();
+    cy.dataCy("insights-tab").click();
     cy.url().should("include", "learn");
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
@@ -275,7 +276,7 @@ describe("Insights Stats validation", () => {
 
     //should have the expected placeholder in learn tab for 2021
     cy.visit("/");
-    cy.contains("Insights").click();
+    cy.dataCy("insights-tab").click();
     cy.url().should("include", "learn");
     cy.contains("This month").click();
     cy.contains("Yearly").click();

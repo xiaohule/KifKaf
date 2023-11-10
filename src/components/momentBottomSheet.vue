@@ -4,7 +4,7 @@
 
     <q-card class="bg-background" flat style="height: 90vh;">
       <q-toolbar class="q-pa-sm">
-        <q-btn flat v-close-popup round dense icon="close" />
+        <q-btn flat v-close-popup round dense icon="r_close" />
       </q-toolbar>
 
       <div class="q-px-md">
@@ -49,18 +49,18 @@
           </q-card-section>
           <q-card-section v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0"
             class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
-            <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
             <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
               :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
 
-            <!-- <div class="q-chip row inline no-wrap items-center text-green q-chip--colored q-chip--outline needs" style="background-color: red;"> -->
+            <!-- <div class="q-chip row inline no-wrap items-center text-positive q-chip--colored q-chip--outline needs" style="background-color: negative;"> -->
 
             <div class="text-caption text-center q-mt-sm">
-              <q-chip :ripple="false" outline color="green" size="sm" label="Satisfied need" class="bg-error" />
+              <q-chip :ripple="false" outline color="positive" size="sm" label="Satisfied need" class="bg-error" />
               <q-chip :ripple="false" outline color="primary" size="sm" label="Neutral need" class="bg-scrim-dark" />
-              <q-chip :ripple="false" outline color="red" size="sm" label="Unsatisfied need" class="bg-transparent-red" />
+              <q-chip :ripple="false" outline color="negative" size="sm" label="Unsatisfied need"
+                class="bg-transparent-red" />
             </div>
 
 
@@ -157,8 +157,8 @@ watch(() => props.momentId, (newVal, oldVal) => {
 })
 
 const getChipColor = (needsStats) => {
-  if (needsStats[0] < 0.4) return 'red'
-  else if (needsStats[0] > 0.6) return 'green'
+  if (needsStats[0] < 0.4) return 'negative'
+  else if (needsStats[0] > 0.6) return 'positive'
   else return 'primary'
 }
 

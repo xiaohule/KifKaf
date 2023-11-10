@@ -4,17 +4,16 @@ import {
   doc,
   // addDoc,
   setDoc,
-  getDoc,
   getDocs,
   Timestamp,
   arrayUnion,
   writeBatch,
   onSnapshot,
   query,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
-import { ref, computed } from "vue";
-import { date } from "quasar";
+import { ref, computed, watch } from "vue";
 import {
   updateProfile,
   updateEmail,
@@ -25,8 +24,8 @@ import {
 import axios from "axios";
 import { Notify } from "quasar";
 import { currentUser } from "../boot/firebaseBoot.js";
-// destructuring to keep only what is needed in date
-const { formatDate } = date;
+import { date } from "quasar";
+const { formatDate, isSameDate } = date;
 
 export const useMomentsStore = defineStore("moments", () => {
   const user = currentUser;
@@ -93,17 +92,47 @@ export const useMomentsStore = defineStore("moments", () => {
 
       // Check if user doc exists, if not create & initialize it
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
-      const userDocCheck = await getDoc(userDocRef.value);
-      if (!userDocCheck.exists()) {
-        console.log("In moments.js, User doc does not exist, creating it");
-        await setDoc(
-          userDocRef.value,
-          {
-            momentsDays: [],
-            hasNeeds: false,
-          },
-          { merge: true },
-        );
+      const defaultUserDocValues = {
+        deviceLanguage: "en-US",
+        momentsDays: [],
+        hasNeeds: false,
+        welcomeTutorialStep: 0,
+        showWelcomeTutorial: true,
+      };
+
+      try {
+        await runTransaction(db, async (transaction) => {
+          const userDoc = await transaction.get(userDocRef.value);
+          if (!userDoc.exists()) {
+            console.log(
+              "In moments.js > fetchUser, User doc does not exist, creating it",
+            );
+            await setDoc(userDocRef.value, defaultUserDocValues, {
+              merge: true,
+            });
+          } else {
+            const userDocData = userDoc.data();
+            const updates = Object.keys(defaultUserDocValues).reduce(
+              (acc, key) => {
+                if (!userDocData[key]) {
+                  acc[key] = defaultUserDocValues[key];
+                }
+                return acc;
+              },
+              {},
+            );
+            console.log("In moments.js > fetchUser, updates is:", updates);
+
+            if (Object.keys(updates).length > 0) {
+              console.log(
+                "In moments.js > fetchUser, User doc not complete, updating it",
+              );
+              transaction.update(userDocRef.value, updates);
+            }
+          }
+        });
+      } catch (e) {
+        console.log("In moments.js > fetchUser, Transaction failed: ", e);
       }
 
       onSnapshot(userDocRef.value, (doc) => {
@@ -119,7 +148,9 @@ export const useMomentsStore = defineStore("moments", () => {
   const setAuthorizationCode = async (authorizationCode) => {
     try {
       if (!userFetched.value) {
-        console.log("User not yet fetched, fetching it");
+        console.log(
+          "In moment.js > setAuthorizationCode: User not yet fetched, fetching it",
+        );
         await fetchUser();
       }
 
@@ -132,7 +163,9 @@ export const useMomentsStore = defineStore("moments", () => {
   const setSpeechRecoLanguage = async (speechRecoLanguage) => {
     try {
       if (!userFetched.value) {
-        console.log("User not yet fetched, fetching it");
+        console.log(
+          "In moment.js > setSpeechRecoLanguage: User not yet fetched, fetching it",
+        );
         await fetchUser();
       }
 
@@ -145,7 +178,9 @@ export const useMomentsStore = defineStore("moments", () => {
   const setSignInMethods = async (signInMethods) => {
     try {
       if (!userFetched.value) {
-        console.log("User not yet fetched, fetching it");
+        console.log(
+          "In moment.js > setSignInMethods: User not yet fetched, fetching it",
+        );
         await fetchUser();
       }
 
@@ -171,6 +206,46 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.signInMethods ?? false;
   });
 
+  const setShowWelcomeTutorial = async (showWelcomeTutorial) => {
+    try {
+      if (!userFetched.value) {
+        console.log(
+          "In moment.js >setShowWelcomeTutorial: User not yet fetched, fetching it",
+        );
+        await fetchUser();
+      }
+      console.log(
+        "In setShowWelcomeTutorial, showWelcomeTutorial:",
+        showWelcomeTutorial,
+      );
+      await setDoc(userDocRef.value, { showWelcomeTutorial }, { merge: true });
+    } catch (error) {
+      console.log("Error in setShowWelcomeTutorial", error);
+    }
+  };
+
+  const getShowWelcomeTutorial = computed(() => {
+    return userDoc?.value?.showWelcomeTutorial ?? false;
+  });
+
+  const setWelcomeTutorialStep = async (welcomeTutorialStep) => {
+    try {
+      if (!userFetched.value) {
+        console.log(
+          "In moment.js > setWelcomeTutorialStep: User not yet fetched, fetching it",
+        );
+        await fetchUser();
+      }
+      await setDoc(userDocRef.value, { welcomeTutorialStep }, { merge: true });
+    } catch (error) {
+      console.log("Error in setWelcomeTutorialStep", error);
+    }
+  };
+
+  const getWelcomeTutorialStep = computed(() => {
+    return userDoc?.value?.welcomeTutorialStep ?? false;
+  });
+
   const fetchMoments = async () => {
     try {
       if (momentsFetched.value) {
@@ -178,7 +253,9 @@ export const useMomentsStore = defineStore("moments", () => {
         return;
       }
       if (!userFetched.value) {
-        console.log("User not yet fetched, fetching it");
+        console.log(
+          "In moment.js > fetchMoments: User not yet fetched, fetching it",
+        );
         await fetchUser();
       }
 
@@ -248,7 +325,9 @@ export const useMomentsStore = defineStore("moments", () => {
         return;
       }
       if (!userFetched.value) {
-        console.log("User not yet fetched, fetching it");
+        console.log(
+          "In moment.js > fetchAggregateData: User not yet fetched, fetching it",
+        );
         await fetchUser();
       }
 
@@ -308,6 +387,19 @@ export const useMomentsStore = defineStore("moments", () => {
   const hasNeeds = computed(() => {
     return userDoc?.value?.hasNeeds ?? false;
   });
+
+  watch(
+    hasNeeds,
+    async (newVal) => {
+      if (
+        newVal &&
+        (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
+      ) {
+        await setWelcomeTutorialStep(1);
+      }
+    },
+    { immediate: true },
+  );
 
   const addMoment = async (moment) => {
     try {
@@ -407,17 +499,17 @@ export const useMomentsStore = defineStore("moments", () => {
     const dt = ts.toDate(); //Tue Mar 28 2023 02:00:00 GMT+0200 (Central European Summer Time)
     const today = new Date();
 
-    if (!forDisplay) return date.formatDate(dt, "MMMM D, YYYY");
+    if (!forDisplay) return formatDate(dt, "MMMM D, YYYY");
 
-    const day = date.isSameDate(dt, today, "day")
+    const day = isSameDate(dt, today, "day")
       ? "Today"
-      : date.isSameDate(dt, today - 86400000, "day")
+      : isSameDate(dt, today - 86400000, "day")
       ? "Yesterday"
-      : date.isSameDate(dt, today, "year")
-      ? date.formatDate(dt, "MMMM D")
-      : date.formatDate(dt, "MMMM D, YYYY");
+      : isSameDate(dt, today, "year")
+      ? formatDate(dt, "MMMM D")
+      : formatDate(dt, "MMMM D, YYYY");
 
-    if (showHour) return day + ", " + date.formatDate(dt, "HH:mm");
+    if (showHour) return day + ", " + formatDate(dt, "HH:mm");
     else return day;
   };
 
@@ -433,6 +525,33 @@ export const useMomentsStore = defineStore("moments", () => {
     // Get the oldest timestamp and convert it to a JS Date format
     return sortedTimestamps[0].toDate();
   });
+
+  const getLatestMomentId = computed(() => {
+    if (!momentsFetched.value || !hasNeeds.value || !momentsColl.value.length) {
+      return;
+    }
+    const sortedTimestamps = [...momentsColl.value].sort(
+      (a, b) => b.date.seconds - a.date.seconds,
+    );
+    return sortedTimestamps[0].id;
+  });
+
+  // async function getLastUserMomentId(userId) {
+  //   const momentsRef = collection(db, `/users/${userId}/moments`);
+  //   const q = query(momentsRef, orderBy('date', 'desc'), limit(1));
+
+  //   try {
+  //     const querySnapshot = await getDocs(q);
+  //     // Instead of getting the document data, just get the document ID
+  //     const lastMomentId = querySnapshot.docs[0]?.id || null;
+
+  //     console.log(lastMomentId);
+  //     return lastMomentId;
+  //   } catch (error) {
+  //     console.error("Error fetching last moment ID:", error);
+  //     throw error;
+  //   }
+  // }
 
   const updateUser = async (changes) => {
     try {
@@ -493,6 +612,11 @@ export const useMomentsStore = defineStore("moments", () => {
     getDeviceLanguage,
     getSpeechRecoLanguage,
     getSignInMethods,
+    getShowWelcomeTutorial,
+    getWelcomeTutorialStep,
+    getLatestMomentId,
+    setWelcomeTutorialStep,
+    setShowWelcomeTutorial,
     getFormattedDate,
     addMoment,
     fetchUser,

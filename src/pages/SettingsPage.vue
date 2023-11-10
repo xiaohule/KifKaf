@@ -45,7 +45,7 @@
             <q-item-section>
               <q-item-label>Speech recognition language</q-item-label>
               <q-item-label caption>
-                {{ speechRecoLanguageOptions[pickedLanguage] }}
+                {{ displayPickedLanguage }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -112,7 +112,7 @@
 
       <q-card class="bg-background" flat style="height: 90vh;">
         <q-toolbar class="q-pa-sm">
-          <q-btn flat v-close-popup round dense icon="close" />
+          <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>
 
         <div v-if="currentSetting === 'displayName'">
@@ -182,7 +182,7 @@
     <q-dialog v-model="languageDialogOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background" flat style="height: 90vh;">
         <q-toolbar class="q-pa-sm">
-          <q-btn flat v-close-popup round dense icon="close" />
+          <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>
         <q-card-section class="text-h6 text-weight-medium">Change speech recognition language</q-card-section>
         <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none" style="border-radius: 14px;">
@@ -192,7 +192,7 @@
               <q-item-label>{{ value }}</q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-radio v-model="pickedLanguage" checked-icon="check" unchecked-icon="none" :val="key" />
+              <q-radio v-model="pickedLanguage" checked-icon="r_check" unchecked-icon="none" :val="key" />
             </q-item-section>
           </q-item>
         </q-card-section>
@@ -237,7 +237,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { getFirebaseAuth } from "../boot/firebaseBoot.js";
 import { signOut, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useQuasar } from 'quasar'
@@ -270,6 +270,21 @@ const speechRecoLanguageOptions = {
   "it-IT": "Italiano",
   "de-DE": "Deutsch"
 };
+const displayPickedLanguage = computed(() => {
+  // Direct match
+  if (speechRecoLanguageOptions[pickedLanguage.value]) {
+    return speechRecoLanguageOptions[pickedLanguage.value];
+  }
+  // Fallback to the closest locale based on the language code
+  const languageCode = pickedLanguage.value.split('-')[0];
+  for (const key in speechRecoLanguageOptions) {
+    if (key.startsWith(languageCode)) {
+      return speechRecoLanguageOptions[key];
+    }
+  }
+  // Default to English if no match is found
+  return 'English';
+});
 
 const editDialogOpened = ref(false)
 const logoutDialogOpened = ref(false)
