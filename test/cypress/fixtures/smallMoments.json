@@ -1,0 +1,85 @@
+[
+  {
+    "date": "2023-05-13",
+    "intensity": 4,
+    "text": "Feeling proud of myself for working out today!",
+    "tags": ["movement", "self-esteem", "proud"],
+    "needs": ["Self-Esteem & Social Recognition", "Physical Movement"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp deduc, s explicit - sm imp deduc, ",
+    "test": {
+      "Physical Well-Being": ["1.0 could be lower sat", 0.5],
+      "Physical Movement": [1.0, 0.5],
+      "Self-Esteem & Social Recognition": [0.9, 0.8],
+      "Competence & Effectiveness": [0.9, 0.7],
+      "Self-Actualization": [0.8, 0.5],
+      "Challenge": [0.8, 0.5]
+    }
+  },
+
+  {
+    "date": "2023-05-15",
+    "intensity": -3,
+    "text": "Feeling a little down today after calling mum",
+    "tags": ["phone", "mum"],
+    "needs": ["Emotional Safety & Inner Peace"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - sm imp deduc",
+    "test": {
+      "Social Connection": [0.5, 0.8],
+      "Support, Understanding & Validation": [0.5, 0.9],
+      "Affection & Love": [0.5, 0.7],
+      "Emotional Safety & Inner Peace": [0.3, "0.8 could be higher imp"]
+    }
+  },
+  {
+    "date": "2023-05-16",
+    "intensity": 3,
+    "text": "Feeling grateful toward life when eating my fresh tomatoes",
+    "tags": ["food"],
+    "needs": [
+      "Gratitude & Celebration",
+      "Sustenance & Nourishment",
+      "Contact with Nature"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp explicit, sm s explicit - imp deduc, sm s deduc - sm imp deduc; XXX la satis du need for nourishment cause la satis du need for grateful",
+    "test": {
+      "Physical Well-Being": [0.8, 0.5],
+      "Sustenance & Nourishment": [0.9, 0.5],
+      "Contact with Nature": [0.7, 0.5],
+      "Gratitude & Celebration": [0.9, 0.8]
+    }
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "Je me sens bien d'aller voir les copains pour dîner avec eux mais un petit peu agitée tout de même parce que j'ai beaucoup bossé je sens que mon besoin de récompense est élevé",
+    "tags": [""],
+    "needs": [
+      "Social Connection",
+      "Emotional Safety & Inner Peace",
+      "Rest & Relaxation",
+      "Self-Esteem & Social Recognition",
+      "Fairness & Justice",
+      "Support, Understanding & Validation",
+      "Meaning & Purpose"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp deduc, imp deduc"
+  },
+  {
+    "date": "2023-09-06",
+    "intensity": -1,
+    "text": "Je me sens laraouet et bezdo",
+    "tags": [""],
+    "needs": [""],
+    "satisfactions": [],
+    "importances": [],
+    "comment": ""
+  }
+]

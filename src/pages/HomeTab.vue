@@ -32,12 +32,12 @@
   /* grid-template-rows: 1fr 2fr; Ratio for B and C */
   /* overflow: hidden; Hide B when the container is too small */     -->
         <div style="width: 100%;  margin-top: 100px; height: 60vh;position: relative; z-index: 20;">
-          <div class="welcoming-title text-h5 text-weight-medium text-on-primary q-pa-md text-center"
+          <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center"
             style=" position: absolute; top: 12%; transform: translateY(-50%); left: 0; right: 0;">{{ greeting }}{{
               userFirstName }}</div>
-          <div class="cta-div q-py-md"
+          <div class="pushed-up-if-height-xs q-py-md"
             style="position: absolute; top: 45%; transform: translateY(-50%); left: 0; right: 0;">
-            <div class="cta-title text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
+            <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
             <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
               v-model="newMomText" :shadow-text="inputShadowText" lazy-rules="ondemand" :rules="newMomRules"
               @blur="inputBlurred" type="text" autogrow rounded outlined bg-color="surface" color="transparent"
@@ -64,12 +64,12 @@
       style="position: relative; z-index: 25;">
       <q-list>
 
-        <q-item class="q-px-xs q-py-none" style="min-height: 0px;">
+        <q-item class="q-px-xs q-py-none margin-top-if-height-sm" style="min-height: 0px;">
           <q-item-section class="text-body1 text-weight-medium text-on-primary">Welcome to
             KifKaf</q-item-section>
           <q-item-section side>
             <q-btn flat dense icon="r_close" color="background" size="12px"
-              @click=" momentsStore.setShowWelcomeTutorial(false)" padding="none" />
+              @click="momentsStore.setShowWelcomeTutorial(false)" padding="none" />
           </q-item-section>
         </q-item>
 
@@ -204,8 +204,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
             'q-mb-sm',
             (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
             (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-          ]" header>{{
-  momentsStore.getFormattedDate(day) }}</q-item-label>
+          ]" header>{{ momentsStore.getFormattedDate(day) }}</q-item-label>
 
           <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
             <q-list full-width style="width: 100%;">
@@ -217,7 +216,24 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
                 </q-item-section>
                 <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
                 }}</q-item-section>
+
+                <!-- <q-item v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
+                  class="q-px-none q-py-xs" style="min-height: 0px;"> -->
+                <!-- add the "+" for manually adding needs -->
+                <!-- </q-item>
+                <q-item v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
+                  class="q-px-none q-py-xs chip-container" style="min-height: 0px;">
+                  <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
+                    @scroll="onChipsRowScroll($event, moment.id)"> -->
+                <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
+                <!-- <q-chip v-for="need in Object.entries(moment.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
+                      :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
+                      :label="need[0]" class="needs" />
+                  </div>
+                </q-item> -->
+
               </q-item>
+
 
             </q-list>
           </q-item>
@@ -471,39 +487,48 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
   // transition: height 0.5s;   /* Transition effect when growing */
 }
 
-.welcoming-title {
+.hidden-if-height-sm {
   transition: opacity 0.5s ease, visibility 0.5s ease;
   opacity: 1;
   visibility: visible;
+}
+
+.margin-top-if-height-sm {
+  margin-top: 0px !important;
+  transition: margin-top 0.5s ease;
 }
 
 /* Media query for smaller heights */
 @media (max-height: 650px) {
-  .welcoming-title {
+  .hidden-if-height-sm {
     opacity: 0;
     visibility: hidden;
     overflow: hidden;
   }
+
+  .margin-top-if-height-sm {
+    margin-top: 25px !important;
+  }
 }
 
-.cta-title {
+.hidden-if-height-xs {
   transition: opacity 0.5s ease, visibility 0.5s ease;
   opacity: 1;
   visibility: visible;
 }
 
-.cta-div {
+.pushed-up-if-height-xs {
   transition: top 0.5s ease;
 }
 
 @media (max-height: 450px) {
-  .cta-title {
+  .hidden-if-height-xs {
     opacity: 0;
     visibility: hidden;
     overflow: hidden;
   }
 
-  .cta-div {
+  .pushed-up-if-height-xs {
     top: 15% !important;
   }
 }

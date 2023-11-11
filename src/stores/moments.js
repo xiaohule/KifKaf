@@ -114,7 +114,7 @@ export const useMomentsStore = defineStore("moments", () => {
             const userDocData = userDoc.data();
             const updates = Object.keys(defaultUserDocValues).reduce(
               (acc, key) => {
-                if (!userDocData[key]) {
+                if (userDocData[key] === undefined) {
                   acc[key] = defaultUserDocValues[key];
                 }
                 return acc;
@@ -125,7 +125,8 @@ export const useMomentsStore = defineStore("moments", () => {
 
             if (Object.keys(updates).length > 0) {
               console.log(
-                "In moments.js > fetchUser, User doc not complete, updating it",
+                "In moments.js > fetchUser, User doc not complete, updating it with updates:",
+                updates,
               );
               transaction.update(userDocRef.value, updates);
             }

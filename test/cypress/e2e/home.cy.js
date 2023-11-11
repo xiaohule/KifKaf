@@ -1,7 +1,9 @@
 /// <reference types="cypress" />
 // Use `cy.dataCy` custom command for more robust tests
 // See https://docs.cypress.io/guides/references/best-practices.html#Selecting-Elements
-const momentsData = require("./../fixtures/moments.json");
+// const momentsData = require("./../fixtures/moments.json");
+const momentsData = require("./../fixtures/smallMoments.json");
+
 // const momentsStats2023Data = require("./../fixtures/momentsStats2023.json");
 // const momentsStats2022Data = require("./../fixtures/momentsStats2022.json");
 
