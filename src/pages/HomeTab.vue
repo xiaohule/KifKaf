@@ -88,8 +88,8 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
           <!-- ref="swiperWelcomeTutorial"  init="false"  auto-height="true" pagination-dynamic-bullets="true" slides-per-view="1.05"-->
           <swiper-container pagination="true" grab-cursor="true" space-between="10" style="width: 100%;">
             <swiper-slide>
-              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 1" class="bg-surface q-pa-md rounded-borders-14"
-                style="margin-bottom: 32px;" flat>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 1"
+                class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label>
@@ -101,11 +101,13 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
                       style="max-height: 100%; width: auto; object-fit: contain; margin-right:16px;" />
                   </q-item-section>
                 </q-item>
-                <q-btn rounded color="primary" padding="xs" label="Log a Moment" @click="tutoLogMoment"
-                  class="text-subtitle1 text-weight-medium" style="width: 100%; " no-caps
-                  :disable="newMomText.length !== 0" />
+                <q-card-actions class="q-py-none" align="center">
+                  <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
+                    label="Log a Moment" @click="tutoLogMoment" :disable="newMomText.length !== 0" style="width: 100%; "
+                    no-caps />
+                </q-card-actions>
               </q-card>
-              <q-card v-else class="bg-surface q-pa-md rounded-borders-14" style="margin-bottom: 32px;" flat>
+              <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
@@ -122,8 +124,8 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-card>
             </swiper-slide>
             <swiper-slide>
-              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 2" class="bg-surface q-pa-md rounded-borders-14"
-                style="margin-bottom: 32px;" flat>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 2"
+                class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label>
@@ -134,11 +136,13 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
                       style="max-height: 100%; width: auto; object-fit: contain; margin-right:8px;" />
                   </q-item-section>
                 </q-item>
-                <q-btn rounded color="primary" padding="xs" label="View needs" @click="tutoViewNeeds"
-                  :disable="!momentsStore.getLatestMomentId" class="text-subtitle1 text-weight-medium"
-                  style="width: 100%; " no-caps />
+                <q-card-actions class="q-py-none" align="center">
+                  <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
+                    label="View needs" @click="tutoViewNeeds" :disable="!momentsStore.getLatestMomentId"
+                    style="width: 100%; " no-caps />
+                </q-card-actions>
               </q-card>
-              <q-card v-else class="bg-surface q-pa-md rounded-borders-14" style="margin-bottom: 32px;" flat>
+              <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
@@ -155,8 +159,8 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-card>
             </swiper-slide>
             <swiper-slide>
-              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 3" class="bg-surface q-pa-md rounded-borders-14"
-                style="margin-bottom: 32px;" flat>
+              <q-card v-if="momentsStore?.getWelcomeTutorialStep < 3"
+                class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label>
@@ -168,11 +172,13 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
                       style="max-height: 100%; width: auto; object-fit: contain; margin-right:8px;" />
                   </q-item-section>
                 </q-item>
-                <q-btn rounded color="primary" padding="xs" label="Explore Insights" @click="tutoExploreInsights"
-                  :disable="!momentsStore.getLatestMomentId" class="text-subtitle1 text-weight-medium"
-                  style="width: 100%; " no-caps />
+                <q-card-actions class="q-py-none" align="center">
+                  <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
+                    label="Explore Insights" @click="tutoExploreInsights" :disable="!momentsStore.getLatestMomentId"
+                    style="width: 100%; " no-caps />
+                </q-card-actions>
               </q-card>
-              <q-card v-else class="bg-surface q-pa-md rounded-borders-14" style="margin-bottom: 32px;" flat>
+              <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
                 <q-item>
                   <q-item-section>
                     <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
@@ -195,50 +201,43 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
 
     <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
     <div v-else class="q-px-md">
-      <q-list>
-        <div v-for="( day, index ) in  momentsStore.uniqueDays " :key="day">
-          <q-item-label :class="[
-            'text-body1',
-            'text-weight-medium',
-            'q-pa-none',
-            'q-mb-sm',
-            (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
-            (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-          ]" header>{{ momentsStore.getFormattedDate(day) }}</q-item-label>
+      <div v-for="( day, index ) in  momentsStore.uniqueDays " :key="day">
 
-          <q-item class="bg-surface q-mb-md q-px-none q-py-none rounded-borders-14">
-            <q-list full-width style="width: 100%;">
-              <q-item v-for=" moment  in  getSortedMomentsOfTheDay(day) " :key="moment.id" clickable v-ripple
-                class="q-px-none q-py-md" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
+        <div :class="[
+          'text-body1',
+          'text-weight-medium',
+          'q-pa-none',
+          'q-mb-sm',
+          (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
+          (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
+        ]" header>{{ momentsStore.getFormattedDate(day) }}</div>
+        <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
+          <div v-for=" moment  in  getSortedMomentsOfTheDay(day) " :key="moment.id" clickable v-ripple
+            class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
 
-                <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
-                  <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
-                </q-item-section>
-                <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
-                }}</q-item-section>
-
-                <!-- <q-item v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
-                  class="q-px-none q-py-xs" style="min-height: 0px;"> -->
-                <!-- add the "+" for manually adding needs -->
-                <!-- </q-item>
-                <q-item v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
-                  class="q-px-none q-py-xs chip-container" style="min-height: 0px;">
-                  <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
-                    @scroll="onChipsRowScroll($event, moment.id)"> -->
-                <!-- removable v-model="vanilla" text-color="white" :title="vanillaLabel" -->
-                <!-- <q-chip v-for="need in Object.entries(moment.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
-                      :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]]"
-                      :label="need[0]" class="needs" />
-                  </div>
-                </q-item> -->
-
-              </q-item>
-
-
-            </q-list>
-          </q-item>
-        </div>
-      </q-list>
+            <q-item class="q-px-xs" style="min-height: 0px;">
+              <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
+                <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
+              </q-item-section>
+              <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
+              }}</q-item-section>
+            </q-item>
+            <q-item v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
+              class="q-px-xs q-pt-none q-pb-xs" style="min-height: 0px;">
+              <!--TODO:2 do this part add the "+" for manually adding needs -->
+            </q-item>
+            <q-item v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
+              class="q-px-xs q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
+              <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
+                @scroll="onChipsRowScroll($event, moment.id)">
+                <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
+                  :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
+                  :label="need[0]" class="needs" />
+              </div>
+            </q-item>
+          </div>
+        </q-card>
+      </div>
       <moment-bottom-sheet v-model="momPageOpened" :moment-id="bottomSheetMomentId"
         :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
@@ -286,6 +285,7 @@ onMounted(async () => {
 
 onActivated(() => {
   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
+  momsWithScrolledNeeds.value = {};
   // if (!swiperInitialized.value) {
   //   swiperWelcomeTutorial.value.initialize();
   //   swiperInitialized.value = true
@@ -303,9 +303,10 @@ const placeholderText = 'Feeling ... because ...'
 const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
+const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 const userFirstName = computed(() => {
   if (momentsStore?.user?.displayName) {
-    const firstName = momentsStore.user.displayName.split(' ')[0];
+    const firstName = momentsStore.user.displayName.trim().split(' ')[0];
     let capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
     return ", " + capitalizedFirstName;
   }
@@ -427,9 +428,24 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
   const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
   return ol;
 }
+
+// DISPLAY PREVIOUS MOMENTS NEEDS
+const getChipColor = (needsStats) => {
+  if (needsStats[0] < 0.4) return 'negative'
+  else if (needsStats[0] > 0.6) return 'positive'
+  else return 'primary'
+}
+const onChipsRowScroll = (event, id) => {
+  momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
+};
+const setChipsRowPadding = (id) => {
+  // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
+  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 48px;';
+};
 </script>
 
 <style lang="scss">
+// TODO:4 try to remove some !important
 .q-field__append.q-field__marginal.row.no-wrap.items-center.q-anchor--skip {
   display: none;
 }
@@ -559,7 +575,43 @@ swiper-container {
   // // --swiper-pagination-bullet-horizontal-gap: 4px;
   // // --swiper-pagination-bullet-vertical-gap: 6px;
 }
-</style>
 
+/* Hide scrollbar for IE, Edge, and Firefox */
+.chip-container {
+  scrollbar-width: none;
+  /* For Firefox */
+  -ms-overflow-style: none;
+  /* For Internet Explorer and Edge */
+}
+
+.horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  transition: padding-left 0.9s ease;
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  cursor: grab;
+}
+
+.horizontal-scroll .q-chip:first-child {
+  margin-left: 0;
+}
+
+.needs {
+  font-size: 0.8rem;
+  // max-width: 200px; //truncate
+}
+
+.q-chip__icon {
+  margin-bottom: 2px;
+}
+</style>
 
 
