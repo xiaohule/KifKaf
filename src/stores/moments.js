@@ -389,19 +389,6 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.hasNeeds ?? false;
   });
 
-  watch(
-    hasNeeds,
-    async (newVal) => {
-      if (
-        newVal &&
-        (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
-      ) {
-        await setWelcomeTutorialStep(1);
-      }
-    },
-    { immediate: true },
-  );
-
   const addMoment = async (moment) => {
     try {
       console.log("In addMoment for:", moment);
@@ -438,6 +425,8 @@ export const useMomentsStore = defineStore("moments", () => {
 
       await batch.commit();
 
+      if (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
+        await setWelcomeTutorialStep(1);
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
@@ -456,7 +445,6 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       );
       console.log("In addMoment", response.data);
-
       Notify.create("Needs analysis complete.");
     } catch (error) {
       console.log("Error in addMoment", error);
