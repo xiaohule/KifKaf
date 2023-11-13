@@ -35,23 +35,35 @@
     }
   },
   {
-    "date": "2023-05-16",
-    "intensity": 3,
-    "text": "Feeling grateful toward life when eating my fresh tomatoes",
-    "tags": ["food"],
-    "needs": [
-      "Gratitude & Celebration",
-      "Sustenance & Nourishment",
-      "Contact with Nature"
-    ],
+    "date": "2023-05-23",
+    "intensity": -5,
+    "text": "Feeling so stressed out today when woking up",
+    "tags": [""],
+    "needs": ["Emotional Safety & Inner Peace"],
     "satisfactions": [],
     "importances": [],
-    "comment": "s explicit - imp explicit, sm s explicit - imp deduc, sm s deduc - sm imp deduc; XXX la satis du need for nourishment cause la satis du need for grateful",
+    "comment": "is explicit - sm imp explicit",
     "test": {
-      "Physical Well-Being": [0.8, 0.5],
-      "Sustenance & Nourishment": [0.9, 0.5],
-      "Contact with Nature": [0.7, 0.5],
-      "Gratitude & Celebration": [0.9, 0.8]
+      "Rest & Relaxation": [0.2, 0.5],
+      "Emotional Safety & Inner Peace": [0.3, 0.5]
+    }
+  },
+  {
+    "date": "2023-05-27",
+    "intensity": -3,
+    "text": "Felt so bad when running after eating spinach",
+    "tags": ["movement", "food"],
+    "needs": ["Physical Well-Being", "Physical Movement"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp explicit, s unknonw - imp deduc",
+    "test": {
+      "Physical Well-Being": [0.2, 0.5],
+      "Physical Movement": [
+        0.3,
+        0.5,
+        "could be satis should be uncertain add comme exple"
+      ]
     }
   },
   {

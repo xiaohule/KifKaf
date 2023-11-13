@@ -396,16 +396,15 @@ swiper-container {
   display: flex;
   overflow-x: auto;
   white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
   transition: padding-left 0.9s ease;
+  // cursor: grab; //disabled bec. misleading since horizontal scroll doesn't work on desktop
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
   }
-
-  cursor: grab;
 }
 
 .horizontal-scroll .q-chip:first-child {

@@ -36,6 +36,10 @@
       </swiper-container>
     </div>
 
+    <!-- <div>
+      <Doughnut :data="chartData" :options="chartOptions" />
+    </div> -->
+
     <q-dialog v-model="filterDialogOpened" position="bottom">
       <q-card class="bg-background q-px-sm">
 
@@ -74,6 +78,24 @@ import SegmentedControl from "./../components/SegmentedControl.vue";
 import LearnCardNeeds from "./../components/LearnCardNeeds.vue";
 import { date } from 'quasar'
 const { formatDate, getDateDiff, startOfDate, addToDate, getMaxDate } = date;
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Doughnut } from 'vue-chartjs'
+
+ChartJS.register(ArcElement, Tooltip, Legend)
+const chartData = {
+  labels: ['VueJs', 'EmberJs', 'ReactJs', 'AngularJs'],
+  datasets: [
+    {
+      backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
+      data: [40, 20, 80, 10]
+    }
+  ]
+}
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false
+}
+
 // import styles bundle //import 'swiper/css/bundle';
 
 defineOptions({
