@@ -31,9 +31,7 @@ import { markRaw, ref, watch } from "vue";
 // import Vue3Lottie from "vue3-lottie";
 import { debounce } from "lodash";
 import axios from "axios";
-import * as SentryVue from "@sentry/vue";
-// import * as SentryCapacitor from "@sentry/capacitor";
-
+import * as Sentry from "@sentry/vue";
 // import { Device } from "@capacitor/device";
 // import { Platform, is } from "quasar";
 // console.log("Platform is", Platform.is);
@@ -101,6 +99,7 @@ try {
   onAuthStateChanged(getFirebaseAuth(), (user) => {
     console.log("onAuthStateChanged", user);
     currentUser.value = user;
+    Sentry.setUser({ id: user.uid });
     isLoadingAuth.value = false;
     // else router.push("/login");
   });
@@ -320,77 +319,7 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-export default boot(({ app, router }) => {
-  if (process.env.MODE !== "capacitor") {
-    // console.log("In firebaseBoot, will init Sentry for web");
-    SentryVue.init({
-      app,
-      dsn: "https://14d302e6de1ed16a581dea3f4d90aec6@o4506138007961600.ingest.sentry.io/4506138013204480",
-      integrations: [
-        new SentryVue.BrowserTracing({
-          // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-          tracePropagationTargets: [
-            "localhost",
-            "https://kifkaf.app/api",
-            /^https:\/\/kifkaf\.app\/api/,
-          ],
-          routingInstrumentation: SentryVue.vueRouterInstrumentation(router),
-        }),
-        new SentryVue.Replay(),
-      ],
-      // Performance Monitoring
-      tracesSampleRate: 1.0, // Capture 100% of the transactions
-      // Session Replay
-      replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-      replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
-    });
-    console.log("In firebaseBoot, Sentry initialized for web");
-  } else {
-    import("@sentry/capacitor")
-      .then((module) => {
-        console.log("SentryCapacitor module:", module);
-        const SentryCapacitor = module;
-        SentryCapacitor.init(
-          {
-            app,
-            // dsn: "https://14d302e6de1ed16a581dea3f4d90aec6@o4506138007961600.ingest.sentry.io/4506138013204480",
-            dsn: "https://c2f9d0933e8f0e2fa9ddcf74448d9f2d@o4506138007961600.ingest.sentry.io/4506139126071296",
-            // Set your release version, such as 'getsentry@1.0.0'
-            release: `kifkaf-app@${process.env.__APP_VERSION__}`,
-            // Set your dist version, such as "1"
-            dist: process.env.__BUILD_NUMBER__,
-            integrations: [
-              // Registers and configures the Tracing integration,
-              // which automatically instruments your application to monitor its
-              // performance, including custom Angular routing instrumentation
-              new SentryVue.BrowserTracing({
-                tracePropagationTargets: [
-                  "localhost",
-                  "https://kifkaf.app/api",
-                  /^https:\/\/kifkaf\.app\/api/,
-                ],
-                routingInstrumentation:
-                  SentryVue.vueRouterInstrumentation(router),
-              }),
-              new SentryVue.Replay(),
-            ],
-            tracesSampleRate: 1.0, // Capture 100% of the transactions
-            // Session Replay
-            replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-            replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
-          },
-          SentryVue.init,
-        );
-        console.log("In firebaseBoot, Sentry initialized for capacitor");
-      })
-      .catch((error) => {
-        console.error(
-          "In firebaseBoot, Failed to initialize Sentry for Capacitor, error:",
-          error,
-        );
-      });
-  }
-
+export default boot(({ router }) => {
   //if targeting a route that needs sign in without being signed in, redirect to login
   router.beforeEach((to, from, next) => {
     // console.log(
@@ -430,7 +359,7 @@ export default boot(({ app, router }) => {
   // Call llmRetryHandler during app initialization
   watch(
     currentUser,
-    (newVal, oldVal) => {
+    (newVal) => {
       if (newVal) {
         setDeviceLanguage();
         llmRetryHandler();

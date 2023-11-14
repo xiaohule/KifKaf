@@ -13,6 +13,8 @@ const app = express();
 
 Sentry.init({
   dsn: "https://02549845966afcdc0dcaf684902ac6d3@o4506138007961600.ingest.sentry.io/4506139018919936",
+  release: `kifkaf-app@${process.env.__APP_VERSION__}`,
+  environment: process.env.NODE_ENV,
   integrations: [
     // enable HTTP calls tracing
     new Sentry.Integrations.Http({ tracing: true }),
@@ -21,7 +23,7 @@ Sentry.init({
     new ProfilingIntegration(),
   ],
   // Performance Monitoring
-  tracesSampleRate: 1.0,
+  tracesSampleRate: 0.5,
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
 });
