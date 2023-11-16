@@ -39,35 +39,39 @@ export const useMomentsStore = defineStore("moments", () => {
   const shouldResetSwiper = ref(false);
   const needsMap = ref({
     //add 'Work-Life Balance'?
-    "Physical Well-Being": ["🛡️", "Physiological & Safety"], //readd Physical safety dedans ou split
-    "Sustenance & Nourishment": ["🍎", "Physiological & Safety"],
-    Shelter: ["🏠", "Physiological & Safety"],
-    "Financial Security": ["💰", "Physiological & Safety"],
-    "Rest & Relaxation": ["🌙", "Physiological & Safety"], //🛋️ //🛌
-    "Physical Movement": ["🤸", "Physiological & Safety"],
-    "Emotional Safety & Inner Peace": ["🧘", "Physiological & Safety"], //"🤗",""],
-    "Boundaries & Privacy": ["🚪", "Physiological & Safety"],
-    "Physical Contact & Intimacy": ["👐", "Connection"],
-    "Contact with Nature": ["🏞️", "Connection"],
-    "Social Connection": ["👥", "Connection"],
-    "Belongingness & Community": ["🏘️", "Connection"],
-    "Support, Understanding & Validation": ["👂", "Connection"], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
-    "Affection & Love": ["❤️", "Connection"],
-    "Play, Humor & Entertainment": ["🎠", "Connection"], // "😂",""],"⚽",""],🎭
-    Autonomy: ["🛤️", "Esteem"],
-    "Self-Esteem & Social Recognition": ["💪", "Esteem"],
-    "Competence & Effectiveness": ["🎯", "Esteem"],
-    "Self-Expression & Creativity": ["🎨", "Esteem"],
-    "Exploration, Novelty & Inspiration": ["🌌", "Personal Growth"], //🌎 // réduire à Exploration & Novelty?
-    Learning: ["📚", "Personal Growth"],
-    "Self-Actualization": ["🌱", "Personal Growth"], //merge learning and self-actualization?
-    Challenge: ["⛰️", "Personal Growth"],
-    "Outward Care & Contribution": ["🤲", "Meaning & Transcendence"], //break in 2?
-    "Fairness & Justice": ["⚖️", "Meaning & Transcendence"], //🕊️
-    "Order & Structure": ["📐", "Meaning & Transcendence"],
-    "Meaning & Purpose": ["🧭", "Meaning & Transcendence"], //🌌
-    "Gratitude & Celebration": ["🎈", "Meaning & Transcendence"], //🎉 //🕯️
-    "Spiritual Transcendence": ["🌸", "Meaning & Transcendence"],
+    "Physical Well-Being": ["🛡️", "Physiological & Safety", "negative"], //readd Physical safety dedans ou split
+    "Sustenance & Nourishment": ["🍎", "Physiological & Safety", "negative"],
+    Shelter: ["🏠", "Physiological & Safety", "negative"],
+    "Financial Security": ["💰", "Physiological & Safety", "negative"],
+    "Rest & Relaxation": ["🌙", "Physiological & Safety", "negative"], //🛋️ //🛌
+    "Physical Movement": ["🤸", "Physiological & Safety", "negative"],
+    "Emotional Safety & Inner Peace": [
+      "🧘",
+      "Physiological & Safety",
+      "negative",
+    ], //"🤗",""],
+    "Boundaries & Privacy": ["🚪", "Physiological & Safety", "negative"],
+    "Physical Contact & Intimacy": ["👐", "Connection", "info"],
+    "Contact with Nature": ["🏞️", "Connection", "info"],
+    "Social Connection": ["👥", "Connection", "info"],
+    "Belongingness & Community": ["🏘️", "Connection", "info"],
+    "Support, Understanding & Validation": ["👂", "Connection", "info"], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
+    "Affection & Love": ["❤️", "Connection", "info"],
+    "Play, Humor & Entertainment": ["🎠", "Connection", "info"], // "😂",""],"⚽",""],🎭
+    Autonomy: ["🛤️", "Esteem", "warning"],
+    "Self-Esteem & Social Recognition": ["💪", "Esteem", "warning"],
+    "Competence & Effectiveness": ["🎯", "Esteem", "warning"],
+    "Self-Expression & Creativity": ["🎨", "Esteem", "warning"],
+    "Exploration, Novelty & Inspiration": ["🌌", "Personal Growth", "positive"], //🌎 // réduire à Exploration & Novelty?
+    Learning: ["📚", "Personal Growth", "positive"],
+    "Self-Actualization": ["🌱", "Personal Growth", "positive"], //merge learning and self-actualization?
+    Challenge: ["⛰️", "Personal Growth", "positive"],
+    "Outward Care & Contribution": ["🤲", "Meaning & Transcendence", "primary"], //break in 2?
+    "Fairness & Justice": ["⚖️", "Meaning & Transcendence", "primary"], //🕊️
+    "Order & Structure": ["📐", "Meaning & Transcendence", "primary"],
+    "Meaning & Purpose": ["🧭", "Meaning & Transcendence", "primary"], //🌌
+    "Gratitude & Celebration": ["🎈", "Meaning & Transcendence", "primary"], //🎉 //🕯️
+    "Spiritual Transcendence": ["🌸", "Meaning & Transcendence", "primary"],
   });
   const needsCategories = ref({
     "Physiological & Safety": "health_and_safety",

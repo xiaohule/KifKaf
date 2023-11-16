@@ -4,6 +4,7 @@
 // the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
 
 //Quasar colors: keep to avoid breaking the app and keep aligned with $colors
+// TODO:4 enlever celles ci pr garder juste colors
 $primary: #4f55f1; //#4F55F1 //#0666eb; 070A20 162965 0655c4
 $secondary: #585e71;
 $accent: #286c2a; //same as tertiary
@@ -19,12 +20,21 @@ $warning: #f2c037;
 //What we get from setting primary #0666EB, secondary #8a90a5, tertiary #7c9876 and neutral #919094 on https://m3.material.io/theme-builder#/custom
 $colors: (
   /* light */ primary: #4f55f1,
-  // #0057cd,
+  secondary: #585e71,
+  accent: #286c2a,
+
+  dark: #1b1b1f,
+  dark-page: #1b1b1f,
+
+  positive: #08be67,
+  negative: #f54c3e,
+  info: #31ccec,
+  warning: #f2c037,
+
   on-primary: #ffffff,
   primary-container: #d9e2ff,
   //E7EFFF
   on-primary-container: #001946,
-  secondary: #585e71,
   on-secondary: #ffffff,
   secondary-container: #dce2f9,
   on-secondary-container: #151b2c,
@@ -95,4 +105,10 @@ $colors: (
 
 @function color($color-name) {
   @return map-get($colors, $color-name);
+}
+
+@each $color-name, $color-value in $colors {
+  :root {
+    --#{$color-name}-color: #{$color-value};
+  }
 }

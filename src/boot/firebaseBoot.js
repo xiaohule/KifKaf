@@ -97,7 +97,7 @@ export const currentUser = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 try {
   onAuthStateChanged(getFirebaseAuth(), (user) => {
-    console.log("onAuthStateChanged", user);
+    // console.log("onAuthStateChanged", user);
     currentUser.value = user;
     Sentry.setUser({ id: user.uid });
     isLoadingAuth.value = false;
