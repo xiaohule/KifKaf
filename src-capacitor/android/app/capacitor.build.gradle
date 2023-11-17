@@ -14,6 +14,7 @@ dependencies {
     implementation project(':capacitor-firebase-authentication')
     implementation project(':capacitor-app')
     implementation project(':capacitor-device')
+    implementation project(':sentry-capacitor')
 
 }
 

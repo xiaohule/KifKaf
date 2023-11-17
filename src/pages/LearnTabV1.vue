@@ -1,6 +1,6 @@
+<!-- Here we handle date and data grouping selections -->
 <template >
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
-    <!-- TODO:1 add animation prompting user to come back after adding moments or showing an example of this screen -->
+  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px" @click="handlePageClick">
     <q-item class="q-px-none q-pt-none">
       <q-item-section class=" col-auto">
         <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background"
@@ -8,33 +8,18 @@
       </q-item-section>
     </q-item>
 
-    <div>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Needs Satisfaction</q-item-label>
-      <swiper-container ref="swiperElSatisfaction" init="false" auto-height="true" observer="true"
-        observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @activeindexchange="(event) => onActiveIndexChangeBySwiper(event, 'satisfaction')">
-        <swiper-slide v-for="range in (segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears)" :key="range">
-          <learn-card-needs flag="satisfaction" :date-range="range" :second-seg-selected="secondSegSelectedSatisfaction"
-            :learn-card-expanded="learnCardExpandedSatisfaction" seg-control
-            @click:segmented-control="segmentedControlClicked" @click:show-button="showButtonClicked"
-            @ready:aggregateData="aggregateDataReady"></learn-card-needs>
-        </swiper-slide>
-      </swiper-container>
-    </div>
-    <div>
-      <q-item-label class="text-body1 text-weight-medium q-my-sm">Needs Importance</q-item-label>
-      <swiper-container ref="swiperElImportance" init="false" auto-height="true" observer="true"
-        observe-slide-children="true" grab-cursor="true" pagination-dynamic-bullets="true"
-        @activeindexchange="(event) => onActiveIndexChangeBySwiper(event, 'importance')"
-        @observerupdate="console.log('SWIPER observerUpdate fired')" @update="console.log('SWIPER update fired')"
-        @beforedestroy="console.log('SWIPER beforeDestroy fired')" @destroy="console.log('SWIPER destroy fired')"
-        @init="console.log('SWIPER init fired')">
-        <swiper-slide v-for="range in (segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears)" :key="range">
-          <learn-card-needs flag="importance" :date-range="range" :learn-card-expanded="learnCardExpandedImportance"
-            @click:show-button="showButtonClicked" @ready:aggregateData="aggregateDataReady"></learn-card-needs>
-        </swiper-slide>
-      </swiper-container>
-    </div>
+    <q-btn-toggle v-model="toggleModel" class="q-gutter-sm q-mb-sm" color="transparent" text-color="outline"
+      toggle-color="surface" toggle-text-color="on-surface" unelevated no-caps :ripple="false" :options="[
+        { label: 'Satisfiers', value: 'satisfaction' },
+        { label: 'Dissatisfiers', value: 'unsatisfaction' },
+        { label: 'All', value: 'importance' }
+      ]" />
+
+    <donut-swiper-and-list ref="donutSwiperAndListRef"
+      :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears" :active-index="activeIndex"
+      :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
+      @update:active-index="onActiveIndexChangeBySwiper"
+      @reset:clickedLearnPage="clickedLearnPage = false"></donut-swiper-and-list>
 
     <q-dialog v-model="filterDialogOpened" position="bottom">
       <q-card class="bg-background q-px-sm">
@@ -68,18 +53,17 @@ q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onActivated, onDeactivated } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
-import LearnCardNeeds from "./../components/LearnCardNeeds.vue";
+import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
 import { date } from 'quasar'
 const { formatDate, getDateDiff, startOfDate, addToDate, getMaxDate } = date;
-// import styles bundle //import 'swiper/css/bundle';
 
 defineOptions({
   preFetch() {
     const momentsStore = useMomentsStore()
-    console.log('In LearnTab preFetch')
+    console.log('In LearnTab > preFetch')
     return momentsStore.fetchAggregateData();
   }
 })
@@ -98,45 +82,27 @@ const momentsStore = useMomentsStore()
 // })
 
 const dateRangeButtonLabel = ref('This month')
+const toggleModel = ref('satisfaction')
+const clickedLearnPage = ref(false)
+const donutSwiperAndListRef = ref(null);
+
+const handlePageClick = (event) => {
+  console.log('In LearnTab > handlePageClick, event.target', event.target)
+
+  if (event.target.nodeName === 'CANVAS') {
+    // Click is inside the donut swiper, do nothing
+    console.log('In LearnTab > handlePageClick, event.target is of canva type, do nothing')
+    return;
+  }
+  // clickedLearnPage = true
+  console.log('In LearnTab > handlePageClick, event.target isnt of canva type, set clickedLearnPage to true')
+  clickedLearnPage.value = true
+}
+
 
 //SWIPER
-//TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
-const swiperElSatisfaction = ref(null)
-const swiperElImportance = ref(null)
-const swiperInitialized = ref(false)
 const activeIndex = ref(0)
-
-onActivated(() => {
-  console.log('ONACTIVATED')
-  if (!swiperInitialized.value) {
-    swiperElSatisfaction.value.initialize();
-    swiperElImportance.value.initialize();
-    swiperElSatisfaction.value.swiper.activeIndex = activeIndex.value
-    swiperElImportance.value.swiper.activeIndex = activeIndex.value
-    swiperElSatisfaction.value.swiper.slideTo(activeIndex.value, 0)
-    swiperElImportance.value.swiper.slideTo(activeIndex.value, 0)
-    swiperInitialized.value = true
-  }
-});
-onDeactivated(() => {
-  console.log('ONDEACTIVATED')
-  swiperInitialized.value = false
-});
-watch(activeIndex, (newVal, oldVal) => {
-  if (swiperInitialized.value) {
-    console.log('in activeIndex watcher, a 1 sec delay')
-    setTimeout(function () { //This weird hack seems to fix issue home>learn>2022>monthly>[was getting oct 2021, now gets jan 2022]
-      // nextTick(() => {
-      swiperElSatisfaction.value.swiper.activeIndex = newVal
-      swiperElImportance.value.swiper.activeIndex = newVal
-      swiperElSatisfaction.value.swiper.slideTo(newVal, 300)
-      swiperElImportance.value.swiper.slideTo(newVal, 300)
-      console.log('in activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
-      console.log('CHECK IMPORTANCE', swiperElImportance.value.swiper)
-      // })
-    }, 1);
-  }
-})
+//when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
 watch(() => momentsStore.shouldResetSwiper, (newVal) => {
   if (newVal && swiperInitialized.value) {
     if (segDateId.value === 'Monthly') {
@@ -150,44 +116,6 @@ watch(() => momentsStore.shouldResetSwiper, (newVal) => {
     momentsStore.shouldResetSwiper = false
   }
 })
-
-const secondSegSelectedSatisfaction = ref(false)
-const segmentedControlClicked = ({ value, flag }) => {
-  if (flag === 'satisfaction') {
-    secondSegSelectedSatisfaction.value = value
-    nextTick(() => {
-      swiperElSatisfaction.value.swiper.updateAutoHeight(300);
-    })
-  }
-}
-const learnCardExpandedSatisfaction = ref(false)
-const learnCardExpandedImportance = ref(false)
-const showButtonClicked = ({ value, flag }) => {
-  if (flag === 'satisfaction') {
-    learnCardExpandedSatisfaction.value = value
-    nextTick(() => {
-      swiperElSatisfaction.value.swiper.updateAutoHeight(300);
-    })
-  } else {
-    learnCardExpandedImportance.value = value
-    nextTick(() => {
-      swiperElImportance.value.swiper.updateAutoHeight(300);
-    })
-  }
-}
-const aggregateDataReady = ({ flag }) => {
-  if (swiperInitialized.value) {
-    if (flag === 'satisfaction') {
-      nextTick(() => {
-        swiperElSatisfaction.value.swiper.updateAutoHeight(300);
-      })
-    } else {
-      nextTick(() => {
-        swiperElImportance.value.swiper.updateAutoHeight(300);
-      })
-    }
-  }
-}
 
 //DATES MANAGEMENT
 const currentDate = computed(() => {
@@ -215,12 +143,12 @@ const dateRangesYears = computed(() => {
   for (let i = yearsSinceOldestMoment; i >= 0; i--) {
     dateRanges.push((currentDate.value.getFullYear() - i).toString());
   }
-  console.log('in computed dateRangesYears, dateRanges is', dateRanges)
+  console.log('In LearnTab > computed dateRangesYears, dateRanges is', dateRanges)
   return dateRanges;
 });
 watch(dateRangesYears, (newValue) => {
   activeIndex.value = newValue.length - 1;
-  console.log('in watch dateRangesYears updated activeIndex to', activeIndex.value)
+  console.log('In LearnTab > watch dateRangesYears updated activeIndex to', activeIndex.value)
 }, { immediate: true }
 );
 
@@ -232,16 +160,16 @@ const dateRangesMonths = computed(() => {
     dateRanges.push(`${trackingDate.getFullYear()}-${(trackingDate.getMonth() + 1).toString().padStart(2, '0')}`);
     trackingDate = addToDate(trackingDate, { months: 1 });
   }
-  console.log('in computed dateRangesMonths, dateRanges is', dateRanges)
+  console.log('In LearnTab > computed dateRangesMonths, dateRanges is', dateRanges)
   return dateRanges;
 });
 watch(dateRangesMonths, (newValue) => {
   activeIndex.value = newValue.length - 1;
-  console.log('in watch dateRangesMonths updated activeIndex to', activeIndex.value)
+  console.log('In LearnTab > watch dateRangesMonths updated activeIndex to', activeIndex.value)
 }, { immediate: true }
 );
 const dateRangesMonthsIdxToDate = (idx) => {
-  console.log('in dateRangesMonthsIdxToDate, idx', idx, 'dateRangesMonths.value[idx]', dateRangesMonths.value[idx])
+  console.log('In LearnTab > dateRangesMonthsIdxToDate, idx', idx, 'dateRangesMonths.value[idx]', dateRangesMonths.value[idx])
   const [yearStr, monthStr] = dateRangesMonths.value[idx].split('-');
   return new Date(Number(yearStr), Number(monthStr) - 1);
 }
@@ -263,7 +191,7 @@ const optionsFn = (date) => {
 }
 
 const updateDateButtonLabel = () => {
-  console.log('in updateDateButtonLabel, activeIndex.value', activeIndex.value)
+  console.log('In LearnTab > updateDateButtonLabel, activeIndex.value', activeIndex.value)
   if (segDateId.value === 'Yearly') {
     dateRangeButtonLabel.value = (currentDate.value.getFullYear() == dateRangesYears.value[activeIndex.value]) ? 'This year' : dateRangesYears.value[activeIndex.value].toString();
   }
@@ -280,7 +208,7 @@ const updateDateButtonLabel = () => {
 
 //EVENTS
 const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:1 pourrait etre un watch?
-  console.log('onUpdatePickedDate newVal', newVal)
+  console.log('In LearnTab > onUpdatePickedDate newVal', newVal)
   if (newVal) {
     if (segDateId.value === 'Monthly') {
       monthsKey.value = Date.now()
@@ -289,14 +217,14 @@ const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:
       yearsKey.value = Date.now()
       activeIndex.value = getDateDiff(newVal, oldestMomentDate.value, 'years');
     }
-    console.log('onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and oldestMomentDate.value", oldestMomentDate.value, "and segDateId.value", segDateId.value)
+    console.log('In LearnTab > onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and oldestMomentDate.value", oldestMomentDate.value, "and segDateId.value", segDateId.value)
     updateDateButtonLabel()
   }
 }
 
 //i.e. onSegmentControlChange
-watch(segDateId, (newVal, oldVal) => {
-  console.log('watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "oldestMomentDate.value", oldestMomentDate.value)
+watch(segDateId, (newVal) => {
+  console.log('In LearnTab > watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "oldestMomentDate.value", oldestMomentDate.value)
   if (newVal) {
     let max = getMaxDate(pickedDateYYYYsMMsDD.value, oldestMomentDate.value)
     pickedDateYYYYsMMsDD.value = formatDate(max, "YYYY/MM/DD")
@@ -305,12 +233,10 @@ watch(segDateId, (newVal, oldVal) => {
   }
 });
 
-const onActiveIndexChangeBySwiper = (event, flag) => {
-  console.log('SWIPER activeIndexChange fired with flag', flag, ', from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
+const onActiveIndexChangeBySwiper = (event) => {
+  console.log('In LearnTab > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
 
-  activeIndex.value = (flag === 'importance') ? swiperElImportance.value.swiper.activeIndex : swiperElSatisfaction.value.swiper.activeIndex
-
-  console.log('In onActiveIndexChangeBySwiper with flag', flag, ' activeIndex updated to ', activeIndex.value)
+  activeIndex.value = event.detail[0].activeIndex
 
   updateDateButtonLabel()
   if (segDateId.value === 'Monthly') {
@@ -327,25 +253,7 @@ const onActiveIndexChangeBySwiper = (event, flag) => {
   margin-right: 8px;
 }
 
-swiper-container {
-  // width: 100%;
-  // height: 100%;
-  // height: 100vh; // This will make the container fill the entire height of the screen
-  --swiper-pagination-color: #{$primary};
-  // --swiper-pagination-left: auto;
-  // --swiper-pagination-right: 8px;
-  // --swiper-pagination-bottom: 15px;
-  // --swiper-pagination-top: auto;
-  // --swiper-pagination-fraction-color: inherit;
-  // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
-  // --swiper-pagination-progressbar-size: 4px;
-  // --swiper-pagination-bullet-size: 12px;
-  // --swiper-pagination-bullet-width: 8px;
-  // --swiper-pagination-bullet-height: 8px;
-  // --swiper-pagination-bullet-inactive-color: #000;
-  // --swiper-pagination-bullet-inactive-opacity: 0.2;
-  // --swiper-pagination-bullet-opacity: 1;
-  // --swiper-pagination-bullet-horizontal-gap: 4px;
-  // --swiper-pagination-bullet-vertical-gap: 6px;
+.q-btn-group>.q-btn-item {
+  border-radius: 34px !important;
 }
 </style>

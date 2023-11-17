@@ -10,25 +10,7 @@
 
 const { configure } = require("quasar/wrappers");
 const path = require("path");
-
 const { sentryVitePlugin } = require("@sentry/vite-plugin");
-
-//automatically created vite.config.js after sentry init
-// import { defineConfig } from "vite";
-// import { sentryVitePlugin } from "@sentry/vite-plugin";
-// export default defineConfig({
-//   build: {
-//     sourcemap: true, // Source map generation must be turned on
-//   },
-//   plugins: [
-//     // Put the Sentry vite plugin after all other plugins
-//     sentryVitePlugin({
-//       authToken: process.env.SENTRY_AUTH_TOKEN,
-//       org: "kifkaf",
-//       project: "javascript-vue",
-//     }),
-//   ],
-// });
 
 // console.log("In quasar.config.js, process.env is", process.env);
 
@@ -51,7 +33,12 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
-    boot: ["firebaseBoot", "browserAddressbarColor", "swiperBoot"],
+    boot: [
+      "sentryBoot",
+      "firebaseBoot",
+      "browserAddressbarColor",
+      "swiperBoot",
+    ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ["app.scss"],
@@ -113,11 +100,6 @@ module.exports = configure(function (ctx) {
             org: "kifkaf",
             project: "javascript-vue",
           }),
-          // sentryVitePlugin({
-          //   authToken: process.env.SENTRY_AUTH_TOKEN_CAPACITOR,
-          //   org: "kifkaf",
-          //   project: "capacitor",
-          // }),
         );
 
         // viteConf.optimizeDeps = {
@@ -142,17 +124,6 @@ module.exports = configure(function (ctx) {
           },
         },
       },
-      // vitePlugins: [
-      //   // [ 'package-name', { ..options.. } ]
-      //   [
-      //     // Put the Sentry vite plugin after all other plugins
-      //     sentryVitePlugin({
-      //       authToken: process.env.SENTRY_AUTH_TOKEN,
-      //       org: "kifkaf",
-      //       project: "javascript-vue",
-      //     }),
-      //   ],
-      // ],
       alias: {
         "@capacitor": path.resolve(
           __dirname,

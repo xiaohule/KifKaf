@@ -91,7 +91,6 @@ const sendContactUsMessage = async () => {
     contactUsMessage.value = ''
     $q.notify({
       icon: 'done',
-      color: 'positive',
       message: 'Message sent to KifKaf team. Thank you!'
     })
   } catch (error) {

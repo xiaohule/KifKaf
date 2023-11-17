@@ -370,7 +370,6 @@ const updateSetting = async () => {
     editDialogOpened.value = false
     $q.notify({
       icon: 'done',
-      color: 'positive',
       message: currentSetting.value === 'displayName' ? 'Name updated' : currentSetting.value === 'email' ? 'Email updated' : 'Password updated'
     })
   } catch (error) {

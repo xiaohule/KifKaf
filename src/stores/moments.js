@@ -39,35 +39,63 @@ export const useMomentsStore = defineStore("moments", () => {
   const shouldResetSwiper = ref(false);
   const needsMap = ref({
     //add 'Work-Life Balance'?
-    "Physical Well-Being": ["🛡️", "Physiological & Safety"], //readd Physical safety dedans ou split
-    "Sustenance & Nourishment": ["🍎", "Physiological & Safety"],
-    Shelter: ["🏠", "Physiological & Safety"],
-    "Financial Security": ["💰", "Physiological & Safety"],
-    "Rest & Relaxation": ["🌙", "Physiological & Safety"], //🛋️ //🛌
-    "Physical Movement": ["🤸", "Physiological & Safety"],
-    "Emotional Safety & Inner Peace": ["🧘", "Physiological & Safety"], //"🤗",""],
-    "Boundaries & Privacy": ["🚪", "Physiological & Safety"],
-    "Physical Contact & Intimacy": ["👐", "Connection"],
-    "Contact with Nature": ["🏞️", "Connection"],
-    "Social Connection": ["👥", "Connection"],
-    "Belongingness & Community": ["🏘️", "Connection"],
-    "Support, Understanding & Validation": ["👂", "Connection"], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
-    "Affection & Love": ["❤️", "Connection"],
-    "Play, Humor & Entertainment": ["🎠", "Connection"], // "😂",""],"⚽",""],🎭
-    Autonomy: ["🛤️", "Esteem"],
-    "Self-Esteem & Social Recognition": ["💪", "Esteem"],
-    "Competence & Effectiveness": ["🎯", "Esteem"],
-    "Self-Expression & Creativity": ["🎨", "Esteem"],
-    "Exploration, Novelty & Inspiration": ["🌌", "Personal Growth"], //🌎 // réduire à Exploration & Novelty?
-    Learning: ["📚", "Personal Growth"],
-    "Self-Actualization": ["🌱", "Personal Growth"], //merge learning and self-actualization?
-    Challenge: ["⛰️", "Personal Growth"],
-    "Outward Care & Contribution": ["🤲", "Meaning & Transcendence"], //break in 2?
-    "Fairness & Justice": ["⚖️", "Meaning & Transcendence"], //🕊️
-    "Order & Structure": ["📐", "Meaning & Transcendence"],
-    "Meaning & Purpose": ["🧭", "Meaning & Transcendence"], //🌌
-    "Gratitude & Celebration": ["🎈", "Meaning & Transcendence"], //🎉 //🕯️
-    "Spiritual Transcendence": ["🌸", "Meaning & Transcendence"],
+    "Physical Well-Being": ["🛡️", "Physiological & Safety", "soft-green-need"], //readd Physical safety dedans ou split
+    "Sustenance & Nourishment": [
+      "🍎",
+      "Physiological & Safety",
+      "soft-green-need",
+    ],
+    Shelter: ["🏠", "Physiological & Safety", "soft-green-need"],
+    "Financial Security": ["💰", "Physiological & Safety", "soft-green-need"],
+    "Rest & Relaxation": ["🌙", "Physiological & Safety", "soft-green-need"], //🛋️ //🛌
+    "Physical Movement": ["🤸", "Physiological & Safety", "soft-green-need"],
+    "Emotional Safety & Inner Peace": [
+      "🧘",
+      "Physiological & Safety",
+      "soft-green-need",
+    ], //"🤗",""],
+    "Boundaries & Privacy": ["🚪", "Physiological & Safety", "soft-green-need"],
+    "Physical Contact & Intimacy": ["👐", "Connection", "warm-coral-need"],
+    "Contact with Nature": ["🏞️", "Connection", "warm-coral-need"],
+    "Social Connection": ["👥", "Connection", "warm-coral-need"],
+    "Belongingness & Community": ["🏘️", "Connection", "warm-coral-need"],
+    "Support, Understanding & Validation": [
+      "👂",
+      "Connection",
+      "warm-coral-need",
+    ], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
+    "Affection & Love": ["❤️", "Connection", "warm-coral-need"],
+    "Play, Humor & Entertainment": ["🎠", "Connection", "warm-coral-need"], // "😂",""],"⚽",""],🎭
+    Autonomy: ["🛤️", "Esteem", "muted-blue-need"],
+    "Self-Esteem & Social Recognition": ["💪", "Esteem", "muted-blue-need"],
+    "Competence & Effectiveness": ["🎯", "Esteem", "muted-blue-need"],
+    "Self-Expression & Creativity": ["🎨", "Esteem", "muted-blue-need"],
+    "Exploration, Novelty & Inspiration": [
+      "🌌",
+      "Personal Growth",
+      "lavender-need",
+    ], //🌎 // réduire à Exploration & Novelty?
+    Learning: ["📚", "Personal Growth", "lavender-need"],
+    "Self-Actualization": ["🌱", "Personal Growth", "lavender-need"], //merge learning and self-actualization?
+    Challenge: ["⛰️", "Personal Growth", "lavender-need"],
+    "Outward Care & Contribution": [
+      "🤲",
+      "Meaning & Transcendence",
+      "serene-teal-need",
+    ], //break in 2?
+    "Fairness & Justice": ["⚖️", "Meaning & Transcendence", "serene-teal-need"], //🕊️
+    "Order & Structure": ["📐", "Meaning & Transcendence", "serene-teal-need"],
+    "Meaning & Purpose": ["🧭", "Meaning & Transcendence", "serene-teal-need"], //🌌
+    "Gratitude & Celebration": [
+      "🎈",
+      "Meaning & Transcendence",
+      "serene-teal-need",
+    ], //🎉 //🕯️
+    "Spiritual Transcendence": [
+      "🌸",
+      "Meaning & Transcendence",
+      "serene-teal-need",
+    ],
   });
   const needsCategories = ref({
     "Physiological & Safety": "health_and_safety",
@@ -114,7 +142,7 @@ export const useMomentsStore = defineStore("moments", () => {
             const userDocData = userDoc.data();
             const updates = Object.keys(defaultUserDocValues).reduce(
               (acc, key) => {
-                if (!userDocData[key]) {
+                if (userDocData[key] === undefined) {
                   acc[key] = defaultUserDocValues[key];
                 }
                 return acc;
@@ -125,7 +153,8 @@ export const useMomentsStore = defineStore("moments", () => {
 
             if (Object.keys(updates).length > 0) {
               console.log(
-                "In moments.js > fetchUser, User doc not complete, updating it",
+                "In moments.js > fetchUser, User doc not complete, updating it with updates:",
+                updates,
               );
               transaction.update(userDocRef.value, updates);
             }
@@ -388,19 +417,6 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.hasNeeds ?? false;
   });
 
-  watch(
-    hasNeeds,
-    async (newVal) => {
-      if (
-        newVal &&
-        (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
-      ) {
-        await setWelcomeTutorialStep(1);
-      }
-    },
-    { immediate: true },
-  );
-
   const addMoment = async (moment) => {
     try {
       console.log("In addMoment for:", moment);
@@ -437,6 +453,8 @@ export const useMomentsStore = defineStore("moments", () => {
 
       await batch.commit();
 
+      if (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
+        await setWelcomeTutorialStep(1);
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
@@ -455,7 +473,6 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       );
       console.log("In addMoment", response.data);
-
       Notify.create("Needs analysis complete.");
     } catch (error) {
       console.log("Error in addMoment", error);

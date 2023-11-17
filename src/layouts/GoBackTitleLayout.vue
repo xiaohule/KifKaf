@@ -42,10 +42,10 @@ const router = useRouter()
 
 const goBack = async () => {
   if (window.history.length > 1) {
-    console.log('In goBack, history.length:', window.history.length)
+    // console.log('In goBack, history.length:', window.history.length)
     router.go(-1) // Go back to the previous page if there's a history
   } else {
-    console.log('In goBack, history.length:', window.history.length, "going to home")
+    // console.log('In goBack, history.length:', window.history.length, "going to home")
     router.push({ path: '/' }) // Redirect to root if there's no history
   }
 }
