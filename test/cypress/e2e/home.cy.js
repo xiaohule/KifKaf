@@ -120,7 +120,7 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.contains("Home").should("be.visible");
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
-    cy.reload();
+    cy.visit("/");
     //can navigate to Learn>Home>Settings>Home
     cy.wait(1000);
 
