@@ -91,7 +91,13 @@ $colors: (
   shadow-dark: #000000,
   surface-tint-dark: #b1c6ff,
   outline-variant-dark: #44464f,
-  scrim-dark: #000000
+  scrim-dark: #000000,
+
+  soft-green-need: #a3d9a5,
+  warm-coral-need: #ffab91,
+  muted-blue-need: #669db3ff,
+  lavender-need: #b39ddb,
+  serene-teal-need: #80cbc4
 );
 
 @each $color-name, $color-value in $colors {
