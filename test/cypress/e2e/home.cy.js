@@ -123,8 +123,9 @@ describe("Checking main screens & Moments inputting", () => {
     //can navigate to Learn>Home>Settings>Home
     cy.dataCy("insights-tab").click();
     cy.url().should("include", "learn");
-    cy.contains("Needs Importance").should("be.visible");
-    cy.contains("Satisfied").should("be.visible");
+    cy.contains("Satisfiers").should("be.visible");
+    cy.contains("Dissatisfiers").should("be.visible");
+    cy.contains("All").should("be.visible");
     cy.contains(
       "Add Moments in the Home tab to learn more about your needs!",
     ).should("be.visible");
@@ -174,8 +175,12 @@ describe("Insights Stats validation", () => {
       cy.contains("Done").should("be.visible").click();
     });
     cy.wait(1000);
+    cy.contains("Physical Well-Being").should("be.visible");
     //expand Needs Satisfaction section
-    cy.get(".swiper-slide-active").first().contains("Show more").click();
+    cy.get(".swiper-slide-active")
+      .first()
+      .contains("Satisfiers")
+      .should("be.visible");
     // cy.get(".swiper-slide-active").then(($els) => {
     //   for (const item of momentsStats2023Data) {
     //     if ($els.first().text().includes(item.tag)) {
@@ -202,9 +207,12 @@ describe("Insights Stats validation", () => {
     //   }
     // });
 
-    cy.contains("Satisfied").each(($el) => {
-      cy.wrap($el).click({ force: true });
-    });
+    cy.contains("Dissatisfiers").should("be.visible").click();
+    cy.contains("Emotional Safety").should("be.visible");
+
+    // cy.contains("Satisfied").each(($el) => {
+    //   cy.wrap($el).click({ force: true });
+    // });
     // cy.get(".swiper-slide-active").each(($el, index, $list) => {
     //   cy.wrap($el).as("swiper");
     //   cy.get("@swiper").contains("Satisfied").as("satisfied");
@@ -286,7 +294,7 @@ describe("Insights Stats validation", () => {
     cy.contains("Monthly").click();
     cy.contains("Sep").click();
     cy.contains("Done").click();
-    cy.contains("No unsatisfied needs for this period").should("be.visible");
+    cy.contains("No satisfied needs for this period.").should("be.visible");
   });
 });
 

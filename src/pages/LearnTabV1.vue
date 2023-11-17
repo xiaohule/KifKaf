@@ -1,6 +1,6 @@
 <!-- Here we handle date and data grouping selections -->
 <template >
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px">
+  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px" @click="clickedLearnPage = true">
     <!-- TODO:4 add nice instructive empty state, animation prompting user to come back after adding moments or showing an example of this screen -->
     <q-item class="q-px-none q-pt-none">
       <q-item-section class=" col-auto">
@@ -17,8 +17,9 @@
       ]" />
 
     <donut-swiper-and-list :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears"
-      :active-index="activeIndex" :toggle-value="toggleModel"
-      @update:active-index="onActiveIndexChangeBySwiper"></donut-swiper-and-list>
+      :active-index="activeIndex" :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
+      @update:active-index="onActiveIndexChangeBySwiper"
+      @reset:clickedLearnPage="clickedLearnPage = false"></donut-swiper-and-list>
 
     <q-dialog v-model="filterDialogOpened" position="bottom">
       <q-card class="bg-background q-px-sm">
@@ -82,6 +83,7 @@ const momentsStore = useMomentsStore()
 
 const dateRangeButtonLabel = ref('This month')
 const toggleModel = ref('satisfaction')
+const clickedLearnPage = ref(false)
 
 //SWIPER
 const activeIndex = ref(0)

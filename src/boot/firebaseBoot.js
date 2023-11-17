@@ -99,7 +99,7 @@ try {
   onAuthStateChanged(getFirebaseAuth(), (user) => {
     // console.log("onAuthStateChanged", user);
     currentUser.value = user;
-    Sentry.setUser({ id: user.uid });
+    if (user?.uid) Sentry.setUser({ id: user.uid });
     isLoadingAuth.value = false;
     // else router.push("/login");
   });

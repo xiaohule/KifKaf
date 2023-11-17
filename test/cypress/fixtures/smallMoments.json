@@ -93,5 +93,33 @@
     "satisfactions": [],
     "importances": [],
     "comment": ""
+  },
+  {
+    "date": "2022-12-10",
+    "intensity": 2,
+    "text": "Feeling content and proud when theorizing about office locking and my chance bec. I like feeling different and free",
+    "tags": ["autonomy", "proud"],
+    "needs": [
+      "Emotional Safety & Inner Peace",
+      "Self-Esteem & Social Recognition",
+      "Autonomy"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "* , satis explicit - imp deduc, satis explicit - imp explicit"
+  },
+  {
+    "date": "2021-08-29",
+    "intensity": -4,
+    "text": "Feeling incapable to help mam when she tells me she's not going well on phone call bec. hard to see loved ones struggle",
+    "tags": ["mum", "phone"],
+    "needs": [
+      "Competence & Effectiveness",
+      "Emotional Safety & Inner Peace",
+      "Outward Care & Contribution"
+    ],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "is explicit - imp deduc, is explicit - imp deduc, sm is deduc - imp deduc"
   }
 ]
