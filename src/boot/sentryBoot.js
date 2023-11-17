@@ -11,7 +11,7 @@ export default boot(({ app, router }) => {
       release: `kifkaf-app@${process.env.__APP_VERSION__}`,
       dist: process.env.__BUILD_NUMBER__,
       environment: process.env.NODE_ENV,
-      // debug: process.env.NODE_ENV === "development", //TODO:6 remove before prod
+      // debug: process.env.NODE_ENV === "development", //To remove before prod
       integrations: [
         new SentryVue.BrowserTracing({
           // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
@@ -45,7 +45,7 @@ export default boot(({ app, router }) => {
             release: `kifkaf-app@${process.env.__APP_VERSION__}`,
             dist: process.env.__BUILD_NUMBER__,
             environment: process.env.NODE_ENV,
-            // debug: process.env.NODE_ENV === "development", //TODO:6 remove before prod
+            // debug: process.env.NODE_ENV === "development", //To remove before prod
             trackComponents: true,
             integrations: [
               // Registers and configures the Tracing integration,

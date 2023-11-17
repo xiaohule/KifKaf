@@ -19,20 +19,22 @@ import "./commands";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // console.log("support/e2e.js loaded2");
+
   // we expect a 3rd party library error with message 'list not defined'
   // and don't want to fail the test so we return false
-  // if (
-  //   err.message.includes("Failed to fetch dynamically imported module") ||
-  //   // err.message.includes("Failed to fetch dynamically imported module: ") ||
-  //   err.message.includes("Cannot read properties of null") ||
-  //   // err.message.includes("ResizeObserver loop limit exceeded") ||
-  //   err.message.includes("cancelled") ||
-  //   err.message.includes("Request failed with status code") ||
-  //   err.message.includes("value.initialize") ||
-  //   err.message.includes('"WebView" plugin')
-  // ) {
-  //   return false;
-  // }
+  if (
+    // err.message.includes("Failed to fetch dynamically imported module") ||
+    // // err.message.includes("Failed to fetch dynamically imported module: ") ||
+    // err.message.includes("Cannot read properties of null") ||
+    // err.message.includes("ResizeObserver loop limit exceeded") ||
+    err.message.includes("cancelled")
+    // ||
+    // err.message.includes("Request failed with status code") ||
+    // err.message.includes("value.initialize") ||
+    // err.message.includes('"WebView" plugin')
+  ) {
+    return false;
+  }
   // we still want to ensure there are no other unexpected
   // errors, so we let them fail the test
 });

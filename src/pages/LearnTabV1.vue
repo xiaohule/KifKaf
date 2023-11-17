@@ -1,7 +1,6 @@
 <!-- Here we handle date and data grouping selections -->
 <template >
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px" @click="clickedLearnPage = true">
-    <!-- TODO:4 add nice instructive empty state, animation prompting user to come back after adding moments or showing an example of this screen -->
+  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px" @click="handlePageClick">
     <q-item class="q-px-none q-pt-none">
       <q-item-section class=" col-auto">
         <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background"
@@ -16,8 +15,9 @@
         { label: 'All', value: 'importance' }
       ]" />
 
-    <donut-swiper-and-list :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears"
-      :active-index="activeIndex" :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
+    <donut-swiper-and-list ref="donutSwiperAndListRef"
+      :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears" :active-index="activeIndex"
+      :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
       @update:active-index="onActiveIndexChangeBySwiper"
       @reset:clickedLearnPage="clickedLearnPage = false"></donut-swiper-and-list>
 
@@ -84,6 +84,21 @@ const momentsStore = useMomentsStore()
 const dateRangeButtonLabel = ref('This month')
 const toggleModel = ref('satisfaction')
 const clickedLearnPage = ref(false)
+const donutSwiperAndListRef = ref(null);
+
+const handlePageClick = (event) => {
+  console.log('In LearnTab > handlePageClick, event.target', event.target)
+
+  if (event.target.nodeName === 'CANVAS') {
+    // Click is inside the donut swiper, do nothing
+    console.log('In LearnTab > handlePageClick, event.target is of canva type, do nothing')
+    return;
+  }
+  // clickedLearnPage = true
+  console.log('In LearnTab > handlePageClick, event.target isnt of canva type, set clickedLearnPage to true')
+  clickedLearnPage.value = true
+}
+
 
 //SWIPER
 const activeIndex = ref(0)

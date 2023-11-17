@@ -96,20 +96,25 @@ const handleClick = (evt, item, chart) => {
 
   console.log('In donutChart ', props.dateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
   // Check if any segment is clicked
-  isSegmentClicked.value = item.length > 0;
-  clickedIndex.value = isSegmentClicked.value ? item[0].index : null;
 
-  console.log('In donutChart ', props.dateRange, ' > handleClick isSegmentClicked:', isSegmentClicked.value, "clickedIndex:", clickedIndex.value);
-  if (isSegmentClicked.value) {
+  if (item.length > 0 && clickedIndex.value !== item[0].index) {
+    isSegmentClicked.value = true;
+    clickedIndex.value = item[0].index;
+
     console.log('In donutChart ', props.dateRange, ' > handleClick emits click:segment with', { needName: chartData.value.datasets[0].labels[clickedIndex.value] });
+
     emits('click:segment', { needName: chartData.value.datasets[0].labels[clickedIndex.value] })
-    console.log('In donutChart ', props.dateRange, ' > handleClick chartData.value.datasets[0].backgroundColor:', chartData.value.datasets[0].backgroundColor);
     chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
       // If the segment is clicked, ensure it's coloured, for other segments, ensure they are greyed out
       colors[index] = index === clickedIndex.value ? chartData.value.datasets[0].originalBackgroundColor[index] : '#c0c6dc';
     });
   }
   else {
+    isSegmentClicked.value = false;
+    clickedIndex.value = null;
+
+    console.log('In donutChart ', props.dateRange, ' > handleClick emits click:segment with null');
+
     emits('click:segment', { needName: null })
     chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
       // Reset to original color when clicking outside
