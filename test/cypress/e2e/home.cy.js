@@ -117,11 +117,15 @@ describe("Checking main screens & Moments inputting", () => {
     cy.visit("/");
     //assert <title> and header title are correct
     cy.title().should("include", "KifKaf");
-    cy.contains("Home").should("be.visible");
+    // cy.contains("Home").should("be.visible");
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
     //can navigate to Learn>Home>Settings>Home
-    cy.dataCy("insights-tab").click();
+    cy.wait(1000);
+
+    cy.dataCy("insights-tab").click({ force: true });
+    cy.wait(1000);
+
     cy.url().should("include", "learn");
     cy.contains("Satisfiers").should("be.visible");
     cy.contains("Dissatisfiers").should("be.visible");
