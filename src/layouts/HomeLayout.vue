@@ -33,7 +33,7 @@
     <q-footer class="bg-transparent footer-blurred" bordered>
       <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
         class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
-        <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" />
+        <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" data-cy="home-tab" />
         <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/learn" class="q-pt-xs q-pb-lg"
           data-cy="insights-tab" />
         <!-- ou stats ou needs ou learn -->

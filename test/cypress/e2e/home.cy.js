@@ -123,7 +123,11 @@ describe("Checking main screens & Moments inputting", () => {
     //can navigate to Learn>Home>Settings>Home
     cy.wait(1000);
 
-    cy.dataCy("insights-tab").click({ force: true });
+    cy.dataCy("insights-tab").click();
+    cy.wait(1000);
+
+    cy.dataCy("home-tab").click();
+    cy.dataCy("insights-tab").click();
     cy.wait(1000);
 
     cy.url().should("include", "learn");
