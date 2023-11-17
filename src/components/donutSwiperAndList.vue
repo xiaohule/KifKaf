@@ -184,7 +184,7 @@ watch(() => props.toggleValue, () => {
 })
 
 // watch(() => momentsStore.aggregateData && momentsStore.aggregateData[props.dateRanges[props.activeIndex]] && momentsStore.aggregateData[props.dateRanges[props.activeIndex]][props.toggleValue], (newVal) => {
-//   // console.log('In LearnCardNeeds, watch XXX55', newVal, ", replaced:", oldVal);
+//   // console.log('In donutSwiperAndList, watch XXX55', newVal, ", replaced:", oldVal);
 //   if (newVal && newVal.length > 0 && swiperElChart.value && swiperElChart.value.swiper) {
 
 //     nextTick(() => {
