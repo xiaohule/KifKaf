@@ -14,7 +14,7 @@
           :color="momentsStore.needsMap[chartData.datasets[0].labels[clickedIndex]][2]">
           {{ momentsStore.needsMap[chartData.datasets[0].labels[clickedIndex]][0] }}
         </q-avatar>
-        <div class="text-body2 text-center q-my-sm">{{ chartData.datasets[0].labels[clickedIndex]
+        <div class="text-body2 text-center q-mt-md q-mb-sm">{{ chartData.datasets[0].labels[clickedIndex]
         }}</div>
         <div class="text-h3 text-on-surface text-weight-bolder text-center">{{
           parseFloat((chartData.datasets[0].data[clickedIndex] *
@@ -120,7 +120,7 @@ const handleClick = (evt, item, chart) => {
 }
 
 const chartOptions = ref({
-  cutout: '90%',
+  cutout: '88%',
   spacing: 30,
   borderRadius: 14,
   // borderColor: 'rgba(20, 32, 43, 12)',

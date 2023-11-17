@@ -10,7 +10,7 @@
     </q-item>
 
     <q-btn-toggle v-model="toggleModel" class="q-gutter-sm q-mb-sm" color="transparent" text-color="outline"
-      toggle-color="surface" toggle-text-color="on-surface" unelevated no-caps :options="[
+      toggle-color="surface" toggle-text-color="on-surface" unelevated no-caps ripple="false" :options="[
         { label: 'Satisfiers', value: 'satisfaction' },
         { label: 'Dissatisfiers', value: 'unsatisfaction' },
         { label: 'All', value: 'importance' }
