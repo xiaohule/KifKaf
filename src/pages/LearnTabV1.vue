@@ -15,7 +15,7 @@
         { label: 'All', value: 'importance' }
       ]" />
 
-    <donut-swiper-and-list ref="donutSwiperAndListRef"
+    <donut-swiper-and-list v-if="activeIndex !== undefined" ref="donutSwiperAndListRef"
       :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears" :active-index="activeIndex"
       :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
       @update:active-index="onActiveIndexChangeBySwiper"
@@ -91,7 +91,7 @@ const handlePageClick = (event) => {
 
   if (event.target.nodeName === 'CANVAS') {
     // Click is inside the donut swiper, do nothing
-    console.log('In LearnTab > handlePageClick, event.target is of canva type, do nothing')
+    console.log('In LearnTab > handlePageClick, event.target is of canvas type, do nothing')
     return;
   }
   // clickedLearnPage = true
@@ -101,10 +101,10 @@ const handlePageClick = (event) => {
 
 
 //SWIPER
-const activeIndex = ref(0)
+const activeIndex = ref(null)
 //when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
 watch(() => momentsStore.shouldResetSwiper, (newVal) => {
-  if (newVal && swiperInitialized.value) {
+  if (newVal) {
     if (segDateId.value === 'Monthly') {
       activeIndex.value = dateRangesMonths.value.length - 1;
       updateDateButtonLabel()
@@ -149,8 +149,7 @@ const dateRangesYears = computed(() => {
 watch(dateRangesYears, (newValue) => {
   activeIndex.value = newValue.length - 1;
   console.log('In LearnTab > watch dateRangesYears updated activeIndex to', activeIndex.value)
-}, { immediate: true }
-);
+});
 
 const dateRangesMonths = computed(() => {
   const dateRanges = [];
@@ -199,9 +198,10 @@ const updateDateButtonLabel = () => {
     if (currentYYYYdMM.value == dateRangesMonths.value[activeIndex.value]) {
       dateRangeButtonLabel.value = 'This month';
     } else {
-      dateRangeButtonLabel.value = (dateRangesMonthsIdxToDate(activeIndex.value).getFullYear() === currentDate.value.getFullYear())
-        ? formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM')
-        : formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM YYYY');
+      const dateRangesMonthsDate = dateRangesMonthsIdxToDate(activeIndex.value);
+      dateRangeButtonLabel.value = (dateRangesMonthsDate.getFullYear() === currentDate.value.getFullYear())
+        ? formatDate(dateRangesMonthsDate, 'MMMM')
+        : formatDate(dateRangesMonthsDate, 'MMMM YYYY');
     }
   }
 }

@@ -1,15 +1,15 @@
 <!-- here we build the correct swiper based on the periodicity and data grouping picked in parent component. We display it at the correct position and next to the correct needs list based on the date range picked in parent component -->
-<!-- init="false" auto-height="true" -->
 <template >
-  <swiper-container ref="swiperElChart" observer="true" observe-slide-children="true" grab-cursor="true"
-    pagination-dynamic-bullets="true" @activeindexchange="onActiveIndexChangeBySwiper" virtual="true">
-    <!-- TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for -->
-    <!-- @update:chartData="   nextTick(() => {swiperElChart.swiper.updateAutoHeight(300);})" -->
+  <!-- TODO:2 for performance, we could move to append slides when many of them instead of pre-creating all of them and using v-for -->
+  <swiper-container v-if="swiperLoaded" ref="swiperElChart" :init="true" :observer="true" :observe-slide-children="true"
+    :grab-cursor="true" :pagination="{ dynamicBullets: true }"
+    :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }"
+    @swiperactiveindexchange="onActiveIndexChangeBySwiper" @swiperafterinit="swiperAfterInit"
+    @swiperupdate="console.log('In donutSwiperAndList > swiper update event fired')">
     <swiper-slide v-for="range in props.dateRanges" :key="range">
       <donut-chart :date-range="range" :toggle-value="props.toggleValue" :percentage-threshold="percentageThreshold"
-        :clicked-outside="props.clickedLearnPage" @click:segment="donutSegmentClicked" class="q-pt-none q-pt-xs"
-        style="padding-bottom: 40px;" />
-      <!-- <div class="swiper-lazy-preloader"></div> -->
+        :is-active="props.activeIndex == props.dateRanges.indexOf(range)" :clicked-outside="props.clickedLearnPage"
+        @click:segment="donutSegmentClicked" class="q-pt-none q-pt-xs" style="padding-bottom: 40px;" />
     </swiper-slide>
   </swiper-container>
 
@@ -78,7 +78,7 @@
 </template>
 
 <script setup>
-import { watch, ref, onActivated, nextTick, computed } from 'vue'
+import { watch, ref, nextTick, computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import donutChart from "./../components/donutChart.vue";
 
@@ -106,35 +106,11 @@ const props = defineProps({
 const emits = defineEmits(['update:activeIndex', 'reset:clickedLearnPage'])
 
 //SWIPER
-//TODO:2 for performance, we should move to append slides when many of them instead of pre-creating all of them and using v-for
 const swiperElChart = ref(null)
-// const swiperInitialized = ref(false)
 const displayOnlyOneNeed = ref(null)
 const percentageThreshold = ref(0.05)
-
-onActivated(() => {
-  console.log('In donutSwiperAndList > ONACTIVATED')
-  // if (!swiperInitialized.value) {
-  if (swiperElChart.value && swiperElChart.value.swiper) {
-    // swiperElChart.value.initialize();
-    swiperElChart.value.swiper.activeIndex = props.activeIndex
-    swiperElChart.value.swiper.slideTo(props.activeIndex, 0)
-    // swiperInitialized.value = true
-  }
-});
-
-// onDeactivated(() => {
-//   console.log('In donutSwiperAndList > ONDEACTIVATED')
-//   // swiperInitialized.value = false
-// });
-
-const onActiveIndexChangeBySwiper = (event) => {
-  console.log('In donutSwiperAndList > > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
-
-  emits('update:activeIndex', event)
-}
-
-const valueToDisplay = computed(() => {
+const swiperLoaded = ref(true)
+const toggleValueDataKey = computed(() => {
   if (props.toggleValue == 'satisfaction') {
     return 'satisfactionImpactLabelValue'
   }
@@ -146,6 +122,20 @@ const valueToDisplay = computed(() => {
   }
 })
 
+const swiperAfterInit = () => {
+  nextTick(() => {
+    console.log('In donutSwiperAndList > afterinit fired,  sliding to props.activeIndex', props.activeIndex)
+    // swiperElChart.value.swiper.activeIndex = props.activeIndex
+    swiperElChart.value.swiper.slideTo(props.activeIndex, 0)
+  })
+}
+
+const onActiveIndexChangeBySwiper = (event) => {
+  console.log('In donutSwiperAndList > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
+
+  emits('update:activeIndex', event)
+}
+
 const itemsToDisplay = computed(() => {
   console.log('In donutSwiperAndList > itemsToDisplay', props.dateRanges[props.activeIndex], props.toggleValue, percentageThreshold.value, displayOnlyOneNeed.value)
   return momentsStore.aggregateData &&
@@ -153,45 +143,35 @@ const itemsToDisplay = computed(() => {
     momentsStore.aggregateData[props.dateRanges[props.activeIndex]][props.toggleValue]?.filter(item => {
       switch (displayOnlyOneNeed.value) {
         case null:
-          return item[valueToDisplay.value] > percentageThreshold.value;
+          return item[toggleValueDataKey.value] > percentageThreshold.value;
         case "Others":
-          return item[valueToDisplay.value] <= percentageThreshold.value;
+          return item[toggleValueDataKey.value] <= percentageThreshold.value;
         default:
           return item.needName == displayOnlyOneNeed.value;
       }
     });
-
 })
 
+//set to immediate to react to activeIndex change from parent at initialization
 watch(() => props.activeIndex, (newVal, oldVal) => {
-  // if (swiperInitialized.value) {
+  console.log('In donutSwiperAndList > props.activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
   if (swiperElChart.value && swiperElChart.value.swiper) {
-
-    // console.log('In donutSwiperAndList > props.activeIndex watcher, a 1 sec delay')
-    setTimeout(function () { //This weird hack seems to fix issue home>learn>2022>monthly>[was getting oct 2021, now gets jan 2022]
-      // nextTick(() => {
-      swiperElChart.value.swiper.activeIndex = newVal
-      swiperElChart.value.swiper.slideTo(newVal, 300)
-      console.log('In donutSwiperAndList > props.activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal)
-      // console.log('In donutSwiperAndList > props.activeIndex watcher, swiperElChart.value.swiper', swiperElChart.value.swiper)
-      // })
-    }, 1);
+    swiperElChart.value.swiper.slideTo(newVal, 0)
   }
+}, { immediate: true })
+
+//kill-restart swiper when dateRanges change
+watch(() => props.dateRanges, (newVal, oldVal) => {
+  console.log('In donutSwiperAndList > props.dateRanges watcher, dateRanges changed from', oldVal, 'to', newVal, 'reloading swiper container')
+  swiperLoaded.value = false
+  nextTick(() => {
+    swiperLoaded.value = true
+  })
 })
 
 watch(() => props.toggleValue, () => {
   displayOnlyOneNeed.value = null
 })
-
-// watch(() => momentsStore.aggregateData && momentsStore.aggregateData[props.dateRanges[props.activeIndex]] && momentsStore.aggregateData[props.dateRanges[props.activeIndex]][props.toggleValue], (newVal) => {
-//   // console.log('In donutSwiperAndList, watch XXX55', newVal, ", replaced:", oldVal);
-//   if (newVal && newVal.length > 0 && swiperElChart.value && swiperElChart.value.swiper) {
-
-//     nextTick(() => {
-//       swiperElChart.value.swiper.updateAutoHeight(300);
-//     })
-//   }
-// }, { immediate: true })
 
 const donutSegmentClicked = ({ needName }) => {
   console.log('In donutSwiperAndList > donutSegmentClicked for:', needName)

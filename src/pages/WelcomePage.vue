@@ -12,8 +12,8 @@
     </q-header> -->
 
     <!-- pagination-clickable="true"  class="mySwiper" navigation="true" space-between="30"-->
-    <swiper-container pagination="true" centered-slides="true" autoplay-delay="5000" autoplay-pause-on-mouse-enter="true"
-      grab-cursor="true" autoplay-disable-on-interaction="false">
+    <swiper-container :pagination="true" :centered-slides="true" autoplay-delay="5000"
+      :autoplay-pause-on-mouse-enter="true" :grab-cursor="true" :autoplay-disable-on-interaction="false">
       <swiper-slide> <img src="/screenshot1.png"
           style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
       <swiper-slide> <img src="/screenshot2.png"

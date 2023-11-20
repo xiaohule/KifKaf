@@ -12,12 +12,10 @@
 
     <q-page-container>
       <router-view v-slot="{ Component }">
-        <!-- <keep-alive> -->
         <!-- mode="out-in" -->
         <!-- <transition appear enter-active-class="animated slideInRight" leave-active-class="animated slideOutRight"> -->
         <!-- <transition name="slide-fade"> -->
         <component :is="Component" />
-        <!-- </keep-alive> -->
         <!-- </transition> -->
       </router-view>
     </q-page-container>

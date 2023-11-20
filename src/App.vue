@@ -2,9 +2,7 @@
   <router-view v-slot="{ Component }">
     <!-- <router-view v-slot="{ Component, route }"> -->
     <!-- <transition :name="route.meta.transition"> -->
-    <!-- <keep-alive> -->
     <component :is="Component" />
-    <!-- </keep-alive> -->
     <!-- </transition> -->
   </router-view>
 </template>

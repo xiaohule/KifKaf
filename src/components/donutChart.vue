@@ -8,7 +8,6 @@
     <div class="overlay-content" style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);">
       <!-- Your HTML content here -->
       <div v-if="isSegmentClicked">
-        <!-- align-items: center;  -->
         <q-avatar v-if="chartData.datasets[0].labels[clickedIndex] !== 'Others'" size="84px" font-size="56px"
           style="align-items: center; justify-content: center; display: flex; margin: 0 auto 8px;"
           :color="momentsStore.needsMap[chartData.datasets[0].labels[clickedIndex]][2]">
@@ -54,6 +53,10 @@ const props = defineProps({
   clickedOutside: {
     type: Boolean,
     default: false,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -143,69 +146,71 @@ const chartOptions = ref({
 })
 
 watchEffect(() => {
-  console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect called');
 
-  if (momentsStore.aggregateData) {
+  if (props.isActive && props.dateRange && props.toggleValue) {
+    console.log('In donutChart for ', props.toggleValue, ' ', props.dateRange, 'with props.isActive ', props.isActive, ' > watchEffect called');
+    if (momentsStore.aggregateData) {
 
-    if (
-      momentsStore.aggregateData[props.dateRange] &&
-      momentsStore.aggregateData[props.dateRange][props.toggleValue]) {
-      loaded.value = false
-      const needsData = momentsStore?.aggregateData[props.dateRange][props.toggleValue]
-        .filter(item => item[props.toggleValue == 'satisfaction' ? 'satisfactionImpactLabelValue' : (props.toggleValue == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] > props.percentageThreshold)
-        .map(item => {
-          return {
-            needName: item.needName,
-            data: item[props.toggleValue == 'satisfaction' ? 'satisfactionImpactLabelValue' : (props.toggleValue == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')],
-          }
+      if (
+        momentsStore.aggregateData[props.dateRange] &&
+        momentsStore.aggregateData[props.dateRange][props.toggleValue]) {
+        loaded.value = false
+        const needsData = momentsStore?.aggregateData[props.dateRange][props.toggleValue]
+          .filter(item => item[props.toggleValue == 'satisfaction' ? 'satisfactionImpactLabelValue' : (props.toggleValue == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] > props.percentageThreshold)
+          .map(item => {
+            return {
+              needName: item.needName,
+              data: item[props.toggleValue == 'satisfaction' ? 'satisfactionImpactLabelValue' : (props.toggleValue == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')],
+            }
+          })
+
+        // Update the chart data
+        chartData.value.datasets[0].data = needsData.map(item => item.data);
+        chartData.value.datasets[0].labels = needsData.map(item => item.needName);
+        chartData.value.datasets[0].originalBackgroundColor = needsData.map(item =>
+          getComputedStyle(document.documentElement)
+            .getPropertyValue(`--${momentsStore.needsMap[item.needName][2]}-color`));
+
+        const otherData = 1 - needsData.reduce((acc, item) => acc + item.data, 0)
+        if (otherData > 0) {
+          chartData.value.datasets[0].data.push(otherData)
+          chartData.value.datasets[0].labels.push('Others');
+          chartData.value.datasets[0].originalBackgroundColor.push(getComputedStyle(document.documentElement).getPropertyValue('--outline-color'))
+        }
+
+        chartData.value.datasets[0].backgroundColor = chartData.value.datasets[0].originalBackgroundColor
+          .slice();
+
+        nextTick(() => {
+          console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, chartData updated');
+          loaded.value = true
+          // emits('update:chartData')
+
         })
 
-      // Update the chart data
-      chartData.value.datasets[0].data = needsData.map(item => item.data);
-      chartData.value.datasets[0].labels = needsData.map(item => item.needName);
-      chartData.value.datasets[0].originalBackgroundColor = needsData.map(item =>
-        getComputedStyle(document.documentElement)
-          .getPropertyValue(`--${momentsStore.needsMap[item.needName][2]}-color`));
+      } else {
+        //if no data ready but legit dateRange and toggleValue generate an empty chart
+        loaded.value = false
+        nextTick(() => {
+          console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, data not ready for this dateRange and toggleValue');
+          loaded.value = true
+          // emits('update:chartData')
 
-      const otherData = 1 - needsData.reduce((acc, item) => acc + item.data, 0)
-      if (otherData > 0) {
-        chartData.value.datasets[0].data.push(otherData)
-        chartData.value.datasets[0].labels.push('Others');
-        chartData.value.datasets[0].originalBackgroundColor.push(getComputedStyle(document.documentElement).getPropertyValue('--outline-color'))
+        })
       }
-
-      chartData.value.datasets[0].backgroundColor = chartData.value.datasets[0].originalBackgroundColor
-        .slice();
-
-      nextTick(() => {
-        console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, chartData updated');
-        loaded.value = true
-        // emits('update:chartData')
-
-      })
-
-    } else if (props.dateRange && props.toggleValue) {
-      loaded.value = false
-
-      nextTick(() => {
-        console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, no data (ready) for this dateRange and toggleValue');
-        loaded.value = true
-        // emits('update:chartData')
-
-      })
     }
     else {
-      console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, Data not ready or in invalid format type 1');
+      console.log('In donutChart for ', props.toggleValue, ' ', props.dateRange, 'with props.isActive ', props.isActive, ' > watchEffect ,momentsStore.aggregateData not ready');
     }
-  }
-  else {
-    console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, Data not ready or in invalid format type 2');
   }
 })
 
 watch(() => props.clickedOutside, (newValue, oldValue) => {
-  console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watch clickedOutside, newValue:', newValue, "oldValue:", oldValue);
-  if (newValue) handleClick(null, [], chartRef.value.chart)
+
+  if (props.isActive && newValue && chartRef.value) {
+    console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, 'with props.isActive ', props.isActive, ' > watch clickedOutside, newValue:', newValue, "oldValue:", oldValue);
+    handleClick(null, [], chartRef.value.chart)
+  }
 })
 
 </script>
