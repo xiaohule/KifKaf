@@ -86,18 +86,9 @@
             <q-expansion-item v-for="categ in Object.entries(momentsStore.needsCategories)" :key="categ[0]"
               group="needsCategories" header-class="q-px-none">
               <template v-slot:header>
-                <!-- <q-item-section avatar>
-                  <q-avatar square
-                    v-for="(need, index) in Object.entries(momentsStore.needsMap).filter(need => need[1][1] === categ).slice(0, 3)"
-                    :key="index" size="20px" class="overlapping" :style="`left: ${index * 16}px`">
-                    <div style="font-size: 15px;">{{ need[1][0] }}</div>
-                  </q-avatar>
-                  <q-avatar size="16px" class="overlapping" :style="`left: ${3 * 16}px`">
-                    <div style="font-size: 15px;">...</div>
-                  </q-avatar>
-                </q-item-section> -->
                 <q-item-section avatar>
-                  <q-icon :name="categ[1]" />
+                  <q-avatar :icon="categ[1][0]" :color="categ[1][1]" text-color="background">
+                  </q-avatar>
                 </q-item-section>
                 <q-item-section>
                   {{ categ[0] }} needs </q-item-section>

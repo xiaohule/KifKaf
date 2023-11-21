@@ -8,7 +8,8 @@
     @swiperupdate="console.log('In donutSwiperAndList > swiper update event fired')">
     <swiper-slide v-for="range in props.dateRanges" :key="range">
       <donut-chart :date-range="range" :toggle-value="props.toggleValue" :percentage-threshold="percentageThreshold"
-        :is-active="props.activeIndex == props.dateRanges.indexOf(range)" :clicked-outside="props.clickedLearnPage"
+        :is-active="props.activeIndex == props.dateRanges.indexOf(range)"
+        :clicked-outside="(props.activeIndex == props.dateRanges.indexOf(range)) ? props.clickedLearnPage : false"
         @click:segment="donutSegmentClicked" class="q-pt-none q-pt-xs" style="padding-bottom: 40px;" />
     </swiper-slide>
   </swiper-container>
@@ -23,7 +24,7 @@
           <q-item v-for="item in itemsToDisplay" :key="item.needName" class="q-pt-sm q-pb-sm q-px-xs" clickable>
 
             <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
-              <q-avatar size="42px" font-size="28px" :color="momentsStore.needsMap[item.needName][2]">
+              <q-avatar size="42px" font-size="28px" :color="momentsStore.needToColor[item.needName]">
                 {{ momentsStore.needsMap[item.needName][0] }}
               </q-avatar>
             </q-item-section>
@@ -58,7 +59,24 @@
     <div v-else class="bg-surface q-px-md q-py-md rounded-borders-14" flat>
       <!-- system not ready or no need ever recorded -->
       <div v-if="!momentsStore || !momentsStore.hasNeeds">
-        Add Moments in the Home tab to learn more about your needs!
+        <!-- Add Moments in the Home tab to learn more about your needs! -->
+        <div v-if="props.toggleValue == 'satisfaction'">
+          Log Moments in the Home tab to discover the needs from which you get the most satisfaction!
+        </div>
+        <div v-else-if="props.toggleValue == 'unsatisfaction'">Log Moments in the Home tab to discover the
+          needs that cause you the most unsatisfaction!</div>
+        <div v-else>
+          Log Moments in the Home tab to discover what needs bear the most importance to you!</div>
+      </div>
+      <div v-else-if="props.activeIndex === props.dateRanges.length - 1">
+        <!-- Add Moments in the Home tab to learn more about your needs! -->
+        <div v-if="props.toggleValue == 'satisfaction'">
+          Keep logging Moments in the Home tab to discover the needs from which you get the most satisfaction!
+        </div>
+        <div v-else-if="props.toggleValue == 'unsatisfaction'">Keep logging Moments in the Home tab to discover the
+          needs that cause you the most unsatisfaction!</div>
+        <div v-else>
+          Keep logging your Moments in the Home tab to discover what needs bear the most importance to you!</div>
       </div>
       <!-- system ready but no need recorded for the period-->
       <div v-else>

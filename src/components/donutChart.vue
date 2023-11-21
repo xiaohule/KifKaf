@@ -2,7 +2,6 @@
 <template>
   <div style="position: relative; height:30vh;">
 
-    <!-- :plugins="[plugin]" -->
     <Doughnut v-if="loaded" ref="chartRef" :data="chartData" :options="chartOptions" class="q-mx-auto" />
 
     <div class="overlay-content" style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);">
@@ -10,7 +9,7 @@
       <div v-if="isSegmentClicked">
         <q-avatar v-if="chartData.datasets[0].labels[clickedIndex] !== 'Others'" size="84px" font-size="56px"
           style="align-items: center; justify-content: center; display: flex; margin: 0 auto 8px;"
-          :color="momentsStore.needsMap[chartData.datasets[0].labels[clickedIndex]][2]">
+          :color="momentsStore.needToColor[chartData.datasets[0].labels[clickedIndex]]">
           {{ momentsStore.needsMap[chartData.datasets[0].labels[clickedIndex]][0] }}
         </q-avatar>
         <div class="text-body2 text-center q-mt-md q-mb-sm">{{ chartData.datasets[0].labels[clickedIndex]
@@ -69,7 +68,7 @@ const chartData = ref({
     {
       data: [1],
       labels: ['No data'],
-      originalBackgroundColor: ['#c0c6dc'],
+      hoverBackgroundColor: ['#c0c6dc'],
       backgroundColor: ['#c0c6dc'],
     }
   ]
@@ -81,26 +80,11 @@ const clickedIndex = ref(null)
 const chartRef = ref(null)
 
 const handleClick = (evt, item, chart) => {
-  // if (evt && typeof evt.stopPropagation === 'function') {
-  //   console.log('In donutChart ', props.dateRange, ' > handleClick  evt.stopPropagation()');
-  //   evt.stopPropagation();
-  // }
-  // if (evt && typeof evt.preventDefault === 'function') {
-  //   console.log('In donutChart ', props.dateRange, ' > handleClick  evt.preventDefault()');
-  //   evt.preventDefault();
-  // }
-  // if (evt && !evt?.native?.defaultPrevented) {
-  //   evt.native.defaultPrevented = true;
-  // }
-  // evt.stopPropagation(); // Stop event from bubbling up
-  // evt.native.defaultPrevented = true; // Prevent any native default behavior
-  // console.log('In donutChart ', props.dateRange, ' > handleClick  evt.native', evt?.native);
-  // console.log('In donutChart ', props.dateRange, ' > handleClick evt evt.native.defaultPrevented', evt?.native?.defaultPrevented);
-
   console.log('In donutChart ', props.dateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
   // Check if any segment is clicked
+  if (!item.length || chartData.value.datasets[0].labels[item[0].index] === 'No data') return
 
-  if (item.length > 0 && clickedIndex.value !== item[0].index) {
+  else if (item.length > 0 && clickedIndex.value !== item[0].index) {
     isSegmentClicked.value = true;
     clickedIndex.value = item[0].index;
 
@@ -109,9 +93,10 @@ const handleClick = (evt, item, chart) => {
     emits('click:segment', { needName: chartData.value.datasets[0].labels[clickedIndex.value] })
     chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
       // If the segment is clicked, ensure it's coloured, for other segments, ensure they are greyed out
-      colors[index] = index === clickedIndex.value ? chartData.value.datasets[0].originalBackgroundColor[index] : '#c0c6dc';
+      colors[index] = index === clickedIndex.value ? chartData.value.datasets[0].hoverBackgroundColor[index] : '#c0c6dc';
     });
   }
+
   else {
     isSegmentClicked.value = false;
     clickedIndex.value = null;
@@ -121,7 +106,7 @@ const handleClick = (evt, item, chart) => {
     emits('click:segment', { needName: null })
     chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
       // Reset to original color when clicking outside
-      colors[index] = chartData.value.datasets[0].originalBackgroundColor[index];
+      colors[index] = chartData.value.datasets[0].hoverBackgroundColor[index];
     });
   }
   chart.update();
@@ -136,21 +121,28 @@ const chartOptions = ref({
   // borderAlign: 'inner',
   responsive: true,
   maintainAspectRatio: true,
-  // animation: {
-  //   duration: 0,
-  //   //   animateScale: true,
-  //   //   animateRotate: true
+  animation: {
+    duration: 500,
+    animateScale: false,
+    animateRotate: true
+  },
+  // animations: {
+  //   colors: false,
   // },
-  animation: false,
+  // hover: {
+  //   mode: 'nearest',
+  //   intersect: true,
+  //   animationDuration: 0,
+
+  // },
+  // animation: false,
   onClick: handleClick,
 })
 
 watchEffect(() => {
-
   if (props.isActive && props.dateRange && props.toggleValue) {
     console.log('In donutChart for ', props.toggleValue, ' ', props.dateRange, 'with props.isActive ', props.isActive, ' > watchEffect called');
     if (momentsStore.aggregateData) {
-
       if (
         momentsStore.aggregateData[props.dateRange] &&
         momentsStore.aggregateData[props.dateRange][props.toggleValue]) {
@@ -167,24 +159,23 @@ watchEffect(() => {
         // Update the chart data
         chartData.value.datasets[0].data = needsData.map(item => item.data);
         chartData.value.datasets[0].labels = needsData.map(item => item.needName);
-        chartData.value.datasets[0].originalBackgroundColor = needsData.map(item =>
+        chartData.value.datasets[0].hoverBackgroundColor = needsData.map(item =>
           getComputedStyle(document.documentElement)
-            .getPropertyValue(`--${momentsStore.needsMap[item.needName][2]}-color`));
+            .getPropertyValue(`--${momentsStore.needToColor[item.needName]}-color`));
 
         const otherData = 1 - needsData.reduce((acc, item) => acc + item.data, 0)
         if (otherData > 0) {
           chartData.value.datasets[0].data.push(otherData)
           chartData.value.datasets[0].labels.push('Others');
-          chartData.value.datasets[0].originalBackgroundColor.push(getComputedStyle(document.documentElement).getPropertyValue('--outline-color'))
+          chartData.value.datasets[0].hoverBackgroundColor.push(getComputedStyle(document.documentElement).getPropertyValue('--outline-color'))
         }
 
-        chartData.value.datasets[0].backgroundColor = chartData.value.datasets[0].originalBackgroundColor
+        chartData.value.datasets[0].backgroundColor = chartData.value.datasets[0].hoverBackgroundColor
           .slice();
 
         nextTick(() => {
-          console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, chartData updated');
           loaded.value = true
-          // emits('update:chartData')
+          console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, chartData updated, chartRef', chartRef.value);
 
         })
 

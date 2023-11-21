@@ -119,8 +119,8 @@
           <q-card-section class="text-h6 text-weight-medium">Change name</q-card-section>
           <q-card-section>
             <q-input ref="mainInputRef" class="q-mx-sm q-mb-md" color="transparent" clearable rounded outlined
-              v-model="newSettingValue" type="text" bg-color="surface-variant" placeholder="First & last name" lazy-rules
-              :rules="displayNameRules" />
+              v-model="newSettingValue" type="text" bg-color="surface-variant" placeholder="What should we call you?"
+              lazy-rules :rules="displayNameRules" />
           </q-card-section>
         </div>
 

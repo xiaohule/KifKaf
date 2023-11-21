@@ -9,8 +9,8 @@
           outlined bg-color="surface-variant" color="transparent" clearable>
         </q-input>
 
-        <q-input v-if="isSignUp" ref="nameInputRef" v-model="userName" placeholder="Enter your first & last name"
-          type='text' name="name" class="q-my-md" outlined bg-color="surface-variant" color="transparent" clearable>
+        <q-input v-if="isSignUp" ref="nameInputRef" v-model="userName" placeholder="What should we call you?" type='text'
+          name="name" class="q-my-md" outlined bg-color="surface-variant" color="transparent" clearable>
         </q-input>
 
         <q-input v-if="onSubmitWasPressed" ref="pwdInputRef" v-model="userPassword" placeholder="Enter your password"

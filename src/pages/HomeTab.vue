@@ -33,7 +33,7 @@
   /* overflow: hidden; Hide B when the container is too small */     -->
         <div style="width: 100%;  margin-top: 100px; height: 60vh; position: relative; z-index: 20;">
           <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{ greeting }}{{
-            userFirstName }}</div>
+            userFirstName }} 👋</div>
           <div class="pushed-up-if-height-xs q-py-md">
             <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
             <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
@@ -131,6 +131,8 @@ const { isSameDate } = date;
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
 
+const emits = defineEmits(['update:isDialogOpened'])
+
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
   try {
@@ -183,6 +185,11 @@ const openBottomSheet = (momentId) => {
   bottomSheetMomentId.value = momentId
   momPageOpened.value = true
 }
+
+watch([errorDialogOpened, momPageOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
+  if (newVal1 || newVal2) emits('update:isDialogOpened', true)
+  else emits('update:isDialogOpened', false)
+})
 
 // INPUT
 const inputBlurred = () => {
