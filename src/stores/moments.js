@@ -411,7 +411,7 @@ export const useMomentsStore = defineStore("moments", () => {
       );
       batch.set(newMomDocRef, moment);
       batch.update(newMomDocRef, {
-        needsSatisAndImp: {},
+        needs: {},
         retries: 0,
       });
 

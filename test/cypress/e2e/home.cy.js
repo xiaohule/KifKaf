@@ -134,9 +134,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.contains("Satisfiers").should("be.visible");
     cy.contains("Dissatisfiers").should("be.visible");
     cy.contains("All").should("be.visible");
-    cy.contains(
-      "Add Moments in the Home tab to learn more about your needs!",
-    ).should("be.visible");
+    cy.contains("Log Moments in the Home tab").should("be.visible");
     cy.get("footer").contains("Home").click();
     cy.url({ timeout: 40000 }).should("not.include", "learn");
     //Settings
@@ -183,7 +181,7 @@ describe("Insights Stats validation", () => {
       cy.contains("Done").should("be.visible").click();
     });
     cy.wait(1000);
-    cy.contains("Physical Well-Being").should("be.visible");
+    cy.contains("Physical").should("be.visible");
     //expand Needs Satisfaction section
     cy.get(".swiper-slide-active")
       .first()

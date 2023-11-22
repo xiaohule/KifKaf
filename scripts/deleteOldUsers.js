@@ -32,8 +32,9 @@ const deleteOldUsers = async () => {
     .map((user) => user.uid)
     .filter((uid) => !noDeleteUIDList.includes(uid));
   // const oldUserUIDs = [
-  //   "IN0UpMBOYTTMYG7S52tQlaTob8B3",
-  //   "YajhznggV3TUnc40qboQxMi8eJy1",
+  //   "1Tx7U11BhwMxfhgjUEw0KsMUiVy2",
+  //   "odqQfHcj0LTSIxGH51g0mKVFk9J2",
+  //   "gykZreDdLdbh9ZpWeRS42XgLPja2",
   // ];
 
   for (const uid of oldUserUIDs) {

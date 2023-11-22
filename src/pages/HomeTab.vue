@@ -85,15 +85,15 @@
               <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
               }}</q-item-section>
             </q-item>
-            <q-item v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
-              class="q-px-xs q-pt-none q-pb-xs" style="min-height: 0px;">
+            <q-item v-if="moment.needs && (moment.needs.error || moment.needs.Oops)" class="q-px-xs q-pt-none q-pb-xs"
+              style="min-height: 0px;">
               <!--TODO:2 do this part add the "+" for manually adding needs -->
             </q-item>
-            <q-item v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
+            <q-item v-else-if="moment.needs && Object.keys(moment.needs).length > 0"
               class="q-px-xs q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
               <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                 @scroll="onChipsRowScroll($event, moment.id)">
-                <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
+                <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
                   :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
                   :label="need[0]" class="needs" />
               </div>
@@ -271,8 +271,9 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
 
 // DISPLAY PREVIOUS MOMENTS NEEDS
 const getChipColor = (needsStats) => {
-  if (needsStats[0] < 0.4) return 'negative'
-  else if (needsStats[0] > 0.6) return 'positive'
+  const difference = needsStats.satisfaction - needsStats.dissatisfaction
+  if (difference > 0.2) return 'positive'
+  else if (difference < -0.2) return 'negative'
   else return 'primary'
 }
 const onChipsRowScroll = (event, id) => {

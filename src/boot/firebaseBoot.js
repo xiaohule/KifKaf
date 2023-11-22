@@ -238,24 +238,22 @@ const emptyNeedsMomentsRetry = async () => {
     return;
   }
 
-  // Query moments where needsSatisAndImp is empty
-  const emptyNeedsSatisAndImpQuery = query(
+  // Query moments where needs is empty
+  const emptyNeedsQuery = query(
     collection(db, `users/${currentUser.value.uid}/moments`),
-    where("needsSatisAndImp", "==", {}),
+    where("needs", "==", {}),
     where("retries", "<", 3),
     orderBy("retries"),
     orderBy("date", "desc"),
     limit(5),
   );
 
-  const momentsWithEmptyNeedsSatisAndImp = await getDocs(
-    emptyNeedsSatisAndImpQuery,
-  );
+  const momentsWithEmptyNeeds = await getDocs(emptyNeedsQuery);
 
-  // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeedsSatisAndImp.empty
-  if (!momentsWithEmptyNeedsSatisAndImp.size) {
+  // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeeds.empty
+  if (!momentsWithEmptyNeeds.size) {
     console.log(
-      "In firebaseBoot, in emptyNeedsMomentsRetry, no moments with empty needsSatisAndImp found",
+      "In firebaseBoot, in emptyNeedsMomentsRetry, no moments with empty needs found",
     );
     return;
   }
@@ -263,39 +261,37 @@ const emptyNeedsMomentsRetry = async () => {
   const idToken = await currentUser.value.getIdToken(/* forceRefresh */ true);
 
   // Use Promise.all to process all moments concurrently
-  const processPromises = momentsWithEmptyNeedsSatisAndImp.docs.map(
-    async (doc) => {
-      console.log(
-        "In firebaseBoot > emptyNeedsMomentsRetry, will trigger retry call to llm for:",
-        doc.data(),
+  const processPromises = momentsWithEmptyNeeds.docs.map(async (doc) => {
+    console.log(
+      "In firebaseBoot > emptyNeedsMomentsRetry, will trigger retry call to llm for:",
+      doc.data(),
+    );
+    try {
+      const response = await axios.post(
+        `/api/learn/needs/`,
+        {
+          momentText: doc.data().text,
+          momentDate: JSON.stringify(doc.data().date),
+          momentId: doc.id,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${idToken}`,
+          },
+        },
       );
-      try {
-        const response = await axios.post(
-          `/api/learn/needs/`,
-          {
-            momentText: doc.data().text,
-            momentDate: JSON.stringify(doc.data().date),
-            momentId: doc.id,
-          },
-          {
-            headers: {
-              authorization: `Bearer ${idToken}`,
-            },
-          },
-        );
-        console.log("In addMoment", response.data);
+      console.log("In addMoment", response.data);
 
-        await updateDoc(doc.ref, {
-          retries: increment(1),
-        });
-      } catch (error) {
-        console.error(
-          "In firebaseBoot.js > emptyNeedsMomentsRetry error:",
-          error,
-        );
-      }
-    },
-  );
+      await updateDoc(doc.ref, {
+        retries: increment(1),
+      });
+    } catch (error) {
+      console.error(
+        "In firebaseBoot.js > emptyNeedsMomentsRetry error:",
+        error,
+      );
+    }
+  });
 
   // Wait for all moments to be processed
   await Promise.all(processPromises);

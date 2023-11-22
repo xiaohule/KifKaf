@@ -43,7 +43,7 @@ async function persistInvalidMomentNeedsData(
     user: req.uid,
     lastUpdate: FieldValue.serverTimestamp(),
   });
-  batch.update(momentDocRef, { needsSatisAndImp: momentNeedsData });
+  batch.update(momentDocRef, { needs: momentNeedsData });
   await batch.commit();
 }
 
@@ -53,15 +53,15 @@ async function persistUnexpectedNeedsIfAny(db, req, momentNeedsData) {
     if (!needsList.includes(need)) {
       delete momentNeedsData[need];
       console.log(need, " is not found in the needsList.");
-      const offlisNeedsRef = db
+      const offlistNeedsRef = db
         .collection("offlistNeeds")
         .doc(need)
         .collection("moments")
         .doc(req.body.momentId);
       //TODO:2 make it append and not overwrite
-      await offlisNeedsRef.set({
+      await offlistNeedsRef.set({
         moment: req.body.momentText,
-        needsSatisAndImp: momentNeedsData,
+        needs: momentNeedsData,
         user: req.uid,
         lastUpdate: FieldValue.serverTimestamp(),
       });

@@ -56,8 +56,8 @@ onBeforeUnmount(() => {
 
 const iconToDisplay = computed(() => {
   // if (navigator.onLine) {
-  if (moment.value?.needsSatisAndImp && Object.keys(moment.value?.needsSatisAndImp).length > 0) {
-    if (Object.keys(moment.value?.needsSatisAndImp).every(key => key === 'oops' || key === 'error')) {
+  if (moment.value?.needs && Object.keys(moment.value?.needs).length > 0) {
+    if (Object.keys(moment.value?.needs).every(key => key === 'Oops' || key === 'error')) {
       return 'needsAnalyzedWithOops'
     }
     else {

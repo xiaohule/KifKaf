@@ -40,16 +40,15 @@
           <div class="text-weight-medium text-primary col-auto">Edit</div> -->
           </q-card-section>
 
-          <q-card-section
-            v-if="moment?.needsSatisAndImp && (moment?.needsSatisAndImp.error || moment?.needsSatisAndImp.oops)"
+          <q-card-section v-if="moment?.needs && (moment?.needs.error || moment?.needs.Oops)"
             class="q-px-none q-py-sm text-error" style="min-height: 0px;">
-            {{ "Oops: " + (moment?.needsSatisAndImp.error ||
-              moment?.needsSatisAndImp.oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
+            {{ "Oops: " + (moment?.needs.error ||
+              moment?.needs.Oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
             <!-- add the "+" for manually adding needs -->
           </q-card-section>
-          <q-card-section v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0"
+          <q-card-section v-else-if="moment?.needs && Object.keys(moment?.needs).length > 0"
             class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
-            <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
+            <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
               :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
@@ -59,7 +58,7 @@
             <div class="text-caption text-center q-mt-sm">
               <q-chip :ripple="false" outline color="positive" size="sm" label="Satisfied need" class="bg-error" />
               <q-chip :ripple="false" outline color="primary" size="sm" label="Neutral need" class="bg-scrim-dark" />
-              <q-chip :ripple="false" outline color="negative" size="sm" label="Unsatisfied need"
+              <q-chip :ripple="false" outline color="negative" size="sm" label="Dissatisfied need"
                 class="bg-transparent-red" />
             </div>
 
@@ -148,8 +147,9 @@ watch(() => props.momentId, (newVal, oldVal) => {
 })
 
 const getChipColor = (needsStats) => {
-  if (needsStats[0] < 0.4) return 'negative'
-  else if (needsStats[0] > 0.6) return 'positive'
+  const difference = needsStats.satisfaction - needsStats.dissatisfaction
+  if (difference > 0.2) return 'positive'
+  else if (difference < -0.2) return 'negative'
   else return 'primary'
 }
 

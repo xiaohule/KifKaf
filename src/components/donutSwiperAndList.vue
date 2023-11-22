@@ -64,7 +64,7 @@
           Log Moments in the Home tab to discover the needs from which you get the most satisfaction!
         </div>
         <div v-else-if="props.toggleValue == 'unsatisfaction'">Log Moments in the Home tab to discover the
-          needs that cause you the most unsatisfaction!</div>
+          needs that cause you the most dissatisfaction!</div>
         <div v-else>
           Log Moments in the Home tab to discover what needs bear the most importance to you!</div>
       </div>
@@ -74,7 +74,7 @@
           Keep logging Moments in the Home tab to discover the needs from which you get the most satisfaction!
         </div>
         <div v-else-if="props.toggleValue == 'unsatisfaction'">Keep logging Moments in the Home tab to discover the
-          needs that cause you the most unsatisfaction!</div>
+          needs that cause you the most dissatisfaction!</div>
         <div v-else>
           Keep logging your Moments in the Home tab to discover what needs bear the most importance to you!</div>
       </div>

@@ -41,7 +41,7 @@ const openai = new OpenAI({
   // maxRetries: 0, // default is 2
   // timeout: 20 * 1000, // 20 seconds (default is 10 minutes, requests which time out will be retried twice by default.)
 });
-const gptModel = "gpt-4"; //gpt-3.5-turbo or gpt-4
+const promptVersion = "gpt4_7_2_1";
 
 // ROUTER SETUP
 var router = express.Router();
@@ -64,7 +64,7 @@ router.post("/needs/", validateRequest, async (req, res) => {
 
     // 1ST CALL TO LLM
     let openaiRequestOptions = createOpenaiRequestOptions(
-      gptModel,
+      promptVersion,
       req.body.momentText,
     );
     const response = await openai.chat.completions.create(openaiRequestOptions);
@@ -86,7 +86,7 @@ router.post("/needs/", validateRequest, async (req, res) => {
 
     // 1ST VALIDATION OF LLM RESPONSE: IF INVALID LLM REPLY PERSIST & QUIT
     // Error handling logic for invalid moments: if unable to return needs rating, save the moment in invalidMoments collection, save reason in moment data and return
-    // TODO:3 find a way to handle Oops to put it in needsSatisAndImp so that doesn't trigger moments store retry
+    // TODO:3 find a way to handle Oops to put it in needs so that doesn't trigger moments store retry
     if (!isValidMomentNeedsData(momentNeedsData)) {
       await persistInvalidMomentNeedsData(
         db,
@@ -112,7 +112,7 @@ router.post("/needs/", validateRequest, async (req, res) => {
       console.log("Error:", issueType, "for", req.body, momentNeedsData);
 
       openaiRequestOptions = updateOpenaiRequestOptions(
-        gptModel,
+        promptVersion,
         openaiRequestOptions,
         openaiResponseMessage,
         issueType,
@@ -153,7 +153,7 @@ router.post("/needs/", validateRequest, async (req, res) => {
     //3RD VALIDATION OF LLM RESPONSE: IF CONTAINS UNEXPECTED NEED(S) SAVE THOSE & CONTINUE
     await persistUnexpectedNeedsIfAny(db, req, momentNeedsData);
 
-    // SUCCESS: ADD NEEDS TO MOM DOC & UPDATE AGGREGATE DOCS
+    // SUCCESS PATH: ADD NEEDS TO MOM DOC & UPDATE AGGREGATE DOCS
     try {
       await persistNeedsData(
         db,
