@@ -2,7 +2,7 @@ const { Timestamp, FieldValue } = require("firebase-admin/firestore");
 const { needsList } = require("./openaiPromptsUtils");
 const {
   generateNewRawData,
-  generateNewDisplayArray,
+  generateNewDisplayData,
 } = require("./generateAggregateDataUtils");
 
 const needsInitValues = {
@@ -178,50 +178,15 @@ const persistNeedsData = async (
       momentNeedsData,
     );
 
-    const newYearlyData = {
-      lastUpdate: FieldValue.serverTimestamp(),
-      unsatisfaction: generateNewDisplayArray(
-        newYearlyRawData,
-        "unsatisfaction",
-        "unsatisfactionImpactLabelValue",
-      ),
-      satisfaction: generateNewDisplayArray(
-        newYearlyRawData,
-        "satisfaction",
-        "satisfactionImpactLabelValue",
-      ),
-      importance: generateNewDisplayArray(
-        newYearlyRawData,
-        "none",
-        "importanceValue",
-      ),
-    };
+    const newYearlyDisplayData = generateNewDisplayData(newYearlyRawData);
+    const newMonthlyDisplayData = generateNewDisplayData(newMonthlyRawData);
 
-    const newMonthlyData = {
-      lastUpdate: FieldValue.serverTimestamp(),
-      unsatisfaction: generateNewDisplayArray(
-        newMonthlyRawData,
-        "unsatisfaction",
-        "unsatisfactionImpactLabelValue",
-      ),
-      satisfaction: generateNewDisplayArray(
-        newMonthlyRawData,
-        "satisfaction",
-        "satisfactionImpactLabelValue",
-      ),
-      importance: generateNewDisplayArray(
-        newMonthlyRawData,
-        "none",
-        "importanceValue",
-      ),
-    };
-
-    // console.log("In transaction before update, newYearlyData", newYearlyData);
+    // console.log("In transaction before update, newYearlyDisplayData", newYearlyDisplayData);
     //update aggregate docs
     t.update(aggregateYearlyRawDocRef, newYearlyRawData);
     t.update(aggregateMonthlyRawDocRef, newMonthlyRawData);
-    t.update(aggregateYearlyDocRef, newYearlyData);
-    t.update(aggregateMonthlyDocRef, newMonthlyData);
+    t.update(aggregateYearlyDocRef, newYearlyDisplayData);
+    t.update(aggregateMonthlyDocRef, newMonthlyDisplayData);
 
     t.update(momentDocRef, { needs: momentNeedsData });
     t.update(userDocRef, { hasNeeds: true });

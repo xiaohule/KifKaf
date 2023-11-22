@@ -82,7 +82,7 @@ const chartRef = ref(null)
 const handleClick = (evt, item, chart) => {
   console.log('In donutChart ', props.dateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
   // Check if any segment is clicked
-  if (!item.length || chartData.value.datasets[0].labels[item[0].index] === 'No data') return
+  if (chartData.value.datasets[0].labels[0] === 'No data') return
 
   else if (item.length > 0 && clickedIndex.value !== item[0].index) {
     isSegmentClicked.value = true;

@@ -167,114 +167,89 @@ function generateNewRawData(/*mom,*/ doc, momentNeedsData) {
 //   };
 // }
 
-const propertiesOfInterest = [
+const keysNeededinFrontend = [
   "occurrenceCount",
   "satisfactionImpactLabelValue",
   "unsatisfactionImpactLabelValue",
-  "importanceDisplayValue",
-  "satisfactionImpactDisplayValue",
-  "unsatisfactionImpactDisplayValue",
   "importanceValue",
-  "satisfactionValue",
-  "dissatisfactionValue",
 ];
 
-function allPropertiesZeroForNeed(newRawData, need) {
-  return propertiesOfInterest.every((prop) => {
-    let key = `needs.${need}.${prop}`;
+function allKeysZeroForNeed(newRawData, need) {
+  return keysNeededinFrontend.every((item) => {
+    let key = `needs.${need}.${item}`;
     return newRawData[key] === 0 || newRawData[key] === undefined;
   });
 }
 
-function generateNewDisplayArray( //TODO:3 we could remove all data that won't be used in the frontend to reduce the size of the response
-  newRawData,
-  filterBy = "none",
-  sortBy = "none",
-) {
+//This generate the data that will be read by the user's frontend
+function generateNewDisplayData(newRawData) {
   try {
-    // if (filterBy === "satisfaction") {
-    //   console.log(
-    //     "In generateNewDisplayData with filterBy:",
-    //     filterBy,
-    //     "sortBy:",
-    //     sortBy,
-    //     "newRawData:",
-    //     newRawData,
-    //   );
-    // }
     if (!newRawData)
-      throw new Error("In generateNewDisplayArray newRawData is empty");
+      throw new Error("In generateNewDisplayData newRawData is empty");
 
     let needsDataArray = [];
-    let auxObject = {}; // to track existing needs
+    const auxObject = {}; // to track existing needs
 
-    Object.keys(newRawData).forEach((key) => {
-      if (key.startsWith("needs.")) {
-        let [_, need, property] = key.split(".");
+    Object.keys(newRawData).forEach((item) => {
+      if (item.startsWith("needs.")) {
+        let [_, need, property] = item.split(".");
 
         if (
-          !allPropertiesZeroForNeed(newRawData, need) &&
-          propertiesOfInterest.includes(property)
+          !allKeysZeroForNeed(newRawData, need) &&
+          keysNeededinFrontend.includes(property)
         ) {
           if (!auxObject[need]) {
             auxObject[need] = { needName: need };
             needsDataArray.push(auxObject[need]);
           }
 
-          auxObject[need][property] = newRawData[key];
+          auxObject[need][property] = newRawData[item];
         }
       }
     });
-    // if (filterBy === "satisfaction") {
-    //   console.log(
-    //     "In generateNewDisplayArray with filterBy:",
-    //     filterBy,
-    //     "sortBy:",
-    //     sortBy,
-    //     "returning needsDataArray after arrayization:",
-    //     needsDataArray,
-    //   );
-    // }
+    //  console.log( "In generateNewDisplayData with filterBy:" filterBy,  "sortBy:",   sortBy,    "returning needsDataArray after arrayization:", needsDataArray, )
 
     if (needsDataArray.length == 0)
-      throw new Error("In generateNewDisplayArray needsDataArray is empty");
+      throw new Error("In generateNewDisplayData needsDataArray is empty");
 
-    //Filtering
-    needsDataArray = needsDataArray.filter((obj) => {
-      let needData = obj;
+    const needsDisplayData = {
+      lastUpdate: FieldValue.serverTimestamp(),
+      satisfaction: needsDataArray
+        .filter(
+          (needData) =>
+            needData.satisfactionImpactLabelValue > 0 &&
+            needData.occurrenceCount > 0,
+        )
+        .sort(
+          (a, b) =>
+            b.satisfactionImpactLabelValue - a.satisfactionImpactLabelValue,
+        ),
+      unsatisfaction: needsDataArray
+        .filter(
+          (needData) =>
+            needData.unsatisfactionImpactLabelValue > 0 &&
+            needData.occurrenceCount > 0,
+        )
+        .sort(
+          (a, b) =>
+            b.unsatisfactionImpactLabelValue - a.unsatisfactionImpactLabelValue,
+        ),
+      importance: needsDataArray
+        .filter(
+          (needData) =>
+            needData.importanceValue > 0 && needData.occurrenceCount > 0,
+        )
+        .sort((a, b) => b.importanceValue - a.importanceValue),
+    };
 
-      if (filterBy === "satisfaction")
-        return needData.satisfactionValue > 0 && needData.occurrenceCount > 0;
-      else if (filterBy === "unsatisfaction")
-        return (
-          needData.dissatisfactionValue > 0 && needData.occurrenceCount > 0
-        );
-      else return needData.importanceValue > 0 && needData.occurrenceCount > 0;
-    });
-
-    //Sorting
-    if (sortBy !== "none") {
-      needsDataArray.sort((a, b) => b[sortBy] - a[sortBy]);
-    }
-    // if (filterBy === "satisfaction") {
-    //   console.log(
-    //     "In generateNewDisplayArray with filterBy:",
-    //     filterBy,
-    //     "sortBy:",
-    //     sortBy,
-    //     "returning needsDataArray after filter sorting:",
-    //     needsDataArray,
-    //   );
-    // }
-
-    return needsDataArray;
+    return needsDisplayData;
   } catch (error) {
-    console.error("Error in generateNewDisplayArray:", error);
+    console.error("Error in generateNewDisplayData:", error);
     return [];
   }
 }
 
 module.exports = {
   generateNewRawData,
-  generateNewDisplayArray,
+  generateNewDisplayData,
 };
