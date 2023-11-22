@@ -3,8 +3,8 @@
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px" @click="handlePageClick">
     <q-item class="q-px-none q-pt-none">
       <q-item-section class=" col-auto">
-        <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background"
-          icon="r_calendar_today" no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
+        <q-btn unelevated rounded no-caps class="text-subtitle2 bg-surface text-on-surface" icon-right="r_expand_more"
+          @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
       </q-item-section>
     </q-item>
 
@@ -249,9 +249,9 @@ const onActiveIndexChangeBySwiper = (event) => {
 </script>
 
 <style lang="scss">
-.bg-button-on-background .q-icon {
-  margin-right: 8px;
-}
+// .button-on-background .q-icon {
+//   margin-right: 8px;
+// }
 
 .q-btn-group>.q-btn-item {
   border-radius: 34px !important;

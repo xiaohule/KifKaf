@@ -49,7 +49,7 @@
           <q-card-section v-else-if="moment?.needs && Object.keys(moment?.needs).length > 0"
             class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
             <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-              :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
+              :key="need[0]" outline :color="momentsStore.getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
 
@@ -145,13 +145,6 @@ watch(() => props.momentId, (newVal, oldVal) => {
   momentsStore.getMomentById(newVal, moment);
   console.log('in momentBottomSheet watch props.momentId:', props.momentId, "moment:", moment);
 })
-
-const getChipColor = (needsStats) => {
-  const difference = needsStats.satisfaction - needsStats.dissatisfaction
-  if (difference > 0.2) return 'positive'
-  else if (difference < -0.2) return 'negative'
-  else return 'primary'
-}
 
 const needsInfoOpened = ref(false)
 </script>

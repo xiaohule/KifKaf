@@ -580,6 +580,13 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
+  const getChipColor = (needsStats) => {
+    const difference = needsStats.satisfaction - needsStats.dissatisfaction;
+    if (difference > 0.2) return "positive";
+    else if (difference < -0.2) return "negative";
+    else return "primary";
+  };
+
   function $reset() {
     user.value = null;
     userDocRef.value = null;
@@ -626,6 +633,7 @@ export const useMomentsStore = defineStore("moments", () => {
     setAuthorizationCode,
     setSpeechRecoLanguage,
     setSignInMethods,
+    getChipColor,
     $reset,
   };
 });

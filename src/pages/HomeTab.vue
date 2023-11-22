@@ -94,8 +94,8 @@
               <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                 @scroll="onChipsRowScroll($event, moment.id)">
                 <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-                  :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
-                  :label="need[0]" class="needs" />
+                  :key="need[0]" outline :color="momentsStore.getChipColor(need[1])"
+                  :icon="momentsStore.needsMap[need[0]][0]" :label="need[0]" class="needs" />
               </div>
             </q-item>
           </div>
@@ -270,12 +270,6 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
 }
 
 // DISPLAY PREVIOUS MOMENTS NEEDS
-const getChipColor = (needsStats) => {
-  const difference = needsStats.satisfaction - needsStats.dissatisfaction
-  if (difference > 0.2) return 'positive'
-  else if (difference < -0.2) return 'negative'
-  else return 'primary'
-}
 const onChipsRowScroll = (event, id) => {
   momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
 };

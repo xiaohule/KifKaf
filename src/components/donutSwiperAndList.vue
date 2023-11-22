@@ -14,7 +14,7 @@
     </swiper-slide>
   </swiper-container>
 
-  <q-card class="bg-surface q-px-sm q-pt-md q-pb-sm q-mb-lg rounded-borders-14" flat>
+  <q-card class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat>
     <div
       v-if="momentsStore.aggregateData && momentsStore.aggregateData[props.dateRanges[props.activeIndex]] && momentsStore.aggregateData[props.dateRanges[props.activeIndex]][props.toggleValue]?.length > 0">
       <q-list class="q-mt-xs">
@@ -56,7 +56,7 @@
       </q-list>
     </div>
 
-    <div v-else class="bg-surface q-px-md q-py-md rounded-borders-14" flat>
+    <div v-else class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat>
       <!-- system not ready or no need ever recorded -->
       <div v-if="!momentsStore || !momentsStore.hasNeeds">
         <!-- Add Moments in the Home tab to learn more about your needs! -->
