@@ -22,7 +22,7 @@
       @reset:clickedLearnPage="clickedLearnPage = false"></donut-swiper-and-list>
 
     <q-dialog v-model="filterDialogOpened" position="bottom">
-      <q-card class="bg-background q-px-sm">
+      <q-card class="bg-background q-px-sm" v-touch-swipe.mouse.down="(event) => { filterDialogOpened = false }">
 
         <div v-if="tappedFilter === 'date'">
           <q-card-section class="text-h5 text-weight-medium">Filter period

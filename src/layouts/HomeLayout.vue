@@ -24,9 +24,7 @@
     <!-- TODO:1 set max-width direclty here an not in pages -->
     <q-page-container>
       <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" @update:is-dialog-opened="onUpdateIsDialogOpened" />
-        </keep-alive>
+        <component :is="Component" @update:is-dialog-opened="onUpdateIsDialogOpened" />
       </router-view>
     </q-page-container>
 

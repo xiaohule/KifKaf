@@ -127,6 +127,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.dataCy("insights-tab").click();
     cy.wait(1000);
     cy.dataCy("home-tab").click();
+    cy.wait(1000);
     cy.dataCy("insights-tab").click();
     cy.wait(1000);
 

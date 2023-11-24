@@ -352,6 +352,46 @@ export default boot(({ router }) => {
     }
   });
 
+  router.afterEach((to, from) => {
+    const toDepth = to.path.split("/").length;
+    const fromDepth = from.path.split("/").length;
+    console.log(
+      "In router.afterEach, to",
+      to,
+      "from",
+      from,
+      "toDepth",
+      toDepth,
+      "fromDepth",
+      fromDepth,
+    );
+    if (toDepth === fromDepth) {
+      if (
+        (from.path === "/" || from.path === "/learn") &&
+        to.path !== "/" &&
+        to.path !== "/learn"
+      ) {
+        to.meta.transition = "slide-in";
+      } else if (from.path === "/settings") {
+        if (to.path === "/" || to.path === "/learn") {
+          to.meta.transition = "slide-out";
+        } else if (to.path !== "/welcome") {
+          to.meta.transition = "slide-in";
+        }
+      } else if (to.path === "/settings") {
+        to.meta.transition = "slide-out";
+      }
+    } else if (toDepth > fromDepth) {
+      to.meta.transition = "slide-in";
+    } else {
+      to.meta.transition = "slide-out";
+    }
+    console.log(
+      "In router.afterEach, to.meta.transition set to",
+      to.meta.transition,
+    );
+  });
+
   // Call llmRetryHandler during app initialization
   watch(
     currentUser,

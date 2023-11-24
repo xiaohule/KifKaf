@@ -1,24 +1,5 @@
 [
   {
-    "date": "2023-05-13",
-    "intensity": 4,
-    "text": "Feeling proud of myself for working out today!",
-    "tags": ["movement", "self-esteem", "proud"],
-    "needs": ["Self-Esteem & Social Recognition", "Physical Movement"],
-    "satisfactions": [],
-    "importances": [],
-    "comment": "s explicit - imp deduc, s explicit - sm imp deduc, ",
-    "test": {
-      "Physical Well-Being": ["1.0 could be lower sat", 0.5],
-      "Physical Movement": [1.0, 0.5],
-      "Self-Esteem & Social Recognition": [0.9, 0.8],
-      "Competence & Effectiveness": [0.9, 0.7],
-      "Self-Actualization": [0.8, 0.5],
-      "Challenge": [0.8, 0.5]
-    }
-  },
-
-  {
     "date": "2023-05-15",
     "intensity": -3,
     "text": "Feeling a little down today after calling mum",
@@ -64,6 +45,24 @@
         0.5,
         "could be satis should be uncertain add comme exple"
       ]
+    }
+  },
+  {
+    "date": "2023-05-13",
+    "intensity": 4,
+    "text": "Feeling proud of myself for working out today!",
+    "tags": ["movement", "self-esteem", "proud"],
+    "needs": ["Self-Esteem & Social Recognition", "Physical Movement"],
+    "satisfactions": [],
+    "importances": [],
+    "comment": "s explicit - imp deduc, s explicit - sm imp deduc, ",
+    "test": {
+      "Physical Well-Being": ["1.0 could be lower sat", 0.5],
+      "Physical Movement": [1.0, 0.5],
+      "Self-Esteem & Social Recognition": [0.9, 0.8],
+      "Competence & Effectiveness": [0.9, 0.7],
+      "Self-Actualization": [0.8, 0.5],
+      "Challenge": [0.8, 0.5]
     }
   },
   {

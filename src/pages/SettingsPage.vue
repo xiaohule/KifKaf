@@ -110,7 +110,8 @@
     <!--TODO:1 allow for not re-inputting email if not needed -->
     <q-dialog v-model="editDialogOpened" position="bottom" style="max-width: 600px">
 
-      <q-card class="bg-background" flat style="height: 90vh;">
+      <q-card class="bg-background" flat style="height: 90vh;"
+        v-touch-swipe.mouse.down="(event) => { editDialogOpened = false }">
         <q-toolbar class="q-pa-sm">
           <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>
@@ -180,7 +181,8 @@
     </q-dialog>
 
     <q-dialog v-model="languageDialogOpened" position="bottom" style="max-width: 600px">
-      <q-card class="bg-background" flat style="height: 90vh;">
+      <q-card class="bg-background" flat style="height: 90vh;"
+        v-touch-swipe.mouse.down="(event) => { languageDialogOpened = false }">
         <q-toolbar class="q-pa-sm">
           <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>

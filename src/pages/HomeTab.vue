@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, onActivated, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { showSpeechRecognitionButton, isRecognizing, useSpeechRecognition } from '../composables/speechRecognition.js'
@@ -139,15 +139,17 @@ onMounted(async () => {
     if (!momentsStore.momentsFetched) {
       await momentsStore.fetchMoments();
     }
+    if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
+    momsWithScrolledNeeds.value = {};
   } catch (error) {
     console.error('await momentsStore.fetchMoments() error:', error);
   }
 })
 
-onActivated(() => {
-  if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-  momsWithScrolledNeeds.value = {};
-})
+// onActivated(() => {
+//   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
+//   momsWithScrolledNeeds.value = {};
+// })
 
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
@@ -230,14 +232,14 @@ watch(isRecognizing, (val) => {
   if (!val) newMomInputRef.value.$el.querySelector('textarea').select();
 })
 
-onDeactivated(async () => {
-  console.log('HomeTab onDeactivate fired');
-  if (isRecognizing.value) {
-    await stopSpeech();
-  }
-})
+// onDeactivated(async () => {
+//   console.log('HomeTab > onDeactivate fired');
+//   if (isRecognizing.value) {
+//     await stopSpeech();
+//   }
+// })
 onBeforeUnmount(async () => {
-  console.log('onBeforeUnmount fired');
+  console.log('HomeTab > onBeforeUnmount fired');
   if (isRecognizing.value) {
     await stopSpeech();
   }
