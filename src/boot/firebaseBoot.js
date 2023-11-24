@@ -353,39 +353,57 @@ export default boot(({ router }) => {
   });
 
   router.afterEach((to, from) => {
-    const toDepth = to.path.split("/").length;
-    const fromDepth = from.path.split("/").length;
-    console.log(
-      "In router.afterEach, to",
-      to,
-      "from",
-      from,
-      "toDepth",
-      toDepth,
-      "fromDepth",
-      fromDepth,
-    );
-    if (toDepth === fromDepth) {
-      if (
-        (from.path === "/" || from.path === "/learn") &&
-        to.path !== "/" &&
-        to.path !== "/learn"
-      ) {
-        to.meta.transition = "slide-in";
-      } else if (from.path === "/settings") {
-        if (to.path === "/" || to.path === "/learn") {
-          to.meta.transition = "slide-out";
-        } else if (to.path !== "/welcome") {
-          to.meta.transition = "slide-in";
-        }
-      } else if (to.path === "/settings") {
-        to.meta.transition = "slide-out";
-      }
-    } else if (toDepth > fromDepth) {
+    console.log("In router.afterEach, from", from.path, " to ", to.path);
+
+    // Define common routes and group routes for transitions
+    const tabRoutes = ["/", "/learn"];
+    const slideInRoutes = ["/privacy-policy", "/terms", "/contact"];
+
+    if (
+      tabRoutes.includes(from.path) &&
+      !tabRoutes.includes(to.path) &&
+      to.path !== "/welcome"
+    ) {
+      // If coming from a tab route and not going to one, slide new comp in
       to.meta.transition = "slide-in";
-    } else {
+      // console.log("In router.afterEach1");
+    } else if (
+      tabRoutes.includes(to.path) &&
+      !tabRoutes.includes(from.path) &&
+      !from.path.includes("login")
+    ) {
+      // If going to a tab route and not coming from one, slide old comp out
       to.meta.transition = "slide-out";
+      // console.log("In router.afterEach2");
+    } else if (tabRoutes.includes(to.path) && from.path.includes("login")) {
+      to.meta.transition = "";
     }
+    // Handle other specific routes
+    else if (slideInRoutes.includes(to.path)) {
+      // If going to a leaf route, slide new comp in
+      to.meta.transition = "slide-in";
+      // console.log("In router.afterEach3");
+    } else if (slideInRoutes.includes(from.path)) {
+      // If coming from a leaf route, slide old comp out
+      to.meta.transition = "slide-out";
+      // console.log("In router.afterEach4");
+    } else if (from.path === "/settings") {
+      // If coming from settings, slide new comp in unless it's welcome
+      to.meta.transition = to.path === "/welcome" ? "" : "slide-in";
+      // console.log("In router.afterEach5");
+    } else if (to.path === "/settings") {
+      // If going to settings, slide old comp out
+      to.meta.transition = "slide-out";
+      // console.log("In router.afterEach6");
+    } else {
+      const toDepth = to.path.split("/").length;
+      const fromDepth = from.path.split("/").length;
+      // if going to children route, slide new comp in, if going to parent route, slide old comp out
+      if (toDepth > fromDepth) to.meta.transition = "slide-in";
+      else if (toDepth < fromDepth) to.meta.transition = "slide-out";
+      // console.log("In router.afterEach7");
+    }
+
     console.log(
       "In router.afterEach, to.meta.transition set to",
       to.meta.transition,
