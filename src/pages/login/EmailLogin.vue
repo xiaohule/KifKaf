@@ -91,7 +91,8 @@
     </div>
 
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
-      <q-card class="bg-background q-pa-lg text-center" flat>
+      <q-card class="bg-background q-pa-lg text-center" flat
+        v-touch-swipe.mouse.down="(event) => { errorDialogOpened = false }">
 
         <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
         <q-card-section class="text-h5 text-weight-medium q-py-md">{{ errorDialogText }}

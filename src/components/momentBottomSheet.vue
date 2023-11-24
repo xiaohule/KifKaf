@@ -2,7 +2,8 @@
   <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event.target)" position="bottom"
     style="max-width: 600px">
 
-    <q-card class="bg-background" flat style="height: 90vh;">
+    <q-card class="bg-background" flat style="height: 90vh;"
+      v-touch-swipe.mouse.down="(event) => { $emit('update:modelValue', false) }">
       <q-toolbar class="q-pa-sm">
         <q-btn flat v-close-popup round dense icon="r_close" />
       </q-toolbar>
@@ -71,7 +72,7 @@
       </div>
     </q-card>
     <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
-      <q-card class="bg-background q-px-sm" flat>
+      <q-card class="bg-background q-px-sm" flat v-touch-swipe.mouse.down="(event) => { needsInfoOpened = false }">
         <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
         </div> -->
 
@@ -147,6 +148,7 @@ watch(() => props.momentId, (newVal, oldVal) => {
 })
 
 const needsInfoOpened = ref(false)
+
 </script>
 <style lang="scss">
 .needs {

@@ -144,7 +144,7 @@ const swiperAfterInit = () => {
   nextTick(() => {
     console.log('In donutSwiperAndList > afterinit fired,  sliding to props.activeIndex', props.activeIndex)
     // swiperElChart.value.swiper.activeIndex = props.activeIndex
-    swiperElChart.value.swiper.slideTo(props.activeIndex, 0)
+    swiperElChart.value?.swiper.slideTo(props.activeIndex, 0)
   })
 }
 
