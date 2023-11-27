@@ -37,21 +37,19 @@ const updateDoc = async (doc) => {
 //TODO:1 the below doesn't delete the user doc's subcollections if any
 const moveUsersToNewDissatAggData = async () => {
   // Fetch recently active users
-  // const listUsersResult = await admin.auth().listUsers(1000);
-  // const oldUsers = listUsersResult.users;
-  // const oldUserUIDs = oldUsers.map((user) => user.uid);
+  const listUsersResult = await admin.auth().listUsers(1000);
+  const oldUsers = listUsersResult.users;
+  const oldUserUIDs = oldUsers.map((user) => user.uid);
 
-  const oldUserUIDs = [
-    "huEvsyzeEZSHoJBNFH2GkOPkBeD2",
-    "zGbcd17tYKUMPjBZtdc8Txk9zG32",
-  ];
+  // const oldUserUIDs = [
+  //   "huEvsyzeEZSHoJBNFH2GkOPkBeD2",
+  //   "zGbcd17tYKUMPjBZtdc8Txk9zG32",
+  // ];
 
   console.log("oldUserUIDs", oldUserUIDs);
 
   for (const uid of oldUserUIDs) {
-    // await admin.auth().deleteUser(uid);
     const userDocRef = admin.firestore().doc(`users/${uid}`);
-    // const momentDocRef = userDocRef.collection("moments").doc(req.body.momentId);
 
     const aggregateYearlyCollRef = userDocRef.collection("aggregateYearly");
     // Fetch documents from the collection

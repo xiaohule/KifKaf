@@ -89,6 +89,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const fetchUser = async () => {
     try {
+      console.log("In moments.js, In fetchUser");
       if (userFetched.value) {
         console.log("In moments.js, In fetchUser, already userFetched");
         return;

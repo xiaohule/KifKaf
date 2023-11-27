@@ -7,19 +7,6 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useMomentsStore } from './stores/moments.js';
-
-const momentsStore = useMomentsStore()
-onMounted(async () => {
-  try {
-    if (!momentsStore.userFetched) {
-      await momentsStore.fetchUser();
-    }
-  } catch (error) {
-    console.error('In App.vue momentsStore.fetchUser() error:', error);
-  }
-})
 </script>
 
 <style lang="scss">
@@ -44,28 +31,15 @@ onMounted(async () => {
   transform: translateX(100%);
 }
 
-// .slide-in-enter-to {
-// }
-
-// .slide-in-leave-from {
-// }
-
 .slide-in-leave-to {
   transform: translateX(-20%);
 }
 
-// .slide-out-leave-from {
-// }
-
 .slide-out-leave-to {
   transform: translateX(100%);
-
 }
 
 .slide-out-enter-from {
   transform: translateX(-20%);
 }
-
-// .slide-out-enter-to {
-// }
 </style>
