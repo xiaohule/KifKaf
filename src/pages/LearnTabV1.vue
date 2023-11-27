@@ -3,8 +3,8 @@
   <q-page class="q-mx-auto q-pa-md" style="max-width: 600px" @click="handlePageClick">
     <q-item class="q-px-none q-pt-none">
       <q-item-section class=" col-auto">
-        <q-btn unelevated rounded class="text-subtitle1 bg-button-on-background text-on-background"
-          icon="r_calendar_today" no-caps @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
+        <q-btn unelevated rounded no-caps class="text-subtitle2 bg-surface text-on-surface" icon-right="r_expand_more"
+          @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
       </q-item-section>
     </q-item>
 
@@ -15,14 +15,14 @@
         { label: 'All', value: 'importance' }
       ]" />
 
-    <donut-swiper-and-list ref="donutSwiperAndListRef"
+    <donut-swiper-and-list v-if="activeIndex !== undefined" ref="donutSwiperAndListRef"
       :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears" :active-index="activeIndex"
       :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
       @update:active-index="onActiveIndexChangeBySwiper"
       @reset:clickedLearnPage="clickedLearnPage = false"></donut-swiper-and-list>
 
     <q-dialog v-model="filterDialogOpened" position="bottom">
-      <q-card class="bg-background q-px-sm">
+      <q-card class="bg-background q-px-sm" v-touch-swipe.mouse.down="(event) => { filterDialogOpened = false }">
 
         <div v-if="tappedFilter === 'date'">
           <q-card-section class="text-h5 text-weight-medium">Filter period
@@ -91,7 +91,7 @@ const handlePageClick = (event) => {
 
   if (event.target.nodeName === 'CANVAS') {
     // Click is inside the donut swiper, do nothing
-    console.log('In LearnTab > handlePageClick, event.target is of canva type, do nothing')
+    console.log('In LearnTab > handlePageClick, event.target is of canvas type, do nothing')
     return;
   }
   // clickedLearnPage = true
@@ -101,10 +101,10 @@ const handlePageClick = (event) => {
 
 
 //SWIPER
-const activeIndex = ref(0)
+const activeIndex = ref(null)
 //when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
 watch(() => momentsStore.shouldResetSwiper, (newVal) => {
-  if (newVal && swiperInitialized.value) {
+  if (newVal) {
     if (segDateId.value === 'Monthly') {
       activeIndex.value = dateRangesMonths.value.length - 1;
       updateDateButtonLabel()
@@ -149,8 +149,7 @@ const dateRangesYears = computed(() => {
 watch(dateRangesYears, (newValue) => {
   activeIndex.value = newValue.length - 1;
   console.log('In LearnTab > watch dateRangesYears updated activeIndex to', activeIndex.value)
-}, { immediate: true }
-);
+});
 
 const dateRangesMonths = computed(() => {
   const dateRanges = [];
@@ -199,9 +198,10 @@ const updateDateButtonLabel = () => {
     if (currentYYYYdMM.value == dateRangesMonths.value[activeIndex.value]) {
       dateRangeButtonLabel.value = 'This month';
     } else {
-      dateRangeButtonLabel.value = (dateRangesMonthsIdxToDate(activeIndex.value).getFullYear() === currentDate.value.getFullYear())
-        ? formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM')
-        : formatDate(dateRangesMonthsIdxToDate(activeIndex.value), 'MMMM YYYY');
+      const dateRangesMonthsDate = dateRangesMonthsIdxToDate(activeIndex.value);
+      dateRangeButtonLabel.value = (dateRangesMonthsDate.getFullYear() === currentDate.value.getFullYear())
+        ? formatDate(dateRangesMonthsDate, 'MMMM')
+        : formatDate(dateRangesMonthsDate, 'MMMM YYYY');
     }
   }
 }
@@ -249,9 +249,9 @@ const onActiveIndexChangeBySwiper = (event) => {
 </script>
 
 <style lang="scss">
-.bg-button-on-background .q-icon {
-  margin-right: 8px;
-}
+// .button-on-background .q-icon {
+//   margin-right: 8px;
+// }
 
 .q-btn-group>.q-btn-item {
   border-radius: 34px !important;

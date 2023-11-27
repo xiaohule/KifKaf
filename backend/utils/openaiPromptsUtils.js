@@ -220,9 +220,122 @@ const gpt4_params = (momentText) => {
   };
 };
 
-const createOpenaiRequestOptions = (gptModel, momentText) => {
-  if (gptModel === "gpt-4") {
-    return gpt4_params(momentText);
+const systemMessageContentGpt4_7_2_1 = `
+**Context**:
+You are an expert in analyzing universal human needs from user-provided Moments.
+
+**Needs List**:
+\`${JSON.stringify(needsList)}\`
+
+**Instructions**:
+- Review the Moment provided by the user.
+- Determine the up to 5 needs from the predefined list that relate the most to the Moment.
+- For each identified need, rate on a [0.0,1.0] scale:
+  -- its satisfaction level (0.0= not satisfied or uncertain, 0.5= rather satisfied, 1.0= fully satisfied).
+-- its dissatisfaction level (0.0= not dissatisfied or uncertain, 0.5= rather dissatisfied, 1.0= fully dissatisfied).
+  -- its importance to the user (0.0 = not important at all,  1.0 = highly important).
+
+**Guidelines:**
+-- A strong sense of a need being met or unmet is a clear cue of its high importance to the user.
+-- Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for Moment "Felt so bad when running after eating spinach" we have no information on whether the need for "Physical Movement" was met during this unfortunate Moment but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.
+
+**Response**:
+- Return a JSON with only the needs of non-zero importance_value: \`{"need_name": [satisfaction_value, dissatisfaction_value, importance_value], ...}\`.
+- If clarification is needed, respond with: \`{"Oops": "Your moment is {issue}. Please retry with {Advice}."}\`.
+`;
+
+const gpt4_7_2_1_params = (momentText) => {
+  return {
+    messages: [
+      {
+        role: "system",
+        content: systemMessageContentGpt4_7_2_1.trim(),
+      },
+      {
+        role: "user",
+        content:
+          "Feeling like I am wasting my time at the playfight workshop because I'm not learning anything.",
+      },
+      {
+        role: "assistant",
+        content:
+          '{"Learning": [0.0, 1.0, 1.0],"Competence & Effectiveness": [0.0, 0.8, 0.9],"Self-Actualization": [0.0, 0.8, 0.9]}',
+      },
+      {
+        role: "user",
+        content:
+          "Je me sens bien d'aller voir les copains pour dîner avec eux mais un petit peu agitée tout de même parce que j'ai beaucoup bossé je sens que mon besoin de récompense est élevé",
+      },
+      {
+        role: "assistant",
+        content:
+          '{"Social Connection": [0.8, 0.0, 0.9],"Emotional Safety & Inner Peace": [0.0, 0.5, 0.9],"Rest & Relaxation": [0.2, 0.8,  0.6],"Self-Esteem & Social Recognition": [0.5, 0.0, 0.9]}',
+      },
+      {
+        role: "user",
+        content:
+          "Hiking through these trails feels so liberating. Every step is like bye stress, hello inspiration. Just wish there was someone to drop some nature knowledge.",
+      },
+      {
+        role: "assistant",
+        content:
+          '{"Contact with Nature": [1.0, 0.0, 1.0], "Exploration, Novelty & Inspiration": [1.0, 0.0, 1.0], "Emotional Safety & Inner Peace": [0.8, 0.0, 1.0], "Learning": [0.0, 0.5, 0.8], "Social Connection": [0.0, 0.5, 0.8]}',
+      },
+      {
+        role: "user",
+        content: "Feeling a little down today after calling mum",
+      },
+      {
+        role: "assistant",
+        content: '{"Emotional Safety & Inner Peace": [0.0, 0.9, 1.0]}',
+      },
+      {
+        role: "user",
+        content: "Feeling both empty and full after movement class",
+      },
+      {
+        role: "assistant",
+        content:
+          '{"Physical Movement": [0.8, 0.0, 1.0],"Emotional Safety & Inner Peace": [0.2, 0.2, 0.8]}',
+      },
+      {
+        role: "user",
+        content: "Felt so bad when running after eating spinach",
+      },
+      {
+        role: "assistant",
+        content:
+          '{"Physical Well-Being": [0.0, 1.0, 1.0], "Physical Movement": [0.0, 0.0, 0.8]}',
+      },
+      {
+        role: "user",
+        content: "Feeling",
+      },
+      {
+        role: "assistant",
+        content:
+          '{"Oops": "Your moment is incomplete. Please retry with more details."}',
+      },
+      {
+        role: "user",
+        content: momentText.trim(),
+      },
+    ],
+    model: "gpt-4", // "gpt-4-1106-preview",
+    temperature: 0,
+    max_tokens: 100,
+    // response_format: { type: "json_object" },
+    // top_p: 1, //Defaults to 1
+    // frequency_penalty: 0, //Defaults to 0
+    // presence_penalty: 0, //Defaults to 0
+    // stream: true,
+    //user:"user123456" //https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids //TODO:2  to do for safety
+  };
+};
+
+const createOpenaiRequestOptions = (promptVersion, momentText) => {
+  if (promptVersion === "gpt4_7_2_1") {
+    return gpt4_7_2_1_params(momentText); //gpt4_params(momentText);
   } else {
     return gpt3_5_params(momentText);
   }
@@ -234,12 +347,28 @@ const parseMomentNeedsData = (content) => {
   // Extract the content matching the pattern
   const match = content.match(regexPattern);
   // Parse the matched content as JSON
-  if (match) return JSON.parse(match[0]);
-  else {
-    let returnObj = {};
-    const oopsMatch = content.match(/Oops:(.*?)(\\|$)/s);
-    if (oopsMatch && oopsMatch[1]) returnObj["oops"] = oopsMatch[1].trim();
-    else returnObj["error"] = content;
+  if (match) {
+    const parsedData = JSON.parse(match[0]);
+    //if the key "Oops" is present, return it
+    if (parsedData["Oops"]) return parsedData;
+    else {
+      //success path, moving from array to map
+      const mappedData = Object.entries(parsedData).reduce(
+        (acc, [key, value]) => {
+          acc[key] = {
+            satisfaction: value[0],
+            dissatisfaction: value[1],
+            importance: value[2],
+          };
+          return acc;
+        },
+        {},
+      );
+      return mappedData;
+    }
+  } else {
+    const returnObj = {};
+    returnObj["error"] = content;
     return returnObj;
   }
 };
@@ -247,10 +376,10 @@ const parseMomentNeedsData = (content) => {
 const isValidMomentNeedsData = (momentNeedsData) => {
   if (
     !momentNeedsData ||
-    momentNeedsData.oops ||
-    momentNeedsData.error ||
     Object.keys(momentNeedsData).length == 0 ||
-    Object.values(momentNeedsData).some((value) => value[1] === 0)
+    momentNeedsData.Oops ||
+    momentNeedsData.error ||
+    Object.values(momentNeedsData).some((value) => value.importance === 0) //zero importance
   )
     return false;
   return true;
@@ -260,13 +389,16 @@ const needRatingsIssueType = (momentNeedsData) => {
   const issueTypeConditions = {
     // momentNeedsEmpty: Object.keys(momentNeedsData).length === 0,
     sumOfAllImportancesLow:
-      Object.values(momentNeedsData).reduce((a, b) => a[1] + b[1], 0) < 0.1,
+      Object.values(momentNeedsData).reduce(
+        (a, b) => a.importance + b.importance,
+        0,
+      ) < 0.1,
     noImportancesMoreThanThreshold: !Object.values(momentNeedsData).some(
-      (value) => value[1] > 0.1,
+      (value) => value.importance > 0.1,
     ),
-    oneZeroImportance: Object.values(momentNeedsData).some(
-      (value) => value[1] === 0,
-    ),
+    // oneZeroImportance: Object.values(momentNeedsData).some(
+    //   (value) => value[2] === 0,
+    // ),
   };
   return Object.keys(issueTypeConditions).find(
     (type) => issueTypeConditions[type],
@@ -282,28 +414,18 @@ const errorMessages = {
 };
 
 const updateOpenaiRequestOptions = (
-  gptModel,
+  promptVersion,
   prevRequestOptions,
   prevResponseMessage,
   issueType,
 ) => {
-  if (gptModel === "gpt-4") {
-    return prevRequestOptions.messages.push(
-      prevResponseMessage, // This adds the last response from the assistant
-      {
-        role: "user",
-        content: errorMessages[issueType],
-      },
-    );
-  } else {
-    return prevRequestOptions.messages.push(
-      prevResponseMessage, // This adds the last response from the assistant
-      {
-        role: "user",
-        content: errorMessages[issueType],
-      },
-    );
-  }
+  return prevRequestOptions.messages.push(
+    prevResponseMessage, // This adds the last response from the assistant
+    {
+      role: "user",
+      content: errorMessages[issueType],
+    },
+  );
 };
 
 module.exports = {

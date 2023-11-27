@@ -2,7 +2,8 @@
   <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event.target)" position="bottom"
     style="max-width: 600px">
 
-    <q-card class="bg-background" flat style="height: 90vh;">
+    <q-card class="bg-background" flat style="height: 90vh;"
+      v-touch-swipe.mouse.down="(event) => { $emit('update:modelValue', false) }">
       <q-toolbar class="q-pa-sm">
         <q-btn flat v-close-popup round dense icon="r_close" />
       </q-toolbar>
@@ -40,17 +41,16 @@
           <div class="text-weight-medium text-primary col-auto">Edit</div> -->
           </q-card-section>
 
-          <q-card-section
-            v-if="moment?.needsSatisAndImp && (moment?.needsSatisAndImp.error || moment?.needsSatisAndImp.oops)"
+          <q-card-section v-if="moment?.needs && (moment?.needs.error || moment?.needs.Oops)"
             class="q-px-none q-py-sm text-error" style="min-height: 0px;">
-            {{ "Oops: " + (moment?.needsSatisAndImp.error ||
-              moment?.needsSatisAndImp.oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
+            {{ "Oops: " + (moment?.needs.error ||
+              moment?.needs.Oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
             <!-- add the "+" for manually adding needs -->
           </q-card-section>
-          <q-card-section v-else-if="moment?.needsSatisAndImp && Object.keys(moment?.needsSatisAndImp).length > 0"
+          <q-card-section v-else-if="moment?.needs && Object.keys(moment?.needs).length > 0"
             class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
-            <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
-              :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
+            <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
+              :key="need[0]" outline :color="momentsStore.getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
               :label="need[0]" class="needs" />
             <!-- add the "+" for manually adding needs -->
 
@@ -59,7 +59,7 @@
             <div class="text-caption text-center q-mt-sm">
               <q-chip :ripple="false" outline color="positive" size="sm" label="Satisfied need" class="bg-error" />
               <q-chip :ripple="false" outline color="primary" size="sm" label="Neutral need" class="bg-scrim-dark" />
-              <q-chip :ripple="false" outline color="negative" size="sm" label="Unsatisfied need"
+              <q-chip :ripple="false" outline color="negative" size="sm" label="Dissatisfied need"
                 class="bg-transparent-red" />
             </div>
 
@@ -72,7 +72,7 @@
       </div>
     </q-card>
     <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
-      <q-card class="bg-background q-px-sm" flat>
+      <q-card class="bg-background q-px-sm" flat v-touch-swipe.mouse.down="(event) => { needsInfoOpened = false }">
         <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
         </div> -->
 
@@ -86,18 +86,9 @@
             <q-expansion-item v-for="categ in Object.entries(momentsStore.needsCategories)" :key="categ[0]"
               group="needsCategories" header-class="q-px-none">
               <template v-slot:header>
-                <!-- <q-item-section avatar>
-                  <q-avatar square
-                    v-for="(need, index) in Object.entries(momentsStore.needsMap).filter(need => need[1][1] === categ).slice(0, 3)"
-                    :key="index" size="20px" class="overlapping" :style="`left: ${index * 16}px`">
-                    <div style="font-size: 15px;">{{ need[1][0] }}</div>
-                  </q-avatar>
-                  <q-avatar size="16px" class="overlapping" :style="`left: ${3 * 16}px`">
-                    <div style="font-size: 15px;">...</div>
-                  </q-avatar>
-                </q-item-section> -->
                 <q-item-section avatar>
-                  <q-icon :name="categ[1]" />
+                  <q-avatar :icon="categ[1][0]" :color="categ[1][1]" text-color="background">
+                  </q-avatar>
                 </q-item-section>
                 <q-item-section>
                   {{ categ[0] }} needs </q-item-section>
@@ -156,13 +147,8 @@ watch(() => props.momentId, (newVal, oldVal) => {
   console.log('in momentBottomSheet watch props.momentId:', props.momentId, "moment:", moment);
 })
 
-const getChipColor = (needsStats) => {
-  if (needsStats[0] < 0.4) return 'negative'
-  else if (needsStats[0] > 0.6) return 'positive'
-  else return 'primary'
-}
-
 const needsInfoOpened = ref(false)
+
 </script>
 <style lang="scss">
 .needs {

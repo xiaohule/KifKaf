@@ -1,11 +1,8 @@
 <template>
-  <router-view v-slot="{ Component }">
-    <!-- <router-view v-slot="{ Component, route }"> -->
-    <!-- <transition :name="route.meta.transition"> -->
-    <!-- <keep-alive> -->
-    <component :is="Component" />
-    <!-- </keep-alive> -->
-    <!-- </transition> -->
+  <router-view v-slot="{ Component, route }">
+    <transition :name="route.meta.transition">
+      <component :is="Component" :key="route.path" />
+    </transition>
   </router-view>
 </template>
 
@@ -13,9 +10,7 @@
 import { onMounted } from 'vue';
 import { useMomentsStore } from './stores/moments.js';
 
-//TODO:5 is this needed to fetchUser here and more generally do stuff here?
 const momentsStore = useMomentsStore()
-
 onMounted(async () => {
   try {
     if (!momentsStore.userFetched) {
@@ -27,28 +22,50 @@ onMounted(async () => {
 })
 </script>
 
-<!-- <style lang="scss">
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: transform 1.5s;
+<style lang="scss">
+.slide-in-enter-active,
+.slide-in-leave-active,
+.slide-out-enter-active {
+  // transition: transform 0.5s ease-out;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  position: absolute;
+  // top: 0;
+  // left: 0;
+  // width: 100%;
 }
 
-.slide-right-enter,
-.slide-right-leave-to {
-  transform: translateX(-100%);
+.slide-out-leave-active {
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  position: absolute;
+  z-index: 100 !important;
 }
 
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
+.slide-in-enter-from {
+  transform: translateX(100%);
 }
 
-.slide-fade-leave-active {
-  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+// .slide-in-enter-to {
+// }
+
+// .slide-in-leave-from {
+// }
+
+.slide-in-leave-to {
+  transform: translateX(-20%);
 }
 
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
+// .slide-out-leave-from {
+// }
+
+.slide-out-leave-to {
+  transform: translateX(100%);
+
 }
-</style> -->
+
+.slide-out-enter-from {
+  transform: translateX(-20%);
+}
+
+// .slide-out-enter-to {
+// }
+</style>

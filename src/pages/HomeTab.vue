@@ -33,7 +33,7 @@
   /* overflow: hidden; Hide B when the container is too small */     -->
         <div style="width: 100%;  margin-top: 100px; height: 60vh; position: relative; z-index: 20;">
           <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{ greeting }}{{
-            userFirstName }}</div>
+            userFirstName }} 👋</div>
           <div class="pushed-up-if-height-xs q-py-md">
             <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
             <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
@@ -85,17 +85,17 @@
               <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
               }}</q-item-section>
             </q-item>
-            <q-item v-if="moment.needsSatisAndImp && (moment.needsSatisAndImp.error || moment.needsSatisAndImp.oops)"
-              class="q-px-xs q-pt-none q-pb-xs" style="min-height: 0px;">
+            <q-item v-if="moment.needs && (moment.needs.error || moment.needs.Oops)" class="q-px-xs q-pt-none q-pb-xs"
+              style="min-height: 0px;">
               <!--TODO:2 do this part add the "+" for manually adding needs -->
             </q-item>
-            <q-item v-else-if="moment.needsSatisAndImp && Object.keys(moment.needsSatisAndImp).length > 0"
+            <q-item v-else-if="moment.needs && Object.keys(moment.needs).length > 0"
               class="q-px-xs q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
               <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                 @scroll="onChipsRowScroll($event, moment.id)">
-                <q-chip v-for="need in Object.entries(moment?.needsSatisAndImp).sort(([, a], [, b]) => b[1] - a[1])"
-                  :key="need[0]" outline :color="getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
-                  :label="need[0]" class="needs" />
+                <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
+                  :key="need[0]" outline :color="momentsStore.getChipColor(need[1])"
+                  :icon="momentsStore.needsMap[need[0]][0]" :label="need[0]" class="needs" />
               </div>
             </q-item>
           </div>
@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onDeactivated, onBeforeUnmount, computed, onActivated, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { showSpeechRecognitionButton, isRecognizing, useSpeechRecognition } from '../composables/speechRecognition.js'
@@ -131,21 +131,25 @@ const { isSameDate } = date;
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
 
+const emits = defineEmits(['update:isDialogOpened'])
+
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
   try {
     if (!momentsStore.momentsFetched) {
       await momentsStore.fetchMoments();
     }
+    if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
+    momsWithScrolledNeeds.value = {};
   } catch (error) {
     console.error('await momentsStore.fetchMoments() error:', error);
   }
 })
 
-onActivated(() => {
-  if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-  momsWithScrolledNeeds.value = {};
-})
+// onActivated(() => {
+//   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
+//   momsWithScrolledNeeds.value = {};
+// })
 
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
@@ -183,6 +187,11 @@ const openBottomSheet = (momentId) => {
   bottomSheetMomentId.value = momentId
   momPageOpened.value = true
 }
+
+watch([errorDialogOpened, momPageOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
+  if (newVal1 || newVal2) emits('update:isDialogOpened', true)
+  else emits('update:isDialogOpened', false)
+})
 
 // INPUT
 const inputBlurred = () => {
@@ -223,14 +232,14 @@ watch(isRecognizing, (val) => {
   if (!val) newMomInputRef.value.$el.querySelector('textarea').select();
 })
 
-onDeactivated(async () => {
-  console.log('HomeTab onDeactivate fired');
-  if (isRecognizing.value) {
-    await stopSpeech();
-  }
-})
+// onDeactivated(async () => {
+//   console.log('HomeTab > onDeactivate fired');
+//   if (isRecognizing.value) {
+//     await stopSpeech();
+//   }
+// })
 onBeforeUnmount(async () => {
-  console.log('onBeforeUnmount fired');
+  console.log('HomeTab > onBeforeUnmount fired');
   if (isRecognizing.value) {
     await stopSpeech();
   }
@@ -263,11 +272,6 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
 }
 
 // DISPLAY PREVIOUS MOMENTS NEEDS
-const getChipColor = (needsStats) => {
-  if (needsStats[0] < 0.4) return 'negative'
-  else if (needsStats[0] > 0.6) return 'positive'
-  else return 'primary'
-}
 const onChipsRowScroll = (event, id) => {
   momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
 };

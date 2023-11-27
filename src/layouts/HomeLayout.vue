@@ -24,9 +24,7 @@
     <!-- TODO:1 set max-width direclty here an not in pages -->
     <q-page-container>
       <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
+        <component :is="Component" @update:is-dialog-opened="onUpdateIsDialogOpened" />
       </router-view>
     </q-page-container>
 
@@ -52,16 +50,25 @@ This makes your code more efficient and easier to read. The behavior of using na
 /*When you use “import { ref } from ‘vue’”, you can use the ref function directly in your code, like this: const count = ref(0).
  When you use “import ref from ‘vue’”, you need to call the function like this: const count = ref.ref(0)*/
 import { ref, onMounted, onUnmounted } from 'vue'
-import { debounce } from 'lodash-es' // Assuming lodash-es is installed
+import { debounce } from 'lodash' // Assuming lodash is installed
 
 const tab = ref('Home')
 const isBackgroundDark = ref(true) // assuming the default is dark
 const isScrolled = ref(false) // assuming the default is dark
+const isDialogOpen = ref(false)
+
+const onUpdateIsDialogOpened = (value) => {
+  console.log('In HomeLayout.vue >onUpdateIsDialogOpened() BEFORE , value:', value, 'isDialogOpen.value:', isDialogOpen.value)
+  isDialogOpen.value = value
+}
 
 const handleScroll = debounce(() => {
-  isScrolled.value = window.scrollY > 0;
-  const threshold = window.innerHeight * 0.6 - 100; // 60vh - 100px
-  isBackgroundDark.value = window.scrollY < threshold;
+  if (!isDialogOpen.value) {
+    isScrolled.value = window.scrollY > 0;
+    const threshold = window.innerHeight * 0.6 - 100; // 60vh - 100px
+    isBackgroundDark.value = window.scrollY < threshold;
+  }
+  // console.log('In HomeLayout.vue >handleScroll() AFTER , window.scrollY:', window.scrollY, 'window.innerHeight:', window.innerHeight, 'isScrolled.value:', isScrolled.value, 'isBackgroundDark.value:', isBackgroundDark.value, 'isDialogOpen.value:', isDialogOpen.value)
 }, 10)
 
 onMounted(() => {

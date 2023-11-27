@@ -2,15 +2,17 @@ const { Timestamp, FieldValue } = require("firebase-admin/firestore");
 const { needsList } = require("./openaiPromptsUtils");
 const {
   generateNewRawData,
-  generateNewDisplayArray,
+  generateNewDisplayData,
 } = require("./generateAggregateDataUtils");
 
 const needsInitValues = {
   occurrenceCount: 0,
   importancesSum: 0,
   satisfactionSum: 0,
+  dissatisfactionSum: 0,
   importanceValue: 0,
   satisfactionValue: 0,
+  dissatisfactionValue: 0,
   importanceDisplayValue: 0,
   satisfactionImpactDisplayValue: 0,
   unsatisfactionImpactDisplayValue: 0,
@@ -25,23 +27,88 @@ const needsMap = needsList.reduce((acc, need) => {
 
 const initAggregateDoc = async (aggregateDocRef, isRaw = false) => {
   const aggregateDoc = await aggregateDocRef.get();
-  if (!aggregateDoc.exists) {
-    if (isRaw) {
-      await aggregateDocRef.set({
+  const defaultStructure = isRaw
+    ? {
         nMoments: 0,
         totalImportances: 0,
         lastUpdate: FieldValue.serverTimestamp(),
-        needs: needsMap, // needs: {need1: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, need2: { importancesSum: 0, satisfactionSum: 0, occurrenceCount: 0 }, ...}
+        needs: needsMap,
         maxImportanceValue: 0,
         totalSatisfactionImpact: 0,
         totalUnsatisfactionImpact: 0,
-      });
-    } else {
-      await aggregateDocRef.set({
+      }
+    : {
         lastUpdate: FieldValue.serverTimestamp(),
-      });
-    }
+      };
+  if (!aggregateDoc.exists) {
+    // If the document doesn't exist, create it with the default structure
+    await aggregateDocRef.set(defaultStructure);
   }
+  // else {
+  //   // If the document exists, check for missing keys and initialize them
+  //   const existingData = aggregateDoc.data();
+  //   const updatedData = {};
+
+  //   if (existingData["nMoments"] === undefined) {
+  //     updatedData["nMoments"] = 0;
+  //   }
+  //   if (existingData["totalImportances"] === undefined) {
+  //     updatedData["totalImportances"] = 0;
+  //   }
+  //   if (existingData["lastUpdate"] === undefined) {
+  //     updatedData["lastUpdate"] = FieldValue.serverTimestamp();
+  //   }
+  //   if (existingData["needs"] === undefined) {
+  //     updatedData["needs"] = needsMap;
+  //   } else {
+  //     // Check each need in needsList
+  //     needsList.forEach((need) => {
+  //       if (existingData.needs[need] === undefined) {
+  //         if (!updatedData.needs) {
+  //           updatedData.needs = {};
+  //         }
+  //         // Initialize this need if it doesn't exist
+  //         updatedData.needs[need] = { ...needsInitValues };
+  //       } else {
+  //         // Check for missing keys within each need
+  //         Object.keys(needsInitValues).forEach((key) => {
+  //           if (existingData.needs[need][key] === undefined) {
+  //             if (!updatedData.needs) {
+  //               updatedData.needs = {};
+  //             }
+  //             if (!updatedData.needs[need]) {
+  //               updatedData.needs[need] = {};
+  //             }
+
+  //             if (key === "dissatisfactionSum") {
+  //               // TODO:6
+  //             } else if (key === "dissatisfactionValue") {
+  //               // TODO:6
+  //             } else {
+  //               updatedData.needs[need][key] = needsInitValues[key];
+  //             }
+  //           }
+  //         });
+  //       }
+  //     });
+  //   }
+  //   if (existingData["maxImportanceValue"] === undefined) {
+  //     updatedData["maxImportanceValue"] = 0;
+  //   }
+  //   if (existingData["totalSatisfactionImpact"] === undefined) {
+  //     updatedData["totalSatisfactionImpact"] = 0;
+  //   }
+  //   if (existingData["totalUnsatisfactionImpact"] === undefined) {
+  //     updatedData["totalUnsatisfactionImpact"] = 0;
+  //   }
+
+  //   console.log("In initAggregateDoc, updatedData", updatedData);
+
+  //   // Update the document if there are new keys to initialize
+  //   if (Object.keys(updatedData).length > 0) {
+  //     await aggregateDocRef.set(updatedData, { merge: true });
+  //   }
+  // }
 };
 
 const getAggregateDocRefs = async (userDocRef, rawMomentDate) => {
@@ -111,57 +178,19 @@ const persistNeedsData = async (
       momentNeedsData,
     );
 
-    const newYearlyData = {
-      lastUpdate: FieldValue.serverTimestamp(),
-      unsatisfaction: generateNewDisplayArray(
-        newYearlyRawData,
-        "unsatisfaction",
-        "unsatisfactionImpactLabelValue",
-      ),
-      satisfaction: generateNewDisplayArray(
-        newYearlyRawData,
-        "satisfaction",
-        "satisfactionImpactLabelValue",
-      ),
-      importance: generateNewDisplayArray(
-        newYearlyRawData,
-        "none",
-        "importanceValue",
-      ),
-    };
+    const newYearlyDisplayData = generateNewDisplayData(newYearlyRawData);
+    const newMonthlyDisplayData = generateNewDisplayData(newMonthlyRawData);
 
-    const newMonthlyData = {
-      lastUpdate: FieldValue.serverTimestamp(),
-      unsatisfaction: generateNewDisplayArray(
-        newMonthlyRawData,
-        "unsatisfaction",
-        "unsatisfactionImpactLabelValue",
-      ),
-      satisfaction: generateNewDisplayArray(
-        newMonthlyRawData,
-        "satisfaction",
-        "satisfactionImpactLabelValue",
-      ),
-      importance: generateNewDisplayArray(
-        newMonthlyRawData,
-        "none",
-        "importanceValue",
-      ),
-    };
-
-    // console.log(
-    //   "In transaction before update, newYearlyData",
-    //   newYearlyData,
-    // );
+    // console.log("In transaction before update, newYearlyDisplayData", newYearlyDisplayData);
     //update aggregate docs
     t.update(aggregateYearlyRawDocRef, newYearlyRawData);
     t.update(aggregateMonthlyRawDocRef, newMonthlyRawData);
-    t.update(aggregateYearlyDocRef, newYearlyData);
-    t.update(aggregateMonthlyDocRef, newMonthlyData);
+    t.update(aggregateYearlyDocRef, newYearlyDisplayData);
+    t.update(aggregateMonthlyDocRef, newMonthlyDisplayData);
 
-    t.update(momentDocRef, { needsSatisAndImp: momentNeedsData });
+    t.update(momentDocRef, { needs: momentNeedsData });
     t.update(userDocRef, { hasNeeds: true });
-    //TODO:2 for more safety of the data we could check if the moment needsSatisAndImp were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
+    //TODO:2 for more safety of the data we could check if the moment needs were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
   });
 
   console.log(

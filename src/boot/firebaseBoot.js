@@ -238,24 +238,22 @@ const emptyNeedsMomentsRetry = async () => {
     return;
   }
 
-  // Query moments where needsSatisAndImp is empty
-  const emptyNeedsSatisAndImpQuery = query(
+  // Query moments where needs is empty
+  const emptyNeedsQuery = query(
     collection(db, `users/${currentUser.value.uid}/moments`),
-    where("needsSatisAndImp", "==", {}),
+    where("needs", "==", {}),
     where("retries", "<", 3),
     orderBy("retries"),
     orderBy("date", "desc"),
     limit(5),
   );
 
-  const momentsWithEmptyNeedsSatisAndImp = await getDocs(
-    emptyNeedsSatisAndImpQuery,
-  );
+  const momentsWithEmptyNeeds = await getDocs(emptyNeedsQuery);
 
-  // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeedsSatisAndImp.empty
-  if (!momentsWithEmptyNeedsSatisAndImp.size) {
+  // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeeds.empty
+  if (!momentsWithEmptyNeeds.size) {
     console.log(
-      "In firebaseBoot, in emptyNeedsMomentsRetry, no moments with empty needsSatisAndImp found",
+      "In firebaseBoot, in emptyNeedsMomentsRetry, no moments with empty needs found",
     );
     return;
   }
@@ -263,39 +261,37 @@ const emptyNeedsMomentsRetry = async () => {
   const idToken = await currentUser.value.getIdToken(/* forceRefresh */ true);
 
   // Use Promise.all to process all moments concurrently
-  const processPromises = momentsWithEmptyNeedsSatisAndImp.docs.map(
-    async (doc) => {
-      console.log(
-        "In firebaseBoot > emptyNeedsMomentsRetry, will trigger retry call to llm for:",
-        doc.data(),
+  const processPromises = momentsWithEmptyNeeds.docs.map(async (doc) => {
+    console.log(
+      "In firebaseBoot > emptyNeedsMomentsRetry, will trigger retry call to llm for:",
+      doc.data(),
+    );
+    try {
+      const response = await axios.post(
+        `/api/learn/needs/`,
+        {
+          momentText: doc.data().text,
+          momentDate: JSON.stringify(doc.data().date),
+          momentId: doc.id,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${idToken}`,
+          },
+        },
       );
-      try {
-        const response = await axios.post(
-          `/api/learn/needs/`,
-          {
-            momentText: doc.data().text,
-            momentDate: JSON.stringify(doc.data().date),
-            momentId: doc.id,
-          },
-          {
-            headers: {
-              authorization: `Bearer ${idToken}`,
-            },
-          },
-        );
-        console.log("In addMoment", response.data);
+      console.log("In addMoment", response.data);
 
-        await updateDoc(doc.ref, {
-          retries: increment(1),
-        });
-      } catch (error) {
-        console.error(
-          "In firebaseBoot.js > emptyNeedsMomentsRetry error:",
-          error,
-        );
-      }
-    },
-  );
+      await updateDoc(doc.ref, {
+        retries: increment(1),
+      });
+    } catch (error) {
+      console.error(
+        "In firebaseBoot.js > emptyNeedsMomentsRetry error:",
+        error,
+      );
+    }
+  });
 
   // Wait for all moments to be processed
   await Promise.all(processPromises);
@@ -354,6 +350,64 @@ export default boot(({ router }) => {
         next();
       }
     }
+  });
+
+  router.afterEach((to, from) => {
+    console.log("In router.afterEach, from", from.path, " to ", to.path);
+
+    // Define common routes and group routes for transitions
+    const tabRoutes = ["/", "/learn"];
+    const slideInRoutes = ["/privacy-policy", "/terms", "/contact"];
+
+    if (
+      tabRoutes.includes(from.path) &&
+      !tabRoutes.includes(to.path) &&
+      to.path !== "/welcome"
+    ) {
+      // If coming from a tab route and not going to one, slide new comp in
+      to.meta.transition = "slide-in";
+      // console.log("In router.afterEach1");
+    } else if (
+      tabRoutes.includes(to.path) &&
+      !tabRoutes.includes(from.path) &&
+      !from.path.includes("login")
+    ) {
+      // If going to a tab route and not coming from one, slide old comp out
+      to.meta.transition = "slide-out";
+      // console.log("In router.afterEach2");
+    } else if (tabRoutes.includes(to.path) && from.path.includes("login")) {
+      to.meta.transition = "";
+    }
+    // Handle other specific routes
+    else if (slideInRoutes.includes(to.path)) {
+      // If going to a leaf route, slide new comp in
+      to.meta.transition = "slide-in";
+      // console.log("In router.afterEach3");
+    } else if (slideInRoutes.includes(from.path)) {
+      // If coming from a leaf route, slide old comp out
+      to.meta.transition = "slide-out";
+      // console.log("In router.afterEach4");
+    } else if (from.path === "/settings") {
+      // If coming from settings, slide new comp in unless it's welcome
+      to.meta.transition = to.path === "/welcome" ? "" : "slide-in";
+      // console.log("In router.afterEach5");
+    } else if (to.path === "/settings") {
+      // If going to settings, slide old comp out
+      to.meta.transition = "slide-out";
+      // console.log("In router.afterEach6");
+    } else {
+      const toDepth = to.path.split("/").length;
+      const fromDepth = from.path.split("/").length;
+      // if going to children route, slide new comp in, if going to parent route, slide old comp out
+      if (toDepth > fromDepth) to.meta.transition = "slide-in";
+      else if (toDepth < fromDepth) to.meta.transition = "slide-out";
+      // console.log("In router.afterEach7");
+    }
+
+    console.log(
+      "In router.afterEach, to.meta.transition set to",
+      to.meta.transition,
+    );
   });
 
   // Call llmRetryHandler during app initialization
