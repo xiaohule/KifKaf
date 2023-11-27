@@ -323,7 +323,7 @@ const gpt4_7_2_1_params = (momentText) => {
     ],
     model: "gpt-4", // "gpt-4-1106-preview",
     temperature: 0,
-    max_tokens: 100,
+    max_tokens: 300,
     // response_format: { type: "json_object" },
     // top_p: 1, //Defaults to 1
     // frequency_penalty: 0, //Defaults to 0

@@ -153,10 +153,9 @@ describe("Checking main screens & Moments inputting", () => {
     for (const item of momentsData) {
       const now = new Date(item.date);
       cy.clock(now.getTime(), ["Date"]);
-      // TODO:3 remove {force: true} from the next lines
-      cy.dataCy("new-moment-textarea").type(item.text, { force: true }); //add {force: true}?
+      cy.dataCy("new-moment-textarea").type(item.text); //add {force: true}?
       // cy.contains("Feeling ... because ...").type(item.text, { force: true });
-      cy.contains("arrow_forward").click({ force: true });
+      cy.contains("arrow_forward").click();
       cy.clock().then((clock) => {
         clock.restore();
       });
