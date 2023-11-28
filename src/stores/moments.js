@@ -177,7 +177,7 @@ export const useMomentsStore = defineStore("moments", () => {
         return key; // Return the corresponding need name
       }
     }
-    return null; // Return null if not found
+    return null;
   }
 
   const fetchUser = async () => {
