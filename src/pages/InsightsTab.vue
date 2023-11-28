@@ -16,8 +16,8 @@
       ]" />
 
     <donut-swiper-and-list v-if="activeIndex !== undefined" ref="donutSwiperAndListRef"
-      :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears" :active-index="activeIndex"
-      :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
+      :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears" :seg-date-id="segDateId"
+      :active-index="activeIndex" :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
       @update:active-index="onActiveIndexChangeBySwiper"
       @reset:clickedLearnPage="clickedLearnPage = false"></donut-swiper-and-list>
 
@@ -53,33 +53,35 @@ q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, watchEffect, onMounted, onActivated, onDeactivated } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
 import { date } from 'quasar'
 const { formatDate, getDateDiff, startOfDate, addToDate, getMaxDate } = date;
 
-defineOptions({
-  preFetch() {
-    const momentsStore = useMomentsStore()
-    console.log('In LearnTab > preFetch')
-    return momentsStore.fetchAggregateData();
+const momentsStore = useMomentsStore()
+onMounted(async () => {
+  try {
+    console.log('In InsightsTab onMounted')
+    if (!momentsStore.aggregateDataFetched) {
+      await momentsStore.fetchAggregateData();
+    }
+    console.log('In InsightsTab onMounted, await momentsStore.fetchAggregateData() done')
+    if (momentsStore.savedPeriodicity) segDateId.value = momentsStore.savedPeriodicity
+    momentsStore.savedPeriodicity = null
+  } catch (error) {
+    console.error('await momentsStore.fetchAggregateData() error:', error);
   }
 })
 
-const momentsStore = useMomentsStore()
-// onMounted(async () => {
-//   try {
-//     console.log('In LearnTab onMounted!!')
-//     if (!momentsStore.aggregateDataFetched) {
-//       await momentsStore.fetchAggregateData();
-//     }
-//     console.log('In LearnTab onMounted, await momentsStore.fetchAggregateData() done')
-//   } catch (error) {
-//     console.error('await momentsStore.fetchAggregateData() error:', error);
-//   }
-// })
+onActivated(() => {
+  console.log('In InsightsTab onActivated')
+})
+
+onDeactivated(() => {
+  console.log('In InsightsTab onDeactivated')
+})
 
 const dateRangeButtonLabel = ref('This month')
 const toggleModel = ref('satisfaction')
@@ -87,32 +89,40 @@ const clickedLearnPage = ref(false)
 const donutSwiperAndListRef = ref(null);
 
 const handlePageClick = (event) => {
-  console.log('In LearnTab > handlePageClick, event.target', event.target)
+  console.log('In InsightsTab > handlePageClick, event.target', event.target)
 
   if (event.target.nodeName === 'CANVAS') {
     // Click is inside the donut swiper, do nothing
-    console.log('In LearnTab > handlePageClick, event.target is of canvas type, do nothing')
+    console.log('In InsightsTab > handlePageClick, event.target is of canvas type, do nothing')
+    return;
+  }
+
+  const classList = Array.from(event.target.classList);
+  const shouldIgnoreClick = classList.some(className =>
+    className.includes('q-item') || className.includes('q-avatar'));
+
+  if (shouldIgnoreClick) {
+    console.log('In InsightsTab > handlePageClick, clicked on a specified class, do nothing');
     return;
   }
   // clickedLearnPage = true
-  console.log('In LearnTab > handlePageClick, event.target isnt of canva type, set clickedLearnPage to true')
+  console.log('In InsightsTab > handlePageClick, event.target is not canva or needs list, set clickedLearnPage to true')
   clickedLearnPage.value = true
 }
-
 
 //SWIPER
 const activeIndex = ref(null)
 //when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
 watch(() => momentsStore.shouldResetSwiper, (newVal) => {
+  console.log('In InsightsTab > watch momentsStore.shouldResetSwiper, newVal', newVal)
   if (newVal) {
     if (segDateId.value === 'Monthly') {
       activeIndex.value = dateRangesMonths.value.length - 1;
-      updateDateButtonLabel()
     }
     else if (segDateId.value === 'Yearly') {
       activeIndex.value = dateRangesYears.value.length - 1;
-      updateDateButtonLabel()
     }
+    // updateDateButtonLabel()
     momentsStore.shouldResetSwiper = false
   }
 })
@@ -123,9 +133,6 @@ const currentDate = computed(() => {
 })
 const currentDateYYYYsMM = computed(() => {
   return formatDate(currentDate.value, "YYYY/MM")
-})
-const currentYYYYdMM = computed(() => {
-  return `${currentDate.value.getFullYear()}-${(currentDate.value.getMonth() + 1).toString().padStart(2, '0')}`
 })
 
 const oldestMomentDate = computed(() => {
@@ -143,13 +150,22 @@ const dateRangesYears = computed(() => {
   for (let i = yearsSinceOldestMoment; i >= 0; i--) {
     dateRanges.push((currentDate.value.getFullYear() - i).toString());
   }
-  console.log('In LearnTab > computed dateRangesYears, dateRanges is', dateRanges)
+  console.log('In InsightsTab > computed dateRangesYears, dateRanges is', dateRanges)
   return dateRanges;
 });
 watch(dateRangesYears, (newValue) => {
-  activeIndex.value = newValue.length - 1;
-  console.log('In LearnTab > watch dateRangesYears updated activeIndex to', activeIndex.value)
-});
+  console.log('In InsightsTab > watch dateRangesYears, momentsStore.savedActiveIndex', momentsStore.savedActiveIndex, "segDateId.value", segDateId.value)
+
+  if (segDateId.value === 'Yearly') {
+    if (momentsStore.savedActiveIndex !== null) {
+      activeIndex.value = momentsStore.savedActiveIndex
+      momentsStore.savedActiveIndex = null
+    } else {
+      activeIndex.value = newValue.length - 1;
+    }
+    console.log('In InsightsTab > watch dateRangesYears updated activeIndex to', activeIndex.value)
+  }
+}, { immediate: true });
 
 const dateRangesMonths = computed(() => {
   const dateRanges = [];
@@ -159,19 +175,37 @@ const dateRangesMonths = computed(() => {
     dateRanges.push(`${trackingDate.getFullYear()}-${(trackingDate.getMonth() + 1).toString().padStart(2, '0')}`);
     trackingDate = addToDate(trackingDate, { months: 1 });
   }
-  console.log('In LearnTab > computed dateRangesMonths, dateRanges is', dateRanges)
+  console.log('In InsightsTab > computed dateRangesMonths, dateRanges is', dateRanges)
   return dateRanges;
 });
 watch(dateRangesMonths, (newValue) => {
-  activeIndex.value = newValue.length - 1;
-  console.log('In LearnTab > watch dateRangesMonths updated activeIndex to', activeIndex.value)
+  console.log('In InsightsTab > watch dateRangesMonths, momentsStore.savedActiveIndex', momentsStore.savedActiveIndex, "segDateId.value", segDateId.value)
+  if (segDateId.value === 'Monthly') {
+
+    if (momentsStore.savedActiveIndex !== null) {
+      activeIndex.value = momentsStore.savedActiveIndex
+      momentsStore.savedActiveIndex = null
+    } else {
+      activeIndex.value = newValue.length - 1;
+    }
+    console.log('In InsightsTab > watch dateRangesMonths updated activeIndex to', activeIndex.value)
+  }
 }, { immediate: true }
 );
 const dateRangesMonthsIdxToDate = (idx) => {
-  console.log('In LearnTab > dateRangesMonthsIdxToDate, idx', idx, 'dateRangesMonths.value[idx]', dateRangesMonths.value[idx])
+  console.log('In InsightsTab > dateRangesMonthsIdxToDate, idx', idx, 'dateRangesMonths.value[idx]', dateRangesMonths.value[idx])
   const [yearStr, monthStr] = dateRangesMonths.value[idx].split('-');
   return new Date(Number(yearStr), Number(monthStr) - 1);
 }
+
+watchEffect(() => {
+  console.log('In InsightsTab > watchEffect activeIndex.value', activeIndex.value, "segDateId.value", segDateId.value)
+  if (segDateId.value === 'Monthly') {
+    dateRangeButtonLabel.value = momentsStore.getDateLabel(dateRangesMonths.value[activeIndex.value]);
+  } else if (segDateId.value === 'Yearly') {
+    dateRangeButtonLabel.value = momentsStore.getDateLabel(dateRangesYears.value[activeIndex.value]);
+  }
+});
 
 //DATE FILTER DIALOG
 const filterDialogOpened = ref(false)
@@ -189,26 +223,9 @@ const optionsFn = (date) => {
   return date >= oldestMomentDate.value;
 }
 
-const updateDateButtonLabel = () => {
-  console.log('In LearnTab > updateDateButtonLabel, activeIndex.value', activeIndex.value)
-  if (segDateId.value === 'Yearly') {
-    dateRangeButtonLabel.value = (currentDate.value.getFullYear() == dateRangesYears.value[activeIndex.value]) ? 'This year' : dateRangesYears.value[activeIndex.value].toString();
-  }
-  else if (segDateId.value === 'Monthly') {
-    if (currentYYYYdMM.value == dateRangesMonths.value[activeIndex.value]) {
-      dateRangeButtonLabel.value = 'This month';
-    } else {
-      const dateRangesMonthsDate = dateRangesMonthsIdxToDate(activeIndex.value);
-      dateRangeButtonLabel.value = (dateRangesMonthsDate.getFullYear() === currentDate.value.getFullYear())
-        ? formatDate(dateRangesMonthsDate, 'MMMM')
-        : formatDate(dateRangesMonthsDate, 'MMMM YYYY');
-    }
-  }
-}
-
 //EVENTS
 const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:1 pourrait etre un watch?
-  console.log('In LearnTab > onUpdatePickedDate newVal', newVal)
+  console.log('In InsightsTab > onUpdatePickedDate newVal', newVal)
   if (newVal) {
     if (segDateId.value === 'Monthly') {
       monthsKey.value = Date.now()
@@ -217,14 +234,15 @@ const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:
       yearsKey.value = Date.now()
       activeIndex.value = getDateDiff(newVal, oldestMomentDate.value, 'years');
     }
-    console.log('In LearnTab > onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and oldestMomentDate.value", oldestMomentDate.value, "and segDateId.value", segDateId.value)
-    updateDateButtonLabel()
+    // updateDateButtonLabel()
+
+    console.log('In InsightsTab > onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and oldestMomentDate.value", oldestMomentDate.value, "and segDateId.value", segDateId.value)
   }
 }
 
 //i.e. onSegmentControlChange
 watch(segDateId, (newVal) => {
-  console.log('In LearnTab > watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "oldestMomentDate.value", oldestMomentDate.value)
+  console.log('In InsightsTab > watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "oldestMomentDate.value", oldestMomentDate.value)
   if (newVal) {
     let max = getMaxDate(pickedDateYYYYsMMsDD.value, oldestMomentDate.value)
     pickedDateYYYYsMMsDD.value = formatDate(max, "YYYY/MM/DD")
@@ -234,11 +252,11 @@ watch(segDateId, (newVal) => {
 });
 
 const onActiveIndexChangeBySwiper = (event) => {
-  console.log('In LearnTab > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
+  console.log('In InsightsTab > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
 
   activeIndex.value = event.detail[0].activeIndex
+  // updateDateButtonLabel()
 
-  updateDateButtonLabel()
   if (segDateId.value === 'Monthly') {
     pickedDateYYYYsMMsDD.value = formatDate(dateRangesMonthsIdxToDate(activeIndex.value), "YYYY/MM/DD")
   } else if (segDateId.value === 'Yearly') {

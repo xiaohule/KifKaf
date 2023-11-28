@@ -25,8 +25,8 @@
 
     <div class="fixed-buttons">
       <!-- max-width: 300px; -->
-      <q-btn rounded color="scrim" padding="md" label="Log in" @click="() => router.push('/login')"
-        class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
+      <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" label="Log in"
+        @click="() => router.push('/login')" class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
     </div>
   </q-page>
 </template>

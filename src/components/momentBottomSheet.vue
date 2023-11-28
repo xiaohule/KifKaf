@@ -11,7 +11,7 @@
       <div class="q-px-md">
         <q-item class="q-px-none">
           <q-item-section class="text-h6 text-weight-medium">{{
-            momentsStore.getFormattedDate(moment?.date?.seconds, true) }}</q-item-section>
+            momentsStore.getFormattedDay(moment?.date?.seconds, true) }}</q-item-section>
           <q-item-section avatar class="q-px-none" style="min-width: 20px;">
             <moment-sync-icon :moment-id="momentId" :expected-llm-call-duration="expectedLlmCallDuration" />
           </q-item-section>

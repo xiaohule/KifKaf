@@ -67,13 +67,13 @@
       <div v-for="( day, index ) in  momentsStore.uniqueDays " :key="day">
 
         <div :class="[
-          'text-body1',
+          'text-h6',
           'text-weight-medium',
           'q-pa-none',
           'q-mb-sm',
           (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
           (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-        ]" header>{{ momentsStore.getFormattedDate(day) }}</div>
+        ]" header>{{ momentsStore.getFormattedDay(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
           <div v-for=" moment  in  getSortedMomentsOfTheDay(day) " :key="moment.id" clickable v-ripple
             class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
@@ -145,11 +145,6 @@ onMounted(async () => {
     console.error('await momentsStore.fetchMoments() error:', error);
   }
 })
-
-// onActivated(() => {
-//   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-//   momsWithScrolledNeeds.value = {};
-// })
 
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')

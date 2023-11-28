@@ -182,7 +182,7 @@ const tutoViewNeeds = async () => {
   await momentsStore.setWelcomeTutorialStep(2);
 }
 const tutoExploreInsights = async () => {
-  await router.push('/learn')
+  await router.push('/insights')
   await momentsStore.setWelcomeTutorialStep(3);
 }
 

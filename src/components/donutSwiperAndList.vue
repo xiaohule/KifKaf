@@ -21,7 +21,8 @@
         <transition-group appear enter-active-class="meala" leave-active-class="meala la" move-class="meala"
           enter-from-class="eflt" leave-to-class="eflt">
 
-          <q-item v-for="item in itemsToDisplay" :key="item.needName" class="q-pt-sm q-pb-sm q-px-xs" clickable>
+          <q-item v-for="item in itemsToDisplay" :key="item.needName" class="q-pt-sm q-pb-sm q-px-xs" clickable
+            @click="momentsStore.savedActiveIndex = props.activeIndex; momentsStore.savedPeriodicity = props.segDateId; router.push({ path: `/insights/needs/${momentsStore.needsMap[item.needName][2]}`, query: { dateRange: props.dateRanges[props.activeIndex] } });">
 
             <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
               <q-avatar size="42px" font-size="28px" :color="momentsStore.needToColor[item.needName]">
@@ -99,6 +100,9 @@
 import { watch, ref, nextTick, computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import donutChart from "./../components/donutChart.vue";
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const momentsStore = useMomentsStore()
 
@@ -110,6 +114,10 @@ const props = defineProps({
   toggleValue: {
     type: String,
     default: "satisfaction",
+  },
+  segDateId: {
+    type: String,
+    default: "Monthly",
   },
   activeIndex: {
     type: Number,

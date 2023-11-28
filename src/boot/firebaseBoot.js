@@ -356,7 +356,7 @@ export default boot(({ router }) => {
     console.log("In router.afterEach, from", from.path, " to ", to.path);
 
     // Define common routes and group routes for transitions
-    const tabRoutes = ["/", "/learn"];
+    const tabRoutes = ["/", "/insights"];
     const slideInRoutes = ["/privacy-policy", "/terms", "/contact"];
 
     if (

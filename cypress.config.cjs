@@ -84,8 +84,10 @@ module.exports = defineConfig({
       return config;
     },
     baseUrl: "http://localhost:9200/",
-    defaultCommandTimeout: 40000,
+    defaultCommandTimeout: 20000,
     // taskTimeout: 60000,
+    animationDistanceThreshold: 0.0,
+    waitForAnimations: true,
     supportFile: "test/cypress/support/e2e.js",
     specPattern: "test/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
     experimentalWebKitSupport: true,

@@ -6,10 +6,16 @@ const routes = [
     children: [{ path: "", component: () => import("pages/HomeTab.vue") }],
   },
   {
-    path: "/learn",
+    path: "/insights",
     component: () => import("layouts/MainLayout.vue"),
     meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/LearnTabV1.vue") }],
+    children: [{ path: "", component: () => import("pages/InsightsTab.vue") }],
+  },
+  {
+    path: "/insights/needs/:needSlug",
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    meta: { requiresAuth: true },
+    children: [{ path: "", component: () => import("pages/NeedPage.vue") }],
   },
   {
     path: "/settings",

@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Privacy Policy</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Privacy Policy</div>
 
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
 

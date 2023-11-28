@@ -4,7 +4,7 @@
     <q-header class="bg-transparent" :bordered="!isBackgroundDark">
       <q-toolbar :class="['q-mx-auto', 'q-pr-xs', isScrolled ? 'toolbar-blurred' : '']"
         style="max-width: 600px; overflow: hidden;">
-        <q-avatar size="sm" square>
+        <q-avatar size="sm" square @click="router.push('/')">
           <img :class="{ 'invert-color': isBackgroundDark }" src="~assets/icon-kifkaf-no-background.svg" />
         </q-avatar>
         <q-toolbar-title :class="[
@@ -32,7 +32,7 @@
       <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
         class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
         <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" data-cy="home-tab" />
-        <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/learn" class="q-pt-xs q-pb-lg"
+        <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/insights" class="q-pt-xs q-pb-lg"
           data-cy="insights-tab" />
         <!-- ou stats ou needs ou learn -->
         <!-- re-add tabs when ready -->
@@ -51,7 +51,9 @@ This makes your code more efficient and easier to read. The behavior of using na
  When you use “import ref from ‘vue’”, you need to call the function like this: const count = ref.ref(0)*/
 import { ref, onMounted, onUnmounted } from 'vue'
 import { debounce } from 'lodash' // Assuming lodash is installed
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const tab = ref('Home')
 const isBackgroundDark = ref(true) // assuming the default is dark
 const isScrolled = ref(false) // assuming the default is dark

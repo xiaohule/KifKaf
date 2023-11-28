@@ -13,7 +13,7 @@ import {
   runTransaction,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import {
   updateProfile,
   updateEmail,
@@ -25,7 +25,7 @@ import axios from "axios";
 import { Notify } from "quasar";
 import { currentUser } from "../boot/firebaseBoot.js";
 import { date } from "quasar";
-const { formatDate, isSameDate } = date;
+const { formatDate, isSameDate, startOfDate, endOfDate, isBetweenDates } = date;
 
 export const useMomentsStore = defineStore("moments", () => {
   const user = currentUser;
@@ -37,37 +37,119 @@ export const useMomentsStore = defineStore("moments", () => {
   const momentsFetched = ref(false);
   const aggregateDataFetched = ref(false);
   const shouldResetSwiper = ref(false);
+  const savedActiveIndex = ref(null);
+  const savedPeriodicity = ref(null);
   const needsMap = ref({
     //add 'Work-Life Balance'?
-    "Physical Well-Being": ["🛡️", "Physiological & Safety"], //readd Physical safety dedans ou split
-    "Sustenance & Nourishment": ["🍎", "Physiological & Safety"],
-    Shelter: ["🏠", "Physiological & Safety"],
-    "Financial Security": ["💰", "Physiological & Safety"],
-    "Rest & Relaxation": ["🌙", "Physiological & Safety"], //🛋️ //🛌
-    "Physical Movement": ["🤸", "Physiological & Safety"],
-    "Emotional Safety & Inner Peace": ["🧘", "Physiological & Safety"], //"🤗",""],
-    "Boundaries & Privacy": ["🚪", "Physiological & Safety"],
-    "Physical Contact & Intimacy": ["👐", "Connection"],
-    "Contact with Nature": ["🏞️", "Connection"],
-    "Social Connection": ["👥", "Connection"],
-    "Belongingness & Community": ["🏘️", "Connection"],
-    "Support, Understanding & Validation": ["👂", "Connection"], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
-    "Affection & Love": ["❤️", "Connection"],
-    "Play, Humor & Entertainment": ["🎠", "Connection"], // "😂",""],"⚽",""],🎭
-    Autonomy: ["🛤️", "Esteem"],
-    "Self-Esteem & Social Recognition": ["💪", "Esteem"],
-    "Competence & Effectiveness": ["🎯", "Esteem"],
-    "Self-Expression & Creativity": ["🎨", "Esteem"],
-    "Exploration, Novelty & Inspiration": ["🌌", "Personal Growth"], //🌎 // réduire à Exploration & Novelty?
-    Learning: ["📚", "Personal Growth"],
-    "Self-Actualization": ["🌱", "Personal Growth"], //merge learning and self-actualization?
-    Challenge: ["⛰️", "Personal Growth"],
-    "Outward Care & Contribution": ["🤲", "Meaning & Transcendence"], //break in 2?
-    "Fairness & Justice": ["⚖️", "Meaning & Transcendence"], //🕊️
-    "Order & Structure": ["📐", "Meaning & Transcendence"],
-    "Meaning & Purpose": ["🧭", "Meaning & Transcendence"], //🌌
-    "Gratitude & Celebration": ["🎈", "Meaning & Transcendence"], //🎉 //🕯️
-    "Spiritual Transcendence": ["🌸", "Meaning & Transcendence"],
+    "Physical Well-Being": [
+      "🛡️",
+      "Physiological & Safety",
+      "physical-well-being",
+    ], //readd Physical safety dedans ou split
+    "Sustenance & Nourishment": [
+      "🍎",
+      "Physiological & Safety",
+      "sustenance-and-nourishment",
+    ],
+    Shelter: ["🏠", "Physiological & Safety", "shelter"],
+    "Financial Security": [
+      "💰",
+      "Physiological & Safety",
+      "financial-security",
+    ],
+    "Rest & Relaxation": [
+      "🌙",
+      "Physiological & Safety",
+      "rest-and-relaxation",
+    ], //🛋️ //🛌
+    "Physical Movement": ["🤸", "Physiological & Safety", "physical-movement"],
+    "Emotional Safety & Inner Peace": [
+      "🧘",
+      "Physiological & Safety",
+      "emotional-safety-and-inner-peace",
+    ], //"🤗","", ""],
+    "Boundaries & Privacy": [
+      "🚪",
+      "Physiological & Safety",
+      "boundaries-and-privacy",
+    ],
+    "Physical Contact & Intimacy": [
+      "👐",
+      "Connection",
+      "physical-contact-and-intimacy",
+    ],
+    "Contact with Nature": ["🏞️", "Connection", "contact-with-nature"],
+    "Social Connection": ["👥", "Connection", "social-connection"],
+    "Belongingness & Community": [
+      "🏘️",
+      "Connection",
+      "belongingness-and-community",
+    ],
+    "Support, Understanding & Validation": [
+      "👂",
+      "Connection",
+      "support-understanding-and-validation",
+    ], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
+    "Affection & Love": ["❤️", "Connection", "affection-and-love"],
+    "Play, Humor & Entertainment": [
+      "🎠",
+      "Connection",
+      "play-humor-and-entertainment",
+    ], // "😂",""],"⚽",""],🎭
+    Autonomy: ["🛤️", "Esteem", "autonomy"],
+    "Self-Esteem & Social Recognition": [
+      "💪",
+      "Esteem",
+      "self-esteem-and-social-recognition",
+    ],
+    "Competence & Effectiveness": [
+      "🎯",
+      "Esteem",
+      "competence-and-effectiveness",
+    ],
+    "Self-Expression & Creativity": [
+      "🎨",
+      "Esteem",
+      "self-expression-and-creativity",
+    ],
+    "Exploration, Novelty & Inspiration": [
+      "🌌",
+      "Personal Growth",
+      "exploration-novelty-and-inspiration",
+    ], //🌎 // réduire à Exploration & Novelty?
+    Learning: ["📚", "Personal Growth", "learning"],
+    "Self-Actualization": ["🌱", "Personal Growth", "self-actualization"], //merge learning and self-actualization?
+    Challenge: ["⛰️", "Personal Growth", "challenge"],
+    "Outward Care & Contribution": [
+      "🤲",
+      "Meaning & Transcendence",
+      "outward-care-and-contribution",
+    ], //break in 2?
+    "Fairness & Justice": [
+      "⚖️",
+      "Meaning & Transcendence",
+      "fairness-and-justice",
+    ], //🕊️
+    "Order & Structure": [
+      "📐",
+      "Meaning & Transcendence",
+      "order-and-structure",
+    ],
+    "Meaning & Purpose": [
+      "🧭",
+      "Meaning & Transcendence",
+      "meaning-and-purpose",
+    ], //🌌
+    "Gratitude & Celebration": [
+      "🎈",
+      "Meaning & Transcendence",
+      "gratitude-and-celebration",
+    ], //🎉 //🕯️
+    "Spiritual Transcendence": [
+      "🌸",
+      "Meaning & Transcendence",
+      "spiritual-transcendence",
+    ],
   });
   const needsCategories = ref({
     "Physiological & Safety": ["health_and_safety", "soft-green-need"],
@@ -86,6 +168,17 @@ export const useMomentsStore = defineStore("moments", () => {
     }
     return map;
   });
+
+  function needSlugToStr(slug) {
+    // Iterate over the keys of the needsMap
+    for (const [key, value] of Object.entries(needsMap.value)) {
+      // Check if the slug matches the third element in the array
+      if (value[2] === slug) {
+        return key; // Return the corresponding need name
+      }
+    }
+    return null; // Return null if not found
+  }
 
   const fetchUser = async () => {
     try {
@@ -490,18 +583,129 @@ export const useMomentsStore = defineStore("moments", () => {
     return ul.sort((a, b) => b - a);
   });
 
-  const getFormattedDate = (seconds, showHour = false, forDisplay = true) => {
-    if (!seconds) {
+  const getUniqueDaysFromDateRangeAndNeed = (dateRange = "", need = "") => {
+    // if (!momentsFetched.value) {
+    //   await fetchMoments();
+    // }
+    // if (!dateRange) return [];
+
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, dateRange:",
+    //   dateRange,
+    //   "need:",
+    //   need,
+    // );
+    let dateFrom, dateTo;
+    if (dateRange.split("-").length === 1) {
+      //yearly
+      dateFrom = startOfDate(dateRange, "year");
+      dateTo = endOfDate(dateRange, "year");
+    } else {
+      //monthly
+      dateFrom = startOfDate(dateRange, "month");
+      dateTo = endOfDate(dateRange, "month");
+    }
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, dateFrom:",
+    //   dateFrom,
+    //   "dateTo:",
+    //   dateTo,
+    // );
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, momentsColl.value:",
+    //   momentsColl.value,
+    // );
+    let moms = momentsColl.value.filter((moment) => {
+      // console.log(
+      //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moment.date.toDate():",
+      //   moment.date.toDate(),
+      //   "isBetweenDates",
+      //   isBetweenDates(moment.date.toDate(), dateFrom, dateTo, {
+      //     inclusiveFrom: true,
+      //     inclusiveTo: true,
+      //   }),
+      // );
+      return isBetweenDates(moment.date.toDate(), dateFrom, dateTo, {
+        inclusiveFrom: true,
+        inclusiveTo: true,
+      });
+    });
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moms1:",
+    //   moms,
+    // );
+    if (need) {
+      moms = moms.filter((moment) => moment.needs[need]);
+    }
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moms2:",
+    //   moms,
+    // );
+    let uniqueDays = Object.values(moms).map((moment) => {
+      // console.log(
+      //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moment.date.toDate():",
+      //   moment.date.toDate(),
+      // );
+      return startOfDate(moment.date.toDate(), "day").toISOString();
+    });
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays1:",
+    //   uniqueDays,
+    // );
+    uniqueDays = Array.from(new Set(uniqueDays));
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays2:",
+    //   uniqueDays,
+    // );
+    uniqueDays = uniqueDays.map((dateStr) => new Date(dateStr));
+    // console.log(
+    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays3:",
+    //   uniqueDays,
+    // );
+    console.log(
+      "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays4:",
+      uniqueDays.sort((a, b) => b - a),
+    );
+    return uniqueDays.sort((a, b) => b - a);
+  };
+
+  const getMomsFromDayAndNeed = async (day, need = "") => {
+    // if (!momentsFetched.value) {
+    //   await fetchMoments();
+    // }
+    const dayDate = new Timestamp(day, 0).toDate();
+    let moms = momentsColl.value.filter((moment) =>
+      isSameDate(moment.date.toDate(), dayDate, "day"),
+    );
+    if (need) {
+      moms = moms.filter((moment) => moment.needs[need]);
+    }
+    return moms?.sort((a, b) => b.date.seconds - a.date.seconds);
+  };
+
+  const getFormattedDay = (day, showHour = false, forDisplay = true) => {
+    // console.log(
+    //   "In moments.js > getFormattedDay, day:",
+    //   day,
+    //   "showHour:",
+    //   showHour,
+    // );
+    if (!day) {
       return;
     }
 
-    const ts = new Timestamp(seconds, 0); //Timestamp {seconds: 1679961600, nanoseconds: 0}
-    const dt = ts.toDate(); //Tue Mar 28 2023 02:00:00 GMT+0200 (Central European Summer Time)
+    let dt;
+    if (day instanceof Date) {
+      dt = day;
+    } else {
+      const ts = new Timestamp(day, 0); //Timestamp {seconds: 1679961600, nanoseconds: 0}
+      dt = ts.toDate(); //Tue Mar 28 2023 02:00:00 GMT+0200 (Central European Summer Time)
+    }
     const today = new Date();
 
     if (!forDisplay) return formatDate(dt, "MMMM D, YYYY");
 
-    const day = isSameDate(dt, today, "day")
+    const displayDay = isSameDate(dt, today, "day")
       ? "Today"
       : isSameDate(dt, today - 86400000, "day")
         ? "Yesterday"
@@ -509,8 +713,9 @@ export const useMomentsStore = defineStore("moments", () => {
           ? formatDate(dt, "MMMM D")
           : formatDate(dt, "MMMM D, YYYY");
 
-    if (showHour) return day + ", " + formatDate(dt, "HH:mm");
-    else return day;
+    // console.log("In moments.js > getFormattedDay, displayDay:", displayDay);
+    if (showHour) return displayDay + ", " + formatDate(dt, "HH:mm");
+    else return displayDay;
   };
 
   const oldestMomentDate = computed(() => {
@@ -525,6 +730,47 @@ export const useMomentsStore = defineStore("moments", () => {
     // Get the oldest timestamp and convert it to a JS Date format
     return sortedTimestamps[0].toDate();
   });
+
+  const currentDate = computed(() => {
+    return new Date();
+  });
+  const currentYYYYdMM = computed(() => {
+    return `${currentDate.value.getFullYear()}-${(
+      currentDate.value.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}`;
+  });
+
+  //input segDateId, dateRangesYears OR dateRangesMonths, activeIndex,
+  //output dateRangeButtonLabel
+  const getDateLabel = (dateRange) => {
+    console.log("In moment.js > getDateLabel, dateRange:", dateRange);
+    if (!dateRange) {
+      return;
+    }
+    const periodicity =
+      dateRange.split("-").length === 1 ? "Yearly" : "Monthly";
+    if (periodicity === "Yearly") {
+      return currentDate.value.getFullYear() == dateRange
+        ? "This year"
+        : dateRange.toString();
+    } else if (periodicity === "Monthly") {
+      if (currentYYYYdMM.value == dateRange) {
+        return "This month";
+      } else {
+        const [yearStr, monthStr] = dateRange.split("-");
+        const dateRangesMonthsDate = new Date(
+          Number(yearStr),
+          Number(monthStr) - 1,
+        );
+        return dateRangesMonthsDate.getFullYear() ===
+          currentDate.value.getFullYear()
+          ? formatDate(dateRangesMonthsDate, "MMMM")
+          : formatDate(dateRangesMonthsDate, "MMMM YYYY");
+      }
+    }
+  };
 
   const getLatestMomentId = computed(() => {
     if (!momentsFetched.value || !hasNeeds.value || !momentsColl.value.length) {
@@ -588,6 +834,24 @@ export const useMomentsStore = defineStore("moments", () => {
     else return "primary";
   };
 
+  watch(savedActiveIndex, (newVal, oldVal) => {
+    console.log(
+      "In moments.js > savedActiveIndex watch, newVal:",
+      newVal,
+      "oldVal:",
+      oldVal,
+    );
+  });
+
+  watch(savedPeriodicity, (newVal, oldVal) => {
+    console.log(
+      "In moments.js > savedPeriodicity watch, newVal:",
+      newVal,
+      "oldVal:",
+      oldVal,
+    );
+  });
+
   function $reset() {
     user.value = null;
     userDocRef.value = null;
@@ -605,6 +869,8 @@ export const useMomentsStore = defineStore("moments", () => {
     user,
     momentsColl,
     shouldResetSwiper,
+    savedActiveIndex,
+    savedPeriodicity,
     uniqueDays,
     oldestMomentDate,
     userFetched,
@@ -623,9 +889,13 @@ export const useMomentsStore = defineStore("moments", () => {
     getShowWelcomeTutorial,
     getWelcomeTutorialStep,
     getLatestMomentId,
+    needSlugToStr,
     setWelcomeTutorialStep,
     setShowWelcomeTutorial,
-    getFormattedDate,
+    getFormattedDay,
+    getDateLabel,
+    getUniqueDaysFromDateRangeAndNeed,
+    getMomsFromDayAndNeed,
     addMoment,
     fetchUser,
     fetchMoments,

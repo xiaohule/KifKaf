@@ -4,7 +4,7 @@
 
     <Doughnut v-if="loaded" ref="chartRef" :data="chartData" :options="chartOptions" class="q-mx-auto" />
 
-    <div class="overlay-content" style="position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);">
+    <div class="overlay-content" style="position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%);">
       <!-- Your HTML content here -->
       <div v-if="isSegmentClicked">
         <q-avatar v-if="chartData.datasets[0].labels[clickedIndex] !== 'Others'" size="84px" font-size="56px"

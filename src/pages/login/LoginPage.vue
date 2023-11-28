@@ -1,11 +1,11 @@
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Log in to KifKaf</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Log in to KifKaf</div>
 
     <div>
-      <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with email"
-        @click="() => router.push('/login/email')" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
-        icon="r_mail" />
+      <q-btn data-cy="continue-email-button" rounded unelevated color="on-primary" text-color="scrim"
+        label="Continue with email" @click="() => router.push('/login/email')" class="text-subtitle2 full-width q-ma-sm"
+        style="height: 56px;" no-caps icon="r_mail" />
       <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
         class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps>
         <template v-slot:default>
@@ -29,14 +29,15 @@
 
 
     <div class="text-caption text-outline q-mx-sm q-my-md">By continuing, you are indicating that you accept our
-      <a href="/#/terms" class="text-primary" style="text-decoration: none">Terms of Service</a> and <a
-        href="/#/privacy-policy" class="text-primary" style="text-decoration: none;">Privacy Policy</a>.
+      <a data-cy="terms-link" href="/#/terms" class="text-primary" style="text-decoration: none">Terms of Service</a> and
+      <a data-cy="privacy-policy-link" href="/#/privacy-policy" class="text-primary"
+        style="text-decoration: none;">Privacy Policy</a>.
     </div>
 
     <q-separator class="q-my-md" />
 
     <!-- make hyperlink to /contact page using vue router -->
-    <div class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
+    <div data-cy="contact-link" class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
         style="text-decoration: none">Contact us</a>
     </div>
 

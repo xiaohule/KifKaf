@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Terms of Service</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Terms of Service</div>
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
 
       <p>Welcome to KifKaf. These Terms of Service ("Terms") govern your use of the KifKaf mobile application, web
