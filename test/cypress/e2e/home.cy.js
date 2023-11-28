@@ -324,11 +324,11 @@ describe("Need page validation", () => {
     cy.get(":nth-child(1) > .q-card > .q-py-sm").click();
     cy.contains("Moment").should("be.visible");
     cy.contains("Needs").should("be.visible");
-    cy.contains("Physical").should("be.visible");
+    cy.contains("Neutral").should("be.visible");
 
     cy.contains("info").click();
     cy.get(".q-expansion-item").should("be.visible");
-    cy.get(".q-btn").click();
+    cy.contains("Got it").click();
     cy.contains("close").click();
 
     cy.dataCy("go-back-button").click();
