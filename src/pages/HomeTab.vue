@@ -62,9 +62,9 @@
       :new-mom-input-ref="newMomInputRef" @update:new-mom-text="newMomText = $event"
       @click:view-needs="openBottomSheet($event)" class="q-px-md negative-margin-welcome-tutorial" />
 
-    <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
+    <div v-if="!momentsStore || !momentsStore.getUniqueDays || momentsStore.getUniqueDays.length == 0"></div>
     <div v-else class="q-px-md">
-      <div v-for="( day, index ) in  momentsStore.uniqueDays " :key="day">
+      <div v-for="( day, index ) in  momentsStore.getUniqueDays " :key="day">
 
         <div :class="[
           'text-h6',
@@ -90,12 +90,12 @@
               <!--TODO:2 do this part add the "+" for manually adding needs -->
             </q-item>
             <q-item v-else-if="moment.needs && Object.keys(moment.needs).length > 0"
-              class="q-px-xs q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
+              class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
               <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                 @scroll="onChipsRowScroll($event, moment.id)">
                 <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-                  :key="need[0]" outline :color="momentsStore.getChipColor(need[1])"
-                  :icon="momentsStore.needsMap[need[0]][0]" :label="need[0]" class="needs" />
+                  :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+                  class="needs" />
               </div>
             </q-item>
           </div>
@@ -125,11 +125,19 @@ import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 import welcomeTutorial from 'src/components/welcomeTutorial.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
 // import AstronautJSON from './astronaut.json'
+import { needsMap, getChipColor } from "./../utils/needsUtils";
 import { date } from 'quasar'
 const { isSameDate } = date;
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
+const errorDialogOpened = ref(false)
+const errorDialogText = ref('')
+const placeholderText = 'Feeling ... because ...'
+const newMomInputRef = ref(null)
+const newMomText = ref('')
+const newMomDate = ref(null)
+const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 
 const emits = defineEmits(['update:isDialogOpened'])
 
@@ -146,13 +154,6 @@ onMounted(async () => {
   }
 })
 
-const errorDialogOpened = ref(false)
-const errorDialogText = ref('')
-const placeholderText = 'Feeling ... because ...'
-const newMomInputRef = ref(null)
-const newMomText = ref('')
-const newMomDate = ref(null)
-const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 const userFirstName = computed(() => {
   if (momentsStore?.user?.displayName) {
     const firstName = momentsStore.user.displayName.trim().split(' ')[0];

@@ -1,5 +1,5 @@
 <template >
-  <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
+  <q-page class="q-mx-auto q-px-md q-pb-lg" style="max-width: 600px">
 
     <div
       v-if="momentsStore.aggregateData && momentsStore.aggregateData[dateRange] && momentsStore.aggregateData[dateRange].importance.length > 0">
@@ -7,12 +7,12 @@
       <q-item class="q-pt-none q-pl-none q-pr-xs q-mx-none q-pb-xs">
         <q-item-section class="text-h4 text-weight-bold">{{ needName }}</q-item-section>
         <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
-          <q-avatar size="42px" font-size="28px" :color="momentsStore.needToColor[needName]">
-            {{ momentsStore.needsMap[needName][0] }}
+          <q-avatar size="42px" font-size="28px" :color="needToColor[needName]">
+            {{ needsMap[needName][0] }}
           </q-avatar>
         </q-item-section>
       </q-item>
-      <q-item class="q-pa-none q-pb-lg" dense style="min-height: 0px;">
+      <q-item class="q-pa-none q-mb-md" dense style="min-height: 0px;">
         <span class="q-pa-none text-body2">
           {{ momentsStore.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount }}
           {{ momentsStore.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount == 1
@@ -23,34 +23,28 @@
       </q-item>
     </div>
 
-    <!-- <div style="position: relative; height:30vh;">
+    <!-- <div style="position: relative; height:15vh;">
+      <Doughnut v-if="chartLoaded" ref="chartRef" :data="chartData" :options="chartOptions" :plugins="[plugin]"
+        class="q-mx-auto" />
 
-      <Doughnut v-if="loaded" ref="chartRef" :data="chartData" :options="chartOptions" class="q-mx-auto" />
-
-      <div class="overlay-content" style="position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%);">
+      <div class="overlay-content"
+        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width:13vh;">
         <div v-if="isSegmentClicked">
-          <q-avatar v-if="chartData.datasets[0].labels[clickedIndex] !== 'Others'" size="84px" font-size="56px"
-            style="align-items: center; justify-content: center; display: flex; margin: 0 auto 8px;"
-            :color="momentsStore.needToColor[chartData.datasets[0].labels[clickedIndex]]">
-            {{ momentsStore.needsMap[chartData.datasets[0].labels[clickedIndex]][0] }}
-          </q-avatar>
-          <div class="text-body2 text-center q-mt-md q-mb-sm">{{ chartData.datasets[0].labels[clickedIndex]
+          <div class="text-body2 text-center">{{ chartData.datasets[0].labels[clickedIndex]
           }}</div>
-          <div class="text-h3 text-on-surface text-weight-bolder text-center">{{
-            parseFloat((chartData.datasets[0].data[clickedIndex] *
+          <div class="text-h4 text-on-surface text-weight-bolder text-center">{{
+            parseFloat((chartData.datasets[0].data[clickedIndex] / (chartData.datasets[0].data[0] +
+              chartData.datasets[0].data[1])
+              *
               100).toFixed(0)) + "%" }}
           </div>
         </div>
-
-        <div class="text-body2 text-center q-my-sm" v-else>{{ props.toggleValue == 'satisfaction' ? 'Satisfiers' :
-          (props.toggleValue == 'unsatisfaction' ?
-            'Dissatisfiers' : 'Top needs') }}</div>
+        <div v-else class="text-body2 text-center">{{ satisfactionAssessmentMessage }}</div>
       </div>
     </div> -->
 
-
-    <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
-    <div v-else>
+    <div v-if="!momentsStore || !momentsStore.getUniqueDays || momentsStore.getUniqueDays.length == 0"></div>
+    <div v-else class="q-mt-md">
       <div v-for="( day, index ) in uniqueDaysFromDateRangeAndNeed" :key="day">
 
         <div :class="[
@@ -80,8 +74,8 @@
               <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                 @scroll="onChipsRowScroll($event, moment.id)">
                 <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-                  :key="need[0]" outline :color="momentsStore.getChipColor(need[1])"
-                  :icon="momentsStore.needsMap[need[0]][0]" :label="need[0]" class="needs" />
+                  :key="need[0]" outline :color="getChipColor(need[1])"
+                  :icon="needsMap[need[0]][0]" :label="need[0]" class="needs" />
               </div>
             </q-item> -->
           </div>
@@ -96,46 +90,27 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useRoute } from 'vue-router'
 import { Timestamp } from 'firebase/firestore'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import momentBottomSheet from 'src/components/momentBottomSheet.vue'
-import { Chart as ChartJS, ArcElement } from 'chart.js'
-import { Doughnut } from 'vue-chartjs'
-ChartJS.register(ArcElement);
-import { useRouter, useRoute } from 'vue-router'
-const router = useRouter()
-const route = useRoute()
+import { useCurrentDates } from '../composables/dateUtils.js'
+import { needsMap, needToColor, needSlugToStr } from "./../utils/needsUtils";
+// import { Chart as ChartJS, ArcElement, DoughnutController } from 'chart.js'
+// import { Doughnut } from 'vue-chartjs'
 import { date } from 'quasar'
 const { isSameDate } = date;
 
-//STORE INITIALIZATION
+// INITIALIZATION
+const route = useRoute()
 const momentsStore = useMomentsStore()
+const { currentYYYYdMM } = useCurrentDates()
+// ChartJS.register(ArcElement, DoughnutController);
 
-const emits = defineEmits(['update:isDialogOpened'])
-
+// TITLES
 const needName = ref('')
-const dateRange = ref('')
+const dateRange = ref(currentYYYYdMM.value)
 
-watch(
-  () => route.params.needSlug,
-  newNeedSlug => {
-    needName.value = momentsStore.needSlugToStr(newNeedSlug)
-  }, { immediate: true }
-)
-
-watch(
-  () => route.query.dateRange,
-  newDateRange => {
-    dateRange.value = newDateRange
-  }, { immediate: true }
-)
-
-const uniqueDaysFromDateRangeAndNeed = computed(() => {
-  // console.log('in uniqueDays computed, dateRange.value:', dateRange.value, "needName.value:", needName.value, "momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value):", momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value))
-  return momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value)
-})
-
-// Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
   try {
     if (!momentsStore.aggregateDataFetched) {
@@ -149,29 +124,138 @@ onMounted(async () => {
   }
 })
 
-// onActivated(() => {
-//   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-//   momsWithScrolledNeeds.value = {};
+watch(
+  () => route.params.needSlug,
+  newNeedSlug => {
+    needName.value = needSlugToStr(newNeedSlug)
+  }, { immediate: true }
+)
+watch(
+  () => route.query.dateRange,
+  newDateRange => {
+    if (newDateRange) dateRange.value = newDateRange
+  }, { immediate: true }
+)
+
+// //DONUT CHART
+// const chartLoaded = ref(false)
+// const chartRef = ref(null)
+// const isSegmentClicked = ref(false)
+// const clickedIndex = ref(null)
+// const chartData = ref({
+//   datasets: [
+//     {
+//       data: [1],
+//       backgroundColor: ['#c0c6dc'],
+//     }
+//   ]
+// }
+// )
+
+// //TODO:4 define elsewhere, outside of your component's setup function. This ensures the plugin is defined once and not re-created on each component re-render.
+// const plugin = {
+//   id: 'doughnut_chart_background',
+//   beforeDraw: (chart) => {
+//     // TODO:2 understand why this plugin is called multiple times on opening of need page does it has a performance impact?
+//     // console.log('In NeedPage donutChart > plugin beforeDraw chart:', chart);
+//     const { ctx, width, height } = chart
+//     const { innerRadius } = chart.getDatasetMeta(chart.data.datasets.length - 1).controller
+//     const { outerRadius } = chart.getDatasetMeta(0).controller
+//     const radiusLength = outerRadius - innerRadius
+//     const x = width / 2,
+//       y = height / 2
+
+//     ctx.beginPath()
+//     ctx.arc(x, y, outerRadius - radiusLength / 2, 0, 2 * Math.PI)
+//     ctx.lineWidth = radiusLength
+//     ctx.strokeStyle = '#c0c6dc'
+//     ctx.stroke()
+//   }
+// }
+
+// const chartOptions = ref({
+//   cutout: '84%',
+//   spacing: 0,
+//   borderRadius: 14,
+//   borderWidth: 0,
+//   backgroundColor: '#c0c6dc',
+//   responsive: true,
+//   maintainAspectRatio: true,
+//   animation: {
+//     duration: 500,
+//     animateScale: false,
+//     animateRotate: true
+//   },
 // })
 
-const errorDialogOpened = ref(false)
-const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 
-const expectedLlmCallDuration = ref(60);
-const momPageOpened = ref(false)
-const bottomSheetMomentId = ref("")
-const openBottomSheet = (momentId) => {
-  console.log('in openBottomSheet momentId:', momentId)
-  bottomSheetMomentId.value = momentId
-  momPageOpened.value = true
-}
+// watchEffect(() => {
+//   if (needName.value && dateRange.value) {
+//     console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect called');
+//     if (momentsStore.aggregateData) {
+//       if (
+//         momentsStore.aggregateData[dateRange.value] &&
+//         momentsStore.aggregateData[dateRange.value].importance.length > 0) {
+//         chartLoaded.value = false
+//         const needsData = momentsStore?.aggregateData[dateRange.value].importance.find(item => item.needName == needName.value)
+//         console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' needsData:', needsData);
 
-watch([errorDialogOpened, momPageOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
-  if (newVal1 || newVal2) emits('update:isDialogOpened', true)
-  else emits('update:isDialogOpened', false)
-})
+//         chartData.value.datasets[0].data = [needsData.satisfactionImpactLabelValue, needsData.unsatisfactionImpactLabelValue]
+//         chartData.value.datasets[0].backgroundColor = [getComputedStyle(document.documentElement).getPropertyValue(`--positive-color`), 'transparent']
+//         //full circle if full satisfaction
+//         if (needsData.unsatisfactionImpactLabelValue === 0) chartData.value.datasets[0].borderRadius = 0
+
+//         nextTick(() => {
+//           chartLoaded.value = true
+//           console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect, chartData updated, chartRef', chartRef.value);
+
+//         })
+
+
+//       } else {
+//         //if no data ready but legit dateRange and needName generate an empty chart
+//         chartLoaded.value = false
+//         nextTick(() => {
+//           console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, '  > watchEffect, data not ready for this dateRange and toggleValue');
+//           chartLoaded.value = true
+//         })
+//       }
+//     }
+//     else {
+//       console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect ,momentsStore.aggregateData not ready');
+//     }
+//   }
+// })
+
+// const satisfactionAssessmentMessage = computed(() => {
+//   if (chartData.value.datasets[0].data.length > 1) {
+
+//     const sat = chartData.value.datasets[0].data[0] / (chartData.value.datasets[0].data[0] + chartData.value.datasets[0].data[1]);
+//     if (sat < 0.15) {
+//       return "Highly dissatisfied";
+//     } else if (sat < 0.3) {
+//       return "Mostly dissatisfied";
+//     } else if (sat < 0.45) {
+//       return "Somewhat dissatisfied";
+//     } else if (sat < 0.6) {
+//       return "Moderately satisfied";
+//     } else if (sat < 0.75) {
+//       return "Fairly satisfied";
+//     } else if (sat < 1) {
+//       return "Well satisfied";
+//     } else {
+//       return "Fully satisfied";
+//     }
+//   } else {
+//     return "No data"
+//   }
+// })
 
 // DISPLAY PREVIOUS MOMENTS
+const uniqueDaysFromDateRangeAndNeed = computed(() => {
+  // console.log('in getUniqueDays computed, dateRange.value:', dateRange.value, "needName.value:", needName.value, "momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value):", momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value))
+  return momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value)
+})
 const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssStore directly
   let dt;
   if (day instanceof Date) {
@@ -185,57 +269,73 @@ const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssS
   return ol;
 }
 
+//MOM PAGE
+const expectedLlmCallDuration = ref(60);
+const momPageOpened = ref(false)
+const bottomSheetMomentId = ref("")
+const openBottomSheet = (momentId) => {
+  console.log('in openBottomSheet momentId:', momentId)
+  bottomSheetMomentId.value = momentId
+  momPageOpened.value = true
+}
+
 // DISPLAY PREVIOUS MOMENTS NEEDS
-const onChipsRowScroll = (event, id) => {
-  momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
-};
-const setChipsRowPadding = (id) => {
-  // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
-  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 48px;';
-};
+// const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
+// const onChipsRowScroll = (event, id) => {
+//   momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
+// };
+// const setChipsRowPadding = (id) => {
+//   // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
+//   return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 48px;';
+// };
 </script>
 
 <style lang="scss">
-.q-linear-progress__track,
-.q-linear-progress__model {
-  border-radius: 4px;
-}
+// .overlay-content {
+//   pointer-events: none;
+//   /* This allows clicks to pass through to the chart */
 
-/* Hide scrollbar for IE, Edge, and Firefox */
-.chip-container {
-  scrollbar-width: none;
-  /* For Firefox */
-  -ms-overflow-style: none;
-  /* For Internet Explorer and Edge */
-}
+//   >div {
+//     pointer-events: auto;
+//     /* Enable pointer events for the actual content */
+//   }
+// }
 
-.horizontal-scroll {
-  display: flex;
-  overflow-x: auto;
-  white-space: nowrap;
-  width: 100%;
-  -webkit-overflow-scrolling: touch;
-  transition: padding-left 0.9s ease;
-  // cursor: grab; //disabled bec. misleading since horizontal scroll doesn't work on desktop
+// /* Hide scrollbar for IE, Edge, and Firefox */
+// .chip-container {
+//   scrollbar-width: none;
+//   /* For Firefox */
+//   -ms-overflow-style: none;
+//   /* For Internet Explorer and Edge */
+// }
 
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
+// .horizontal-scroll {
+//   display: flex;
+//   overflow-x: auto;
+//   white-space: nowrap;
+//   width: 100%;
+//   -webkit-overflow-scrolling: touch;
+//   transition: padding-left 0.9s ease;
+//   // cursor: grab; //disabled bec. misleading since horizontal scroll doesn't work on desktop
 
-.horizontal-scroll .q-chip:first-child {
-  margin-left: 0;
-}
+//   /* Hide scrollbar for Chrome, Safari and Opera */
+//   &::-webkit-scrollbar {
+//     display: none;
+//   }
+// }
 
-.needs {
-  font-size: 0.8rem;
-  // max-width: 200px; //truncate
-}
+// .horizontal-scroll .q-chip:first-child {
+//   margin-left: 0;
+// }
 
-.q-chip__icon {
-  margin-bottom: 2px;
-}
+// .needs {
+//   font-size: 0.8rem;
+//   // max-width: 200px; //truncate
+// }
+
+// .q-chip__icon {
+//   margin-bottom: 2px;
+// }
 </style>
 
 

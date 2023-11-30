@@ -57,10 +57,18 @@ import { ref, computed, watch, watchEffect, onMounted, onActivated, onDeactivate
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
+import { useCurrentDates } from '../composables/dateUtils.js'
 import { date } from 'quasar'
 const { formatDate, getDateDiff, startOfDate, addToDate, getMaxDate } = date;
 
+
 const momentsStore = useMomentsStore()
+const { currentDate, currentDateYYYYsMM } = useCurrentDates()
+const dateRangeButtonLabel = ref('This month')
+const toggleModel = ref('satisfaction')
+const clickedLearnPage = ref(false)
+const donutSwiperAndListRef = ref(null);
+
 onMounted(async () => {
   try {
     console.log('In InsightsTab onMounted')
@@ -70,6 +78,8 @@ onMounted(async () => {
     console.log('In InsightsTab onMounted, await momentsStore.fetchAggregateData() done')
     if (momentsStore.savedPeriodicity) segDateId.value = momentsStore.savedPeriodicity
     momentsStore.savedPeriodicity = null
+    if (momentsStore.savedToggleValue) toggleModel.value = momentsStore.savedToggleValue
+    momentsStore.savedToggleValue = null
   } catch (error) {
     console.error('await momentsStore.fetchAggregateData() error:', error);
   }
@@ -82,11 +92,6 @@ onActivated(() => {
 onDeactivated(() => {
   console.log('In InsightsTab onDeactivated')
 })
-
-const dateRangeButtonLabel = ref('This month')
-const toggleModel = ref('satisfaction')
-const clickedLearnPage = ref(false)
-const donutSwiperAndListRef = ref(null);
 
 const handlePageClick = (event) => {
   console.log('In InsightsTab > handlePageClick, event.target', event.target)
@@ -128,25 +133,15 @@ watch(() => momentsStore.shouldResetSwiper, (newVal) => {
 })
 
 //DATES MANAGEMENT
-const currentDate = computed(() => {
-  return new Date()
-})
-const currentDateYYYYsMM = computed(() => {
-  return formatDate(currentDate.value, "YYYY/MM")
-})
-
-const oldestMomentDate = computed(() => {
-  return momentsStore.oldestMomentDate ?? currentDate.value;
-})
 const oldestMomentDateYYYYsMM = computed(() => {
-  return formatDate(oldestMomentDate.value, "YYYY/MM")
+  return formatDate(momentsStore.getOldestMomentDate, "YYYY/MM")
 })
 
 const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
 const segDateId = ref("Monthly")
 const dateRangesYears = computed(() => {
   const dateRanges = [];
-  const yearsSinceOldestMoment = getDateDiff(currentDate.value, oldestMomentDate.value, 'years')
+  const yearsSinceOldestMoment = getDateDiff(currentDate.value, momentsStore.getOldestMomentDate, 'years')
   for (let i = yearsSinceOldestMoment; i >= 0; i--) {
     dateRanges.push((currentDate.value.getFullYear() - i).toString());
   }
@@ -169,8 +164,8 @@ watch(dateRangesYears, (newValue) => {
 
 const dateRangesMonths = computed(() => {
   const dateRanges = [];
-  const monthsSinceOldestMoment = getDateDiff(currentDate.value, oldestMomentDate.value, 'months')
-  let trackingDate = startOfDate(oldestMomentDate.value, 'month');
+  const monthsSinceOldestMoment = getDateDiff(currentDate.value, momentsStore.getOldestMomentDate, 'months')
+  let trackingDate = startOfDate(momentsStore.getOldestMomentDate, 'month');
   for (let i = 0; i <= monthsSinceOldestMoment; i++) {
     dateRanges.push(`${trackingDate.getFullYear()}-${(trackingDate.getMonth() + 1).toString().padStart(2, '0')}`);
     trackingDate = addToDate(trackingDate, { months: 1 });
@@ -220,7 +215,7 @@ const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"))
 const monthsKey = ref(Date.now())
 const yearsKey = ref(Date.now())
 const optionsFn = (date) => {
-  return date >= oldestMomentDate.value;
+  return date >= momentsStore.getOldestMomentDate;
 }
 
 //EVENTS
@@ -229,22 +224,22 @@ const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:
   if (newVal) {
     if (segDateId.value === 'Monthly') {
       monthsKey.value = Date.now()
-      activeIndex.value = getDateDiff(newVal, oldestMomentDate.value, 'months');
+      activeIndex.value = getDateDiff(newVal, momentsStore.getOldestMomentDate, 'months');
     } else if (segDateId.value === 'Yearly') {
       yearsKey.value = Date.now()
-      activeIndex.value = getDateDiff(newVal, oldestMomentDate.value, 'years');
+      activeIndex.value = getDateDiff(newVal, momentsStore.getOldestMomentDate, 'years');
     }
     // updateDateButtonLabel()
 
-    console.log('In InsightsTab > onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and oldestMomentDate.value", oldestMomentDate.value, "and segDateId.value", segDateId.value)
+    console.log('In InsightsTab > onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and momentsStore.getOldestMomentDate", momentsStore.getOldestMomentDate, "and segDateId.value", segDateId.value)
   }
 }
 
 //i.e. onSegmentControlChange
 watch(segDateId, (newVal) => {
-  console.log('In InsightsTab > watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "oldestMomentDate.value", oldestMomentDate.value)
+  console.log('In InsightsTab > watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "momentsStore.getOldestMomentDate", momentsStore.getOldestMomentDate)
   if (newVal) {
-    let max = getMaxDate(pickedDateYYYYsMMsDD.value, oldestMomentDate.value)
+    let max = getMaxDate(pickedDateYYYYsMMsDD.value, momentsStore.getOldestMomentDate)
     pickedDateYYYYsMMsDD.value = formatDate(max, "YYYY/MM/DD")
     console.log('watch(segDateId) changed pickedDateYYYYsMMsDD.value to', pickedDateYYYYsMMsDD.value)
     onUpdatePickedDate(pickedDateYYYYsMMsDD.value)

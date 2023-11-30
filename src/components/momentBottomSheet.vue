@@ -50,8 +50,8 @@
           <q-card-section v-else-if="moment?.needs && Object.keys(moment?.needs).length > 0"
             class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
             <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-              :key="need[0]" outline :color="momentsStore.getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
-              :label="need[0]" class="needs" />
+              :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+              class="needs" />
             <!-- add the "+" for manually adding needs -->
 
             <!-- <div class="q-chip row inline no-wrap items-center text-positive q-chip--colored q-chip--outline needs" style="background-color: negative;"> -->
@@ -83,8 +83,8 @@
           Universal Human Needs. <br><br>The full list is composed of:<br>
 
           <q-list>
-            <q-expansion-item v-for="categ in Object.entries(momentsStore.needsCategories)" :key="categ[0]"
-              group="needsCategories" header-class="q-px-none">
+            <q-expansion-item v-for="categ in Object.entries(needsCategories)" :key="categ[0]" group="needsCategories"
+              header-class="q-px-none">
               <template v-slot:header>
                 <q-item-section avatar>
                   <q-avatar :icon="categ[1][0]" :color="categ[1][1]" text-color="background">
@@ -99,8 +99,8 @@
                   <!-- [["Physical Well-Being", ["🛡️", "Physiological & Safety"]],
   ["Sustenance & Nourishment", ["🍎", "Physiological & Safety"]],
   // ... (and so on for each entry in the needsMap)] -->
-                  <q-chip v-for="need in Object.entries(momentsStore.needsMap).filter(need => need[1][1] === categ[0])"
-                    :key="need[0]" outline :icon="need[1][0]" color="outline" :label="need[0]" class="needs" />
+                  <q-chip v-for="need in Object.entries(needsMap).filter(need => need[1][1] === categ[0])" :key="need[0]"
+                    outline :icon="need[1][0]" color="outline" :label="need[0]" class="needs" />
                 </q-card-section>
               </q-card>
             </q-expansion-item>
@@ -120,6 +120,11 @@ q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
 import { ref, watch } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
+import { needsMap, needsCategories, getChipColor } from "./../utils/needsUtils";
+
+const momentsStore = useMomentsStore()
+const moment = ref(null)
+const needsInfoOpened = ref(false)
 
 const props = defineProps({
   modelValue: {
@@ -139,15 +144,11 @@ const props = defineProps({
 });
 defineEmits(['update:modelValue']);
 
-const momentsStore = useMomentsStore()
-const moment = ref(null)
-
 watch(() => props.momentId, (newVal, oldVal) => {
   momentsStore.getMomentById(newVal, moment);
   console.log('in momentBottomSheet watch props.momentId:', props.momentId, "moment:", moment);
 })
 
-const needsInfoOpened = ref(false)
 
 </script>
 <style lang="scss">

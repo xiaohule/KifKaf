@@ -6,7 +6,7 @@
         <q-item-section class="text-body1 text-weight-medium text-on-primary">Welcome to
           KifKaf</q-item-section>
         <q-item-section side>
-          <q-btn flat dense icon="r_close" color="background" size="12px"
+          <q-btn flat dense icon="r_close" color="background" size="10px"
             @click="momentsStore.setShowWelcomeTutorial(false)" padding="none" />
         </q-item-section>
       </q-item>

@@ -22,11 +22,11 @@
           enter-from-class="eflt" leave-to-class="eflt">
 
           <q-item v-for="item in itemsToDisplay" :key="item.needName" class="q-pt-sm q-pb-sm q-px-xs" clickable
-            @click="momentsStore.savedActiveIndex = props.activeIndex; momentsStore.savedPeriodicity = props.segDateId; router.push({ path: `/insights/needs/${momentsStore.needsMap[item.needName][2]}`, query: { dateRange: props.dateRanges[props.activeIndex] } });">
+            @click="momentsStore.savedActiveIndex = props.activeIndex; momentsStore.savedPeriodicity = props.segDateId; momentsStore.savedToggleValue = props.toggleValue; momentsStore.savedSegmentClicked = donutChartClickedSegmentIndex; router.push({ path: `/insights/needs/${needsMap[item.needName][2]}`, query: { dateRange: props.dateRanges[props.activeIndex] } });">
 
             <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
-              <q-avatar size="42px" font-size="28px" :color="momentsStore.needToColor[item.needName]">
-                {{ momentsStore.needsMap[item.needName][0] }}
+              <q-avatar size="42px" font-size="28px" :color="needToColor[item.needName]">
+                {{ needsMap[item.needName][0] }}
               </q-avatar>
             </q-item-section>
 
@@ -59,7 +59,7 @@
 
     <div v-else class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat>
       <!-- system not ready or no need ever recorded -->
-      <div v-if="!momentsStore || !momentsStore.hasNeeds">
+      <div v-if="!momentsStore || !momentsStore.getHasNeeds">
         <!-- Add Moments in the Home tab to learn more about your needs! -->
         <div v-if="props.toggleValue == 'satisfaction'">
           Log Moments in the Home tab to discover the needs from which you get the most satisfaction!
@@ -101,9 +101,9 @@ import { watch, ref, nextTick, computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import donutChart from "./../components/donutChart.vue";
 import { useRouter } from 'vue-router'
+import { needsMap, needToColor } from "./../utils/needsUtils";
 
 const router = useRouter()
-
 const momentsStore = useMomentsStore()
 
 const props = defineProps({
@@ -134,6 +134,7 @@ const emits = defineEmits(['update:activeIndex', 'reset:clickedLearnPage'])
 //SWIPER
 const swiperElChart = ref(null)
 const displayOnlyOneNeed = ref(null)
+const donutChartClickedSegmentIndex = ref(null)
 const percentageThreshold = ref(0.05)
 const swiperLoaded = ref(true)
 const toggleValueDataKey = computed(() => {
@@ -158,7 +159,7 @@ const swiperAfterInit = () => {
 
 const onActiveIndexChangeBySwiper = (event) => {
   console.log('In donutSwiperAndList > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
-
+  displayOnlyOneNeed.value = null
   emits('update:activeIndex', event)
 }
 
@@ -199,9 +200,10 @@ watch(() => props.toggleValue, () => {
   displayOnlyOneNeed.value = null
 })
 
-const donutSegmentClicked = ({ needName }) => {
-  console.log('In donutSwiperAndList > donutSegmentClicked for:', needName)
+const donutSegmentClicked = ({ needName, clickedSegmentIndex }) => {
+  console.log('In donutSwiperAndList > donutSegmentClicked for:', needName, 'clickedSegmentIndex:', clickedSegmentIndex)
   displayOnlyOneNeed.value = needName
+  donutChartClickedSegmentIndex.value = clickedSegmentIndex
   emits('reset:clickedLearnPage')
 }
 </script>
