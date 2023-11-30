@@ -57,13 +57,12 @@ import { ref, computed, watch, watchEffect, onMounted, onActivated, onDeactivate
 import { useMomentsStore } from './../stores/moments.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
-import { useCurrentDates } from '../composables/dateUtils.js'
+import { useDateUtils } from '../composables/dateUtils.js'
 import { date } from 'quasar'
 const { formatDate, getDateDiff, startOfDate, addToDate, getMaxDate } = date;
 
-
 const momentsStore = useMomentsStore()
-const { currentDate, currentDateYYYYsMM } = useCurrentDates()
+const { currentDate, currentYear, currentDateYYYYsMM, getDatePickerLabel } = useDateUtils()
 const dateRangeButtonLabel = ref('This month')
 const toggleModel = ref('satisfaction')
 const clickedLearnPage = ref(false)
@@ -133,17 +132,16 @@ watch(() => momentsStore.shouldResetSwiper, (newVal) => {
 })
 
 //DATES MANAGEMENT
+const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
+const segDateId = ref("Monthly")
 const oldestMomentDateYYYYsMM = computed(() => {
   return formatDate(momentsStore.getOldestMomentDate, "YYYY/MM")
 })
-
-const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
-const segDateId = ref("Monthly")
 const dateRangesYears = computed(() => {
   const dateRanges = [];
   const yearsSinceOldestMoment = getDateDiff(currentDate.value, momentsStore.getOldestMomentDate, 'years')
   for (let i = yearsSinceOldestMoment; i >= 0; i--) {
-    dateRanges.push((currentDate.value.getFullYear() - i).toString());
+    dateRanges.push((currentYear.value - i).toString());
   }
   console.log('In InsightsTab > computed dateRangesYears, dateRanges is', dateRanges)
   return dateRanges;
@@ -196,9 +194,9 @@ const dateRangesMonthsIdxToDate = (idx) => {
 watchEffect(() => {
   console.log('In InsightsTab > watchEffect activeIndex.value', activeIndex.value, "segDateId.value", segDateId.value)
   if (segDateId.value === 'Monthly') {
-    dateRangeButtonLabel.value = momentsStore.getDateLabel(dateRangesMonths.value[activeIndex.value]);
+    dateRangeButtonLabel.value = getDatePickerLabel(dateRangesMonths.value[activeIndex.value]);
   } else if (segDateId.value === 'Yearly') {
-    dateRangeButtonLabel.value = momentsStore.getDateLabel(dateRangesYears.value[activeIndex.value]);
+    dateRangeButtonLabel.value = getDatePickerLabel(dateRangesYears.value[activeIndex.value]);
   }
 });
 

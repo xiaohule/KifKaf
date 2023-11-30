@@ -24,11 +24,11 @@ import axios from "axios";
 import { Notify } from "quasar";
 import { currentUser } from "../boot/firebaseBoot.js";
 import { date } from "quasar";
-const { formatDate, isSameDate, startOfDate, endOfDate, isBetweenDates } = date;
-import { useCurrentDates } from "../composables/dateUtils.js";
+const { isSameDate, startOfDate, endOfDate, isBetweenDates } = date;
+import { useDateUtils } from "../composables/dateUtils.js";
 
 export const useMomentsStore = defineStore("moments", () => {
-  const { currentDate, currentYear, currentYYYYdMM } = useCurrentDates();
+  const { currentYear, currentYYYYdMM, dayToDate } = useDateUtils();
   const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
@@ -402,30 +402,6 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   });
 
-  const getUniqueDays = computed(() => {
-    console.log("In getUniqueDays");
-    // console.log("In getUniqueDays, userDoc:",userDoc,"userFetched:",userFetched);
-    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
-      return [];
-    }
-    let ul = userDoc.value.momentsDays.map((day) => day.seconds);
-    //Sort in descending order (most recent first) & return
-    return ul.sort((a, b) => b - a);
-  });
-
-  const getOldestMomentDate = computed(() => {
-    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
-      return currentDate.value;
-    }
-
-    const sortedTimestamps = userDoc.value.momentsDays.sort(
-      (a, b) => a.seconds - b.seconds,
-    );
-
-    // Get the oldest timestamp and convert it to a JS Date format
-    return sortedTimestamps[0].toDate();
-  });
-
   // async updateMoment(momentId, moment) {
   //   try {
   //     const momentRef = doc(db, `users/${this.userId}/moments/${momentId}`);
@@ -506,14 +482,28 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
-  const getUniqueDaysFromDateRangeAndNeed = (dateRange = "", need = "") => {
+  //DATES
+  const getUniqueDaysTs = computed(() => {
+    // console.log("In getUniqueDaysTs");
+    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
+      return [];
+    }
+    //Sort in descending order (most recent first) & return
+    return userDoc.value.momentsDays.sort((a, b) => b.seconds - a.seconds);
+  });
+
+  const getOldestMomentDate = computed(() => {
+    return getUniqueDaysTs.value[getUniqueDaysTs.value.length - 1].toDate();
+  });
+
+  const getUniqueDaysDateFromDateRangeAndNeed = (dateRange = "", need = "") => {
     // if (!momentsFetched.value) {
     //   await fetchMoments();
     // }
     // if (!dateRange) return [];
 
     // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, dateRange:",
+    //   "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, dateRange:",
     //   dateRange,
     //   "need:",
     //   need,
@@ -528,147 +518,47 @@ export const useMomentsStore = defineStore("moments", () => {
       dateFrom = startOfDate(dateRange, "month");
       dateTo = endOfDate(dateRange, "month");
     }
-    // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, dateFrom:",
-    //   dateFrom,
-    //   "dateTo:",
-    //   dateTo,
-    // );
-    // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, momentsColl.value:",
-    //   momentsColl.value,
-    // );
-    let moms = momentsColl.value.filter((moment) => {
-      // console.log(
-      //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moment.date.toDate():",
-      //   moment.date.toDate(),
-      //   "isBetweenDates",
-      //   isBetweenDates(moment.date.toDate(), dateFrom, dateTo, {
-      //     inclusiveFrom: true,
-      //     inclusiveTo: true,
-      //   }),
-      // );
-      return isBetweenDates(moment.date.toDate(), dateFrom, dateTo, {
-        inclusiveFrom: true,
-        inclusiveTo: true,
-      });
+
+    const uniqueDaysSet = new Set();
+    momentsColl.value.forEach((moment) => {
+      const momentDate = moment.date.toDate();
+      if (
+        isBetweenDates(momentDate, dateFrom, dateTo, {
+          inclusiveFrom: true,
+          inclusiveTo: true,
+        })
+      ) {
+        if (!need || (need && moment.needs[need])) {
+          const dayStr = startOfDate(momentDate, "day").toISOString(); //toISOStr to make it a string so that Set can ensure uniqueness
+          uniqueDaysSet.add(dayStr);
+        }
+      }
     });
-    // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moms1:",
-    //   moms,
-    // );
-    if (need) {
-      moms = moms.filter((moment) => moment.needs[need]);
-    }
-    // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moms2:",
-    //   moms,
-    // );
-    let uniqueDays = Object.values(moms).map((moment) => {
-      // console.log(
-      //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, moment.date.toDate():",
-      //   moment.date.toDate(),
-      // );
-      return startOfDate(moment.date.toDate(), "day").toISOString();
-    });
-    // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays1:",
-    //   uniqueDays,
-    // );
-    uniqueDays = Array.from(new Set(uniqueDays));
-    // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays2:",
-    //   uniqueDays,
-    // );
-    uniqueDays = uniqueDays.map((dateStr) => new Date(dateStr));
-    // console.log(
-    //   "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays3:",
-    //   uniqueDays,
-    // );
+
     console.log(
-      "In moments.js > getUniqueDaysFromDateRangeAndNeed, uniqueDays4:",
-      uniqueDays.sort((a, b) => b - a),
+      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, uniqueDaysSet:",
+      uniqueDaysSet,
     );
-    return uniqueDays.sort((a, b) => b - a);
+    return Array.from(uniqueDaysSet)
+      .map((dayStr) => new Date(dayStr))
+      .sort((a, b) => b - a); // Sort in descending order
   };
 
-  const getMomsFromDayAndNeed = async (day, need = "") => {
+  const getSortedMomsFromDayAndNeed = /*async*/ (day, need = "") => {
     // if (!momentsFetched.value) {
     //   await fetchMoments();
     // }
-    const dayDate = new Timestamp(day, 0).toDate();
+    const dayDate = dayToDate(day);
+
     let moms = momentsColl.value.filter((moment) =>
       isSameDate(moment.date.toDate(), dayDate, "day"),
     );
+
     if (need) {
       moms = moms.filter((moment) => moment.needs[need]);
     }
+
     return moms?.sort((a, b) => b.date.seconds - a.date.seconds);
-  };
-
-  const getFormattedDay = (day, showHour = false, forDisplay = true) => {
-    // console.log(
-    //   "In moments.js > getFormattedDay, day:",
-    //   day,
-    //   "showHour:",
-    //   showHour,
-    // );
-    if (!day) {
-      return;
-    }
-
-    let dt;
-    if (day instanceof Date) {
-      dt = day;
-    } else {
-      const ts = new Timestamp(day, 0); //Timestamp {seconds: 1679961600, nanoseconds: 0}
-      dt = ts.toDate(); //Tue Mar 28 2023 02:00:00 GMT+0200 (Central European Summer Time)
-    }
-    const today = new Date();
-
-    if (!forDisplay) return formatDate(dt, "MMMM D, YYYY");
-
-    const displayDay = isSameDate(dt, today, "day")
-      ? "Today"
-      : isSameDate(dt, today - 86400000, "day")
-        ? "Yesterday"
-        : isSameDate(dt, today, "year")
-          ? formatDate(dt, "MMMM D")
-          : formatDate(dt, "MMMM D, YYYY");
-
-    // console.log("In moments.js > getFormattedDay, displayDay:", displayDay);
-    if (showHour) return displayDay + ", " + formatDate(dt, "HH:mm");
-    else return displayDay;
-  };
-
-  //input segDateId, dateRangesYears OR dateRangesMonths, activeIndex,
-  //output dateRangeButtonLabel
-  const getDateLabel = (dateRange) => {
-    console.log("In moment.js > getDateLabel, dateRange:", dateRange);
-    if (!dateRange) {
-      return;
-    }
-    const periodicity =
-      dateRange.split("-").length === 1 ? "Yearly" : "Monthly";
-    if (periodicity === "Yearly") {
-      return currentDate.value.getFullYear() == dateRange
-        ? "This year"
-        : dateRange.toString();
-    } else if (periodicity === "Monthly") {
-      if (currentYYYYdMM.value == dateRange) {
-        return "This month";
-      } else {
-        const [yearStr, monthStr] = dateRange.split("-");
-        const dateRangesMonthsDate = new Date(
-          Number(yearStr),
-          Number(monthStr) - 1,
-        );
-        return dateRangesMonthsDate.getFullYear() ===
-          currentDate.value.getFullYear()
-          ? formatDate(dateRangesMonthsDate, "MMMM")
-          : formatDate(dateRangesMonthsDate, "MMMM YYYY");
-      }
-    }
   };
 
   function $reset() {
@@ -704,7 +594,7 @@ export const useMomentsStore = defineStore("moments", () => {
     getShowWelcomeTutorial,
     getWelcomeTutorialStep,
     momentsFetched,
-    getUniqueDays,
+    getUniqueDaysTs,
     getOldestMomentDate,
     getMomentById,
     getLatestMomentId,
@@ -720,10 +610,8 @@ export const useMomentsStore = defineStore("moments", () => {
     setSignInMethods,
     fetchMoments,
     fetchAggregateData,
-    getFormattedDay,
-    getDateLabel,
-    getUniqueDaysFromDateRangeAndNeed,
-    getMomsFromDayAndNeed,
+    getUniqueDaysDateFromDateRangeAndNeed,
+    getSortedMomsFromDayAndNeed,
     $reset,
   };
 });

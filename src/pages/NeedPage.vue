@@ -7,7 +7,7 @@
       <q-item class="q-pt-none q-pl-none q-pr-xs q-mx-none q-pb-xs">
         <q-item-section class="text-h4 text-weight-bold">{{ needName }}</q-item-section>
         <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
-          <q-avatar size="42px" font-size="28px" :color="needToColor[needName]">
+          <q-avatar size="42px" font-size="28px" :color="needToColor()[needName]">
             {{ needsMap[needName][0] }}
           </q-avatar>
         </q-item-section>
@@ -19,7 +19,7 @@
             ?
             'moment' : 'moments' }}&nbsp;</span>
         <span class="q-pa-auto" style="font-size:0.4em;line-height:4;">●</span>
-        <span class="text-body2 text-outline">&nbsp;{{ momentsStore.getDateLabel(dateRange) }}</span>
+        <span class="text-body2 text-outline">&nbsp;{{ getDatePickerLabel(dateRange) }}</span>
       </q-item>
     </div>
 
@@ -43,9 +43,9 @@
       </div>
     </div> -->
 
-    <div v-if="!momentsStore || !momentsStore.getUniqueDays || momentsStore.getUniqueDays.length == 0"></div>
+    <div v-if="!momentsStore || !momentsStore.getUniqueDaysTs || momentsStore.getUniqueDaysTs.length == 0"></div>
     <div v-else class="q-mt-md">
-      <div v-for="( day, index ) in uniqueDaysFromDateRangeAndNeed" :key="day">
+      <div v-for="( day, index ) in momentsStore.getUniqueDaysDateFromDateRangeAndNeed(dateRange, needName)" :key="day">
 
         <div :class="[
           'text-h6',
@@ -54,10 +54,10 @@
           'q-mb-sm',
           (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
           'text-on-background'
-        ]" header>{{ momentsStore.getFormattedDay(day) }}</div>
+        ]" header>{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
-          <div v-for=" moment  in  getSortedMomentsOfTheDay(day) " :key="moment.id" clickable v-ripple
-            class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
+          <div v-for=" moment  in  momentsStore.getSortedMomsFromDayAndNeed(day, needName) " :key="moment.id" clickable
+            v-ripple class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
 
             <q-item class="q-px-xs" style="min-height: 0px;">
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
@@ -88,23 +88,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import { useRoute } from 'vue-router'
-import { Timestamp } from 'firebase/firestore'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import momentBottomSheet from 'src/components/momentBottomSheet.vue'
-import { useCurrentDates } from '../composables/dateUtils.js'
+import { useDateUtils } from '../composables/dateUtils.js'
 import { needsMap, needToColor, needSlugToStr } from "./../utils/needsUtils";
 // import { Chart as ChartJS, ArcElement, DoughnutController } from 'chart.js'
 // import { Doughnut } from 'vue-chartjs'
-import { date } from 'quasar'
-const { isSameDate } = date;
 
 // INITIALIZATION
 const route = useRoute()
 const momentsStore = useMomentsStore()
-const { currentYYYYdMM } = useCurrentDates()
+const { currentYYYYdMM, getDatePickerLabel, formatDayForMomList } = useDateUtils()
 // ChartJS.register(ArcElement, DoughnutController);
 
 // TITLES
@@ -250,24 +247,6 @@ watch(
 //     return "No data"
 //   }
 // })
-
-// DISPLAY PREVIOUS MOMENTS
-const uniqueDaysFromDateRangeAndNeed = computed(() => {
-  // console.log('in getUniqueDays computed, dateRange.value:', dateRange.value, "needName.value:", needName.value, "momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value):", momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value))
-  return momentsStore.getUniqueDaysFromDateRangeAndNeed(dateRange.value, needName.value)
-})
-const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssStore directly
-  let dt;
-  if (day instanceof Date) {
-    dt = day;
-  } else {
-    dt = (new Timestamp(day, 0)).toDate()
-  }
-  const ul = momentsStore?.momentsColl?.filter(moment => isSameDate(moment.date.toDate(), dt, "day") && moment.needs[needName.value])
-  // sort array ul per descending moments.value.date.seconds
-  const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
-  return ol;
-}
 
 //MOM PAGE
 const expectedLlmCallDuration = ref(60);

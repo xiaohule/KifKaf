@@ -9,7 +9,7 @@
       <div v-if="isSegmentClicked">
         <q-avatar v-if="chartData.datasets[0].labels[clickedIndex] !== 'Others'" size="84px" font-size="56px"
           style="align-items: center; justify-content: center; display: flex; margin: 0 auto 8px;"
-          :color="needToColor[chartData.datasets[0].labels[clickedIndex]]">
+          :color="needToColor()[chartData.datasets[0].labels[clickedIndex]]">
           {{ needsMap[chartData.datasets[0].labels[clickedIndex]][0] }}
         </q-avatar>
         <div class="text-body2 text-center q-mt-md q-mb-sm">{{ chartData.datasets[0].labels[clickedIndex]
@@ -146,7 +146,7 @@ watchEffect(() => {
         chartData.value.datasets[0].labels = needsData.map(item => item.needName);
         chartData.value.datasets[0].hoverBackgroundColor = needsData.map(item =>
           getComputedStyle(document.documentElement)
-            .getPropertyValue(`--${needToColor[item.needName]}-color`));
+            .getPropertyValue(`--${needToColor()[item.needName]}-color`));
 
         const otherData = 1 - needsData.reduce((acc, item) => acc + item.data, 0)
         if (otherData > 0) {

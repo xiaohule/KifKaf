@@ -25,7 +25,7 @@
             @click="momentsStore.savedActiveIndex = props.activeIndex; momentsStore.savedPeriodicity = props.segDateId; momentsStore.savedToggleValue = props.toggleValue; momentsStore.savedSegmentClicked = donutChartClickedSegmentIndex; router.push({ path: `/insights/needs/${needsMap[item.needName][2]}`, query: { dateRange: props.dateRanges[props.activeIndex] } });">
 
             <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
-              <q-avatar size="42px" font-size="28px" :color="needToColor[item.needName]">
+              <q-avatar size="42px" font-size="28px" :color="needToColor()[item.needName]">
                 {{ needsMap[item.needName][0] }}
               </q-avatar>
             </q-item-section>

@@ -11,7 +11,7 @@
       <div class="q-px-md">
         <q-item class="q-px-none">
           <q-item-section class="text-h6 text-weight-medium">{{
-            momentsStore.getFormattedDay(moment?.date?.seconds, true) }}</q-item-section>
+            formatDayForMomList(moment?.date?.seconds, true) }}</q-item-section>
           <q-item-section avatar class="q-px-none" style="min-width: 20px;">
             <moment-sync-icon :moment-id="momentId" :expected-llm-call-duration="expectedLlmCallDuration" />
           </q-item-section>
@@ -121,10 +121,12 @@ import { ref, watch } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import { needsMap, needsCategories, getChipColor } from "./../utils/needsUtils";
+import { useDateUtils } from '../composables/dateUtils.js'
 
 const momentsStore = useMomentsStore()
 const moment = ref(null)
 const needsInfoOpened = ref(false)
+const { formatDayForMomList } = useDateUtils()
 
 const props = defineProps({
   modelValue: {
