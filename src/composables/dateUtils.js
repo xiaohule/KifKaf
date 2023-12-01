@@ -37,7 +37,7 @@ export function useDateUtils() {
   const getDatePickerLabel = (dateRange) => {
     console.log("In dateUtils.js > getDatePickerLabel, dateRange:", dateRange);
     if (!dateRange) {
-      return;
+      return "This month";
     }
     const periodicity =
       dateRange.split("-").length === 1 ? "Yearly" : "Monthly";
@@ -63,12 +63,12 @@ export function useDateUtils() {
   };
 
   const dayToDate = (day) => {
-    // console.log(
-    //   "In dateUtils.js > dayToDate, day:",
-    //   day,
-    //   "typeof day",
-    //   typeof day,
-    // );
+    console.log(
+      "In dateUtils.js > dayToDate, day:",
+      day,
+      "typeof day",
+      typeof day,
+    );
     if (!day) {
       return;
     }

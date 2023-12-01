@@ -71,6 +71,9 @@ const donutSwiperAndListRef = ref(null);
 onMounted(async () => {
   try {
     console.log('In InsightsTab onMounted')
+    if (!momentsStore.momentsFetched) {
+      await momentsStore.fetchMoments();
+    }
     if (!momentsStore.aggregateDataFetched) {
       await momentsStore.fetchAggregateData();
     }
@@ -138,6 +141,7 @@ const oldestMomentDateYYYYsMM = computed(() => {
   return formatDate(momentsStore.getOldestMomentDate, "YYYY/MM")
 })
 const dateRangesYears = computed(() => {
+  console.log('In InsightsTab > computed dateRangesYears, currentDate.value', currentDate.value, "momentsStore.getOldestMomentDate", momentsStore.getOldestMomentDate)
   const dateRanges = [];
   const yearsSinceOldestMoment = getDateDiff(currentDate.value, momentsStore.getOldestMomentDate, 'years')
   for (let i = yearsSinceOldestMoment; i >= 0; i--) {

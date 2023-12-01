@@ -14,7 +14,6 @@ function generateNewRawData(/*mom,*/ doc, momentNeedsData) {
     lastUpdate: FieldValue.serverTimestamp(),
     totalSatisfactionImpact: 0,
     totalUnsatisfactionImpact: 0,
-    maxImportanceValue: 0,
   };
   // console.log("baseData", baseData);
 
@@ -62,7 +61,7 @@ function generateNewRawData(/*mom,*/ doc, momentNeedsData) {
     }
   }
 
-  // 2nd loop on all needs to compute maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
+  // 2nd loop on all needs to compute totalSatisfactionImpact and totalUnsatisfactionImpact
   for (let need in doc.data().needs) {
     // console.log(
     //   " In generateNewRawData 2nd loop for need:",
@@ -75,10 +74,6 @@ function generateNewRawData(/*mom,*/ doc, momentNeedsData) {
         doc.data().needs[need].importancesSum) / baseData.totalImportances;
 
     baseData[`needs.${need}.importanceValue`] = importanceValue;
-
-    if (importanceValue > baseData.maxImportanceValue) {
-      baseData.maxImportanceValue = importanceValue;
-    }
 
     const satisfactionValue =
       baseData[`needs.${need}.satisfactionValue`] ??
@@ -94,36 +89,27 @@ function generateNewRawData(/*mom,*/ doc, momentNeedsData) {
       importanceValue * dissatisfactionValue;
   }
 
-  //3rd loop on all needs now that we know maxImportanceValue, totalSatisfactionImpact and totalUnsatisfactionImpact
+  //3rd loop on all needs now that we know totalSatisfactionImpact and totalUnsatisfactionImpact
   for (let need in doc.data().needs) {
-    //TODO:3 not used anymore now that donut chart
-    const importanceDisplayValue =
-      baseData[`needs.${need}.importanceValue`] / baseData.maxImportanceValue;
-    baseData[`needs.${need}.importanceDisplayValue`] = importanceDisplayValue;
-
     const satisfactionValue =
       baseData[`needs.${need}.satisfactionValue`] ??
       doc.data().needs[need].satisfactionValue;
 
-    //TODO:3 not used anymore now that donut chart
-    baseData[`needs.${need}.satisfactionImpactDisplayValue`] =
-      importanceDisplayValue * satisfactionValue;
-
     baseData[`needs.${need}.satisfactionImpactLabelValue`] =
-      (baseData[`needs.${need}.importanceValue`] * satisfactionValue) /
-      baseData.totalSatisfactionImpact;
+      baseData.totalSatisfactionImpact
+        ? (baseData[`needs.${need}.importanceValue`] * satisfactionValue) /
+          baseData.totalSatisfactionImpact
+        : 0;
 
     const dissatisfactionValue =
       baseData[`needs.${need}.dissatisfactionValue`] ??
       doc.data().needs[need].dissatisfactionValue;
 
-    //TODO:3 not used anymore now that donut chart
-    baseData[`needs.${need}.unsatisfactionImpactDisplayValue`] =
-      importanceDisplayValue * dissatisfactionValue;
-
     baseData[`needs.${need}.unsatisfactionImpactLabelValue`] =
-      (baseData[`needs.${need}.importanceValue`] * dissatisfactionValue) /
-      baseData.totalUnsatisfactionImpact;
+      baseData.totalUnsatisfactionImpact
+        ? (baseData[`needs.${need}.importanceValue`] * dissatisfactionValue) /
+          baseData.totalUnsatisfactionImpact
+        : 0;
   }
   // console.log(
   //   "In generateNewRawData, for mom ",
@@ -139,10 +125,10 @@ function generateNewRawData(/*mom,*/ doc, momentNeedsData) {
   return baseData;
 }
 //   {
-//     2023: {
-//       nMoments: FieldValue.increment(1),
-//       totalImportances: FieldValue.increment(momentImportancesTotal),
+//     2023-xx-raw: {
 //       lastUpdate: FieldValue.serverTimestamp(),
+//       nMoments: FieldValue.increment(1),
+
 //       needs: {
 //         needName: {,
 //             occurrenceCount: FieldValue.increment(1);
@@ -151,21 +137,145 @@ function generateNewRawData(/*mom,*/ doc, momentNeedsData) {
 //             dissatisfactionSum: FieldValue.increment(momentNeedsData[need].dissatisfaction),
 //             importancesSum: FieldValue.increment(momentNeedsData[need].importance),
 
-//             importanceValue: importancesSum / totalImportances,
 //             satisfactionValue: satisfactionSum / occurrenceCount,
 //             dissatisfactionValue: dissatisfactionSum / occurrenceCount,
-//             importanceDisplayValue: importanceDisplayValue,
-//             satisfactionImpactDisplayValue: satisfactionImpactDisplayValue,
-//             unsatisfactionImpactDisplayValue: unsatisfactionImpactDisplayValue,
-//             satisfactionImpactLabelValue:satisfactionImpactDisplayValue/totalSatisfactionImpact,
-//             unsatisfactionImpactLabelValue:unsatisfactionImpactDisplayValue/totalUnsatisfactionImpact,
+
+//             importanceValue: importancesSum / totalImportances,
+
+//             satisfactionImpactLabelValue:importanceValue*satisfactionValue/totalSatisfactionImpact,
+//             unsatisfactionImpactLabelValue:importanceValue*dissatisfactionValue/totalUnsatisfactionImpact,
 //         }
 //       },
-//     maxImportanceValue: 0,
-//     totalSatisfactionImpact: 0,
-//     totalUnsatisfactionImpact: 0,
+
+//       totalImportances: FieldValue.increment(momentImportancesTotal),
+//       totalSatisfactionImpact: 0,
+//       totalUnsatisfactionImpact: 0,
 //   };
 // }
+
+function generateNewRawDataAfterMomDelete(/*mom,*/ doc, momentNeedsData) {
+  //variables are prefixed by "moment" when related to the processed moment, "" when related to a need and "total"/"max" when aggregated over all needs
+  //1.8
+  const momentImportancesSum = Object.values(momentNeedsData).reduce(
+    (acc, currentValue) => acc + currentValue.importance,
+    0,
+  );
+
+  const baseData = {
+    nMoments: FieldValue.increment(-1),
+    totalImportances: doc.data().totalImportances - momentImportancesSum,
+    lastUpdate: FieldValue.serverTimestamp(),
+    totalSatisfactionImpact: 0,
+    totalUnsatisfactionImpact: 0,
+  };
+  console.log("generateNewRawDataAfterMomDelete > baseData", baseData);
+
+  //1st loop only on mom's needs to update value that relies only on the moment data
+  for (let need in doc.data().needs) {
+    //if need in momentNeedsData with non-zero importance
+    if (momentNeedsData[need] && momentNeedsData[need].importance) {
+      const occurrenceCount = doc.data().needs[need].occurrenceCount - 1;
+
+      baseData[`needs.${need}.occurrenceCount`] = occurrenceCount;
+
+      baseData[`needs.${need}.importancesSum`] =
+        doc.data().needs[need].importancesSum -
+        momentNeedsData[need].importance;
+
+      const satisfactionSum =
+        doc.data().needs[need].satisfactionSum -
+        momentNeedsData[need].satisfaction;
+
+      baseData[`needs.${need}.satisfactionSum`] = satisfactionSum;
+
+      baseData[`needs.${need}.satisfactionValue`] = occurrenceCount
+        ? satisfactionSum / occurrenceCount
+        : 0;
+
+      const dissatisfactionSum =
+        doc.data().needs[need].dissatisfactionSum -
+        momentNeedsData[need].dissatisfaction;
+
+      baseData[`needs.${need}.dissatisfactionSum`] = dissatisfactionSum;
+
+      baseData[`needs.${need}.dissatisfactionValue`] = occurrenceCount
+        ? dissatisfactionSum / occurrenceCount
+        : 0;
+    } else {
+      //needed in baseData for display data update
+      baseData[`needs.${need}.occurrenceCount`] =
+        doc.data().needs[need].occurrenceCount;
+
+      baseData[`needs.${need}.satisfactionValue`] =
+        doc.data().needs[need].satisfactionValue;
+
+      baseData[`needs.${need}.dissatisfactionValue`] =
+        doc.data().needs[need].dissatisfactionValue;
+    }
+  }
+
+  // 2nd loop on all needs to rebuild totalSatisfactionImpact and totalUnsatisfactionImpact
+  for (let need in doc.data().needs) {
+    // console.log(
+    //   " In generateNewRawData 2nd loop for need:",
+    //   need,
+    //   "baseData[`needs.${need}.importancesSum`]",
+    //   baseData[`needs.${need}.importancesSum`],
+    // );
+    const importanceValue = baseData.totalImportances
+      ? (baseData[`needs.${need}.importancesSum`] ??
+          doc.data().needs[need].importancesSum) / baseData.totalImportances
+      : 0;
+
+    baseData[`needs.${need}.importanceValue`] = importanceValue;
+
+    const satisfactionValue =
+      baseData[`needs.${need}.satisfactionValue`] ??
+      doc.data().needs[need].satisfactionValue;
+
+    baseData.totalSatisfactionImpact += importanceValue * satisfactionValue;
+
+    const dissatisfactionValue =
+      baseData[`needs.${need}.dissatisfactionValue`] ??
+      doc.data().needs[need].dissatisfactionValue;
+
+    baseData.totalUnsatisfactionImpact +=
+      importanceValue * dissatisfactionValue;
+  }
+
+  //3rd loop on all needs now that we know totalSatisfactionImpact and totalUnsatisfactionImpact
+  for (let need in doc.data().needs) {
+    const satisfactionValue =
+      baseData[`needs.${need}.satisfactionValue`] ??
+      doc.data().needs[need].satisfactionValue;
+
+    baseData[`needs.${need}.satisfactionImpactLabelValue`] =
+      baseData.totalSatisfactionImpact
+        ? (baseData[`needs.${need}.importanceValue`] * satisfactionValue) /
+          baseData.totalSatisfactionImpact
+        : 0;
+
+    const dissatisfactionValue =
+      baseData[`needs.${need}.dissatisfactionValue`] ??
+      doc.data().needs[need].dissatisfactionValue;
+
+    baseData[`needs.${need}.unsatisfactionImpactLabelValue`] =
+      baseData.totalUnsatisfactionImpact
+        ? (baseData[`needs.${need}.importanceValue`] * dissatisfactionValue) /
+          baseData.totalUnsatisfactionImpact
+        : 0;
+  }
+  console.log(
+    "In generateNewRawDataAfterMomDelete, for doc: ",
+    doc.id,
+    "for momentNeedsData: ",
+    momentNeedsData,
+    " returning baseData:",
+    baseData,
+  );
+
+  return baseData;
+}
 
 const keysNeededinFrontend = [
   "occurrenceCount",
@@ -174,16 +284,10 @@ const keysNeededinFrontend = [
   "importanceValue",
 ];
 
-function allKeysZeroForNeed(newRawData, need) {
-  return keysNeededinFrontend.every((item) => {
-    let key = `needs.${need}.${item}`;
-    return newRawData[key] === 0 || newRawData[key] === undefined;
-  });
-}
-
 //This generate the data that will be read by the user's frontend
 function generateNewDisplayData(newRawData) {
   try {
+    console.log("In generateNewDisplayData with newRawData:", newRawData);
     if (!newRawData)
       throw new Error("In generateNewDisplayData newRawData is empty");
 
@@ -194,10 +298,7 @@ function generateNewDisplayData(newRawData) {
       if (item.startsWith("needs.")) {
         let [_, need, property] = item.split(".");
 
-        if (
-          !allKeysZeroForNeed(newRawData, need) &&
-          keysNeededinFrontend.includes(property)
-        ) {
+        if (keysNeededinFrontend.includes(property)) {
           if (!auxObject[need]) {
             auxObject[need] = { needName: need };
             needsDataArray.push(auxObject[need]);
@@ -251,5 +352,6 @@ function generateNewDisplayData(newRawData) {
 
 module.exports = {
   generateNewRawData,
+  generateNewRawDataAfterMomDelete,
   generateNewDisplayData,
 };

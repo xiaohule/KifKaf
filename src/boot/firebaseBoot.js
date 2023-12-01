@@ -268,7 +268,7 @@ const emptyNeedsMomentsRetry = async () => {
     );
     try {
       const response = await axios.post(
-        `/api/learn/needs/`,
+        `/api/learn/add-moment/`,
         {
           momentText: doc.data().text,
           momentDate: JSON.stringify(doc.data().date),

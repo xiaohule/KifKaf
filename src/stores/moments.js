@@ -2,14 +2,12 @@ import { defineStore } from "pinia";
 import {
   collection,
   doc,
-  setDoc,
-  getDocs,
-  Timestamp,
-  arrayUnion,
   writeBatch,
+  setDoc,
+  getDoc,
+  getDocs,
   onSnapshot,
   query,
-  runTransaction,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed } from "vue";
@@ -28,7 +26,8 @@ const { isSameDate, startOfDate, endOfDate, isBetweenDates } = date;
 import { useDateUtils } from "../composables/dateUtils.js";
 
 export const useMomentsStore = defineStore("moments", () => {
-  const { currentYear, currentYYYYdMM, dayToDate } = useDateUtils();
+  const { currentDate, currentYear, currentYYYYdMM, dayToDate } =
+    useDateUtils();
   const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
@@ -57,50 +56,29 @@ export const useMomentsStore = defineStore("moments", () => {
         return;
       }
 
-      // Check if user doc exists, if not create & initialize it
+      // Check if user doc exists, if not create & initialize it, BEWARE this way of doing means that if we add new field to the user doc data model a script/manual update should be run to add it to existing users (but it's better than the alternative of transactional write for offline)
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       const defaultUserDocValues = {
         deviceLanguage: "en-US",
-        momentsDays: [],
         hasNeeds: false,
         welcomeTutorialStep: 0,
         showWelcomeTutorial: true,
       };
-
       try {
-        await runTransaction(db, async (transaction) => {
-          const userDoc = await transaction.get(userDocRef.value);
-          if (!userDoc.exists()) {
-            console.log(
-              "In moments.js > fetchUser, User doc does not exist, creating it",
-            );
-            await setDoc(userDocRef.value, defaultUserDocValues, {
-              merge: true,
-            });
-          } else {
-            const userDocData = userDoc.data();
-            const updates = Object.keys(defaultUserDocValues).reduce(
-              (acc, key) => {
-                if (userDocData[key] === undefined) {
-                  acc[key] = defaultUserDocValues[key];
-                }
-                return acc;
-              },
-              {},
-            );
-            console.log("In moments.js > fetchUser, updates is:", updates);
-
-            if (Object.keys(updates).length > 0) {
-              console.log(
-                "In moments.js > fetchUser, User doc not complete, updating it with updates:",
-                updates,
-              );
-              transaction.update(userDocRef.value, updates);
-            }
-          }
-        });
+        const userDoc = await getDoc(userDocRef.value);
+        if (
+          !userDoc.exists() ||
+          !userDoc.data().hasOwnProperty("showWelcomeTutorial")
+        ) {
+          console.log(
+            "In moments.js > fetchUser, User doc not initialized, initializing it",
+          );
+          await setDoc(userDocRef.value, defaultUserDocValues, {
+            merge: true,
+          });
+        }
       } catch (e) {
-        console.log("In moments.js > fetchUser, Transaction failed: ", e);
+        console.log("In moments.js > fetchUser, getDoc failed: ", e);
       }
 
       onSnapshot(userDocRef.value, (doc) => {
@@ -241,31 +219,94 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.welcomeTutorialStep ?? false;
   });
 
+  const deleteMoment = async (momentId) => {
+    try {
+      console.log("In moment.js > deleteMoment for momentId:", momentId);
+      // const momentDoc = doc(
+      //   db,
+      //   `users/${user.value.uid}/moments/${momentId}`,
+      // );
+      const momentDoc = doc(db, "users", user.value.uid, "moments", momentId);
+      const momentArchive = (await getDoc(momentDoc)).data();
+      const momentsCollLength = momentsColl.value.length;
+      const otherMomHasNeeds = momentsColl.value.some((moment) => {
+        return (
+          moment.id !== momentId &&
+          moment.needs &&
+          Object.keys(moment.needs).length > 0
+        );
+      });
+
+      console.log(
+        "momentDoc:",
+        momentDoc,
+        "momentArchive:",
+        momentArchive,
+        "momentsCollLength:",
+        momentsCollLength,
+        "otherMomHaveNeeds:",
+        otherMomHasNeeds,
+      );
+
+      const batch = writeBatch(db);
+
+      batch.delete(momentDoc);
+
+      if (!otherMomHasNeeds) {
+        batch.update(userDocRef.value, {
+          welcomeTutorialStep: momentsCollLength < 2 ? 0 : 1,
+          hasNeeds: false,
+        });
+      }
+
+      await batch.commit();
+
+      //TODO:5 batch to also add momid and momarchive to list of deleted moments in user doc so that it can be used for retries
+      if (navigator.onLine) {
+        Notify.create("Moment deleted.");
+      } else {
+        Notify.create(
+          "Moment deleted. Insights recalculation will complete next time you’re online.",
+        );
+      }
+
+      const idToken = await user.value.getIdToken(/* forceRefresh */ true);
+      console.log(
+        "In deleteMoment, will trigger insights recalculation bec. deletion of mom:",
+        momentId,
+      );
+      const response = await axios.post(
+        `/api/learn/delete-moment/`,
+        {
+          momentId,
+          momentArchive,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${idToken}`,
+          },
+        },
+      );
+      console.log("In deleteMoment", response.data);
+      await fetchAggregateData(true /*force*/); //to get the insights update if older period
+      // TODO:4 this is a bit overkill, we could just update the relevant aggregate docs
+      Notify.create("Insights recalculation complete.");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const addMoment = async (moment) => {
     try {
       console.log("In addMoment for:", moment);
-
-      const batch = writeBatch(db);
+      moment.needs = {};
+      moment.retries = 0;
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
       const newMomDocRef = doc(
         collection(db, `users/${user.value.uid}/moments`),
       );
-      batch.set(newMomDocRef, moment);
-      batch.update(newMomDocRef, {
-        needs: {},
-        retries: 0,
-      });
-
-      // Remove moment.date time and save the Timestamp to momentsDays array
-      // console.log("In addMoment, moment.date:", moment.date);
-      const ts = new Timestamp(moment.date.seconds, moment.date.nanoseconds);
-      const dateObj = ts.toDate();
-      dateObj.setHours(0, 0, 0, 0);
-      // console.log("In addMoment, dateWithoutTime:", dateObj);
-      batch.update(userDocRef.value, {
-        momentsDays: arrayUnion(Timestamp.fromDate(dateObj)),
-      });
+      await setDoc(newMomDocRef, moment);
 
       if (navigator.onLine) {
         Notify.create("Moment saved.");
@@ -275,16 +316,14 @@ export const useMomentsStore = defineStore("moments", () => {
         );
       }
 
-      await batch.commit();
-
       if (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
         await setWelcomeTutorialStep(1);
-      //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the await batch.commit() is resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
+      //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the previous await are resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
       console.log("In addMoment, will trigger call to llm for:", moment);
       const response = await axios.post(
-        `/api/learn/needs/`,
+        `/api/learn/add-moment/`,
         {
           momentText: moment.text,
           momentDate: JSON.stringify(moment.date),
@@ -375,10 +414,10 @@ export const useMomentsStore = defineStore("moments", () => {
     };
   });
 
-  const getLatestMomentId = computed(() => {
+  const getLatestMomWithNeedsId = computed(() => {
     if (
       !momentsFetched.value ||
-      !getHasNeeds.value ||
+      !getHasNeeds.value || // return null if user has no needs to block welcome tuto button "View needs"
       !momentsColl.value.length
     ) {
       return;
@@ -402,26 +441,9 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   });
 
-  // async updateMoment(momentId, moment) {
-  //   try {
-  //     const momentRef = doc(db, `users/${this.userId}/moments/${momentId}`);
-  //     await updateDoc(momentRef, moment);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // },
-  // async deleteMoment(momentId) {
-  //   try {
-  //     const momentRef = doc(db, `users/${this.userId}/moments/${momentId}`);
-  //     await deleteDoc(momentRef);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // },
-
-  const fetchAggregateData = async () => {
+  const fetchAggregateData = async (force = false) => {
     try {
-      if (aggregateDataFetched.value) {
+      if (!force && aggregateDataFetched.value) {
         console.log("In fetchAggregateData, already aggregateDataFetched");
         return;
       }
@@ -484,51 +506,72 @@ export const useMomentsStore = defineStore("moments", () => {
 
   //DATES
   const getUniqueDaysTs = computed(() => {
-    // console.log("In getUniqueDaysTs");
-    if (!userFetched.value || !userDoc?.value?.momentsDays?.length) {
-      return [];
-    }
-    //Sort in descending order (most recent first) & return
-    return userDoc.value.momentsDays.sort((a, b) => b.seconds - a.seconds);
+    console.log(
+      "In moments.js > getUniqueDaysTs, momentsColl.value:",
+      momentsColl.value,
+      "returning:",
+      getUniqueDaysDateFromDateRangeAndNeed(),
+    );
+    return getUniqueDaysDateFromDateRangeAndNeed();
   });
 
   const getOldestMomentDate = computed(() => {
-    return getUniqueDaysTs.value[getUniqueDaysTs.value.length - 1].toDate();
+    return (
+      getUniqueDaysTs.value[getUniqueDaysTs.value.length - 1] ??
+      currentDate.value
+    );
   });
 
   const getUniqueDaysDateFromDateRangeAndNeed = (dateRange = "", need = "") => {
-    // if (!momentsFetched.value) {
-    //   await fetchMoments();
-    // }
-    // if (!dateRange) return [];
-
-    // console.log(
-    //   "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, dateRange:",
-    //   dateRange,
-    //   "need:",
-    //   need,
-    // );
-    let dateFrom, dateTo;
-    if (dateRange.split("-").length === 1) {
-      //yearly
-      dateFrom = startOfDate(dateRange, "year");
-      dateTo = endOfDate(dateRange, "year");
-    } else {
-      //monthly
-      dateFrom = startOfDate(dateRange, "month");
-      dateTo = endOfDate(dateRange, "month");
+    console.log(
+      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, momentsFetched",
+      momentsFetched.value,
+      " dateRange:",
+      dateRange,
+      "need:",
+      need,
+    );
+    if (!momentsFetched.value) {
+      return [];
     }
 
     const uniqueDaysSet = new Set();
+
+    let dateFrom, dateTo;
+    if (dateRange) {
+      if (dateRange.split("-").length === 1) {
+        //yearly
+        dateFrom = startOfDate(dateRange, "year");
+        dateTo = endOfDate(dateRange, "year");
+      } else {
+        //monthly
+        dateFrom = startOfDate(dateRange, "month");
+        dateTo = endOfDate(dateRange, "month");
+      }
+    }
+    console.log(
+      "in getUniqueDaysDateFromDateRangeAndNeed, dateFrom:",
+      dateFrom,
+      "dateTo:",
+      dateTo,
+    );
+
     momentsColl.value.forEach((moment) => {
       const momentDate = moment.date.toDate();
       if (
+        !dateRange ||
         isBetweenDates(momentDate, dateFrom, dateTo, {
           inclusiveFrom: true,
           inclusiveTo: true,
         })
       ) {
-        if (!need || (need && moment.needs[need])) {
+        console.log(
+          "In getUniqueDaysDateFromDateRangeAndNeed, momentDate:",
+          momentDate,
+          "moment:",
+          moment,
+        );
+        if (!need || moment.needs[need]) {
           const dayStr = startOfDate(momentDate, "day").toISOString(); //toISOStr to make it a string so that Set can ensure uniqueness
           uniqueDaysSet.add(dayStr);
         }
@@ -597,12 +640,13 @@ export const useMomentsStore = defineStore("moments", () => {
     getUniqueDaysTs,
     getOldestMomentDate,
     getMomentById,
-    getLatestMomentId,
+    getLatestMomWithNeedsId,
     aggregateDataFetched,
     aggregateData,
     setWelcomeTutorialStep,
     setShowWelcomeTutorial,
     addMoment,
+    deleteMoment,
     fetchUser,
     updateUser,
     setAuthorizationCode,

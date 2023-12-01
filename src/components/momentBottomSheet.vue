@@ -69,8 +69,18 @@
           </q-card-section>
 
         </q-card>
+
+        <q-card class="bg-surface q-mb-md q-px-md q-py-md rounded-borders-14" flat clickable v-ripple
+          @click="deleteDialogOpened = true">
+          <q-item class="q-px-none q-py-none" style="min-height: 0px;">
+            <q-item-section class="text-negative">
+              <q-item-label>Delete moment</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
       </div>
     </q-card>
+
     <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-px-sm" flat v-touch-swipe.mouse.down="(event) => { needsInfoOpened = false }">
         <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
@@ -108,11 +118,30 @@
         </q-card-section>
 
         <q-card-actions align="center">
-          <q-btn rounded color="primary" padding="md md" @click="needsInfoOpened = false" class="text-body1
+          <q-btn rounded color="primary" padding="md md" @click="needsInfoOpened = false" class="text-body1 text-weight-medium
 q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="deleteDialogOpened" position="bottom" style="max-width: 600px">
+      <q-card class="bg-background q-px-sm q-pt-sm q-pb-lg" flat
+        v-touch-swipe.mouse.down="(event) => { deleteDialogOpened = false }">
+        <q-card-section>
+          <div class="text-h6 text-weight-medium">Delete moment?</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none text-outline">
+          We will automatically recalculate your Insights.
+        </q-card-section>
+        <q-card-actions align="around">
+          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" rounded label="Cancel" color="primary"
+            padding="sm xl" v-close-popup no-caps />
+          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" flat rounded label="Delete moment" color="primary"
+            padding="sm xl" v-close-popup no-caps @click="deleteMoment" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-dialog>
 </template>
 
@@ -126,6 +155,7 @@ import { useDateUtils } from '../composables/dateUtils.js'
 const momentsStore = useMomentsStore()
 const moment = ref(null)
 const needsInfoOpened = ref(false)
+const deleteDialogOpened = ref(false)
 const { formatDayForMomList } = useDateUtils()
 
 const props = defineProps({
@@ -144,13 +174,19 @@ const props = defineProps({
     default: 60
   },
 });
-defineEmits(['update:modelValue']);
+const emits = defineEmits(['update:modelValue']);
 
 watch(() => props.momentId, (newVal, oldVal) => {
   momentsStore.getMomentById(newVal, moment);
   console.log('in momentBottomSheet watch props.momentId:', props.momentId, "moment:", moment);
 })
 
+const deleteMoment = () => {
+  deleteDialogOpened.value = false
+  emits('update:modelValue', false)
+  console.log("In momBottomSheet, deleting moment");
+  momentsStore.deleteMoment(props.momentId)
+}
 
 </script>
 <style lang="scss">

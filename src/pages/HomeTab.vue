@@ -253,7 +253,7 @@ const onChipsRowScroll = (event, id) => {
 };
 const setChipsRowPadding = (id) => {
   // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
-  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 48px;';
+  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 56px;';
 };
 </script>
 

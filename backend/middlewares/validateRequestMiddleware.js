@@ -1,19 +1,32 @@
-const lockedMomentIds = new Set(); //Since the code is running in a stateful server environment, lockedMomentIds is effective. However, be aware that in environments where multiple server instances are running (like in a clustered environment), this approach won't work since lockedMomentIds will only exist in memory for the specific server instance handling the request. In such cases, distributed lock manager like Redis or saving in firestore could be used.
-//TODO:2 lockedMomentIds can potentially grow indefinitely. Consider implementing a mechanism to purge old IDs after a certain time or after they're no longer relevant. Also consider monitoring it.
+const lockedAddMomentIds = new Set(); //Since the code is running in a stateful server environment, lockedAddMomentIds is effective. However, be aware that in environments where multiple server instances are running (like in a clustered environment), this approach won't work since lockedAddMomentIds will only exist in memory for the specific server instance handling the request. In such cases, distributed lock manager like Redis or saving in firestore could be used.
+//TODO:2 lockedAddMomentIds can potentially grow indefinitely. Consider implementing a mechanism to purge old IDs after a certain time or after they're no longer relevant. Also consider monitoring it.
+const lockedDeleteMomentIds = new Set();
 
-function lockMomentId(momentId) {
-  lockedMomentIds.add(momentId);
+function lockMomentId(momentId, isDeleteMoment = false) {
+  if (isDeleteMoment) {
+    lockedDeleteMomentIds.add(momentId);
+  } else {
+    lockedAddMomentIds.add(momentId);
+  }
 }
 
-function unlockMomentId(momentId) {
-  lockedMomentIds.delete(momentId);
+function unlockMomentId(momentId, isDeleteMoment = false) {
+  if (isDeleteMoment) {
+    lockedDeleteMomentIds.delete(momentId);
+  } else {
+    lockedAddMomentIds.delete(momentId);
+  }
 }
 
-function isMomentIdLocked(momentId) {
-  return lockedMomentIds.has(momentId);
+function isMomentIdLocked(momentId, isDeleteMoment = false) {
+  if (isDeleteMoment) {
+    return lockedDeleteMomentIds.has(momentId);
+  } else {
+    return lockedAddMomentIds.has(momentId);
+  }
 }
 
-function validateRequest(req, res, next) {
+function validateAddMomentRequest(req, res, next) {
   if (!req.body.momentText || typeof req.body.momentText !== "string") {
     return res.status(400).json({
       message: "Error: invalid momentText in body",
@@ -35,8 +48,8 @@ function validateRequest(req, res, next) {
     console.log(
       "Error: duplicate request detected for body",
       req.body,
-      "lockedMomentIds:",
-      lockedMomentIds,
+      "lockedAddMomentIds:",
+      lockedAddMomentIds,
     );
     return res.status(409).json({
       message: "Error: duplicate request detected for body",
@@ -50,8 +63,29 @@ function validateRequest(req, res, next) {
   next();
 }
 
+function validateDeleteMomentRequest(req, res, next) {
+  if (isMomentIdLocked(req.body.momentId, true /*isDeleteMoment*/)) {
+    console.log(
+      "validateDeleteMomentRequest > Error: duplicate request detected for body",
+      req.body,
+      "lockedDeleteMomentIds:",
+      lockedDeleteMomentIds,
+    );
+    return res.status(409).json({
+      message: "Error: duplicate request detected for body",
+      moment: req.body.momentText,
+      momentId: req.body.momentId,
+    });
+  }
+
+  lockMomentId(req.body.momentId, true /*isDeleteMoment*/);
+
+  next();
+}
+
 module.exports = {
-  validateRequest,
+  validateAddMomentRequest,
+  validateDeleteMomentRequest,
   lockMomentId,
   unlockMomentId,
   isMomentIdLocked,

@@ -4,7 +4,8 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
 // const chatRouter = require("./routes/chat");
-const learnRouter = require("./routes/learn");
+const addMomentRouter = require("./routes/addMoment");
+const deleteMomentRouter = require("./routes/deleteMoment");
 
 const Sentry = require("@sentry/node");
 const { ProfilingIntegration } = require("@sentry/profiling-node");
@@ -110,7 +111,8 @@ app.use(
   }),
 );
 // app.use("/api/chat", chatRouter);
-app.use("/api/learn", learnRouter);
+app.use("/api/learn", addMomentRouter);
+app.use("/api/learn", deleteMomentRouter);
 
 // The error handler must be registered before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());

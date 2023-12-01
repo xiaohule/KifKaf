@@ -76,7 +76,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="View needs" @click="tutoViewNeeds" :disable="!momentsStore.getLatestMomentId"
+                  label="View needs" @click="tutoViewNeeds" :disable="!momentsStore.getLatestMomWithNeedsId"
                   style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
@@ -112,7 +112,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="Explore Insights" @click="tutoExploreInsights" :disable="!momentsStore.getLatestMomentId"
+                  label="Explore Insights" @click="tutoExploreInsights" :disable="!momentsStore.getLatestMomWithNeedsId"
                   style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
@@ -177,8 +177,7 @@ const tutoLogMoment = () => {
   })
 }
 const tutoViewNeeds = async () => {
-  // openBottomSheet(momentsStore.getLatestMomentId);
-  emits('click:viewNeeds', momentsStore.getLatestMomentId);
+  emits('click:viewNeeds', momentsStore.getLatestMomWithNeedsId);
   await momentsStore.setWelcomeTutorialStep(2);
 }
 const tutoExploreInsights = async () => {

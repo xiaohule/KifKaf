@@ -1,18 +1,13 @@
 // EXTERNAL DEPENDENCIES
 var express = require("express");
-require("dotenv").config();
-var admin = require("firebase-admin");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
-const OpenAI = require("openai");
 const {
   authenticateUser,
 } = require("../middlewares/authenticateUserMiddleware");
 const {
-  validateRequest,
+  validateAddMomentRequest,
   unlockMomentId,
 } = require("../middlewares/validateRequestMiddleware");
 const {
-  needsList,
   createOpenaiRequestOptions,
   parseMomentNeedsData,
   isValidMomentNeedsData,
@@ -26,21 +21,8 @@ const {
 const {
   persistNeedsData,
 } = require("../utils/persistNeedsDataSuccessPathUtils");
+const { db, openai } = require("../utils/servicesConfig");
 
-// FIREBASE SETUP
-admin.initializeApp({
-  credential: admin.credential.cert(
-    JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY),
-  ),
-});
-const db = getFirestore();
-
-// OPENAI SETUP
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  // maxRetries: 0, // default is 2
-  // timeout: 20 * 1000, // 20 seconds (default is 10 minutes, requests which time out will be retried twice by default.)
-});
 const promptVersion = "gpt4_7_2_1";
 
 // ROUTER SETUP
@@ -50,8 +32,7 @@ var router = express.Router();
 router.use(authenticateUser); // Use the middleware for all routes in this router
 
 // ROUTE
-router.post("/needs/", validateRequest, async (req, res) => {
-  //TODO:1 make this a post request? pro and cons of post vs get?
+router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
   try {
     // console.log("req.headers", req.headers);
     console.log("POST request received, req.body:", req.body); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
