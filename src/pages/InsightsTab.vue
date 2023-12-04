@@ -67,6 +67,7 @@ const dateRangeButtonLabel = ref('This month')
 const toggleModel = ref('satisfaction')
 const clickedLearnPage = ref(false)
 const donutSwiperAndListRef = ref(null);
+const initialized = ref(false)
 
 onMounted(async () => {
   try {
@@ -157,8 +158,9 @@ watch(dateRangesYears, (newValue) => {
     if (momentsStore.savedActiveIndex !== null) {
       activeIndex.value = momentsStore.savedActiveIndex
       momentsStore.savedActiveIndex = null
-    } else {
+    } else if (!initialized.value) {
       activeIndex.value = newValue.length - 1;
+      initialized.value = true //block the first update of activeIndex to the last index once done once, to avoid swiping just bec. new add data
     }
     console.log('In InsightsTab > watch dateRangesYears updated activeIndex to', activeIndex.value)
   }
@@ -182,8 +184,9 @@ watch(dateRangesMonths, (newValue) => {
     if (momentsStore.savedActiveIndex !== null) {
       activeIndex.value = momentsStore.savedActiveIndex
       momentsStore.savedActiveIndex = null
-    } else {
+    } else if (!initialized.value) {
       activeIndex.value = newValue.length - 1;
+      initialized.value = true //block the first update of activeIndex to the last index once done once, to avoid swiping just bec. new add data
     }
     console.log('In InsightsTab > watch dateRangesMonths updated activeIndex to', activeIndex.value)
   }

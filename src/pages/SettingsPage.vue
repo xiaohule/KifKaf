@@ -75,8 +75,8 @@
           </q-item>
         </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
-          @click="logoutDialogOpened = true">
+        <q-card data-cy="logout-settings-row" class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat
+          clickable v-ripple @click="logoutDialogOpened = true">
           <q-item>
             <q-item-section>
               <q-item-label>Log out</q-item-label>

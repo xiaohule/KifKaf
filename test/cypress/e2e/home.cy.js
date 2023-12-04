@@ -70,18 +70,18 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
     cy.dataCy("terms-link").click();
     cy.contains("Welcome to KifKaf. These Terms of Service");
-    cy.wait(500); //needed to prevent "can only be called on a single element." error
+    cy.wait(1000); //needed to prevent "can only be called on a single element." error
     cy.dataCy("go-back-button").click();
 
     cy.dataCy("privacy-policy-link").click();
     cy.contains("At KifKaf, your privacy is paramount");
-    cy.wait(500); //needed to prevent "can only be called on a single element." error
+    cy.wait(1000); //needed to prevent "can only be called on a single element." error
     cy.dataCy("go-back-button").click();
 
     cy.dataCy("contact-link").click();
     cy.contains("hello@kifkaf.app");
     cy.contains("Send");
-    cy.wait(500); //needed to prevent "can only be called on a single element." error
+    cy.wait(1000); //needed to prevent "can only be called on a single element." error
     cy.dataCy("go-back-button").click();
 
     //should let a user sign up with email, log out and sign in again
@@ -91,7 +91,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     });
 
     cy.contains("account_circle", { timeout: 40000 }).click();
-    cy.contains("Log out").click();
+    cy.dataCy("logout-settings-row").click();
     cy.withinDialog((el) => {
       cy.wrap(el).should("contain", "screen");
       cy.dataCy("logout-button").click();
