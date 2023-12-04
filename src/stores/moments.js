@@ -292,7 +292,7 @@ export const useMomentsStore = defineStore("moments", () => {
       // TODO:4 this is a bit overkill, we could just update the relevant aggregate docs
       Notify.create("Insights recalculation complete.");
     } catch (error) {
-      console.log(error);
+      console.log("Error in deleteMoment", error);
     }
   };
 
@@ -591,6 +591,7 @@ export const useMomentsStore = defineStore("moments", () => {
     // if (!momentsFetched.value) {
     //   await fetchMoments();
     // }
+    console.log("In getSortedMomsFromDayAndNeed");
     const dayDate = dayToDate(day);
 
     let moms = momentsColl.value.filter((moment) =>

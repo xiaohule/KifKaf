@@ -64,6 +64,25 @@ function validateAddMomentRequest(req, res, next) {
 }
 
 function validateDeleteMomentRequest(req, res, next) {
+  console.log(
+    "validateDeleteMomentRequest > req.body:",
+    req.body,
+    "req.body.momentArchive.needs:",
+    req.body.momentArchive.needs,
+  );
+  if (
+    !req.body.momentArchive.needs ||
+    req.body.momentArchive.needs.Oops ||
+    req.body.momentArchive.needs.error
+  ) {
+    return res.status(400).json({
+      message:
+        "Error: aborting agg data update following deletion of mom, bec. needs.Oops or needs.error",
+      moment: req.body.momentArchive,
+      momentId: req.body.momentId,
+    });
+  }
+
   if (isMomentIdLocked(req.body.momentId, true /*isDeleteMoment*/)) {
     console.log(
       "validateDeleteMomentRequest > Error: duplicate request detected for body",
@@ -73,7 +92,7 @@ function validateDeleteMomentRequest(req, res, next) {
     );
     return res.status(409).json({
       message: "Error: duplicate request detected for body",
-      moment: req.body.momentText,
+      moment: req.body.momentArchive,
       momentId: req.body.momentId,
     });
   }

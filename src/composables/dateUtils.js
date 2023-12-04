@@ -87,6 +87,8 @@ export function useDateUtils() {
       return;
     }
 
+    console.log("in formatDayForMomList");
+
     const dayDate = dayToDate(day);
 
     // if (!forDisplay) return formatDate(dayDate, "MMMM D, YYYY");

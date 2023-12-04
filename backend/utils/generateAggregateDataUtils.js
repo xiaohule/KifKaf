@@ -270,8 +270,8 @@ function generateNewRawDataAfterMomDelete(/*mom,*/ doc, momentNeedsData) {
     doc.id,
     "for momentNeedsData: ",
     momentNeedsData,
-    " returning baseData:",
-    baseData,
+    // " returning baseData:",
+    // baseData,
   );
 
   return baseData;
@@ -287,7 +287,7 @@ const keysNeededinFrontend = [
 //This generate the data that will be read by the user's frontend
 function generateNewDisplayData(newRawData) {
   try {
-    console.log("In generateNewDisplayData with newRawData:", newRawData);
+    // console.log("In generateNewDisplayData with newRawData:", newRawData);
     if (!newRawData)
       throw new Error("In generateNewDisplayData newRawData is empty");
 
