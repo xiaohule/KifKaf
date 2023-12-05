@@ -1,7 +1,7 @@
 <!-- src/pages/PrivacyPolicy.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Contact us</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Contact us</div>
 
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
       <q-card-section class="q-py-xs">

@@ -268,7 +268,7 @@ const emptyNeedsMomentsRetry = async () => {
     );
     try {
       const response = await axios.post(
-        `/api/learn/needs/`,
+        `/api/learn/add-moment/`,
         {
           momentText: doc.data().text,
           momentDate: JSON.stringify(doc.data().date),
@@ -356,7 +356,7 @@ export default boot(({ router }) => {
     console.log("In router.afterEach, from", from.path, " to ", to.path);
 
     // Define common routes and group routes for transitions
-    const tabRoutes = ["/", "/learn"];
+    const tabRoutes = ["/", "/insights"];
     const slideInRoutes = ["/privacy-policy", "/terms", "/contact"];
 
     if (

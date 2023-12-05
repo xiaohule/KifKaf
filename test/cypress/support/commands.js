@@ -98,7 +98,7 @@ Cypress.Commands.add("signIn", (username, password) => {
 
 Cypress.Commands.add("signUp", (username, password) => {
   cy.url({ timeout: 40000 }).should("include", "login");
-  cy.get("input").type(username);
+  cy.dataCy("email-input").type(username);
   cy.contains("Continue").click();
   cy.get("[type='text'][name='name']").type("Jane Doe");
   cy.get("[type='password']").type(password);
@@ -147,15 +147,15 @@ Cypress.Commands.add("signUp", (username, password) => {
   cy.visit("/login/email");
 });
 
-export const generateRandomTestEmail = (string_length) => {
-  let random_string = "test_";
-  let random_ascii;
-  for (let i = 0; i < string_length; i++) {
-    random_ascii = Math.floor(Math.random() * 25 + 97);
-    random_string += String.fromCharCode(random_ascii);
-  }
-  return random_string;
-};
+// export const generateRandomTestEmail = (string_length) => {
+//   let random_string = "test_";
+//   let random_ascii;
+//   for (let i = 0; i < string_length; i++) {
+//     random_ascii = Math.floor(Math.random() * 25 + 97);
+//     random_string += String.fromCharCode(random_ascii);
+//   }
+//   return random_string;
+// };
 
 // Cypress.Commands.add("seedDatabase", () => {
 //   setActivePinia(createPinia());

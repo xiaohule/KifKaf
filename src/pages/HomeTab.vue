@@ -32,8 +32,9 @@
   /* grid-template-rows: 1fr 2fr; Ratio for B and C */
   /* overflow: hidden; Hide B when the container is too small */     -->
         <div style="width: 100%;  margin-top: 100px; height: 60vh; position: relative; z-index: 20;">
-          <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{ greeting }}{{
-            userFirstName }} 👋</div>
+          <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{
+            getGreetingLabel }}{{
+    userFirstName }} 👋</div>
           <div class="pushed-up-if-height-xs q-py-md">
             <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
             <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
@@ -62,20 +63,20 @@
       :new-mom-input-ref="newMomInputRef" @update:new-mom-text="newMomText = $event"
       @click:view-needs="openBottomSheet($event)" class="q-px-md negative-margin-welcome-tutorial" />
 
-    <div v-if="!momentsStore || !momentsStore.uniqueDays || momentsStore.uniqueDays.length == 0"></div>
+    <div v-if="!momentsStore || !momentsStore.getUniqueDaysTs || momentsStore.getUniqueDaysTs.length == 0"></div>
     <div v-else class="q-px-md">
-      <div v-for="( day, index ) in  momentsStore.uniqueDays " :key="day">
+      <div v-for="( day, index ) in  momentsStore.getUniqueDaysTs " :key="day">
 
         <div :class="[
-          'text-body1',
+          'text-h6',
           'text-weight-medium',
           'q-pa-none',
           'q-mb-sm',
           (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
           (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-        ]" header>{{ momentsStore.getFormattedDate(day) }}</div>
+        ]" header>{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
-          <div v-for=" moment  in  getSortedMomentsOfTheDay(day) " :key="moment.id" clickable v-ripple
+          <div v-for=" moment  in  momentsStore.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
             class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
 
             <q-item class="q-px-xs" style="min-height: 0px;">
@@ -90,12 +91,12 @@
               <!--TODO:2 do this part add the "+" for manually adding needs -->
             </q-item>
             <q-item v-else-if="moment.needs && Object.keys(moment.needs).length > 0"
-              class="q-px-xs q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
+              class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
               <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                 @scroll="onChipsRowScroll($event, moment.id)">
                 <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-                  :key="need[0]" outline :color="momentsStore.getChipColor(need[1])"
-                  :icon="momentsStore.needsMap[need[0]][0]" :label="need[0]" class="needs" />
+                  :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+                  class="needs" />
               </div>
             </q-item>
           </div>
@@ -125,11 +126,19 @@ import momentBottomSheet from 'src/components/momentBottomSheet.vue'
 import welcomeTutorial from 'src/components/welcomeTutorial.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
 // import AstronautJSON from './astronaut.json'
-import { date } from 'quasar'
-const { isSameDate } = date;
+import { needsMap, getChipColor } from "./../utils/needsUtils";
+import { useDateUtils } from './../composables/dateUtils.js'
 
 //STORE INITIALIZATION
 const momentsStore = useMomentsStore()
+const { getGreetingLabel, formatDayForMomList } = useDateUtils()
+const errorDialogOpened = ref(false)
+const errorDialogText = ref('')
+const placeholderText = 'Feeling ... because ...'
+const newMomInputRef = ref(null)
+const newMomText = ref('')
+const newMomDate = ref(null)
+const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 
 const emits = defineEmits(['update:isDialogOpened'])
 
@@ -146,18 +155,6 @@ onMounted(async () => {
   }
 })
 
-// onActivated(() => {
-//   if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-//   momsWithScrolledNeeds.value = {};
-// })
-
-const errorDialogOpened = ref(false)
-const errorDialogText = ref('')
-const placeholderText = 'Feeling ... because ...'
-const newMomInputRef = ref(null)
-const newMomText = ref('')
-const newMomDate = ref(null)
-const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 const userFirstName = computed(() => {
   if (momentsStore?.user?.displayName) {
     const firstName = momentsStore.user.displayName.trim().split(' ')[0];
@@ -165,18 +162,6 @@ const userFirstName = computed(() => {
     return ", " + capitalizedFirstName;
   }
   return ''
-})
-const greeting = computed(() => {
-  // Get the current hour using the Date object
-  const hour = new Date().getHours()
-  // Determine the greeting based on the hour
-  if (hour < 12) {
-    return 'Good Morning'
-  } else if (hour >= 12 && hour <= 17) {
-    return 'Good Afternoon'
-  } else {
-    return 'Good Evening'
-  }
 })
 
 const expectedLlmCallDuration = ref(60);
@@ -262,22 +247,13 @@ const onSubmit = (event) => {
   newMomDate.value = null
 }
 
-// DISPLAY PREVIOUS MOMENTS
-const getSortedMomentsOfTheDay = (day) => { //TODO:1 this should be in momentssStore directly
-  const dayDate = (new Timestamp(day, 0)).toDate()
-  const ul = momentsStore?.momentsColl?.filter(moment => isSameDate(moment.date.toDate(), dayDate, "day"))
-  // sort array ul per descending moments.value.date.seconds
-  const ol = ul?.sort((a, b) => b.date.seconds - a.date.seconds);
-  return ol;
-}
-
 // DISPLAY PREVIOUS MOMENTS NEEDS
 const onChipsRowScroll = (event, id) => {
   momsWithScrolledNeeds.value[id] = event.target.scrollLeft;
 };
 const setChipsRowPadding = (id) => {
   // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
-  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 48px;';
+  return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 56px;';
 };
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Delete your account</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Delete your account</div>
 
     <div v-if="deletingAccountDialogOpened === false">
 
@@ -203,6 +203,6 @@ onUnmounted(() => {
 }
 
 .q-item__label--header {
-  padding: 8px 16px 8px;
+  padding: 8px 0px 8px;
 }
 </style>

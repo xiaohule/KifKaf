@@ -7,15 +7,12 @@ const {
 
 const needsInitValues = {
   occurrenceCount: 0,
-  importancesSum: 0,
   satisfactionSum: 0,
   dissatisfactionSum: 0,
-  importanceValue: 0,
+  importancesSum: 0,
   satisfactionValue: 0,
   dissatisfactionValue: 0,
-  importanceDisplayValue: 0,
-  satisfactionImpactDisplayValue: 0,
-  unsatisfactionImpactDisplayValue: 0,
+  importanceValue: 0,
   satisfactionImpactLabelValue: 0,
   unsatisfactionImpactLabelValue: 0,
 };
@@ -33,7 +30,6 @@ const initAggregateDoc = async (aggregateDocRef, isRaw = false) => {
         totalImportances: 0,
         lastUpdate: FieldValue.serverTimestamp(),
         needs: needsMap,
-        maxImportanceValue: 0,
         totalSatisfactionImpact: 0,
         totalUnsatisfactionImpact: 0,
       }
@@ -47,11 +43,16 @@ const initAggregateDoc = async (aggregateDocRef, isRaw = false) => {
 };
 
 const getAggregateDocRefs = async (userDocRef, rawMomentDate) => {
-  const momentdateObject = JSON.parse(rawMomentDate);
+  console.log("getAggregateDocRefs > rawMomentDate:", rawMomentDate);
+  let momentDateObject = rawMomentDate;
+  if (typeof momentDateObject === "string") {
+    momentDateObject = JSON.parse(rawMomentDate);
+  }
   const momentTs = new Timestamp(
-    momentdateObject.seconds,
-    momentdateObject.nanoseconds,
+    momentDateObject.seconds,
+    momentDateObject.nanoseconds,
   );
+  console.log("getAggregateDocRefs > momentTs:", momentTs);
   const momentDate = momentTs.toDate();
   const momentYear = momentDate.getFullYear().toString();
   const momentMonth = momentDate.getMonth() + 1;
@@ -139,5 +140,6 @@ const persistNeedsData = async (
 };
 
 module.exports = {
+  getAggregateDocRefs,
   persistNeedsData,
 };

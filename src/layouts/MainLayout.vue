@@ -3,7 +3,7 @@
 
     <q-header class="bg-transparent" bordered reveal :reveal-offset="150">
       <q-toolbar class="q-mx-auto q-pr-xs toolbar-blurred" style="max-width: 600px">
-        <q-avatar size="sm" square>
+        <q-avatar size="sm" square @click="router.push('/')">
           <img src="~assets/icon-kifkaf-no-background.svg" />
         </q-avatar>
         <q-toolbar-title class="text-on-surface text-center text-subtitle1 text-weight-medium
@@ -18,7 +18,9 @@
     <!-- TODO:1 set max-width direclty here an not in pages -->
     <q-page-container>
       <router-view v-slot="{ Component }">
+        <!-- <keep-alive :include="['MainLayout', 'InsightsTab']"> -->
         <component :is="Component" />
+        <!-- </keep-alive> -->
       </router-view>
     </q-page-container>
 
@@ -26,7 +28,7 @@
       <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
         class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
         <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" data-cy="home-tab" />
-        <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/learn" class="q-pt-xs q-pb-lg"
+        <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/insights" class="q-pt-xs q-pb-lg"
           @click="handleInsightsClick" data-cy="insights-tab" />
         <!-- ou stats ou needs ou learn -->
         <!-- re-add tabs when ready -->
@@ -47,14 +49,14 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
 
-const tab = ref('Home')
+const tab = ref('Insights')
 
 const router = useRouter()
 const momentsStore = useMomentsStore()
 
 //reset swiper position to latest month/year when clicking on insights tab
 const handleInsightsClick = () => {
-  if (router.currentRoute.value.path === '/learn') {
+  if (router.currentRoute.value.path === '/insights') {
     momentsStore.shouldResetSwiper = true
   }
 }

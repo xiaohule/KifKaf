@@ -11,7 +11,7 @@
       <div class="q-px-md">
         <q-item class="q-px-none">
           <q-item-section class="text-h6 text-weight-medium">{{
-            momentsStore.getFormattedDate(moment?.date?.seconds, true) }}</q-item-section>
+            formatDayForMomList(moment?.date?.seconds, true) }}</q-item-section>
           <q-item-section avatar class="q-px-none" style="min-width: 20px;">
             <moment-sync-icon :moment-id="momentId" :expected-llm-call-duration="expectedLlmCallDuration" />
           </q-item-section>
@@ -50,8 +50,8 @@
           <q-card-section v-else-if="moment?.needs && Object.keys(moment?.needs).length > 0"
             class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
             <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-              :key="need[0]" outline :color="momentsStore.getChipColor(need[1])" :icon="momentsStore.needsMap[need[0]][0]"
-              :label="need[0]" class="needs" />
+              :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+              class="needs" />
             <!-- add the "+" for manually adding needs -->
 
             <!-- <div class="q-chip row inline no-wrap items-center text-positive q-chip--colored q-chip--outline needs" style="background-color: negative;"> -->
@@ -69,8 +69,18 @@
           </q-card-section>
 
         </q-card>
+
+        <q-card class="bg-surface q-mb-md q-px-md q-py-md rounded-borders-14" flat clickable v-ripple
+          @click="deleteDialogOpened = true">
+          <q-item class="q-px-none q-py-none" style="min-height: 0px;">
+            <q-item-section class="text-negative">
+              <q-item-label>Delete moment</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
       </div>
     </q-card>
+
     <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-px-sm" flat v-touch-swipe.mouse.down="(event) => { needsInfoOpened = false }">
         <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
@@ -83,8 +93,8 @@
           Universal Human Needs. <br><br>The full list is composed of:<br>
 
           <q-list>
-            <q-expansion-item v-for="categ in Object.entries(momentsStore.needsCategories)" :key="categ[0]"
-              group="needsCategories" header-class="q-px-none">
+            <q-expansion-item v-for="categ in Object.entries(needsCategories)" :key="categ[0]" group="needsCategories"
+              header-class="q-px-none">
               <template v-slot:header>
                 <q-item-section avatar>
                   <q-avatar :icon="categ[1][0]" :color="categ[1][1]" text-color="background">
@@ -99,8 +109,8 @@
                   <!-- [["Physical Well-Being", ["🛡️", "Physiological & Safety"]],
   ["Sustenance & Nourishment", ["🍎", "Physiological & Safety"]],
   // ... (and so on for each entry in the needsMap)] -->
-                  <q-chip v-for="need in Object.entries(momentsStore.needsMap).filter(need => need[1][1] === categ[0])"
-                    :key="need[0]" outline :icon="need[1][0]" color="outline" :label="need[0]" class="needs" />
+                  <q-chip v-for="need in Object.entries(needsMap).filter(need => need[1][1] === categ[0])" :key="need[0]"
+                    outline :icon="need[1][0]" color="outline" :label="need[0]" class="needs" />
                 </q-card-section>
               </q-card>
             </q-expansion-item>
@@ -108,11 +118,30 @@
         </q-card-section>
 
         <q-card-actions align="center">
-          <q-btn rounded color="primary" padding="md md" @click="needsInfoOpened = false" class="text-body1
+          <q-btn rounded color="primary" padding="md md" @click="needsInfoOpened = false" class="text-body1 text-weight-medium
 q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="deleteDialogOpened" position="bottom" style="max-width: 600px">
+      <q-card class="bg-background q-px-sm q-pt-sm q-pb-lg" flat
+        v-touch-swipe.mouse.down="(event) => { deleteDialogOpened = false }">
+        <q-card-section>
+          <div class="text-h6 text-weight-medium">Delete moment?</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none text-outline">
+          We will automatically recalculate your Insights.
+        </q-card-section>
+        <q-card-actions align="around">
+          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" rounded label="Cancel" color="primary"
+            padding="sm xl" v-close-popup no-caps />
+          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" flat rounded label="Delete moment" color="primary"
+            padding="sm xl" v-close-popup no-caps @click="deleteMoment" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-dialog>
 </template>
 
@@ -120,6 +149,14 @@ q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
 import { ref, watch } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
+import { needsMap, needsCategories, getChipColor } from "./../utils/needsUtils";
+import { useDateUtils } from '../composables/dateUtils.js'
+
+const momentsStore = useMomentsStore()
+const moment = ref(null)
+const needsInfoOpened = ref(false)
+const deleteDialogOpened = ref(false)
+const { formatDayForMomList } = useDateUtils()
 
 const props = defineProps({
   modelValue: {
@@ -137,17 +174,19 @@ const props = defineProps({
     default: 60
   },
 });
-defineEmits(['update:modelValue']);
-
-const momentsStore = useMomentsStore()
-const moment = ref(null)
+const emits = defineEmits(['update:modelValue']);
 
 watch(() => props.momentId, (newVal, oldVal) => {
   momentsStore.getMomentById(newVal, moment);
   console.log('in momentBottomSheet watch props.momentId:', props.momentId, "moment:", moment);
 })
 
-const needsInfoOpened = ref(false)
+const deleteMoment = () => {
+  deleteDialogOpened.value = false
+  emits('update:modelValue', false)
+  console.log("In momBottomSheet, deleting moment");
+  momentsStore.deleteMoment(props.momentId)
+}
 
 </script>
 <style lang="scss">

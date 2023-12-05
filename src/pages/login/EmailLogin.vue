@@ -2,11 +2,11 @@
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
 
     <div v-if="!showWaitingForEmailVerif && !showPasswordRecovery && !showWaitingForPwdRecoveryEmail">
-      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Log in to KifKaf</div>
+      <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Log in to KifKaf</div>
 
       <q-form @submit="onSubmit">
-        <q-input ref="emailInputRef" v-model="userEmail" placeholder="Enter your email" type='email' class="q-my-md"
-          outlined bg-color="surface-variant" color="transparent" clearable>
+        <q-input data-cy="email-input" ref="emailInputRef" v-model="userEmail" placeholder="Enter your email" type='email'
+          class="q-my-md" outlined bg-color="surface-variant" color="transparent" clearable>
         </q-input>
 
         <q-input v-if="isSignUp" ref="nameInputRef" v-model="userName" placeholder="What should we call you?" type='text'

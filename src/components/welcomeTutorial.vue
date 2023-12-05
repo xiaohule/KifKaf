@@ -6,7 +6,7 @@
         <q-item-section class="text-body1 text-weight-medium text-on-primary">Welcome to
           KifKaf</q-item-section>
         <q-item-section side>
-          <q-btn flat dense icon="r_close" color="background" size="12px"
+          <q-btn flat dense icon="r_close" color="background" size="10px"
             @click="momentsStore.setShowWelcomeTutorial(false)" padding="none" />
         </q-item-section>
       </q-item>
@@ -76,7 +76,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="View needs" @click="tutoViewNeeds" :disable="!momentsStore.getLatestMomentId"
+                  label="View needs" @click="tutoViewNeeds" :disable="!momentsStore.getLatestMomWithNeedsId"
                   style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
@@ -112,7 +112,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="Explore Insights" @click="tutoExploreInsights" :disable="!momentsStore.getLatestMomentId"
+                  label="Explore Insights" @click="tutoExploreInsights" :disable="!momentsStore.getLatestMomWithNeedsId"
                   style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
@@ -177,12 +177,11 @@ const tutoLogMoment = () => {
   })
 }
 const tutoViewNeeds = async () => {
-  // openBottomSheet(momentsStore.getLatestMomentId);
-  emits('click:viewNeeds', momentsStore.getLatestMomentId);
+  emits('click:viewNeeds', momentsStore.getLatestMomWithNeedsId);
   await momentsStore.setWelcomeTutorialStep(2);
 }
 const tutoExploreInsights = async () => {
-  await router.push('/learn')
+  await router.push('/insights')
   await momentsStore.setWelcomeTutorialStep(3);
 }
 
