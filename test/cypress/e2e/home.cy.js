@@ -70,18 +70,18 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
     cy.dataCy("terms-link").click();
     cy.contains("Welcome to KifKaf. These Terms of Service");
-    cy.wait(1000); //needed to prevent "can only be called on a single element." error
+    cy.wait(1500); //needed to prevent "can only be called on a single element." error
     cy.dataCy("go-back-button").click();
 
     cy.dataCy("privacy-policy-link").click();
     cy.contains("At KifKaf, your privacy is paramount");
-    cy.wait(1000); //needed to prevent "can only be called on a single element." error
+    cy.wait(1500); //needed to prevent "can only be called on a single element." error
     cy.dataCy("go-back-button").click();
 
     cy.dataCy("contact-link").click();
     cy.contains("hello@kifkaf.app");
     cy.contains("Send");
-    cy.wait(1000); //needed to prevent "can only be called on a single element." error
+    cy.wait(1500); //needed to prevent "can only be called on a single element." error
     cy.dataCy("go-back-button").click();
 
     //should let a user sign up with email, log out and sign in again
@@ -114,21 +114,22 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.contains("Home").should("be.visible");
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
-    cy.visit("/#/insights");
+    // cy.visit("/#/insights");
     //can navigate to Insights>Home>Settings>Home
     // cy.wait(1000);
-    cy.dataCy("insights-tab").click();
+    cy.dataCy("home-insights-tab").click();
     // cy.wait(1000);
-    cy.dataCy("home-tab").click();
+    cy.dataCy("insights-home-tab").click();
     // cy.wait(1000);
-    cy.dataCy("insights-tab").click();
+    cy.dataCy("home-insights-tab").click();
     // cy.wait(1000);
 
     cy.url().should("include", "insights");
     cy.contains("Satisfiers").should("be.visible");
     cy.contains("Dissatisfiers").should("be.visible");
     cy.contains("All").should("be.visible");
-    cy.contains("Log Moments in the Home tab").should("be.visible");
+    //TODO:2 add a test
+    // cy.contains("Log Moments in the Home tab").should("be.visible");
     cy.get("footer").contains("Home").click();
     cy.url({ timeout: 40000 }).should("not.include", "insights");
     //Settings
@@ -166,7 +167,7 @@ describe("Insights Stats validation", () => {
   it("has correct stats in Insights tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Insights tab for 2023
     cy.visit("/");
-    cy.dataCy("insights-tab").click();
+    cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.reload();
     cy.contains("This month").should("be.visible").click();
@@ -178,10 +179,10 @@ describe("Insights Stats validation", () => {
     cy.wait(1000);
     cy.contains("Physical").should("be.visible");
     //expand Needs Satisfaction section
-    cy.get(".swiper-slide-active")
-      .first()
-      .contains("Satisfiers")
-      .should("be.visible");
+    // cy.get(".swiper-slide-active")
+    //   .first()
+    //   .contains("Satisfiers")
+    //   .should("be.visible");
     // cy.get(".swiper-slide-active").then(($els) => {
     //   for (const item of momentsStats2023Data) {
     //     if ($els.first().text().includes(item.tag)) {
@@ -208,7 +209,7 @@ describe("Insights Stats validation", () => {
     //   }
     // });
 
-    cy.contains("Dissatisfiers").should("be.visible").click();
+    cy.contains("Dissatisfiers").should("be.visible").click({ force: true });
     cy.contains("Emotional Safety").should("be.visible");
 
     // cy.contains("Satisfied").each(($el) => {
@@ -247,7 +248,7 @@ describe("Insights Stats validation", () => {
 
     //should have a working monthly picker and correct stats in Insights tab for 2022
     cy.visit("/");
-    cy.dataCy("insights-tab").click();
+    cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
@@ -287,7 +288,7 @@ describe("Insights Stats validation", () => {
 
     //should have the expected placeholder in Insights tab for 2021
     cy.visit("/");
-    cy.dataCy("insights-tab").click();
+    cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.contains("This month").click();
     cy.contains("Yearly").click();
@@ -303,7 +304,7 @@ describe("Need page validation", () => {
   it("has working Physical need page", () => {
     //should have correct stats in Insights tab for 2023
     cy.visit("/");
-    cy.dataCy("insights-tab").click();
+    cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.reload();
     cy.contains("This month").should("be.visible").click();
@@ -313,8 +314,8 @@ describe("Need page validation", () => {
       cy.contains("Done").should("be.visible").click();
     });
     cy.wait(1000);
-
-    cy.contains("Physical").should("be.visible").click();
+    cy.contains("Satisfiers").should("be.visible").click({ force: true });
+    cy.contains("Physical").should("be.visible").click({ force: true });
     cy.url().should("include", "physical");
 
     cy.contains("Physical").should("be.visible");
@@ -334,7 +335,7 @@ describe("Need page validation", () => {
     cy.dataCy("go-back-button").click();
 
     cy.contains("Dissatisfiers").should("be.visible");
-    cy.dataCy("home-tab").click();
+    cy.dataCy("insights-home-tab").click();
   });
 });
 

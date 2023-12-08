@@ -1,23 +1,23 @@
 <template>
-  <div v-if="momentsStore.getShowWelcomeTutorial" class="q-px-md negative-margin-welcome-tutorial">
+  <div v-if="ms.getShowWelcomeTutorial" class="q-px-md negative-margin-welcome-tutorial">
     <q-list>
 
       <q-item class="q-px-xs q-py-none margin-top-if-height-sm">
         <q-item-section class="text-body1 text-weight-medium text-on-primary">Welcome to
           KifKaf</q-item-section>
         <q-item-section side>
-          <q-btn flat dense icon="r_close" color="background" size="10px"
-            @click="momentsStore.setShowWelcomeTutorial(false)" padding="none" />
+          <q-btn flat dense icon="r_close" color="background" size="10px" @click="ms.setShowWelcomeTutorial(false)"
+            padding="none" />
         </q-item-section>
       </q-item>
 
       <q-item class="q-pl-xs q-pr-sm q-pt-xs q-pb-xs" style="min-height: 0px;">
         <q-item-section class="text-subtitle2 text-weight-medium">
-          <q-linear-progress :value="momentsStore.getWelcomeTutorialStep / 3" color="surface" track-color="grey" rounded
+          <q-linear-progress :value="ms.getWelcomeTutorialStep / 3" color="surface" track-color="grey" rounded
             animation-speed="500" />
         </q-item-section>
         <q-item-section side class="text-caption
-text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
+text-on-primary">{{ ms.getWelcomeTutorialStep +
   "/3 complete" }}
         </q-item-section>
       </q-item>
@@ -26,8 +26,8 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
         <!-- ref="swiperWelcomeTutorial"  init="false"  auto-height="true" pagination-dynamic-bullets="true" slides-per-view="1.05"-->
         <swiper-container ref="swiperTuto" :pagination="true" :grab-cursor="true" space-between="10" style="width: 100%;">
           <swiper-slide>
-            <q-card v-if="momentsStore?.getWelcomeTutorialStep < 0.5"
-              class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
+            <q-card v-if="ms.getWelcomeTutorialStep < 0.5" class="bg-surface q-py-md q-px-xs rounded-borders-14"
+              style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
                   <q-item-label>
@@ -62,7 +62,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
             </q-card>
           </swiper-slide>
           <swiper-slide>
-            <q-card v-if="momentsStore?.getWelcomeTutorialStep < 2" class="bg-surface q-py-md q-px-xs rounded-borders-14"
+            <q-card v-if="ms.getWelcomeTutorialStep < 2" class="bg-surface q-py-md q-px-xs rounded-borders-14"
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
@@ -76,8 +76,8 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="View needs" @click="tutoViewNeeds" :disable="!momentsStore.getLatestMomWithNeedsId"
-                  style="width: 100%; " no-caps />
+                  label="View needs" @click="tutoViewNeeds" :disable="!ms.getLatestMomWithNeedsId" style="width: 100%; "
+                  no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
@@ -97,7 +97,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
             </q-card>
           </swiper-slide>
           <swiper-slide>
-            <q-card v-if="momentsStore?.getWelcomeTutorialStep < 3" class="bg-surface q-py-md q-px-xs rounded-borders-14"
+            <q-card v-if="ms.getWelcomeTutorialStep < 3" class="bg-surface q-py-md q-px-xs rounded-borders-14"
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
@@ -112,7 +112,7 @@ text-on-primary">{{ momentsStore.getWelcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="Explore Insights" @click="tutoExploreInsights" :disable="!momentsStore.getLatestMomWithNeedsId"
+                  label="Explore Insights" @click="tutoExploreInsights" :disable="!ms.getLatestMomWithNeedsId"
                   style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
@@ -157,15 +157,15 @@ const props = defineProps({
 });
 const emits = defineEmits(['update:newMomText', 'click:viewNeeds']);
 
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const router = useRouter()
 
 // const swiperInitialized = ref(false)
 const swiperTuto = ref(null)
 onMounted(() => {
   console.log('ONMOUNTED TUTO')
-  if (swiperTuto.value && swiperTuto.value.swiper && momentsStore?.getWelcomeTutorialStep)
-    swiperTuto.value.swiper.slideTo(momentsStore.getWelcomeTutorialStep, 0, false)
+  if (swiperTuto.value && swiperTuto.value.swiper && ms.getWelcomeTutorialStep)
+    swiperTuto.value.swiper.slideTo(ms.getWelcomeTutorialStep, 0, false)
 });
 
 //WELCOME TUTORIAL
@@ -177,12 +177,12 @@ const tutoLogMoment = () => {
   })
 }
 const tutoViewNeeds = async () => {
-  emits('click:viewNeeds', momentsStore.getLatestMomWithNeedsId);
-  await momentsStore.setWelcomeTutorialStep(2);
+  emits('click:viewNeeds', ms.getLatestMomWithNeedsId);
+  await ms.setWelcomeTutorialStep(2);
 }
 const tutoExploreInsights = async () => {
   await router.push('/insights')
-  await momentsStore.setWelcomeTutorialStep(3);
+  await ms.setWelcomeTutorialStep(3);
 }
 
 </script>

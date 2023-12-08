@@ -82,7 +82,7 @@ import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
 import axios from 'axios';
 
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
 const deletingAccountDialogOpened = ref(false)
@@ -112,12 +112,12 @@ const handleOnline = async () => {
   try {
     deletingAccountDialogOpened.value = true;
     console.log("in AccountDeletionPage, attempting direct deletion");
-    const fetchedSignInMethods = await fetchSignInMethodsForEmail(auth, momentsStore.user.email);
+    const fetchedSignInMethods = await fetchSignInMethodsForEmail(auth, ms.user.email);
     await deleteUser(currentUser.value);
 
     console.log("in AccountDeletionPage, fetchedSignInMethods:", fetchedSignInMethods);
     if (fetchedSignInMethods.includes("apple.com")) {
-      const authorizationCode = momentsStore.getAuthorizationCode;
+      const authorizationCode = ms.getAuthorizationCode;
       if (authorizationCode) {
         console.log("in AccountDeletionPage, attempting to revoke apple tokens, authorizationCode:", authorizationCode);
         await revokeAppleTokens(authorizationCode);
@@ -129,15 +129,15 @@ const handleOnline = async () => {
     deletingAccountDialogOpened.value = false;
     accountDeletedDialogOpened.value = false;
     return
-    //TODO:1 reauthentication needed to get momentsStore.userCredentials
+    //TODO:1 reauthentication needed to get ms.userCredentials
     // console.log("in handleOnline, currentUser.value:", currentUser.value);
-    // console.log("in handleOnline, momentsStore.userCredentials:", momentsStore.userCredentials);
-    // await reauthenticateWithCredential(currentUser.value, momentsStore.userCredentials);
+    // console.log("in handleOnline, ms.userCredentials:", ms.userCredentials);
+    // await reauthenticateWithCredential(currentUser.value, ms.userCredentials);
     // deletingAccountDialogOpened.value = true;
     // console.log("User re-authenticated.");
     // console.log("Error re-authenticating and deleting user:", error);
   }
-  momentsStore.$reset()
+  ms.$reset()
 };
 
 
@@ -161,7 +161,7 @@ onUnmounted(() => {
 
 // onMounted(async () => {
 // try {
-//   signInMethods.value = await fetchSignInMethodsForEmail(auth, momentsStore.user.email);
+//   signInMethods.value = await fetchSignInMethodsForEmail(auth, ms.user.email);
 // } catch (error) {
 //   console.error('Error fetching sign-in methods:', error);
 // }

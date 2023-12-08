@@ -1,8 +1,7 @@
 <template >
   <q-page class="q-mx-auto q-px-md q-pb-lg" style="max-width: 600px">
 
-    <div
-      v-if="momentsStore.aggregateData && momentsStore.aggregateData[dateRange] && momentsStore.aggregateData[dateRange].importance.length > 0">
+    <div v-if="ms.aggregateData && ms.aggregateData[dateRange] && ms.aggregateData[dateRange].importance.length > 0">
 
       <q-item class="q-pt-none q-pl-none q-pr-xs q-mx-none q-pb-xs">
         <q-item-section class="text-h4 text-weight-bold">{{ needName }}</q-item-section>
@@ -14,8 +13,8 @@
       </q-item>
       <q-item class="q-pa-none q-mb-md" dense style="min-height: 0px;">
         <span class="q-pa-none text-body2">
-          {{ momentsStore.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount }}
-          {{ momentsStore.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount == 1
+          {{ ms.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount }}
+          {{ ms.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount == 1
             ?
             'moment' : 'moments' }}&nbsp;</span>
         <span class="q-pa-auto" style="font-size:0.4em;line-height:4;">●</span>
@@ -43,9 +42,9 @@
       </div>
     </div> -->
 
-    <div v-if="!momentsStore || !momentsStore.getUniqueDaysTs || momentsStore.getUniqueDaysTs.length == 0"></div>
+    <div v-if="!ms || !ms.getUniqueDaysTs || ms.getUniqueDaysTs.length == 0"></div>
     <div v-else class="q-mt-md">
-      <div v-for="( day, index ) in momentsStore.getUniqueDaysDateFromDateRangeAndNeed(dateRange, needName)" :key="day">
+      <div v-for="( day, index ) in ms.getUniqueDaysDateFromDateRangeAndNeed(dateRange, needName)" :key="day">
 
         <div :class="[
           'text-h6',
@@ -54,10 +53,10 @@
           'q-mb-sm',
           (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
           'text-on-background'
-        ]" header>{{ formatDayForMomList(day) }}</div>
+        ]">{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
-          <div v-for=" moment  in  momentsStore.getSortedMomsFromDayAndNeed(day, needName) " :key="moment.id" clickable
-            v-ripple class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
+          <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day, needName) " :key="moment.id" clickable v-ripple
+            class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
 
             <q-item class="q-px-xs" style="min-height: 0px;">
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
@@ -81,7 +80,7 @@
           </div>
         </q-card>
       </div>
-      <moment-bottom-sheet v-model="momPageOpened" :moment-id="bottomSheetMomentId"
+      <moment-modal v-model="momPageOpened" :moment-id="bottomSheetMomentId"
         :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
   </q-page>
@@ -92,7 +91,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import { useRoute } from 'vue-router'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
-import momentBottomSheet from 'src/components/momentBottomSheet.vue'
+import momentModal from 'src/components/momentModal.vue'
 import { useDateUtils } from '../composables/dateUtils.js'
 import { needsMap, needToColor, needSlugToStr } from "./../utils/needsUtils";
 // import { Chart as ChartJS, ArcElement, DoughnutController } from 'chart.js'
@@ -100,7 +99,7 @@ import { needsMap, needToColor, needSlugToStr } from "./../utils/needsUtils";
 
 // INITIALIZATION
 const route = useRoute()
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const { currentYYYYdMM, getDatePickerLabel, formatDayForMomList } = useDateUtils()
 // ChartJS.register(ArcElement, DoughnutController);
 
@@ -110,14 +109,14 @@ const dateRange = ref(currentYYYYdMM.value)
 
 onMounted(async () => {
   try {
-    if (!momentsStore.aggregateDataFetched) {
-      await momentsStore.fetchAggregateData();
+    if (!ms.aggregateDataFetched) {
+      await ms.fetchAggregateData();
     }
-    if (!momentsStore.momentsFetched) {
-      await momentsStore.fetchMoments();
+    if (!ms.momentsFetched) {
+      await ms.fetchMoments();
     }
   } catch (error) {
-    console.error('In NeedPage > await momentsStore.fetchMoments() error:', error);
+    console.error('In NeedPage > await ms.fetchMoments() error:', error);
   }
 })
 
@@ -189,12 +188,12 @@ watch(
 // watchEffect(() => {
 //   if (needName.value && dateRange.value) {
 //     console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect called');
-//     if (momentsStore.aggregateData) {
+//     if (ms.aggregateData) {
 //       if (
-//         momentsStore.aggregateData[dateRange.value] &&
-//         momentsStore.aggregateData[dateRange.value].importance.length > 0) {
+//         ms.aggregateData[dateRange.value] &&
+//         ms.aggregateData[dateRange.value].importance.length > 0) {
 //         chartLoaded.value = false
-//         const needsData = momentsStore?.aggregateData[dateRange.value].importance.find(item => item.needName == needName.value)
+//         const needsData = ms?.aggregateData[dateRange.value].importance.find(item => item.needName == needName.value)
 //         console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' needsData:', needsData);
 
 //         chartData.value.datasets[0].data = [needsData.satisfactionImpactLabelValue, needsData.unsatisfactionImpactLabelValue]
@@ -213,13 +212,13 @@ watch(
 //         //if no data ready but legit dateRange and needName generate an empty chart
 //         chartLoaded.value = false
 //         nextTick(() => {
-//           console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, '  > watchEffect, data not ready for this dateRange and toggleValue');
+//           console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, '  > watchEffect, data not ready for this activeDateRange and needsToggleModel');
 //           chartLoaded.value = true
 //         })
 //       }
 //     }
 //     else {
-//       console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect ,momentsStore.aggregateData not ready');
+//       console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect ,ms.aggregateData not ready');
 //     }
 //   }
 // })

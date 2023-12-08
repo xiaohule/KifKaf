@@ -59,7 +59,7 @@ import { currentUser } from "../../boot/firebaseBoot.js";
 import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
 import { useMomentsStore } from '../../stores/moments.js'
 
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const route = useRoute();
 const router = useRouter();
 const to =
@@ -91,7 +91,7 @@ const continueWithApple = async () => {
   if (isOffline()) return
   try {
     const authorizationCode = await signInWithApple();
-    momentsStore.setAuthorizationCode(authorizationCode)
+    ms.setAuthorizationCode(authorizationCode)
   } catch (error) {
     console.error(error);
   }

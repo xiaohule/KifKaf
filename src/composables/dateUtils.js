@@ -106,6 +106,15 @@ export function useDateUtils() {
     else return displayDay;
   };
 
+  const monthDateRangeToDate = (monthDateRange) => {
+    console.log(
+      "In dateUtils > monthDateRangeToDate, monthDateRange",
+      monthDateRange,
+    );
+    const [yearStr, monthStr] = monthDateRange.split("-");
+    return new Date(Number(yearStr), Number(monthStr) - 1);
+  };
+
   return {
     currentDate,
     currentMonth,
@@ -116,5 +125,6 @@ export function useDateUtils() {
     getDatePickerLabel,
     dayToDate,
     formatDayForMomList,
+    monthDateRangeToDate,
   };
 }

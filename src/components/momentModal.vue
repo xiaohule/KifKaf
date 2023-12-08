@@ -1,6 +1,6 @@
 <template>
-  <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event.target)" position="bottom"
-    style="max-width: 600px">
+  <q-dialog v-if="moment" :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event.target)"
+    position="bottom" style="max-width: 600px">
 
     <q-card class="bg-background" flat style="height: 90vh;"
       v-touch-swipe.mouse.down="(event) => { $emit('update:modelValue', false) }">
@@ -11,7 +11,7 @@
       <div class="q-px-md">
         <q-item class="q-px-none">
           <q-item-section class="text-h6 text-weight-medium">{{
-            formatDayForMomList(moment?.date?.seconds, true) }}</q-item-section>
+            formatDayForMomList(moment.date?.seconds, true) }}</q-item-section>
           <q-item-section avatar class="q-px-none" style="min-width: 20px;">
             <moment-sync-icon :moment-id="momentId" :expected-llm-call-duration="expectedLlmCallDuration" />
           </q-item-section>
@@ -26,7 +26,7 @@
           <div class="text-weight-medium text-primary col-auto">Edit</div> -->
           </q-card-section>
           <q-card-section class="q-px-none q-py-sm">
-            <div class="">{{ moment?.text }}</div>
+            <div class="">{{ moment.text }}</div>
           </q-card-section>
         </q-card>
 
@@ -41,15 +41,15 @@
           <div class="text-weight-medium text-primary col-auto">Edit</div> -->
           </q-card-section>
 
-          <q-card-section v-if="moment?.needs && (moment?.needs.error || moment?.needs.Oops)"
+          <q-card-section v-if="moment.needs && (moment.needs.error || moment.needs.Oops)"
             class="q-px-none q-py-sm text-error" style="min-height: 0px;">
-            {{ "Oops: " + (moment?.needs.error ||
-              moment?.needs.Oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
+            {{ "Oops: " + (moment.needs.error ||
+              moment.needs.Oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
             <!-- add the "+" for manually adding needs -->
           </q-card-section>
-          <q-card-section v-else-if="moment?.needs && Object.keys(moment?.needs).length > 0"
+          <q-card-section v-else-if="moment.needs && Object.keys(moment.needs).length > 0"
             class="q-px-none q-pt-sm q-pb-xs chip-container" style="min-height: 0px;">
-            <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
+            <q-chip v-for="need in Object.entries(moment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
               :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
               class="needs" />
             <!-- add the "+" for manually adding needs -->
@@ -83,8 +83,6 @@
 
     <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-px-sm" flat v-touch-swipe.mouse.down="(event) => { needsInfoOpened = false }">
-        <!-- <div style="width: 40px; height: 3px; border-radius: 2.5px; margin: 12px auto 0;  " class="bg-grey">
-        </div> -->
 
         <q-card-section class="text-h6 text-weight-medium">Moment's needs
         </q-card-section>
@@ -152,7 +150,7 @@ import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import { needsMap, needsCategories, getChipColor } from "./../utils/needsUtils";
 import { useDateUtils } from '../composables/dateUtils.js'
 
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const moment = ref(null)
 const needsInfoOpened = ref(false)
 const deleteDialogOpened = ref(false)
@@ -177,15 +175,15 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue']);
 
 watch(() => props.momentId, (newVal, oldVal) => {
-  momentsStore.getMomentById(newVal, moment);
-  console.log('in momentBottomSheet watch props.momentId:', props.momentId, "moment:", moment);
+  ms.getMomentById(newVal, moment);
+  console.log('in momentModal watch props.momentId:', props.momentId, "moment:", moment);
 })
 
 const deleteMoment = () => {
   deleteDialogOpened.value = false
   emits('update:modelValue', false)
-  console.log("In momBottomSheet, deleting moment");
-  momentsStore.deleteMoment(props.momentId)
+  console.log("In momentModal, deleting moment");
+  ms.deleteMoment(props.momentId)
 }
 
 </script>

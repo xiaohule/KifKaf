@@ -10,7 +10,7 @@ import {
   query,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import {
   updateProfile,
   updateEmail,
@@ -22,12 +22,27 @@ import axios from "axios";
 import { Notify } from "quasar";
 import { currentUser } from "../boot/firebaseBoot.js";
 import { date } from "quasar";
-const { isSameDate, startOfDate, endOfDate, isBetweenDates } = date;
+const {
+  getDateDiff,
+  isSameDate,
+  startOfDate,
+  endOfDate,
+  isBetweenDates,
+  addToDate,
+  formatDate,
+} = date;
+
 import { useDateUtils } from "../composables/dateUtils.js";
 
 export const useMomentsStore = defineStore("moments", () => {
-  const { currentDate, currentYear, currentYYYYdMM, dayToDate } =
-    useDateUtils();
+  const {
+    currentDate,
+    currentYear,
+    currentYYYYdMM,
+    dayToDate,
+    getDatePickerLabel,
+    monthDateRangeToDate,
+  } = useDateUtils();
   const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
@@ -37,10 +52,245 @@ export const useMomentsStore = defineStore("moments", () => {
   const momentsFetched = ref(false);
   const aggregateDataFetched = ref(false);
   const shouldResetSwiper = ref(false);
-  const savedPeriodicity = ref(null);
-  const savedActiveIndex = ref(null);
-  const savedToggleValue = ref(null);
-  const savedSegmentClicked = ref(null);
+  const donutSegmentClicked = ref(null);
+
+  const insightsInitialized = ref(false);
+  const needsToggleModel = ref("top");
+  const activeIndex = ref(null);
+  const segDateId = ref("Monthly");
+  const activeDateRange = computed(() => {
+    console.log(
+      "In moment.js > computed activeDateRange, activeIndex",
+      activeIndex.value,
+      "segDateId",
+      segDateId.value,
+    );
+    return (
+      dateRanges.value[activeIndex.value] ??
+      `${new Date().getFullYear()}-${(new Date().getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}`
+    );
+  });
+  const dateRangeButtonLabel = computed(() =>
+    getDatePickerLabel(activeDateRange.value),
+  );
+
+  const getUniqueDaysDateFromDateRangeAndNeed = (dateRange = "", need = "") => {
+    console.log(
+      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, momentsFetched",
+      momentsFetched.value,
+      " dateRange:",
+      dateRange,
+      "need:",
+      need,
+    );
+    if (!momentsFetched.value) {
+      return [];
+    }
+
+    const uniqueDaysSet = new Set();
+
+    let dateFrom, dateTo;
+    if (dateRange) {
+      if (dateRange.split("-").length === 1) {
+        //yearly
+        dateFrom = startOfDate(dateRange, "year");
+        dateTo = endOfDate(dateRange, "year");
+      } else {
+        //monthly
+        dateFrom = startOfDate(dateRange, "month");
+        dateTo = endOfDate(dateRange, "month");
+      }
+    }
+    console.log(
+      "in getUniqueDaysDateFromDateRangeAndNeed, dateFrom:",
+      dateFrom,
+      "dateTo:",
+      dateTo,
+    );
+
+    momentsColl.value.forEach((moment) => {
+      const momentDate = moment.date.toDate();
+      if (
+        !dateRange ||
+        isBetweenDates(momentDate, dateFrom, dateTo, {
+          inclusiveFrom: true,
+          inclusiveTo: true,
+        })
+      ) {
+        console.log(
+          "In getUniqueDaysDateFromDateRangeAndNeed, momentDate:",
+          momentDate,
+          "moment:",
+          moment,
+        );
+        if (!need || moment.needs[need]) {
+          const dayStr = startOfDate(momentDate, "day").toISOString(); //toISOStr to make it a string so that Set can ensure uniqueness
+          uniqueDaysSet.add(dayStr);
+        }
+      }
+    });
+
+    console.log(
+      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, uniqueDaysSet:",
+      uniqueDaysSet,
+    );
+    return Array.from(uniqueDaysSet)
+      .map((dayStr) => new Date(dayStr))
+      .sort((a, b) => b - a); // Sort in descending order
+  };
+
+  const getUniqueDaysTs = computed(() => {
+    console.log(
+      "In moments.js > getUniqueDaysTs, momentsColl.value:",
+      momentsColl.value,
+      "returning:",
+      getUniqueDaysDateFromDateRangeAndNeed(),
+    );
+    return getUniqueDaysDateFromDateRangeAndNeed();
+  });
+
+  const getOldestMomentDate = computed(() => {
+    return (
+      getUniqueDaysTs.value[getUniqueDaysTs.value.length - 1] ??
+      currentDate.value
+    );
+  });
+
+  const getOldestMomentDateYYYYsMM = computed(() => {
+    return formatDate(getOldestMomentDate.value, "YYYY/MM");
+  });
+
+  const monthsSinceOldestMoment = computed(() =>
+    getDateDiff(currentDate.value, getOldestMomentDate.value, "months"),
+  );
+  const dateRangesMonths = computed(() => {
+    const dateRanges = [];
+
+    let trackingDate = startOfDate(getOldestMomentDate.value, "month");
+    for (let i = 0; i <= monthsSinceOldestMoment.value; i++) {
+      dateRanges.push(
+        `${trackingDate.getFullYear()}-${(trackingDate.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}`,
+      );
+      trackingDate = addToDate(trackingDate, { months: 1 });
+    }
+    console.log(
+      "In moments.js > computed dateRangesMonths, dateRanges is",
+      dateRanges,
+    );
+    return dateRanges;
+  });
+
+  watch(
+    dateRangesMonths,
+    (newValue) => {
+      // && !insightsInitialized.value
+      if (segDateId.value === "Monthly") {
+        if (activeIndex.value !== newValue.length - 1) {
+          console.log(
+            "In moments.js > watch dateRangesMonths, with segDateId",
+            segDateId.value,
+            "updating activeIndex from",
+            activeIndex.value,
+            "to",
+            newValue.length - 1,
+          );
+          activeIndex.value = newValue.length - 1;
+          // insightsInitialized.value = true; //block the first update of activeIndex to the last index once done once, to avoid swiping just bec. new add data
+        }
+      }
+    },
+    { immediate: true },
+  );
+
+  const yearsSinceOldestMoment = computed(() =>
+    getDateDiff(currentDate.value, getOldestMomentDate.value, "years"),
+  );
+
+  const dateRangesYears = computed(() => {
+    console.log(
+      "In moments.js > computed dateRangesYears, currentDate.value",
+      currentDate.value,
+      "getOldestMomentDate",
+      getOldestMomentDate.value,
+    );
+    const dateRanges = [];
+    for (let i = yearsSinceOldestMoment.value; i >= 0; i--) {
+      dateRanges.push((currentYear.value - i).toString());
+    }
+    console.log(
+      "In moments.js > computed dateRangesYears, dateRanges is",
+      dateRanges,
+    );
+    return dateRanges;
+  });
+
+  watch(
+    dateRangesYears,
+    (newValue) => {
+      // && !insightsInitialized.value
+      if (segDateId.value === "Yearly") {
+        activeIndex.value = newValue.length - 1;
+        // insightsInitialized.value = true;
+      }
+    },
+    { immediate: true },
+  );
+
+  const dateRanges = computed(() => {
+    console.log(
+      "In moments.js > computed dateRanges, segDateId",
+      segDateId.value,
+      "returning:",
+      segDateId.value === "Monthly"
+        ? dateRangesMonths.value
+        : dateRangesYears.value,
+    );
+    return segDateId.value === "Monthly"
+      ? dateRangesMonths.value
+      : dateRangesYears.value;
+  });
+
+  //when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
+  watch(shouldResetSwiper, (newVal) => {
+    console.log("In moments.js > watch shouldResetSwiper, newVal", newVal);
+    if (newVal) {
+      activeIndex.value = dateRanges.value.length - 1;
+      shouldResetSwiper.value = false;
+    }
+  });
+
+  const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"));
+
+  watch(activeIndex, (newVal) => {
+    console.log("In moments.js > watch activeIndex, newVal", newVal);
+    if (segDateId.value === "Monthly") {
+      pickedDateYYYYsMMsDD.value = formatDate(
+        monthDateRangeToDate(activeDateRange.value),
+        "YYYY/MM/DD",
+      );
+    } else if (segDateId.value === "Yearly") {
+      pickedDateYYYYsMMsDD.value = formatDate(
+        activeDateRange.value,
+        "YYYY/MM/DD",
+      );
+    }
+  });
+
+  const suggestions = computed(() => {
+    const suggestions = {
+      continue: ["Engaging Regularly in Physical Activities"],
+      stop: ["Seeing Max", "Working without pause", "Calling your mum"],
+      start: [
+        "Mindfulness and Relaxation Practices",
+        "Engaging in a creative hobby like painting, writing, or playing a musical instrument",
+      ],
+    };
+    return suggestions;
+  });
 
   const fetchUser = async () => {
     try {
@@ -505,88 +755,6 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   //DATES
-  const getUniqueDaysTs = computed(() => {
-    console.log(
-      "In moments.js > getUniqueDaysTs, momentsColl.value:",
-      momentsColl.value,
-      "returning:",
-      getUniqueDaysDateFromDateRangeAndNeed(),
-    );
-    return getUniqueDaysDateFromDateRangeAndNeed();
-  });
-
-  const getOldestMomentDate = computed(() => {
-    return (
-      getUniqueDaysTs.value[getUniqueDaysTs.value.length - 1] ??
-      currentDate.value
-    );
-  });
-
-  const getUniqueDaysDateFromDateRangeAndNeed = (dateRange = "", need = "") => {
-    console.log(
-      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, momentsFetched",
-      momentsFetched.value,
-      " dateRange:",
-      dateRange,
-      "need:",
-      need,
-    );
-    if (!momentsFetched.value) {
-      return [];
-    }
-
-    const uniqueDaysSet = new Set();
-
-    let dateFrom, dateTo;
-    if (dateRange) {
-      if (dateRange.split("-").length === 1) {
-        //yearly
-        dateFrom = startOfDate(dateRange, "year");
-        dateTo = endOfDate(dateRange, "year");
-      } else {
-        //monthly
-        dateFrom = startOfDate(dateRange, "month");
-        dateTo = endOfDate(dateRange, "month");
-      }
-    }
-    console.log(
-      "in getUniqueDaysDateFromDateRangeAndNeed, dateFrom:",
-      dateFrom,
-      "dateTo:",
-      dateTo,
-    );
-
-    momentsColl.value.forEach((moment) => {
-      const momentDate = moment.date.toDate();
-      if (
-        !dateRange ||
-        isBetweenDates(momentDate, dateFrom, dateTo, {
-          inclusiveFrom: true,
-          inclusiveTo: true,
-        })
-      ) {
-        console.log(
-          "In getUniqueDaysDateFromDateRangeAndNeed, momentDate:",
-          momentDate,
-          "moment:",
-          moment,
-        );
-        if (!need || moment.needs[need]) {
-          const dayStr = startOfDate(momentDate, "day").toISOString(); //toISOStr to make it a string so that Set can ensure uniqueness
-          uniqueDaysSet.add(dayStr);
-        }
-      }
-    });
-
-    console.log(
-      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, uniqueDaysSet:",
-      uniqueDaysSet,
-    );
-    return Array.from(uniqueDaysSet)
-      .map((dayStr) => new Date(dayStr))
-      .sort((a, b) => b - a); // Sort in descending order
-  };
-
   const getSortedMomsFromDayAndNeed = /*async*/ (day, need = "") => {
     // if (!momentsFetched.value) {
     //   await fetchMoments();
@@ -615,20 +783,28 @@ export const useMomentsStore = defineStore("moments", () => {
     momentsFetched.value = false;
     aggregateDataFetched.value = false;
     shouldResetSwiper.value = false;
-    savedPeriodicity.value = null;
-    savedActiveIndex.value = null;
-    savedToggleValue.value = null;
-    savedSegmentClicked.value = null;
+    donutSegmentClicked.value = null;
+    insightsInitialized.value = false;
+    dateRangeButtonLabel.value = "This month";
+    needsToggleModel.value = "top";
+    activeIndex.value = null;
+    segDateId.value = "Monthly";
+    pickedDateYYYYsMMsDD.value = formatDate(currentDate.value, "YYYY/MM/DD");
   }
 
   return {
     user,
     momentsColl,
     shouldResetSwiper,
-    savedPeriodicity,
-    savedActiveIndex,
-    savedToggleValue,
-    savedSegmentClicked,
+    donutSegmentClicked,
+    dateRangeButtonLabel,
+    needsToggleModel,
+    activeIndex,
+    segDateId,
+    activeDateRange,
+    dateRanges,
+    pickedDateYYYYsMMsDD,
+    suggestions,
     userFetched,
     getHasNeeds,
     getAuthorizationCode,
@@ -640,6 +816,7 @@ export const useMomentsStore = defineStore("moments", () => {
     momentsFetched,
     getUniqueDaysTs,
     getOldestMomentDate,
+    getOldestMomentDateYYYYsMM,
     getMomentById,
     getLatestMomWithNeedsId,
     aggregateDataFetched,

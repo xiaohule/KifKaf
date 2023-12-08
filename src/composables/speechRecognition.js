@@ -16,7 +16,7 @@
 import { ref } from "vue";
 import { SpeechRecognition } from "@capacitor-community/speech-recognition";
 import { useMomentsStore } from "./../stores/moments.js";
-const momentsStore = useMomentsStore();
+const ms = useMomentsStore();
 
 export const showSpeechRecognitionButton = ref(false);
 export const isRecognizing = ref(false);
@@ -63,9 +63,7 @@ export const useSpeechRecognition = async (
       //TODO:2 here in the case of no user setting we're implicitly hoping that device language will be supported by the speech reco API
       if (!isRecognizing.value) {
         webRecognitionInstance.lang =
-          momentsStore.getSpeechRecoLanguage ||
-          momentsStore.getDeviceLanguage ||
-          "en-US";
+          ms.getSpeechRecoLanguage || ms.getDeviceLanguage || "en-US";
         webRecognitionInstance.onresult = (event) => {
           try {
             let finalTranscript = "";
@@ -169,9 +167,7 @@ export const useSpeechRecognition = async (
 
             SpeechRecognition.start({
               language:
-                momentsStore.getSpeechRecoLanguage ||
-                momentsStore.getDeviceLanguage ||
-                "en-US",
+                ms.getSpeechRecoLanguage || ms.getDeviceLanguage || "en-US",
               maxResults: 1,
               prompt: "Say something",
               partialResults: true,

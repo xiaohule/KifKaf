@@ -1,6 +1,6 @@
 <!-- here we display the correct donut chart for the requested date range -->
 <template>
-  <div style="position: relative; height:30vh;">
+  <div style="position: relative;" :class="props.embedded ? 'smallDoughnut' : 'bigDoughnut'">
 
     <Doughnut v-if="loaded" ref="chartRef" :data="chartData" :options="chartOptions" class="q-mx-auto" />
 
@@ -20,8 +20,8 @@
         </div>
       </div>
 
-      <div class="text-body2 text-center q-my-sm" v-else>{{ props.toggleValue == 'satisfaction' ? 'Satisfiers' :
-        (props.toggleValue == 'unsatisfaction' ?
+      <div class="text-body2 text-center q-my-sm" v-else>{{ ms.needsToggleModel == 'satisfaction' ? 'Satisfiers' :
+        (ms.needsToggleModel == 'unsatisfaction' ?
           'Dissatisfiers' : 'Top needs') }}</div>
     </div>
   </div>
@@ -35,7 +35,7 @@ import { Doughnut } from 'vue-chartjs'
 import { needsMap, needToColor } from "./../utils/needsUtils";
 ChartJS.register(ArcElement);
 
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const loaded = ref(false)
 const chartRef = ref(null)
 const isSegmentClicked = ref(false)
@@ -53,14 +53,6 @@ const chartData = ref({
 )
 
 const props = defineProps({
-  dateRange: {
-    type: String,
-    default: () => `${(new Date()).getFullYear()}-${((new Date()).getMonth() + 1).toString().padStart(2, "0")}`,
-  },
-  toggleValue: {
-    type: String,
-    default: "satisfaction",
-  },
   percentageThreshold: {
     type: Number,
     default: 0.05,
@@ -73,11 +65,15 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  embedded: {
+    type: Boolean,
+    default: false,
+  },
 });
 const emits = defineEmits(['click:segment', 'update:chartData'])
 
 const handleClick = (evt, item, chart) => {
-  console.log('In donutChart ', props.dateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
+  console.log('In donutChart ', ms.activeDateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
   // Check if any segment is clicked
   if (chartData.value.datasets[0].labels[0] === 'No data') return
 
@@ -85,7 +81,7 @@ const handleClick = (evt, item, chart) => {
     isSegmentClicked.value = true;
     clickedIndex.value = item[0].index;
 
-    console.log('In donutChart ', props.dateRange, ' > handleClick emits click:segment with', { needName: chartData.value.datasets[0].labels[clickedIndex.value] });
+    console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with', { needName: chartData.value.datasets[0].labels[clickedIndex.value] });
 
     emits('click:segment', { needName: chartData.value.datasets[0].labels[clickedIndex.value], clickedSegmentIndex: clickedIndex.value })
     chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
@@ -98,7 +94,7 @@ const handleClick = (evt, item, chart) => {
     isSegmentClicked.value = false;
     clickedIndex.value = null;
 
-    console.log('In donutChart ', props.dateRange, ' > handleClick emits click:segment with null');
+    console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with null');
 
     emits('click:segment', { needName: null, clickedSegmentIndex: null })
     chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
@@ -109,8 +105,8 @@ const handleClick = (evt, item, chart) => {
   chart.update();
 }
 const chartOptions = ref({
-  cutout: '88%',
-  spacing: 30,
+  cutout: props.embedded ? '82%' : '86%',
+  spacing: props.embedded ? 25 : 30,
   borderRadius: 14,
   borderWidth: 0,
   responsive: true,
@@ -121,23 +117,23 @@ const chartOptions = ref({
     animateRotate: true
   },
   // animation: false,
-  onClick: handleClick,
+  onClick: props.embedded ? null : handleClick,
 })
 
 watchEffect(() => {
-  if (props.isActive && props.dateRange && props.toggleValue) {
-    console.log('In donutChart for ', props.toggleValue, ' ', props.dateRange, 'with props.isActive ', props.isActive, ' > watchEffect called');
-    if (momentsStore.aggregateData) {
+  if (props.isActive && ms.activeDateRange && ms.needsToggleModel) {
+    console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watchEffect called');
+    if (ms.aggregateData) {
       if (
-        momentsStore.aggregateData[props.dateRange] &&
-        momentsStore.aggregateData[props.dateRange][props.toggleValue]) {
+        ms.aggregateData[ms.activeDateRange] &&
+        ms.aggregateData[ms.activeDateRange][ms.needsToggleModel]) {
         loaded.value = false
-        const needsData = momentsStore?.aggregateData[props.dateRange][props.toggleValue]
-          .filter(item => item[props.toggleValue == 'satisfaction' ? 'satisfactionImpactLabelValue' : (props.toggleValue == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] > props.percentageThreshold)
+        const needsData = ms?.aggregateData[ms.activeDateRange][ms.needsToggleModel]
+          .filter(item => item[ms.needsToggleModel == 'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] > props.percentageThreshold)
           .map(item => {
             return {
               needName: item.needName,
-              data: item[props.toggleValue == 'satisfaction' ? 'satisfactionImpactLabelValue' : (props.toggleValue == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')],
+              data: item[ms.needsToggleModel == 'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')],
             }
           })
 
@@ -159,20 +155,20 @@ watchEffect(() => {
 
         nextTick(() => {
           loaded.value = true
-          console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, chartData updated, chartRef', chartRef.value);
+          console.log('In donutChart ', ms.needsToggleModel, ' ', ms.activeDateRange, ' > watchEffect, chartData updated, chartRef', chartRef.value);
         })
 
       } else {
-        //if no data ready but legit dateRange and toggleValue generate an empty chart
+        //if no data ready but legit activeDateRange and needsToggleModel generate an empty chart
         loaded.value = false
         nextTick(() => {
-          console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, ' > watchEffect, data not ready for this dateRange and toggleValue');
+          console.log('In donutChart ', ms.needsToggleModel, ' ', ms.activeDateRange, ' > watchEffect, data not ready for this activeDateRange and needsToggleModel');
           loaded.value = true
         })
       }
     }
     else {
-      console.log('In donutChart for ', props.toggleValue, ' ', props.dateRange, 'with props.isActive ', props.isActive, ' > watchEffect ,momentsStore.aggregateData not ready');
+      console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watchEffect ,ms.aggregateData not ready');
     }
   } else {
     //reset clicked segment to null when chart is not active
@@ -182,24 +178,24 @@ watchEffect(() => {
 })
 
 watch(loaded, (newValue, oldValue) => {
-  console.log('In donutChart > watch loaded newValue:', newValue, "oldValue:", oldValue, 'chartRef', chartRef.value, 'momentsStore.savedSegmentClicked:', momentsStore.savedSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value, 'props.isActive:', props.isActive, 'props.dateRange:', props.dateRange, 'props.toggleValue:', props.toggleValue, 'props.clickedOutside:', props.clickedOutside);
+  console.log('In donutChart > watch loaded newValue:', newValue, "oldValue:", oldValue, 'chartRef', chartRef.value, 'ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value, 'props.isActive:', props.isActive, 'ms.activeDateRange:', ms.activeDateRange, 'ms.needsToggleModel:', ms.needsToggleModel, 'props.clickedOutside:', props.clickedOutside);
 
-  if (newValue && momentsStore.savedSegmentClicked !== null && props.isActive && momentsStore.aggregateData[props.dateRange] && momentsStore.aggregateData[props.dateRange][props.toggleValue]
+  if (newValue && ms.donutSegmentClicked !== null && props.isActive && ms.aggregateData[ms.activeDateRange] && ms.aggregateData[ms.activeDateRange][ms.needsToggleModel]
   ) {
-    console.log('In donutChart > watch loaded Before, momentsStore.savedSegmentClicked:', momentsStore.savedSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value);
+    console.log('In donutChart > watch loaded Before, ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value);
 
     nextTick(() => {
-      handleClick(null, [{ index: momentsStore.savedSegmentClicked }], chartRef.value.chart)
-      momentsStore.savedSegmentClicked = null
+      handleClick(null, [{ index: ms.donutSegmentClicked }], chartRef.value.chart)
+      ms.donutSegmentClicked = null
 
-      console.log('In donutChart > watch loaded After, momentsStore.savedSegmentClicked:', momentsStore.savedSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value);
+      console.log('In donutChart > watch loaded After, ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value);
     })
   }
 })
 
 watch(() => props.clickedOutside, (newValue, oldValue) => {
   if (props.isActive && newValue && chartRef.value) {
-    console.log('In donutChart ', props.toggleValue, ' ', props.dateRange, 'with props.isActive ', props.isActive, ' > watch clickedOutside, newValue:', newValue, "oldValue:", oldValue);
+    console.log('In donutChart ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watch clickedOutside, newValue:', newValue, "oldValue:", oldValue);
     handleClick(null, [], chartRef.value.chart)
   }
 })
@@ -215,5 +211,13 @@ watch(() => props.clickedOutside, (newValue, oldValue) => {
     pointer-events: auto;
     /* Enable pointer events for the actual content */
   }
+}
+
+.smallDoughnut {
+  height: 22vh;
+}
+
+.bigDoughnut {
+  height: 30vh;
 }
 </style>
