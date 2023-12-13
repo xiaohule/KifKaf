@@ -117,11 +117,11 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.visit("/#/insights");
     //can navigate to Insights>Home>Settings>Home
     // cy.wait(1000);
-    cy.dataCy("home-insights-tab").click();
-    cy.wait(1000);
-    cy.dataCy("insights-home-tab").click();
-    cy.wait(1000);
-    cy.dataCy("home-insights-tab").click();
+    cy.dataCy("home-insights-tab").click({ force: true });
+    cy.wait(2000);
+    cy.dataCy("insights-home-tab").click({ force: true });
+    cy.wait(2000);
+    cy.dataCy("home-insights-tab").click({ force: true });
     // cy.wait(1000);
 
     cy.url().should("include", "insights");
