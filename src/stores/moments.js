@@ -586,7 +586,7 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       );
       console.log("In addMoment", response.data);
-      Notify.create("Needs analysis complete.");
+      // Notify.create("Needs analysis complete.");
     } catch (error) {
       console.log("Error in addMoment", error);
     }

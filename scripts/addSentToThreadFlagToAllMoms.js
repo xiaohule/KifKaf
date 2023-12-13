@@ -18,14 +18,12 @@ const moveUsersToNeedMap = async () => {
   // Fetch recently active users
   const listUsersResult = await admin.auth().listUsers(1000); // you can adjust the number
   const oldUsers = listUsersResult.users;
-  // const oldUserUIDs = oldUsers.map((user) => user.uid);
+  const oldUserUIDs = oldUsers.map((user) => user.uid);
 
-  const oldUserUIDs = [
-    "RA0n1j6ZwePwXz0pXE2osYacWO92",
-    "cdKIPeLIWfNdafdNoEcxjC3PBWx1",
-    // "KbeNnCHDbxePz9TzI7eVf9ZOzXi2",
-    // "huEvsyzeEZSHoJBNFH2GkOPkBeD2",
-  ];
+  // const oldUserUIDs = [
+  //   "RA0n1j6ZwePwXz0pXE2osYacWO92",
+  //   "cdKIPeLIWfNdafdNoEcxjC3PBWx1",
+  // ];
 
   console.log("oldUserUIDs", oldUserUIDs);
 
