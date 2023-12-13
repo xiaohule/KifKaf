@@ -114,17 +114,15 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.contains("Home").should("be.visible");
     //contains the expected tabs
     cy.contains("Home").should("be.visible");
-    // cy.visit("/#/insights");
+    cy.visit("/#/insights");
+    cy.url().should("include", "insights");
     //can navigate to Insights>Home>Settings>Home
     // cy.wait(1000);
-    cy.dataCy("home-insights-tab").click({ force: true });
-    cy.wait(2000);
     cy.dataCy("insights-home-tab").click({ force: true });
-    cy.wait(2000);
+    cy.url().should("not.include", "insights");
     cy.dataCy("home-insights-tab").click({ force: true });
-    // cy.wait(1000);
-
     cy.url().should("include", "insights");
+
     cy.contains("Satisfiers").should("be.visible");
     cy.contains("Dissatisfiers").should("be.visible");
     cy.contains("All").should("be.visible");
