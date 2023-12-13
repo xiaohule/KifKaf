@@ -118,9 +118,9 @@ describe("Checking main screens & Moments inputting", () => {
     //can navigate to Insights>Home>Settings>Home
     // cy.wait(1000);
     cy.dataCy("home-insights-tab").click();
-    // cy.wait(1000);
+    cy.wait(1000);
     cy.dataCy("insights-home-tab").click();
-    // cy.wait(1000);
+    cy.wait(1000);
     cy.dataCy("home-insights-tab").click();
     // cy.wait(1000);
 
