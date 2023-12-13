@@ -13,16 +13,13 @@
         @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
         <swiper-slide v-for="range in ms.dateRanges" :key="range">
           <q-card flat class="bg-surface q-px-md q-py-lg rounded-borders-14" style="margin-bottom: 32px;">
-            <div style="min-height: 0px;">
-              This month you have had a rich emotional life with a broad range of feelings and needs. You seem to be
-              energized
-              by physical activities, meaningful social interactions, and moments of self-reflection and gratitude.
-              However,
-              you
-              also experienced stress and discomfort when your autonomy was challenged, when you faced uncertainty, or
-              when
-              you
-              felt ineffective or disconnected from meaningful activities or people...
+            <div
+              v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && ms.aggDataInsights[ms.activeDateRange].summary?.length > 0"
+              style="min-height: 0px;">
+              {{ ms.aggDataInsights[ms.activeDateRange].summary }}
+            </div>
+            <div v-else style="min-height: 0px;">
+              No summary available for this period.
             </div>
           </q-card>
         </swiper-slide>
@@ -31,12 +28,15 @@
 
     <div v-if="true" class="q-my-xl">
       <q-item>
-        <q-item-section><span>Owning our story and loving ourselves through that process is the bravest thing that we will
-            ever do.</span><span class="text-caption text-outline">Brené Brown</span>
+        <q-item-section
+          v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && ms.aggDataInsights[ms.activeDateRange].quote?.text?.length > 0"><span>{{
+            ms.aggDataInsights[ms.activeDateRange].quote.text }}</span><span class="text-caption text-outline">{{
+    ms.aggDataInsights[ms.activeDateRange].quote.author }}</span>
         </q-item-section>
+        <q-item-section v-else><span>Oops no quote ready for this period.</span> </q-item-section>
         <q-item-section side top>
           <q-item-label class="text-primary text-weight-medium text-subtitle2"
-            @click="openWhyModal('quote')">Why</q-item-label>
+            @click="whyModalSection = 'quote'; whyModalOpened = true">Why</q-item-label>
           <q-icon color="on-background" name="r_format_quote" size="lg" />
         </q-item-section>
       </q-item>
@@ -81,12 +81,15 @@
 
     <div v-if="true" class="q-my-xl">
       <q-item>
-        <q-item-section><span>The Gifts of Imperfection</span><span class="text-caption text-outline">by Brené
-            Brown</span>
+        <q-item-section
+          v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && ms.aggDataInsights[ms.activeDateRange].book?.title?.length > 0"><span>{{
+            ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">by {{
+    ms.aggDataInsights[ms.activeDateRange].book.author }}</span>
         </q-item-section>
+        <q-item-section v-else><span>Oops no book ready for this period.</span> </q-item-section>
         <q-item-section side top>
           <q-item-label class="text-primary text-weight-medium text-subtitle2"
-            @click="openWhyModal('quote')">Why</q-item-label>
+            @click="whyModalSection = 'book'; whyModalOpened = true">Why</q-item-label>
           <q-icon color="on-background" name="r_menu_book" size="lg" />
         </q-item-section>
       </q-item>
@@ -103,38 +106,63 @@
         @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
         <swiper-slide v-for="range in ms.dateRanges" :key="range">
           <q-card flat class="bg-surface q-px-md q-py-lg rounded-borders-14" style="margin-bottom: 32px;">
-            <q-list>
+            <q-list
+              v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && (ms.aggDataInsights[ms.activeDateRange].suggestions?.continue?.length > 0 || ms.aggDataInsights[ms.activeDateRange].suggestions?.stop?.length > 0 || ms.aggDataInsights[ms.activeDateRange].suggestions?.start?.length > 0)">
               <q-item-label class="text-subtitle2 text-weight-medium text-outline">Continue</q-item-label>
-              <q-item v-for="suggestion in ms.suggestions.continue" :key="suggestion.id" class="q-py-sm"
-                style="min-height: 0px;">
+              <q-item v-for="suggestion in ms.aggDataInsights[ms.activeDateRange].suggestions.continue"
+                :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
                 {{ suggestion }}
               </q-item>
               <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">Stop</q-item-label> <q-item
-                v-for="suggestion in ms.suggestions.stop" :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
+                v-for="suggestion in ms.aggDataInsights[ms.activeDateRange].suggestions.stop" :key="suggestion.id"
+                class="q-py-sm" style="min-height: 0px;">
                 {{ suggestion }}
               </q-item>
               <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">Start</q-item-label> <q-item
-                v-for="suggestion in ms.suggestions.start" :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
+                v-for="suggestion in ms.aggDataInsights[ms.activeDateRange].suggestions.start" :key="suggestion.id"
+                class="q-py-sm" style="min-height: 0px;">
                 {{ suggestion }}
               </q-item>
             </q-list>
+            <div v-else style="min-height: 0px;">
+              No suggestions available for this period.
+            </div>
           </q-card>
         </swiper-slide>
       </swiper-container>
     </div>
 
-    <div v-if="true" class="q-my-xl">
-      <q-item>
-        <q-item-section><span>1 month ago...</span><span class="text-caption text-outline">Feeling so grateful to see John
-            and spend some time with animals</span>
-        </q-item-section>
-        <q-item-section side top>
-          <q-item-label class="text-primary text-weight-medium text-subtitle2"
-            @click="openWhyModal('quote')">Why</q-item-label>
-          <q-icon color="on-background" name="r_fast_rewind" size="lg" />
-        </q-item-section>
-      </q-item>
+    <div v-if="revisitMoment" class="q-px-md">
+      <div class="q-mb-sm text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date) }}...
+      </div>
+
+      <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
+        <div clickable v-ripple class="q-px-none q-py-sm" style="min-height: 0px;"
+          @click="momentModalId = revisitMomentId; momentModalOpened = true">
+
+          <q-item class="q-px-xs" style="min-height: 0px;">
+            <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
+              <q-icon color="on-background" name="r_fast_rewind" size="lg" />
+            </q-item-section>
+
+            <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ revisitMoment.text
+            }}</q-item-section>
+          </q-item>
+          <!-- <q-item class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
+            <div class="horizontal-scroll" :style="setChipsRowPadding(revisitMoment.id)"
+              @scroll="onChipsRowScroll($event, revisitMoment.id)">
+              <q-chip
+                v-for="need in Object.entries(revisitMoment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
+                :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+                class="needs" />
+            </div>
+          </q-item> -->
+        </div>
+      </q-card>
     </div>
+
+    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
+    <why-modal v-model="whyModalOpened" :section="whyModalSection" />
 
     <!-- <Vue3Lottie :animationData="lottie1" :width="300" :speed="0.5" :loop="true" :autoplay="true" /> -->
   </q-page>
@@ -147,14 +175,24 @@ import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
 import topItem from 'src/components/topItem.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
 // import lottie1 from './../assets/lottie1.json'
+import momentModal from 'src/components/momentModal.vue'
+import whyModal from 'src/components/whyModal.vue'
+import { useDateUtils } from './../composables/dateUtils.js'
 
 const ms = useMomentsStore()
+const { formatRevisitDay } = useDateUtils()
 
 //SWIPER
 const swipersLoaded = ref(true)
 const swiperSummaryEl = ref(null)
 const swiperNeedsEl = ref(null)
 const swiperSuggestionsEl = ref(null)
+const revisitMomentId = ref("")
+const revisitMoment = ref("")
+const momentModalOpened = ref(false)
+const momentModalId = ref("")
+const whyModalOpened = ref(false)
+const whyModalSection = ref("")
 
 onMounted(async () => {
   try {
@@ -165,10 +203,17 @@ onMounted(async () => {
     if (!ms.aggregateDataFetched) {
       await ms.fetchAggregateData();
     }
+    revisitMomentId.value = await ms.getRandomMomentId()
   } catch (error) {
     console.error('await ms.fetchAggregateData() error:', error);
   }
 })
+
+watch(revisitMomentId, (newVal) => {
+  if (newVal) {
+    ms.getMomentById(newVal, revisitMoment)
+  }
+}, { immediate: true })
 
 //SWIPER
 const swiperAfterInit = (event, el) => {
@@ -191,9 +236,9 @@ const swiperAfterInit = (event, el) => {
 watch(() => ms.activeIndex, (newVal, oldVal) => {
   nextTick(() => {
     console.log('In InsightsTab > ms.activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal, 'swiperSummaryEl', swiperSummaryEl.value, 'trying to slide all to ', newVal)
-    swiperSummaryEl?.value.swiper.slideTo(newVal, 0)
-    swiperNeedsEl?.value.swiper.slideTo(newVal, 0)
-    swiperSuggestionsEl?.value.swiper.slideTo(newVal, 0)
+    swiperSummaryEl?.value?.swiper.slideTo(newVal, 0)
+    swiperNeedsEl?.value?.swiper.slideTo(newVal, 0)
+    swiperSuggestionsEl?.value?.swiper.slideTo(newVal, 0)
   })
 }, { immediate: true })
 
@@ -213,11 +258,7 @@ watch(() => ms.dateRanges, (newVal, oldVal) => {
   })
 })
 
-const openWhyModal = (section) => {
-  console.log('In InsightsTab > openWhyModal for section', section)
-  whyDialogSection.value = section
-  whyDialogOpened.value = true
-}
+
 
 </script>
 

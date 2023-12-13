@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { Timestamp } from "firebase/firestore";
 import { date } from "quasar";
-const { formatDate, isSameDate } = date;
+const { formatDate, isSameDate, getDateDiff } = date;
 
 export function useDateUtils() {
   const currentDate = computed(() => new Date());
@@ -11,7 +11,9 @@ export function useDateUtils() {
     (currentDate.value.getMonth() + 1).toString().padStart(2, "0"),
   );
 
-  const currentYear = computed(() => currentDate.value.getFullYear());
+  const currentYear = computed(() =>
+    currentDate.value.getFullYear().toString(),
+  );
 
   const currentYYYYdMM = computed(() => {
     return `${currentYear.value}-${currentMonth.value}`;
@@ -106,6 +108,32 @@ export function useDateUtils() {
     else return displayDay;
   };
 
+  const formatRevisitDay = (day) => {
+    if (!day) {
+      return;
+    }
+    console.log("in dateUtils.js >  formatRevisitDay");
+
+    const dayDate = dayToDate(day);
+    const diffInDays = Math.abs(getDateDiff(currentDate.value, dayDate, "day"));
+    const diffInMonths = Math.abs(
+      getDateDiff(currentDate.value, dayDate, "month"),
+    );
+    const diffInYears = Math.abs(
+      getDateDiff(currentDate.value, dayDate, "year"),
+    );
+
+    const timeAgo =
+      diffInDays < 25
+        ? Math.floor(diffInDays / 7) + " weeks ago"
+        : diffInMonths < 12
+          ? diffInMonths + ` month${diffInMonths > 1 ? "s" : ""} ago`
+          : diffInYears + ` year${diffInYears > 1 ? "s" : ""} ago`;
+
+    // console.log("In dateUtils.js > formatDayForMomList, displayDay:", displayDay);
+    return timeAgo;
+  };
+
   const monthDateRangeToDate = (monthDateRange) => {
     console.log(
       "In dateUtils > monthDateRangeToDate, monthDateRange",
@@ -125,6 +153,7 @@ export function useDateUtils() {
     getDatePickerLabel,
     dayToDate,
     formatDayForMomList,
+    formatRevisitDay,
     monthDateRangeToDate,
   };
 }

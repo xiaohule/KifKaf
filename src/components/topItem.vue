@@ -14,8 +14,8 @@
       <q-item class="q-pa-none" dense style="min-height: 0px;">
         <q-item-section class="text-subtitle2 text-weight-medium">{{ topItem.needName }}</q-item-section>
         <q-item-section side class="text-body2 text-on-surface">{{ parseFloat((topItem[props.topType ==
-          'satisfaction' ? 'satisfactionImpactLabelValue' : (props.topType == 'unsatisfaction'
-            ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
+                  'satisfaction' ? 'satisfactionImpactLabelValue' : (props.topType == 'unsatisfaction'
+                  ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
         </q-item-section>
       </q-item>
       <q-item class="q-pa-none" dense style="min-height: 0px;">
@@ -24,8 +24,8 @@
           {{ topItem.occurrenceCount == 1 ? 'moment' : 'moments' }}
         </q-item-section>
         <q-item-section side class="text-caption text-outline">{{ props.topType == 'satisfaction' ?
-          'of all satisfaction' : (props.topType == 'unsatisfaction'
-            ? 'of all dissatisfaction' : 'of total importance') }}
+                  'of all satisfaction' : (props.topType == 'unsatisfaction'
+                  ? 'of all dissatisfaction' : 'of total importance') }}
         </q-item-section>
       </q-item>
     </q-item-section>
@@ -74,12 +74,12 @@ const topLabel = computed(() => {
 const topItem = computed(() => {
   console.log('In topItem > computed topItem for topType', props.topType, 'and activeDateRange', ms.activeDateRange)
 
-  console.log('In topItem > computed topItem, ms.aggregateData[ms.activeDateRange][props.topType]', ms.aggregateData &&
-    ms.aggregateData[ms.activeDateRange] &&
-    ms.aggregateData[ms.activeDateRange][props.topType][0])
-  return ms.aggregateData &&
-    ms.aggregateData[ms.activeDateRange] &&
-    ms.aggregateData[ms.activeDateRange][props.topType][0]
+  console.log('In topItem > computed topItem, ms.aggDataNeeds[ms.activeDateRange][props.topType]', ms.aggDataNeeds &&
+    ms.aggDataNeeds[ms.activeDateRange] &&
+    ms.aggDataNeeds[ms.activeDateRange][props.topType][0])
+  return ms.aggDataNeeds &&
+    ms.aggDataNeeds[ms.activeDateRange] &&
+    ms.aggDataNeeds[ms.activeDateRange][props.topType][0]
 })
 
 </script>

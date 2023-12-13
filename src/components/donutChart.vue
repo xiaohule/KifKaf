@@ -13,16 +13,16 @@
           {{ needsMap[chartData.datasets[0].labels[clickedIndex]][0] }}
         </q-avatar>
         <div class="text-body2 text-center q-mt-md q-mb-sm">{{ chartData.datasets[0].labels[clickedIndex]
-        }}</div>
+                  }}</div>
         <div class="text-h3 text-on-surface text-weight-bolder text-center">{{
-          parseFloat((chartData.datasets[0].data[clickedIndex] *
-            100).toFixed(0)) + "%" }}
+                  parseFloat((chartData.datasets[0].data[clickedIndex] *
+                  100).toFixed(0)) + "%" }}
         </div>
       </div>
 
       <div class="text-body2 text-center q-my-sm" v-else>{{ ms.needsToggleModel == 'satisfaction' ? 'Satisfiers' :
-        (ms.needsToggleModel == 'unsatisfaction' ?
-          'Dissatisfiers' : 'Top needs') }}</div>
+              (ms.needsToggleModel == 'unsatisfaction' ?
+              'Dissatisfiers' : 'Top needs') }}</div>
     </div>
   </div>
 </template>
@@ -123,12 +123,12 @@ const chartOptions = ref({
 watchEffect(() => {
   if (props.isActive && ms.activeDateRange && ms.needsToggleModel) {
     console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watchEffect called');
-    if (ms.aggregateData) {
+    if (ms.aggDataNeeds) {
       if (
-        ms.aggregateData[ms.activeDateRange] &&
-        ms.aggregateData[ms.activeDateRange][ms.needsToggleModel]) {
+        ms.aggDataNeeds[ms.activeDateRange] &&
+        ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]) {
         loaded.value = false
-        const needsData = ms?.aggregateData[ms.activeDateRange][ms.needsToggleModel]
+        const needsData = ms?.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]
           .filter(item => item[ms.needsToggleModel == 'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] > props.percentageThreshold)
           .map(item => {
             return {
@@ -168,7 +168,7 @@ watchEffect(() => {
       }
     }
     else {
-      console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watchEffect ,ms.aggregateData not ready');
+      console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watchEffect ,ms.aggDataNeeds not ready');
     }
   } else {
     //reset clicked segment to null when chart is not active
@@ -180,7 +180,7 @@ watchEffect(() => {
 watch(loaded, (newValue, oldValue) => {
   console.log('In donutChart > watch loaded newValue:', newValue, "oldValue:", oldValue, 'chartRef', chartRef.value, 'ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value, 'props.isActive:', props.isActive, 'ms.activeDateRange:', ms.activeDateRange, 'ms.needsToggleModel:', ms.needsToggleModel, 'props.clickedOutside:', props.clickedOutside);
 
-  if (newValue && ms.donutSegmentClicked !== null && props.isActive && ms.aggregateData[ms.activeDateRange] && ms.aggregateData[ms.activeDateRange][ms.needsToggleModel]
+  if (newValue && ms.donutSegmentClicked !== null && props.isActive && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]
   ) {
     console.log('In donutChart > watch loaded Before, ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value);
 

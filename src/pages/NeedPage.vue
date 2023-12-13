@@ -1,7 +1,7 @@
 <template >
   <q-page class="q-mx-auto q-px-md q-pb-lg" style="max-width: 600px">
 
-    <div v-if="ms.aggregateData && ms.aggregateData[dateRange] && ms.aggregateData[dateRange].importance.length > 0">
+    <div v-if="ms.aggDataNeeds && ms.aggDataNeeds[dateRange] && ms.aggDataNeeds[dateRange].importance.length > 0">
 
       <q-item class="q-pt-none q-pl-none q-pr-xs q-mx-none q-pb-xs">
         <q-item-section class="text-h4 text-weight-bold">{{ needName }}</q-item-section>
@@ -13,8 +13,8 @@
       </q-item>
       <q-item class="q-pa-none q-mb-md" dense style="min-height: 0px;">
         <span class="q-pa-none text-body2">
-          {{ ms.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount }}
-          {{ ms.aggregateData[dateRange].importance.find(item => item.needName == needName).occurrenceCount == 1
+          {{ ms.aggDataNeeds[dateRange].importance.find(item => item.needName == needName).occurrenceCount }}
+          {{ ms.aggDataNeeds[dateRange].importance.find(item => item.needName == needName).occurrenceCount == 1
             ?
             'moment' : 'moments' }}&nbsp;</span>
         <span class="q-pa-auto" style="font-size:0.4em;line-height:4;">●</span>
@@ -56,7 +56,8 @@
         ]">{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
           <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day, needName) " :key="moment.id" clickable v-ripple
-            class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
+            class="q-px-none q-py-sm" style="min-height: 0px;"
+            @click="momentModalId = moment.id; momentModalOpened = true">
 
             <q-item class="q-px-xs" style="min-height: 0px;">
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
@@ -80,7 +81,7 @@
           </div>
         </q-card>
       </div>
-      <moment-modal v-model="momPageOpened" :moment-id="bottomSheetMomentId"
+      <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
         :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
   </q-page>
@@ -106,6 +107,10 @@ const { currentYYYYdMM, getDatePickerLabel, formatDayForMomList } = useDateUtils
 // TITLES
 const needName = ref('')
 const dateRange = ref(currentYYYYdMM.value)
+//MOM PAGE
+const expectedLlmCallDuration = ref(60);
+const momentModalOpened = ref(false);
+const momentModalId = ref("");
 
 onMounted(async () => {
   try {
@@ -188,12 +193,12 @@ watch(
 // watchEffect(() => {
 //   if (needName.value && dateRange.value) {
 //     console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect called');
-//     if (ms.aggregateData) {
+//     if (ms.aggDataNeeds) {
 //       if (
-//         ms.aggregateData[dateRange.value] &&
-//         ms.aggregateData[dateRange.value].importance.length > 0) {
+//         ms.aggDataNeeds[dateRange.value] &&
+//         ms.aggDataNeeds[dateRange.value].importance.length > 0) {
 //         chartLoaded.value = false
-//         const needsData = ms?.aggregateData[dateRange.value].importance.find(item => item.needName == needName.value)
+//         const needsData = ms?.aggDataNeeds[dateRange.value].importance.find(item => item.needName == needName.value)
 //         console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' needsData:', needsData);
 
 //         chartData.value.datasets[0].data = [needsData.satisfactionImpactLabelValue, needsData.unsatisfactionImpactLabelValue]
@@ -218,7 +223,7 @@ watch(
 //       }
 //     }
 //     else {
-//       console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect ,ms.aggregateData not ready');
+//       console.log('In NeedPage donutChart for ', needName.value, ' ', dateRange.value, ' > watchEffect ,ms.aggDataNeeds not ready');
 //     }
 //   }
 // })
@@ -247,15 +252,7 @@ watch(
 //   }
 // })
 
-//MOM PAGE
-const expectedLlmCallDuration = ref(60);
-const momPageOpened = ref(false)
-const bottomSheetMomentId = ref("")
-const openBottomSheet = (momentId) => {
-  console.log('in openBottomSheet momentId:', momentId)
-  bottomSheetMomentId.value = momentId
-  momPageOpened.value = true
-}
+
 
 // DISPLAY PREVIOUS MOMENTS NEEDS
 // const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment

@@ -5,7 +5,7 @@ const {
 } = require("../middlewares/authenticateUserMiddleware");
 const {
   validateDeleteMomentRequest,
-  unlockMomentId,
+  unlockId,
 } = require("../middlewares/validateRequestMiddleware");
 const {
   updateAggDataAfterMomDelete,
@@ -35,20 +35,21 @@ router.post(
       // SUCCESS PATH: RECALCULATE AGGREGATE DOCS
       await updateAggDataAfterMomDelete(db, req, userDocRef);
 
-      unlockMomentId(req.body.momentId, true /*isDeleteMoment*/);
+      unlockId(req.body.momentId, "deleteMoment");
       return res.status(200).json({
         message: "Agg Data updated following deletion of mom",
         moment: req.body.momentArchive,
         momentId: req.body.momentId,
       });
-    } catch (err) {
-      console.error(err);
-      unlockMomentId(req.body.momentId, true /*isDeleteMoment*/);
+    } catch (error) {
+      console.error(error);
+      unlockId(req.body.momentId, "deleteMoment");
       return res.status(500).json({
         message:
           "An error occurred while updating agg data following deletion of mom",
         moment: req.body.momentArchive,
         momentId: req.body.momentId,
+        error: error,
       });
     }
   },

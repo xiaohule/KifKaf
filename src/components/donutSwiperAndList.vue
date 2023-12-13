@@ -21,7 +21,7 @@
 
   <q-card class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat>
     <div
-      v-if="ms.aggregateData && ms.aggregateData[ms.activeDateRange] && ms.aggregateData[ms.activeDateRange][ms.needsToggleModel]?.length > 0">
+      v-if="ms.aggDataNeeds && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]?.length > 0">
       <q-list class="q-mt-xs">
         <transition-group appear enter-active-class="meala" leave-active-class="meala la" move-class="meala"
           enter-from-class="eflt" leave-to-class="eflt">
@@ -40,8 +40,8 @@
               <q-item class="q-pa-none" dense style="min-height: 0px;">
                 <q-item-section class="text-subtitle2 text-weight-medium">{{ item.needName }}</q-item-section>
                 <q-item-section side class="text-body2 text-on-surface">{{ parseFloat((item[ms.needsToggleModel ==
-                  'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction'
-                    ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
+                                  'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction'
+                                  ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
                 </q-item-section>
               </q-item>
 
@@ -51,8 +51,8 @@
                   {{ item.occurrenceCount == 1 ? 'moment' : 'moments' }}
                 </q-item-section>
                 <q-item-section side class="text-caption text-outline">{{ ms.needsToggleModel == 'satisfaction' ?
-                  'of all satisfaction' : (ms.needsToggleModel == 'unsatisfaction'
-                    ? 'of all dissatisfaction' : 'of total importance') }}
+                                  'of all satisfaction' : (ms.needsToggleModel == 'unsatisfaction'
+                                  ? 'of all dissatisfaction' : 'of total importance') }}
                 </q-item-section>
               </q-item>
             </q-item-section>
@@ -100,7 +100,7 @@
     </div>
 
     <q-card-actions
-      v-if="props.embedded && ms.aggregateData && ms.aggregateData[ms.activeDateRange] && ms.aggregateData[ms.activeDateRange][ms.needsToggleModel].length > 0 && itemsToDisplay.length > 0"
+      v-if="props.embedded && ms.aggDataNeeds && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel].length > 0 && itemsToDisplay.length > 0"
       align="center" class="">
       <q-btn color="primary" @click="router.push('/insights/needs')" class="q-mx-sm q-mt-sm full-width" no-caps flat>Show
         more</q-btn>
@@ -193,9 +193,9 @@ watch(() => ms.dateRanges, (newVal, oldVal) => {
 //LIST
 const itemsToDisplay = computed(() => {
   console.log('In donutSwiperAndList with embedded:', props.embedded, ' > itemsToDisplay', ms.activeDateRange, ms.needsToggleModel, percentageThreshold.value, displayOnlyOneNeed.value)
-  let filteredItems = ms.aggregateData &&
-    ms.aggregateData[ms.activeDateRange] &&
-    ms.aggregateData[ms.activeDateRange][ms.needsToggleModel]?.filter(item => {
+  let filteredItems = ms.aggDataNeeds &&
+    ms.aggDataNeeds[ms.activeDateRange] &&
+    ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]?.filter(item => {
       switch (displayOnlyOneNeed.value) {
         case null:
           return item[needsToggleModelDataKey.value] > percentageThreshold.value;

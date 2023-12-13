@@ -173,10 +173,11 @@ describe("Insights Stats validation", () => {
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
       cy.contains("2023").should("be.visible");
-      cy.contains("May").should("be.visible").click();
+      cy.contains("Nov").should("be.visible").click();
       cy.contains("Done").should("be.visible").click();
     });
     cy.wait(1000);
+    cy.contains("Satisfiers").should("be.visible").click({ force: true });
     cy.contains("Physical").should("be.visible");
     //expand Needs Satisfaction section
     // cy.get(".swiper-slide-active")
@@ -254,7 +255,7 @@ describe("Insights Stats validation", () => {
     cy.withinDialog((el) => {
       // cy.wrap(el).should("contain", "screen");
       cy.contains("Monthly").should("be.visible").click();
-      cy.contains("May").should("be.visible");
+      cy.contains("Nov").should("be.visible");
       cy.contains("Yearly").should("be.visible").click();
       cy.contains("2023").should("be.visible");
       cy.contains("2022").should("be.visible").click();
@@ -310,7 +311,7 @@ describe("Need page validation", () => {
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
       cy.contains("2023").should("be.visible");
-      cy.contains("May").should("be.visible").click();
+      cy.contains("Nov").should("be.visible").click();
       cy.contains("Done").should("be.visible").click();
     });
     cy.wait(1000);
@@ -319,7 +320,7 @@ describe("Need page validation", () => {
     cy.url().should("include", "physical");
 
     cy.contains("Physical").should("be.visible");
-    cy.contains("May").should("be.visible");
+    cy.contains("Nov").should("be.visible");
     cy.contains("moments").should("be.visible");
 
     cy.get(":nth-child(1) > .q-card > .q-py-sm").click();
@@ -419,7 +420,7 @@ describe("Need page validation", () => {
 //     cy.withinDialog((el) => {
 //       // cy.wrap(el).should("contain", "screen");
 //       cy.contains("Monthly").should("be.visible").click();
-//       cy.contains("May").should("be.visible");
+//       cy.contains("Nov").should("be.visible");
 //       cy.contains("Yearly").should("be.visible").click();
 //       cy.contains("2023").should("be.visible");
 //       cy.contains("2022").should("be.visible").click();

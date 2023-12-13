@@ -1,0 +1,64 @@
+{
+  "aggregateMonthly_YYYY-MM-insights": {
+    "summary": "string",
+    "quote": { "text": "string", "author": "string", "why": "string" },
+    "bookRecommendation": {
+      "title": "string",
+      "author": "string",
+      "why": "string"
+    },
+    "suggestions": {
+      "continue": ["string"], // Up to 3 strings
+      "stop": ["string"], // Up to 3 strings
+      "start": ["string"] // Up to 3 strings
+    }
+  },
+
+  "aggregateMonthly_2023-10-insights": {
+    "summary": "This month reflects a spectrum of emotions from physical discomfort and stress to moments of pride and the pursuit of happiness through social connections and intellectual engagement. Balancing work, relationships, and self-care appears to be a central theme.",
+    "quote": {
+      "text": "Happiness is not something ready made. It comes from your own actions.",
+      "author": "Dalai Lama",
+      "why": "Your experiences this month, from the discomfort of running after eating spinach to the mix of contentment and agitation when socializing, show the complexities of finding happiness in everyday actions. This quote emphasizes the proactive role you can take in creating your own happiness."
+    },
+    "book": {
+      "title": "The Gifts of Imperfection",
+      "author": "Brené Brown",
+      "why": "Considering your feelings of contentment in your uniqueness and pride in your theories, as well as feeling incapable of helping your mum, this book can guide you in embracing your vulnerabilities and cultivating a sense of worthiness, which can help in both personal accomplishments and supporting others."
+    },
+    "suggestions": {
+      "continue": [
+        "Taking pride in your unique perspectives",
+        "Seeking social interactions for personal fulfillment"
+      ],
+      "stop": [
+        "Ignoring your body's signals when it feels bad",
+        "Being hard on yourself when feeling incapable of helping others"
+      ],
+      "start": [
+        "Prioritizing self-care after high-stress periods",
+        "Exploring supportive communication strategies to connect with your loved ones"
+      ]
+    }
+  },
+
+  "momentId": {
+    "date": "string",
+    "text": "string",
+    "sentToThread": "boolean",
+    "retries": "number",
+    "needs": {
+      "need1Name": {
+        "dissatisfaction": "number", //in [0, 1]
+        "satisfaction": "number", //in [0, 1]
+        "importance": "number" //in [0, 1]
+      },
+      "need2Name": {
+        "dissatisfaction": "number",
+        "satisfaction": "number",
+        "importance": "number"
+      }
+      //etc.
+    }
+  }
+}

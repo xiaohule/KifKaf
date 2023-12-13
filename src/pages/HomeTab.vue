@@ -57,7 +57,7 @@
     </q-parallax>
 
     <welcome-tutorial v-if="ms.getShowWelcomeTutorial" :new-mom-text="newMomText" :new-mom-input-ref="newMomInputRef"
-      @update:new-mom-text="newMomText = $event" @click:view-needs="openBottomSheet($event)"
+      @update:new-mom-text="newMomText = $event" @click:view-needs="momentModalId = $event; momentModalOpened = true"
       class="q-px-md negative-margin-welcome-tutorial" />
 
     <div v-if="!ms || !ms.getUniqueDaysTs || ms.getUniqueDaysTs.length == 0"></div>
@@ -74,7 +74,8 @@
         ]">{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
           <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
-            class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
+            class="q-px-none q-py-sm" style="min-height: 0px;"
+            @click="momentModalId = moment.id; momentModalOpened = true">
 
             <q-item class="q-px-xs" style="min-height: 0px;">
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
@@ -99,7 +100,7 @@
           </div>
         </q-card>
       </div>
-      <moment-modal v-model="momPageOpened" :moment-id="bottomSheetMomentId"
+      <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
         :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
@@ -134,6 +135,9 @@ const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
 const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
+const expectedLlmCallDuration = ref(60);
+const momentModalOpened = ref(false);
+const momentModalId = ref("");
 
 const emits = defineEmits(['update:isDialogOpened'])
 
@@ -159,16 +163,9 @@ const userFirstName = computed(() => {
   return ''
 })
 
-const expectedLlmCallDuration = ref(60);
-const momPageOpened = ref(false)
-const bottomSheetMomentId = ref("")
-const openBottomSheet = (momentId) => {
-  console.log('in openBottomSheet momentId:', momentId)
-  bottomSheetMomentId.value = momentId
-  momPageOpened.value = true
-}
 
-watch([errorDialogOpened, momPageOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
+
+watch([errorDialogOpened, momentModalOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
   if (newVal1 || newVal2) emits('update:isDialogOpened', true)
   else emits('update:isDialogOpened', false)
 })

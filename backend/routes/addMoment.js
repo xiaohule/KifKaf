@@ -5,7 +5,7 @@ const {
 } = require("../middlewares/authenticateUserMiddleware");
 const {
   validateAddMomentRequest,
-  unlockMomentId,
+  unlockId,
 } = require("../middlewares/validateRequestMiddleware");
 const {
   createOpenaiRequestOptions,
@@ -21,6 +21,7 @@ const {
 const {
   persistNeedsData,
 } = require("../utils/persistNeedsDataSuccessPathUtils");
+const axios = require("axios");
 const { db, openai } = require("../utils/servicesConfig");
 
 const promptVersion = "gpt4_7_2_1";
@@ -35,7 +36,7 @@ router.use(authenticateUser); // Use the middleware for all routes in this route
 router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
   try {
     // console.log("req.headers", req.headers);
-    console.log("POST request received, req.body:", req.body); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
+    console.log("In addMoment POST request received, req.body:", req.body); //returns { momentText: 'Feeling stressed of not knowing what I'm gonna do today', momentDate: '{"seconds":1682726400,"nanoseconds":0}', momentId: 'BZIk715iILySrIPz7IyY'}
 
     // DEFINE DOC REFS
     const userDocRef = db.collection("users").doc(req.uid);
@@ -53,7 +54,7 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
     let momentNeedsData = parseMomentNeedsData(openaiResponseMessage.content);
 
     console.log(
-      "LLM response received for",
+      "In addMoment > LLM response received for",
       req.body,
       "XXX response=",
       response,
@@ -77,7 +78,7 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
       );
 
       throw new Error(
-        "momentNeedsData empty or erroneous, for mom " +
+        "In addMoment > momentNeedsData empty or erroneous, for mom " +
           JSON.stringify(req.body) +
           " here is momentNeedsData: " +
           JSON.stringify(momentNeedsData),
@@ -104,7 +105,7 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
       momentNeedsData = parseMomentNeedsData(openaiResponseMessage.content);
 
       console.log(
-        "Retried for ",
+        "In addMoment > retried for ",
         req.body,
         "bec. it had Error ",
         issueType,
@@ -121,7 +122,7 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
         );
 
         throw new Error(
-          "Error in retry: momentNeedsData empty or erroneous, for mom " +
+          "In addMoment > Error in retry: momentNeedsData empty or erroneous, for mom " +
             JSON.stringify(req.body) +
             " here is openaiResponseMessage: " +
             JSON.stringify(openaiResponseMessage),
@@ -135,44 +136,51 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
     await persistUnexpectedNeedsIfAny(db, req, momentNeedsData);
 
     // SUCCESS PATH: ADD NEEDS TO MOM DOC & UPDATE AGGREGATE DOCS
-    try {
-      await persistNeedsData(
-        db,
-        req,
-        userDocRef,
-        momentDocRef,
-        momentNeedsData,
-      );
-    } catch (e) {
-      console.log(
-        "Transaction failure, ",
-        req.body,
-        "NOT enriched by needs rating and aggregate docs NOT updated: ",
-        e,
-      );
-      unlockMomentId(req.body.momentId);
-      return res.status(500).json({
-        message:
-          "Internal server error when updating moment needs or aggregate data for body",
-        moment: req.body.momentText,
-        momentId: req.body.momentId,
-      });
-    }
+    await persistNeedsData(db, req, userDocRef, momentDocRef, momentNeedsData);
+    unlockId(req.body.momentId);
 
-    unlockMomentId(req.body.momentId);
-    return res.status(200).json({
-      message: "Llm response received and processed for body",
+    // SEND SUCCESS RESPONSE IMMEDIATELY
+    res.status(200).json({
+      message: "In addMoment > Successful update of moment needs and aggData",
       moment: req.body.momentText,
       momentId: req.body.momentId,
     });
-  } catch (err) {
-    console.error(err);
-    unlockMomentId(req.body.momentId);
+
+    // TRIGGER COMPUTE INSIGHTS IF NEEDED
+    try {
+      const computeInsightsResponse = await axios.post(
+        "http://localhost:3000/api/learn/compute-insights/",
+        {
+          threshold: 3,
+          origin: "addMoment",
+        },
+        {
+          headers: {
+            authorization: req.headers.authorization,
+          },
+        },
+      );
+      console.log(
+        "In addMoment > computeInsightsResponse:",
+        computeInsightsResponse.data,
+      );
+    } catch (computeInsightsError) {
+      // Log the error, but do not send a response because a response has already been sent
+      console.error(
+        "In addMoment > Error in compute insights triggered by mom",
+        req.body,
+      );
+    }
+  } catch (error) {
+    // If an error occurs before the success response is sent, send a failure response
+    console.error(error);
+    unlockId(req.body.momentId);
     return res.status(500).json({
       message:
-        "An error occurred while making or saving the prediction for body",
+        "In addMoment > An error occurred while updating moment needs or aggData or computing insights",
       moment: req.body.momentText,
       momentId: req.body.momentId,
+      error: error,
     });
   }
 });

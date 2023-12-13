@@ -28,8 +28,8 @@ const llm = new OpenAI({
 //     const result = await chain.run("colorful socks");
 //     res.send(result);
 //     //There are a number of other response methods for ending the request/response cycle, for example, you could call res.json() to send a JSON response or res.sendFile() to send a file.
-//   } catch (err) {
-//     console.error(err);
+//   } catch (error) {
+//     console.error(error);
 //     res.status(500).send("An error occurred while making the prediction");
 //   }
 // });
@@ -39,7 +39,7 @@ const vectorStore = new MemoryVectorStore(
     verbose: true,
     openAIApiKey: process.env.OPENAI_API_KEY,
     // model: "gpt-3.5-turbo", //gpt-4
-  })
+  }),
 ); // In Node.js defaults to process.env.OPENAI_API_KEY
 const memory = new VectorStoreRetrieverMemory({
   // 1 is how many documents to return, you might want to return more, eg. 4
@@ -53,121 +53,121 @@ router.get("/langchain1", async (req, res) => {
     // First let's save some information to memory, as it would happen when used inside a chain.
     await memory.saveContext(
       { input: "Felt so bad when running after eating spinach" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling excited when calling mum" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling both empty and full after movement class" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling so stressed out today when woking up" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling grateful toward life when eating my fresh tomatoes" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling a little down today after calling mum" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling proud of myself for working out today!" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling moody bec. of the grey weather" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Sex with mona, good connection and sharing" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling grateful and cuddled to have my tea prepared by Maria bec. proof of love",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Finally alone at home!" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling disrespected that mona came to sleep with me despite me saying no",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling guilty to have let Maria down yest. night" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling guilty and sad when mam tell us we stay in touch bec. she will have difficulties when we leave matthieu’s home",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling aroused and capable when playfight jamming with bastos caro and new ppl",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling completely relaxed and epic at the end of movement course when lying down",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       { input: "Feeling powerful when managing my money online" },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling like I am losing my time at the playfight workshop bec. I am not learning anything",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling smart and useful when discussing with Thomas about his project and mine, bec. I felt less of a failure",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling content and proud when theorizing about office locking and my chance bec. I like feeling different and free",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling grateful to have the sun on my face while walking down from Montmarte bec. it felt warm and natural",
       },
-      { output: "" }
+      { output: "" },
     );
     await memory.saveContext(
       {
         input:
           "Feeling incapable to help mam when she tells me she’s not going well on phone call bec. hard to see loved ones struggle",
       },
-      { output: "" }
+      { output: "" },
     );
     // Now let's use the memory to retrieve the information we saved.
     // A text embedding is a vector that can measure the relatedness between text strings. Similar or relevant strings will be closer together than unrelated strings. This fact, along with the existence of fast vector search algorithms means that embeddings can be used to implement efficient knowledge retrieval. In particular, a text corpus can be split up into chunks, and each chunk can be embedded and stored. Then a given query can be embedded and vector search can be performed to find the embedded chunks of text from the corpus that are most related to the query (i.e. closest together in the embedding space).
@@ -175,7 +175,7 @@ router.get("/langchain1", async (req, res) => {
       await memory.loadMemoryVariables({
         prompt:
           "Based on my personal experience what should I not eat before running?",
-      })
+      }),
     );
     /*
 { loadedMoments: 'input: My favorite sport is soccer\noutput: ...' }
@@ -183,7 +183,7 @@ router.get("/langchain1", async (req, res) => {
     console.log(
       await memory.loadMemoryVariables({
         prompt: "What activity make me feel the best?",
-      })
+      }),
     );
     // Now let's use it in a chain.
     const prompt =
@@ -227,8 +227,8 @@ AI:`);
     */
 
     res.send(res3);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res.status(500).send("An error occurred while making the prediction");
   }
 });

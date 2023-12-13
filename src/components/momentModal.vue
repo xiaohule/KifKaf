@@ -167,7 +167,6 @@ const props = defineProps({
     type: String,
   },
   expectedLlmCallDuration: {
-    required: true,
     type: Number,
     default: 60
   },
