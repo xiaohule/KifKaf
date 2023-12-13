@@ -159,11 +159,11 @@ Cypress.Commands.add("signUp", (username, password) => {
 
 // Cypress.Commands.add("seedDatabase", () => {
 //   setActivePinia(createPinia());
-//   const momentsStore = useMomentsStore();
+//   const ms = useMomentsStore();
 
 //   for (const item of seedData) {
 //     const formattedDate = new Date(item.date);
-//     momentsStore.addMoment({
+//     ms.addMoment({
 //       date: formattedDate,
 //       intensity: item.intensity,
 //       text: item.text,

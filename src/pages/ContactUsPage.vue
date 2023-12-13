@@ -22,16 +22,15 @@
 
       <!-- TODO:2 add name and email and possibility to edit them -->
       <q-card-section class="q-pb-none">
-        <q-input v-if="!(momentsStore?.user?.email)" v-model="emailAddress" class="q-mx-sm" color="transparent" rounded
-          outlined type="text" bg-color="surface-variant" placeholder="Your email address" lazy-rules
-          :rules="emailRules" />
+        <q-input v-if="!(ms?.user?.email)" v-model="emailAddress" class="q-mx-sm" color="transparent" rounded outlined
+          type="text" bg-color="surface-variant" placeholder="Your email address" lazy-rules :rules="emailRules" />
         <q-input v-model="contactUsMessage" class="q-mx-sm" color="transparent" rounded outlined type="textarea" rows="5"
           bg-color="surface-variant" placeholder="Your message" lazy-rules :rules="messageRules" />
       </q-card-section>
       <q-card-actions align="right">
         <!-- <q-btn flat rounded label="Cancel" @click="contactUsMessage = ''" /> -->
         <q-btn rounded label="Send" color="primary" @click="sendContactUsMessage" padding="5px 25px" :loading="loading"
-          :disable="!((momentsStore?.user?.email || (emailAddress && emailAddress.length > 0)) && contactUsMessage && contactUsMessage.length > 0)" />
+          :disable="!((ms?.user?.email || (emailAddress && emailAddress.length > 0)) && contactUsMessage && contactUsMessage.length > 0)" />
       </q-card-actions>
 
     </q-card>
@@ -46,12 +45,12 @@ import { useRouter } from 'vue-router'
 
 const $q = useQuasar()
 const router = useRouter()
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 
 onMounted(async () => {
   try {
-    if (!momentsStore.userFetched) {
-      await momentsStore.fetchUser();
+    if (!ms.userFetched) {
+      await ms.fetchUser();
     }
   } catch (error) {
     console.error('In contactUsPage fetchUser error:', error);
@@ -74,8 +73,8 @@ const messageRules = [
 const sendContactUsMessage = async () => {
   // Here you can send the message to your backend
   loading.value = true
-  const senderEmail = momentsStore?.user?.email ? momentsStore.user.email : emailAddress.value
-  const senderName = momentsStore?.user?.displayName ? momentsStore.user.displayName : "Unknown"
+  const senderEmail = ms?.user?.email ? ms.user.email : emailAddress.value
+  const senderName = ms?.user?.displayName ? ms.user.displayName : "Unknown"
   try {
     const axiosModule = await import('axios');
     const axios = axiosModule.default;

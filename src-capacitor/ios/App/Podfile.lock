@@ -14,18 +14,18 @@ PODS:
   - CapacitorCordova (5.5.1)
   - CapacitorDevice (5.0.6):
     - Capacitor
-  - CapacitorFirebaseAppCheck (5.2.0):
+  - CapacitorFirebaseAppCheck (5.3.0):
     - Capacitor
     - FirebaseAppCheck (= 10.8.0)
-  - CapacitorFirebaseAuthentication (5.2.0):
+  - CapacitorFirebaseAuthentication (5.3.0):
     - Capacitor
-    - CapacitorFirebaseAuthentication/Lite (= 5.2.0)
+    - CapacitorFirebaseAuthentication/Lite (= 5.3.0)
     - FirebaseAuth (= 10.8.0)
-  - CapacitorFirebaseAuthentication/Google (5.2.0):
+  - CapacitorFirebaseAuthentication/Google (5.3.0):
     - Capacitor
     - FirebaseAuth (= 10.8.0)
     - GoogleSignIn (= 7.0.0)
-  - CapacitorFirebaseAuthentication/Lite (5.2.0):
+  - CapacitorFirebaseAuthentication/Lite (5.3.0):
     - Capacitor
     - FirebaseAuth (= 10.8.0)
   - FirebaseAppCheck (10.8.0):
@@ -71,7 +71,7 @@ PODS:
   - PromisesObjC (2.3.1)
   - Sentry/HybridSDK (8.8.0):
     - SentryPrivate (= 8.8.0)
-  - SentryCapacitor (0.14.0):
+  - SentryCapacitor (0.15.0):
     - Capacitor
     - Sentry/HybridSDK (= 8.8.0)
   - SentryPrivate (8.8.0)
@@ -128,8 +128,8 @@ SPEC CHECKSUMS:
   CapacitorCommunitySpeechRecognition: b404ef82fa846dd48f6417eb0c47955645ca0996
   CapacitorCordova: e128cc7688c070ca0bfa439898a5f609da8dbcfe
   CapacitorDevice: 2c968f98a1ec4d22357418c1521e7ddc46c675e6
-  CapacitorFirebaseAppCheck: eba071266612be9f851d6caffed4aaa24ada4134
-  CapacitorFirebaseAuthentication: 1278b10587edcf1adba0d136d367e024e9c38400
+  CapacitorFirebaseAppCheck: cdab78d08aa0a85d4748e405739d168514e7c7af
+  CapacitorFirebaseAuthentication: 934d9c5409ba35b6a3c09db25df6b5fad931b70d
   FirebaseAppCheck: 8bde2c5f393518ab98290151188bf196b4bab91e
   FirebaseAppCheckInterop: 82358cff9f33452dd44259e88eea5e562500b1cb
   FirebaseAuth: 28e6fff787467cd15ab51c8c7aa904003b2f57aa
@@ -141,7 +141,7 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   Sentry: 927dfb29d18a14d924229a59cc2ad149f43349f2
-  SentryCapacitor: 24d2fdc00e259b9cd9454a2331444ab6c41141be
+  SentryCapacitor: 87ad38b15cd1ffb0ca8f202af148567adfa68ae1
   SentryPrivate: 4350d865f898224ab9fa02b37d6ee7fbb623f47e
 
 PODFILE CHECKSUM: 0f3606729a759af0cb88b0919cc07c2036d11cce

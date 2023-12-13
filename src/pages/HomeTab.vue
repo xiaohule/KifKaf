@@ -22,9 +22,6 @@
         <!-- <img src="~assets/Rectangle31.png"> -->
         <!-- <img src="~assets/Rectangle32.png"> -->
       </template>
-      <!-- <Vue3Lottie :animationData="AstronautJSON" :height="200" :width="200" /> -->
-      <!-- <Vue3Lottie animation-link="https://lottie.host/ce7c97f6-e0ea-4ea6-b8c6-50d28928f288/jjsUvZSbD1.json" :height="200"
-      :width="200" :scale="2" /> -->
       <template v-slot:content>
 
         <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
@@ -59,25 +56,26 @@
       </template>
     </q-parallax>
 
-    <welcome-tutorial v-if="momentsStore.getShowWelcomeTutorial" :new-mom-text="newMomText"
-      :new-mom-input-ref="newMomInputRef" @update:new-mom-text="newMomText = $event"
-      @click:view-needs="openBottomSheet($event)" class="q-px-md negative-margin-welcome-tutorial" />
+    <welcome-tutorial v-if="ms.getShowWelcomeTutorial" :new-mom-text="newMomText" :new-mom-input-ref="newMomInputRef"
+      @update:new-mom-text="newMomText = $event" @click:view-needs="momentModalId = $event; momentModalOpened = true"
+      class="q-px-md negative-margin-welcome-tutorial" />
 
-    <div v-if="!momentsStore || !momentsStore.getUniqueDaysTs || momentsStore.getUniqueDaysTs.length == 0"></div>
+    <div v-if="!ms || !ms.getUniqueDaysTs || ms.getUniqueDaysTs.length == 0"></div>
     <div v-else class="q-px-md">
-      <div v-for="( day, index ) in  momentsStore.getUniqueDaysTs " :key="day">
+      <div v-for="( day, index ) in  ms.getUniqueDaysTs " :key="day">
 
         <div :class="[
           'text-h6',
           'text-weight-medium',
           'q-pa-none',
           'q-mb-sm',
-          (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
-          (index === 0 && !momentsStore.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-        ]" header>{{ formatDayForMomList(day) }}</div>
+          (index === 0 && !ms.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
+          (index === 0 && !ms.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
+        ]">{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
-          <div v-for=" moment  in  momentsStore.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
-            class="q-px-none q-py-sm" style="min-height: 0px;" @click="openBottomSheet(moment.id)">
+          <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
+            class="q-px-none q-py-sm" style="min-height: 0px;"
+            @click="momentModalId = moment.id; momentModalOpened = true">
 
             <q-item class="q-px-xs" style="min-height: 0px;">
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
@@ -94,7 +92,7 @@
               class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
               <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                 @scroll="onChipsRowScroll($event, moment.id)">
-                <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
+                <q-chip v-for="need in Object.entries(moment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
                   :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
                   class="needs" />
               </div>
@@ -102,7 +100,7 @@
           </div>
         </q-card>
       </div>
-      <moment-bottom-sheet v-model="momPageOpened" :moment-id="bottomSheetMomentId"
+      <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
         :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
@@ -122,15 +120,13 @@ import { useMomentsStore } from './../stores/moments.js'
 import { Timestamp } from 'firebase/firestore'
 import { showSpeechRecognitionButton, isRecognizing, useSpeechRecognition } from '../composables/speechRecognition.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
-import momentBottomSheet from 'src/components/momentBottomSheet.vue'
+import momentModal from 'src/components/momentModal.vue'
 import welcomeTutorial from 'src/components/welcomeTutorial.vue'
-// import { Vue3Lottie } from 'vue3-lottie'
-// import AstronautJSON from './astronaut.json'
 import { needsMap, getChipColor } from "./../utils/needsUtils";
 import { useDateUtils } from './../composables/dateUtils.js'
 
 //STORE INITIALIZATION
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const { getGreetingLabel, formatDayForMomList } = useDateUtils()
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
@@ -139,41 +135,37 @@ const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
 const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
+const expectedLlmCallDuration = ref(60);
+const momentModalOpened = ref(false);
+const momentModalId = ref("");
 
 const emits = defineEmits(['update:isDialogOpened'])
 
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
   try {
-    if (!momentsStore.momentsFetched) {
-      await momentsStore.fetchMoments();
+    if (!ms.momentsFetched) {
+      await ms.fetchMoments();
     }
     if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
     momsWithScrolledNeeds.value = {};
   } catch (error) {
-    console.error('await momentsStore.fetchMoments() error:', error);
+    console.error('await ms.fetchMoments() error:', error);
   }
 })
 
 const userFirstName = computed(() => {
-  if (momentsStore?.user?.displayName) {
-    const firstName = momentsStore.user.displayName.trim().split(' ')[0];
+  if (ms?.user?.displayName) {
+    const firstName = ms.user.displayName.trim().split(' ')[0];
     let capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
     return ", " + capitalizedFirstName;
   }
   return ''
 })
 
-const expectedLlmCallDuration = ref(60);
-const momPageOpened = ref(false)
-const bottomSheetMomentId = ref("")
-const openBottomSheet = (momentId) => {
-  console.log('in openBottomSheet momentId:', momentId)
-  bottomSheetMomentId.value = momentId
-  momPageOpened.value = true
-}
 
-watch([errorDialogOpened, momPageOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
+
+watch([errorDialogOpened, momentModalOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
   if (newVal1 || newVal2) emits('update:isDialogOpened', true)
   else emits('update:isDialogOpened', false)
 })
@@ -239,7 +231,7 @@ const onSubmit = (event) => {
     return
   }
   newMomDate.value = Timestamp.now()
-  momentsStore.addMoment({
+  ms.addMoment({
     date: newMomDate.value,
     text: newMomText.value.trim(),
   })
@@ -340,28 +332,6 @@ const setChipsRowPadding = (id) => {
 .q-linear-progress__track,
 .q-linear-progress__model {
   border-radius: 4px;
-}
-
-swiper-container {
-  // width: 100%;
-  // // height: 100%;
-  // // height: 100vh; // This will make the container fill the entire height of the screen
-  --swiper-pagination-color: #{$primary};
-  // // --swiper-pagination-left: auto;
-  // // --swiper-pagination-right: 8px;
-  // --swiper-pagination-bottom: -5px;
-  // // --swiper-pagination-top: auto;
-  // // --swiper-pagination-fraction-color: inherit;
-  // // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
-  // // --swiper-pagination-progressbar-size: 4px;
-  // // --swiper-pagination-bullet-size: 12px;
-  // // --swiper-pagination-bullet-width: 8px;
-  // // --swiper-pagination-bullet-height: 8px;
-  // // --swiper-pagination-bullet-inactive-color: #000;
-  // // --swiper-pagination-bullet-inactive-opacity: 0.2;
-  // // --swiper-pagination-bullet-opacity: 1;
-  // // --swiper-pagination-bullet-horizontal-gap: 4px;
-  // // --swiper-pagination-bullet-vertical-gap: 6px;
 }
 
 /* Hide scrollbar for IE, Edge, and Firefox */

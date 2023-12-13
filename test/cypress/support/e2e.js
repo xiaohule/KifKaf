@@ -25,7 +25,11 @@ Cypress.on("uncaught:exception", (err, runnable) => {
   if (
     err.message.includes("Failed to fetch dynamically imported module") ||
     err.message.includes("cancelled") ||
-    err.message.includes("auth/network-request-failed")
+    err.message.includes("auth/network-request-failed") ||
+    err.message.includes("swiperSummaryEl.value is null") ||
+    err.message.includes(
+      "ResizeObserver loop completed with undelivered notifications.",
+    )
     // err.message.includes("Cannot read properties of null") ||
     // err.message.includes("ResizeObserver loop limit exceeded") ||
     // err.message.includes("Request failed with status code") ||

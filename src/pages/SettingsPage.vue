@@ -2,7 +2,7 @@
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Settings</div>
 
-    <div v-if="!momentsStore || !momentsStore.user"></div>
+    <div v-if="!ms || !ms.user"></div>
 
     <div v-else>
       <q-list class="q-pt-none">
@@ -15,7 +15,7 @@
               <q-item-label caption>
                 Name
               </q-item-label>
-              <q-item-label>{{ momentsStore.user.displayName }}</q-item-label>
+              <q-item-label>{{ ms.user.displayName }}</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -24,7 +24,7 @@
               <q-item-label caption>
                 Email
               </q-item-label>
-              <q-item-label>{{ momentsStore.user.email }}</q-item-label>
+              <q-item-label>{{ ms.user.email }}</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -250,7 +250,7 @@ const version = process.env.__APP_VERSION__
 
 const $q = useQuasar()
 const router = useRouter()
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const auth = getFirebaseAuth();
 
 const signInMethods = ref(null);
@@ -295,19 +295,19 @@ const languageDialogOpened = ref(false)
 
 onMounted(async () => {
   try {
-    if (!momentsStore.userFetched) {
-      await momentsStore.fetchUser();
+    if (!ms.userFetched) {
+      await ms.fetchUser();
     }
     console.log("In SettingsPage > onMounted before pickedLang setting, currently set at:", pickedLanguage.value);
-    pickedLanguage.value = momentsStore.getSpeechRecoLanguage ||
-      momentsStore.getDeviceLanguage ||
+    pickedLanguage.value = ms.getSpeechRecoLanguage ||
+      ms.getDeviceLanguage ||
       "en-US";
     console.log("In SettingsPage > onMounted pickedLanguage set at:", pickedLanguage.value);
   } catch (error) {
-    console.error('await momentsStore.fetchUser() error:', error);
+    console.error('await ms.fetchUser() error:', error);
   }
   try {
-    signInMethods.value = await fetchSignInMethodsForEmail(auth, momentsStore.user.email);
+    signInMethods.value = await fetchSignInMethodsForEmail(auth, ms.user.email);
   } catch (error) {
     console.error('Error fetching sign-in methods:', error);
   }
@@ -334,7 +334,7 @@ const passwordRules = [
 
 const openEditDialog = (setting) => {
   currentSetting.value = setting
-  newSettingValue.value = setting === 'password' ? '' : momentsStore.user[setting]
+  newSettingValue.value = setting === 'password' ? '' : ms.user[setting]
   editDialogOpened.value = true
   // nextTick(() => {
   //   if (setting === 'password') oldPwdInputRef.value.$el.querySelector('input').focus();
@@ -368,7 +368,7 @@ const updateSetting = async () => {
       console.log('mainInputRef.value.hasError')
       return
     }
-    await momentsStore.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
+    await ms.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
     editDialogOpened.value = false
     $q.notify({
       icon: 'done',
@@ -406,7 +406,7 @@ const updateSetting = async () => {
 
 watch(pickedLanguage, (newVal, oldVal) => {
   console.log("In SettingsPage, pickedLanguage changed from", oldVal, "to", newVal);
-  momentsStore?.setSpeechRecoLanguage(newVal);
+  ms?.setSpeechRecoLanguage(newVal);
 })
 
 const logOut = async () => {
@@ -421,7 +421,7 @@ const logOut = async () => {
     await signOut(auth)
 
     setTimeout(() => {
-      momentsStore.$reset()
+      ms.$reset()
       router.push('/welcome')
       console.log('logged out')
     }, 10)
@@ -437,7 +437,7 @@ const deleteAccount = async () => {
   console.log("In SettingsPage, heading to account deletion page");
   router.push('/account-deletion')
   // setTimeout(() => {
-  //   momentsStore.$reset()
+  //   ms.$reset()
   //   router.push('/welcome')
   //   console.log('logged out')
   // }, 10)

@@ -22,20 +22,31 @@ const needsMap = needsList.reduce((acc, need) => {
   return acc;
 }, {});
 
-const initAggregateDoc = async (aggregateDocRef, isRaw = false) => {
+const initAggregateDoc = async (aggregateDocRef, type = "") => {
   const aggregateDoc = await aggregateDocRef.get();
-  const defaultStructure = isRaw
-    ? {
-        nMoments: 0,
-        totalImportances: 0,
-        lastUpdate: FieldValue.serverTimestamp(),
-        needs: needsMap,
-        totalSatisfactionImpact: 0,
-        totalUnsatisfactionImpact: 0,
-      }
-    : {
-        lastUpdate: FieldValue.serverTimestamp(),
-      };
+  const defaultStructure =
+    type === "raw"
+      ? {
+          nMoments: 0,
+          totalImportances: 0,
+          needs: needsMap,
+          totalSatisfactionImpact: 0,
+          totalUnsatisfactionImpact: 0,
+          lastUpdate: FieldValue.serverTimestamp(),
+        }
+      : type === "insights"
+        ? {
+            threadId: "",
+            nSuccessRun: 0,
+            summary: "",
+            quote: { text: "", author: "", why: "" },
+            book: { title: "", author: "", why: "" },
+            suggestions: { continue: [], stop: [], start: [] },
+            lastUpdate: FieldValue.serverTimestamp(),
+          }
+        : {
+            lastUpdate: FieldValue.serverTimestamp(),
+          };
   if (!aggregateDoc.exists) {
     // If the document doesn't exist, create it with the default structure
     await aggregateDocRef.set(defaultStructure);
@@ -72,8 +83,8 @@ const getAggregateDocRefs = async (userDocRef, rawMomentDate) => {
     .collection("aggregateMonthly")
     .doc(momentYearMonth);
   await Promise.all([
-    initAggregateDoc(aggregateYearlyRawDocRef, true),
-    initAggregateDoc(aggregateMonthlyRawDocRef, true),
+    initAggregateDoc(aggregateYearlyRawDocRef, "raw"),
+    initAggregateDoc(aggregateMonthlyRawDocRef, "raw"),
     initAggregateDoc(aggregateYearlyDocRef),
     initAggregateDoc(aggregateMonthlyDocRef),
   ]);
@@ -140,6 +151,7 @@ const persistNeedsData = async (
 };
 
 module.exports = {
+  initAggregateDoc,
   getAggregateDocRefs,
   persistNeedsData,
 };

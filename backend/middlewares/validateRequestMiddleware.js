@@ -1,28 +1,38 @@
 const lockedAddMomentIds = new Set(); //Since the code is running in a stateful server environment, lockedAddMomentIds is effective. However, be aware that in environments where multiple server instances are running (like in a clustered environment), this approach won't work since lockedAddMomentIds will only exist in memory for the specific server instance handling the request. In such cases, distributed lock manager like Redis or saving in firestore could be used.
 //TODO:2 lockedAddMomentIds can potentially grow indefinitely. Consider implementing a mechanism to purge old IDs after a certain time or after they're no longer relevant. Also consider monitoring it.
 const lockedDeleteMomentIds = new Set();
+const lockedComputeInsightsUid = new Set();
 
-function lockMomentId(momentId, isDeleteMoment = false) {
-  if (isDeleteMoment) {
-    lockedDeleteMomentIds.add(momentId);
+function lockId(
+  id,
+  type = "addMoment" /*or "deleteMoment", "computeInsights"*/,
+) {
+  if (type === "computeInsights") {
+    lockedComputeInsightsUid.add(id);
+  } else if (type === "deleteMoment") {
+    lockedDeleteMomentIds.add(id);
   } else {
-    lockedAddMomentIds.add(momentId);
+    lockedAddMomentIds.add(id);
   }
 }
 
-function unlockMomentId(momentId, isDeleteMoment = false) {
-  if (isDeleteMoment) {
-    lockedDeleteMomentIds.delete(momentId);
+function unlockId(id, type = "addMoment") {
+  if (type === "computeInsights") {
+    lockedComputeInsightsUid.delete(id);
+  } else if (type === "deleteMoment") {
+    lockedDeleteMomentIds.delete(id);
   } else {
-    lockedAddMomentIds.delete(momentId);
+    lockedAddMomentIds.delete(id);
   }
 }
 
-function isMomentIdLocked(momentId, isDeleteMoment = false) {
-  if (isDeleteMoment) {
-    return lockedDeleteMomentIds.has(momentId);
+function isIdLocked(id, type = "addMoment") {
+  if (type === "computeInsights") {
+    return lockedComputeInsightsUid.has(id);
+  } else if (type === "deleteMoment") {
+    return lockedDeleteMomentIds.has(id);
   } else {
-    return lockedAddMomentIds.has(momentId);
+    return lockedAddMomentIds.has(id);
   }
 }
 
@@ -44,7 +54,7 @@ function validateAddMomentRequest(req, res, next) {
     });
   }
 
-  if (isMomentIdLocked(req.body.momentId)) {
+  if (isIdLocked(req.body.momentId)) {
     console.log(
       "Error: duplicate request detected for body",
       req.body,
@@ -58,7 +68,7 @@ function validateAddMomentRequest(req, res, next) {
     });
   }
 
-  lockMomentId(req.body.momentId);
+  lockId(req.body.momentId);
 
   next();
 }
@@ -83,7 +93,7 @@ function validateDeleteMomentRequest(req, res, next) {
     });
   }
 
-  if (isMomentIdLocked(req.body.momentId, true /*isDeleteMoment*/)) {
+  if (isIdLocked(req.body.momentId, "deleteMoment")) {
     console.log(
       "validateDeleteMomentRequest > Error: duplicate request detected for body",
       req.body,
@@ -97,15 +107,20 @@ function validateDeleteMomentRequest(req, res, next) {
     });
   }
 
-  lockMomentId(req.body.momentId, true /*isDeleteMoment*/);
+  lockId(req.body.momentId, "deleteMoment");
 
+  next();
+}
+
+function validateComputeInsightsRequest(req, res, next) {
   next();
 }
 
 module.exports = {
   validateAddMomentRequest,
   validateDeleteMomentRequest,
-  lockMomentId,
-  unlockMomentId,
-  isMomentIdLocked,
+  validateComputeInsightsRequest,
+  lockId,
+  unlockId,
+  isIdLocked,
 };

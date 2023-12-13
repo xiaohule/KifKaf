@@ -42,12 +42,12 @@ const moveUsersToNewDissatAggData = async () => {
   // Fetch recently active users
   const listUsersResult = await admin.auth().listUsers(1000);
   const oldUsers = listUsersResult.users;
-  // const oldUserUIDs = oldUsers.map((user) => user.uid);
+  const oldUserUIDs = oldUsers.map((user) => user.uid);
 
-  const oldUserUIDs = [
-    "GsN1YDGfPST47a1M95kd6coskyp1", //tkuovftu@sharklasers.com
-    "Xa4zGGZppmMNGKF5F2iQ9n2BNk22", //vwxaijtt@sharklasers.com
-  ];
+  // const oldUserUIDs = [
+  //   "GsN1YDGfPST47a1M95kd6coskyp1", //tkuovftu@sharklasers.com
+  //   "Xa4zGGZppmMNGKF5F2iQ9n2BNk22", //vwxaijtt@sharklasers.com
+  // ];
 
   console.log("oldUserUIDs", oldUserUIDs);
 

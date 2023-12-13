@@ -7,9 +7,17 @@ const routes = [
   },
   {
     path: "/insights",
-    component: () => import("layouts/MainLayout.vue"),
+    component: () => import("layouts/InsightsLayout.vue"),
     meta: { requiresAuth: true },
     children: [{ path: "", component: () => import("pages/InsightsTab.vue") }],
+  },
+  {
+    path: "/insights/needs",
+    component: () => import("layouts/NeedsPageLayout.vue"),
+    meta: { requiresAuth: true },
+    children: [
+      { path: "", component: () => import("pages/NeedsChartPage.vue") },
+    ],
   },
   {
     path: "/insights/needs/:needSlug",

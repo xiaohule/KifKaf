@@ -1,276 +1,268 @@
 <!-- Here we handle date and data grouping selections -->
 <template >
-  <q-page class="q-mx-auto q-pa-md" style="max-width: 600px" @click="handlePageClick">
-    <q-item class="q-px-none q-pt-none">
-      <q-item-section class=" col-auto">
-        <q-btn unelevated rounded no-caps class="text-subtitle2 bg-surface text-on-surface" icon-right="r_expand_more"
-          @click="openFilterDialog('date')">{{ dateRangeButtonLabel }}</q-btn>
-      </q-item-section>
-    </q-item>
+  <q-page class="q-mx-auto q-px-md q-pt-xs q-pb-md" style="max-width: 600px">
 
-    <q-btn-toggle v-model="toggleModel" class="q-gutter-sm q-mb-sm" color="transparent" text-color="outline"
-      toggle-color="surface" toggle-text-color="on-surface" unelevated no-caps :ripple="false" :options="[
-        { label: 'Satisfiers', value: 'satisfaction' },
-        { label: 'Dissatisfiers', value: 'unsatisfaction' },
-        { label: 'All', value: 'importance' }
-      ]" />
+    <div v-if="true" class="q-mt-xs q-mb-md">
+      <div class="q-mb-sm text-h6 text-weight-medium text-on-background"> {{ `${ms.dateRangeButtonLabel}'s
+        summary` }}</div>
 
-    <donut-swiper-and-list v-if="activeIndex !== undefined" ref="donutSwiperAndListRef"
-      :date-ranges="segDateId === 'Monthly' ? dateRangesMonths : dateRangesYears" :seg-date-id="segDateId"
-      :active-index="activeIndex" :toggle-value="toggleModel" :clicked-learn-page="clickedLearnPage"
-      @update:active-index="onActiveIndexChangeBySwiper"
-      @reset:clickedLearnPage="clickedLearnPage = false"></donut-swiper-and-list>
+      <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperSummaryEl" :init="true"
+        :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
+        :observe-slide-children="true" :grab-cursor="true" :pagination="{ dynamicBullets: true }"
+        @swiperactiveindexchange="onActiveIndexChangeBySwiper" @swiperafterinit="swiperAfterInit(event, 'summary')"
+        @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
+        <swiper-slide v-for="range in ms.dateRanges" :key="range">
+          <q-card flat class="bg-surface q-px-md q-py-lg rounded-borders-14" style="margin-bottom: 32px;">
+            <div
+              v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && ms.aggDataInsights[ms.activeDateRange].summary?.length > 0"
+              style="min-height: 0px;">
+              {{ ms.aggDataInsights[ms.activeDateRange].summary }}
+            </div>
+            <div v-else style="min-height: 0px;">
+              No summary available for this period.
+            </div>
+          </q-card>
+        </swiper-slide>
+      </swiper-container>
+    </div>
 
-    <q-dialog v-model="filterDialogOpened" position="bottom">
-      <q-card class="bg-background q-px-sm" v-touch-swipe.mouse.down="(event) => { filterDialogOpened = false }">
+    <div v-if="true" class="q-my-xl">
+      <q-item>
+        <q-item-section
+          v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && ms.aggDataInsights[ms.activeDateRange].quote?.text?.length > 0"><span>{{
+            ms.aggDataInsights[ms.activeDateRange].quote.text }}</span><span class="text-caption text-outline">{{
+    ms.aggDataInsights[ms.activeDateRange].quote.author }}</span>
+        </q-item-section>
+        <q-item-section v-else><span>Oops no quote ready for this period.</span> </q-item-section>
+        <q-item-section side top>
+          <q-item-label class="text-primary text-weight-medium text-subtitle2"
+            @click="whyModalSection = 'quote'; whyModalOpened = true">Why</q-item-label>
+          <q-icon color="on-background" name="r_format_quote" size="lg" />
+        </q-item-section>
+      </q-item>
+    </div>
 
-        <div v-if="tappedFilter === 'date'">
-          <q-card-section class="text-h5 text-weight-medium">Filter period
-          </q-card-section>
-          <q-card-section class="q-pt-xs text-outline">Filtering the period will take into account only the
-            moments that happened
-            during the selected period. </q-card-section>
-          <div class="q-px-md">
-            <segmented-control v-model="segDateId" :segments="segDate" element-name='LearnTabSegDate' />
-          </div>
-          <q-date v-if="segDateId === 'Monthly'" v-model="pickedDateYYYYsMMsDD" :options="optionsFn"
-            :navigation-min-year-month="oldestMomentDateYYYYsMM" :navigation-max-year-month="currentDateYYYYsMM"
-            default-view="Months" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
-            years-in-month-view emit-immediately @update:model-value="onUpdatePickedDate" :key="monthsKey"></q-date>
-          <q-date v-else-if="segDateId === 'Yearly'" v-model="pickedDateYYYYsMMsDD" :options="optionsFn"
-            :navigation-min-year-month="oldestMomentDateYYYYsMM" :navigation-max-year-month="currentDateYYYYsMM"
-            default-view="Years" class="full-width q-mt-sm q-mx-lg q-px-xl bg-surface text-on-surface" flat minimal
-            emit-immediately @update:model-value="onUpdatePickedDate" :key="yearsKey"></q-date>
+    <div v-if="true" class="q-my-md">
+      <div class="q-mb-sm text-h6 text-weight-medium text-on-background"> {{ `${ms.dateRangeButtonLabel}'s
+        needs` }}</div>
+
+      <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperNeedsEl" :init="true"
+        :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
+        :observe-slide-children="true" :grab-cursor="true" :pagination="{ dynamicBullets: true }"
+        @swiperactiveindexchange="onActiveIndexChangeBySwiper" @swiperafterinit="swiperAfterInit(event, 'needs')"
+        @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
+        <swiper-slide v-for="range in ms.dateRanges" :key="range">
+          <q-card flat :class="[
+            'bg-surface',
+            'q-px-md',
+            'rounded-borders-14',
+            ms.needsToggleModel === 'top' ? 'q-py-lg' : 'q-pt-lg',
+          ]" style="margin-bottom: 32px;">
+            <q-btn-toggle v-model="ms.needsToggleModel" class="q-gutter-xs q-mb-sm" color="transparent"
+              text-color="outline" toggle-color="on-background" toggle-text-color="surface" unelevated no-caps
+              padding="xs md" :ripple="false" :options="[
+                { label: 'Tops', value: 'top' },
+                { label: 'Satisfiers', value: 'satisfaction' },
+                { label: 'Dissatisfiers', value: 'unsatisfaction' },
+                { label: 'All', value: 'importance' }
+              ]" />
+            <div v-if="ms.needsToggleModel === 'top'">
+              <top-item top-type="satisfaction" />
+              <top-item top-type="unsatisfaction" />
+              <top-item top-type="importance" />
+            </div>
+            <div v-else>
+              <donut-swiper-and-list v-if="ms.activeIndex !== undefined" :embedded="true" />
+            </div>
+          </q-card>
+        </swiper-slide>
+      </swiper-container>
+    </div>
+
+    <div v-if="true" class="q-my-xl">
+      <q-item>
+        <q-item-section
+          v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && ms.aggDataInsights[ms.activeDateRange].book?.title?.length > 0"><span>{{
+            ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">by {{
+    ms.aggDataInsights[ms.activeDateRange].book.author }}</span>
+        </q-item-section>
+        <q-item-section v-else><span>Oops no book ready for this period.</span> </q-item-section>
+        <q-item-section side top>
+          <q-item-label class="text-primary text-weight-medium text-subtitle2"
+            @click="whyModalSection = 'book'; whyModalOpened = true">Why</q-item-label>
+          <q-icon color="on-background" name="r_menu_book" size="lg" />
+        </q-item-section>
+      </q-item>
+    </div>
+
+    <div v-if="true" class="q-my-md">
+      <div class="q-mb-sm text-h6 text-weight-medium text-on-background"> {{ `${ms.dateRangeButtonLabel}'s
+        suggestions` }}</div>
+
+      <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperSuggestionsEl" :init="true"
+        :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
+        :observe-slide-children="true" :grab-cursor="true" :pagination="{ dynamicBullets: true }"
+        @swiperactiveindexchange="onActiveIndexChangeBySwiper" @swiperafterinit="swiperAfterInit(event, 'suggestions')"
+        @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
+        <swiper-slide v-for="range in ms.dateRanges" :key="range">
+          <q-card flat class="bg-surface q-px-md q-py-lg rounded-borders-14" style="margin-bottom: 32px;">
+            <q-list
+              v-if="ms.aggDataInsights && ms.aggDataInsights[ms.activeDateRange] && (ms.aggDataInsights[ms.activeDateRange].suggestions?.continue?.length > 0 || ms.aggDataInsights[ms.activeDateRange].suggestions?.stop?.length > 0 || ms.aggDataInsights[ms.activeDateRange].suggestions?.start?.length > 0)">
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline">Continue</q-item-label>
+              <q-item v-for="suggestion in ms.aggDataInsights[ms.activeDateRange].suggestions.continue"
+                :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
+                {{ suggestion }}
+              </q-item>
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">Stop</q-item-label> <q-item
+                v-for="suggestion in ms.aggDataInsights[ms.activeDateRange].suggestions.stop" :key="suggestion.id"
+                class="q-py-sm" style="min-height: 0px;">
+                {{ suggestion }}
+              </q-item>
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">Start</q-item-label> <q-item
+                v-for="suggestion in ms.aggDataInsights[ms.activeDateRange].suggestions.start" :key="suggestion.id"
+                class="q-py-sm" style="min-height: 0px;">
+                {{ suggestion }}
+              </q-item>
+            </q-list>
+            <div v-else style="min-height: 0px;">
+              No suggestions available for this period.
+            </div>
+          </q-card>
+        </swiper-slide>
+      </swiper-container>
+    </div>
+
+    <div v-if="revisitMoment" class="q-px-md">
+      <div class="q-mb-sm text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date) }}...
+      </div>
+
+      <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
+        <div clickable v-ripple class="q-px-none q-py-sm" style="min-height: 0px;"
+          @click="momentModalId = revisitMomentId; momentModalOpened = true">
+
+          <q-item class="q-px-xs" style="min-height: 0px;">
+            <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
+              <q-icon color="on-background" name="r_fast_rewind" size="lg" />
+            </q-item-section>
+
+            <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ revisitMoment.text
+            }}</q-item-section>
+          </q-item>
+          <!-- <q-item class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
+            <div class="horizontal-scroll" :style="setChipsRowPadding(revisitMoment.id)"
+              @scroll="onChipsRowScroll($event, revisitMoment.id)">
+              <q-chip
+                v-for="need in Object.entries(revisitMoment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
+                :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+                class="needs" />
+            </div>
+          </q-item> -->
         </div>
-
-        <q-card-actions align="center">
-          <q-btn rounded color="primary" padding="md md" @click="filterDialogOpened = false" class="text-body1
-q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
-        </q-card-actions>
       </q-card>
-    </q-dialog>
+    </div>
+
+    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
+    <why-modal v-model="whyModalOpened" :section="whyModalSection" />
+
+    <!-- <Vue3Lottie :animationData="lottie1" :width="300" :speed="0.5" :loop="true" :autoplay="true" /> -->
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed, watch, watchEffect, onMounted, onActivated, onDeactivated } from 'vue'
+import { onMounted, ref, watch, nextTick } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
-import SegmentedControl from "./../components/SegmentedControl.vue";
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
-import { useDateUtils } from '../composables/dateUtils.js'
-import { date } from 'quasar'
-const { formatDate, getDateDiff, startOfDate, addToDate, getMaxDate } = date;
+import topItem from 'src/components/topItem.vue'
+// import { Vue3Lottie } from 'vue3-lottie'
+// import lottie1 from './../assets/lottie1.json'
+import momentModal from 'src/components/momentModal.vue'
+import whyModal from 'src/components/whyModal.vue'
+import { useDateUtils } from './../composables/dateUtils.js'
 
-const momentsStore = useMomentsStore()
-const { currentDate, currentYear, currentDateYYYYsMM, getDatePickerLabel } = useDateUtils()
-const dateRangeButtonLabel = ref('This month')
-const toggleModel = ref('satisfaction')
-const clickedLearnPage = ref(false)
-const donutSwiperAndListRef = ref(null);
-const initialized = ref(false)
+const ms = useMomentsStore()
+const { formatRevisitDay } = useDateUtils()
+
+//SWIPER
+const swipersLoaded = ref(true)
+const swiperSummaryEl = ref(null)
+const swiperNeedsEl = ref(null)
+const swiperSuggestionsEl = ref(null)
+const revisitMomentId = ref("")
+const revisitMoment = ref("")
+const momentModalOpened = ref(false)
+const momentModalId = ref("")
+const whyModalOpened = ref(false)
+const whyModalSection = ref("")
 
 onMounted(async () => {
   try {
     console.log('In InsightsTab onMounted')
-    if (!momentsStore.momentsFetched) {
-      await momentsStore.fetchMoments();
+    if (!ms.momentsFetched) {
+      await ms.fetchMoments();
     }
-    if (!momentsStore.aggregateDataFetched) {
-      await momentsStore.fetchAggregateData();
+    if (!ms.aggregateDataFetched) {
+      await ms.fetchAggregateData();
     }
-    console.log('In InsightsTab onMounted, await momentsStore.fetchAggregateData() done')
-    if (momentsStore.savedPeriodicity) segDateId.value = momentsStore.savedPeriodicity
-    momentsStore.savedPeriodicity = null
-    if (momentsStore.savedToggleValue) toggleModel.value = momentsStore.savedToggleValue
-    momentsStore.savedToggleValue = null
+    revisitMomentId.value = await ms.getRandomMomentId()
   } catch (error) {
-    console.error('await momentsStore.fetchAggregateData() error:', error);
+    console.error('await ms.fetchAggregateData() error:', error);
   }
 })
 
-onActivated(() => {
-  console.log('In InsightsTab onActivated')
-})
-
-onDeactivated(() => {
-  console.log('In InsightsTab onDeactivated')
-})
-
-const handlePageClick = (event) => {
-  console.log('In InsightsTab > handlePageClick, event.target', event.target)
-
-  if (event.target.nodeName === 'CANVAS') {
-    // Click is inside the donut swiper, do nothing
-    console.log('In InsightsTab > handlePageClick, event.target is of canvas type, do nothing')
-    return;
+watch(revisitMomentId, (newVal) => {
+  if (newVal) {
+    ms.getMomentById(newVal, revisitMoment)
   }
-
-  const classList = Array.from(event.target.classList);
-  const shouldIgnoreClick = classList.some(className =>
-    className.includes('q-item') || className.includes('q-avatar'));
-
-  if (shouldIgnoreClick) {
-    console.log('In InsightsTab > handlePageClick, clicked on a specified class, do nothing');
-    return;
-  }
-  // clickedLearnPage = true
-  console.log('In InsightsTab > handlePageClick, event.target is not canva or needs list, set clickedLearnPage to true')
-  clickedLearnPage.value = true
-}
+}, { immediate: true })
 
 //SWIPER
-const activeIndex = ref(null)
-//when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
-watch(() => momentsStore.shouldResetSwiper, (newVal) => {
-  console.log('In InsightsTab > watch momentsStore.shouldResetSwiper, newVal', newVal)
-  if (newVal) {
-    if (segDateId.value === 'Monthly') {
-      activeIndex.value = dateRangesMonths.value.length - 1;
+const swiperAfterInit = (event, el) => {
+  nextTick(() => {
+    console.log('In InsightsTab > afterinit fired with event:', event, 'el', el, 'swiperSummaryEl', swiperSummaryEl.value)
+    if (el === 'summary' && swiperSummaryEl.value) {
+      swiperSummaryEl.value.swiper.slideTo(ms.activeIndex, 0)
+      console.log('In InsightsTab > afterinit fired, sliding', el, 'swiper to ms.activeIndex', ms.activeIndex)
+    } else if (el === 'needs' && swiperNeedsEl.value) {
+      swiperNeedsEl.value.swiper.slideTo(ms.activeIndex, 0)
+      console.log('In InsightsTab > afterinit fired, sliding', el, 'swiper to ms.activeIndex', ms.activeIndex)
+    } else if (el === 'suggestions' && swiperSuggestionsEl.value) {
+      swiperSuggestionsEl.value.swiper.slideTo(ms.activeIndex, 0)
+      console.log('In InsightsTab > afterinit fired, sliding', el, 'swiper to ms.activeIndex', ms.activeIndex)
     }
-    else if (segDateId.value === 'Yearly') {
-      activeIndex.value = dateRangesYears.value.length - 1;
-    }
-    // updateDateButtonLabel()
-    momentsStore.shouldResetSwiper = false
-  }
-})
-
-//DATES MANAGEMENT
-const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
-const segDateId = ref("Monthly")
-const oldestMomentDateYYYYsMM = computed(() => {
-  return formatDate(momentsStore.getOldestMomentDate, "YYYY/MM")
-})
-const dateRangesYears = computed(() => {
-  console.log('In InsightsTab > computed dateRangesYears, currentDate.value', currentDate.value, "momentsStore.getOldestMomentDate", momentsStore.getOldestMomentDate)
-  const dateRanges = [];
-  const yearsSinceOldestMoment = getDateDiff(currentDate.value, momentsStore.getOldestMomentDate, 'years')
-  for (let i = yearsSinceOldestMoment; i >= 0; i--) {
-    dateRanges.push((currentYear.value - i).toString());
-  }
-  console.log('In InsightsTab > computed dateRangesYears, dateRanges is', dateRanges)
-  return dateRanges;
-});
-watch(dateRangesYears, (newValue) => {
-  console.log('In InsightsTab > watch dateRangesYears, momentsStore.savedActiveIndex', momentsStore.savedActiveIndex, "segDateId.value", segDateId.value)
-
-  if (segDateId.value === 'Yearly') {
-    if (momentsStore.savedActiveIndex !== null) {
-      activeIndex.value = momentsStore.savedActiveIndex
-      momentsStore.savedActiveIndex = null
-    } else if (!initialized.value) {
-      activeIndex.value = newValue.length - 1;
-      initialized.value = true //block the first update of activeIndex to the last index once done once, to avoid swiping just bec. new add data
-    }
-    console.log('In InsightsTab > watch dateRangesYears updated activeIndex to', activeIndex.value)
-  }
-}, { immediate: true });
-
-const dateRangesMonths = computed(() => {
-  const dateRanges = [];
-  const monthsSinceOldestMoment = getDateDiff(currentDate.value, momentsStore.getOldestMomentDate, 'months')
-  let trackingDate = startOfDate(momentsStore.getOldestMomentDate, 'month');
-  for (let i = 0; i <= monthsSinceOldestMoment; i++) {
-    dateRanges.push(`${trackingDate.getFullYear()}-${(trackingDate.getMonth() + 1).toString().padStart(2, '0')}`);
-    trackingDate = addToDate(trackingDate, { months: 1 });
-  }
-  console.log('In InsightsTab > computed dateRangesMonths, dateRanges is', dateRanges)
-  return dateRanges;
-});
-watch(dateRangesMonths, (newValue) => {
-  console.log('In InsightsTab > watch dateRangesMonths, momentsStore.savedActiveIndex', momentsStore.savedActiveIndex, "segDateId.value", segDateId.value)
-  if (segDateId.value === 'Monthly') {
-
-    if (momentsStore.savedActiveIndex !== null) {
-      activeIndex.value = momentsStore.savedActiveIndex
-      momentsStore.savedActiveIndex = null
-    } else if (!initialized.value) {
-      activeIndex.value = newValue.length - 1;
-      initialized.value = true //block the first update of activeIndex to the last index once done once, to avoid swiping just bec. new add data
-    }
-    console.log('In InsightsTab > watch dateRangesMonths updated activeIndex to', activeIndex.value)
-  }
-}, { immediate: true }
-);
-const dateRangesMonthsIdxToDate = (idx) => {
-  console.log('In InsightsTab > dateRangesMonthsIdxToDate, idx', idx, 'dateRangesMonths.value[idx]', dateRangesMonths.value[idx])
-  const [yearStr, monthStr] = dateRangesMonths.value[idx].split('-');
-  return new Date(Number(yearStr), Number(monthStr) - 1);
+  })
 }
 
-watchEffect(() => {
-  console.log('In InsightsTab > watchEffect activeIndex.value', activeIndex.value, "segDateId.value", segDateId.value)
-  if (segDateId.value === 'Monthly') {
-    dateRangeButtonLabel.value = getDatePickerLabel(dateRangesMonths.value[activeIndex.value]);
-  } else if (segDateId.value === 'Yearly') {
-    dateRangeButtonLabel.value = getDatePickerLabel(dateRangesYears.value[activeIndex.value]);
-  }
-});
-
-//DATE FILTER DIALOG
-const filterDialogOpened = ref(false)
-const tappedFilter = ref('date')
-const openFilterDialog = (filter) => {
-  tappedFilter.value = filter
-  filterDialogOpened.value = true
-}
-
-//before pickedDateYYYYsMMsDD was initialized as the first day of the current year with format YYYY/MM/DD
-const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"))
-const monthsKey = ref(Date.now())
-const yearsKey = ref(Date.now())
-const optionsFn = (date) => {
-  return date >= momentsStore.getOldestMomentDate;
-}
-
-//EVENTS
-const onUpdatePickedDate = (newVal) => { //newVal is a string YYYYsMMsDD //TODO:1 pourrait etre un watch?
-  console.log('In InsightsTab > onUpdatePickedDate newVal', newVal)
-  if (newVal) {
-    if (segDateId.value === 'Monthly') {
-      monthsKey.value = Date.now()
-      activeIndex.value = getDateDiff(newVal, momentsStore.getOldestMomentDate, 'months');
-    } else if (segDateId.value === 'Yearly') {
-      yearsKey.value = Date.now()
-      activeIndex.value = getDateDiff(newVal, momentsStore.getOldestMomentDate, 'years');
-    }
-    // updateDateButtonLabel()
-
-    console.log('In InsightsTab > onUpdatePickedDate triggered currentSlide update to', activeIndex.value, "because newVal", newVal, "and momentsStore.getOldestMomentDate", momentsStore.getOldestMomentDate, "and segDateId.value", segDateId.value)
-  }
-}
-
-//i.e. onSegmentControlChange
-watch(segDateId, (newVal) => {
-  console.log('In InsightsTab > watch(segDateId) triggered with newVal', newVal, "pickedDateYYYYsMMsDD.value", pickedDateYYYYsMMsDD.value, "momentsStore.getOldestMomentDate", momentsStore.getOldestMomentDate)
-  if (newVal) {
-    let max = getMaxDate(pickedDateYYYYsMMsDD.value, momentsStore.getOldestMomentDate)
-    pickedDateYYYYsMMsDD.value = formatDate(max, "YYYY/MM/DD")
-    console.log('watch(segDateId) changed pickedDateYYYYsMMsDD.value to', pickedDateYYYYsMMsDD.value)
-    onUpdatePickedDate(pickedDateYYYYsMMsDD.value)
-  }
-});
+//set to immediate to react to activeIndex change from parent at initialization
+watch(() => ms.activeIndex, (newVal, oldVal) => {
+  nextTick(() => {
+    console.log('In InsightsTab > ms.activeIndex watcher, activeIndex changed from', oldVal, 'to', newVal, 'swiperSummaryEl', swiperSummaryEl.value, 'trying to slide all to ', newVal)
+    swiperSummaryEl?.value?.swiper.slideTo(newVal, 0)
+    swiperNeedsEl?.value?.swiper.slideTo(newVal, 0)
+    swiperSuggestionsEl?.value?.swiper.slideTo(newVal, 0)
+  })
+}, { immediate: true })
 
 const onActiveIndexChangeBySwiper = (event) => {
-  console.log('In InsightsTab > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
+  console.log('In InsightsTab > onActiveIndexChangeBySwiper fired with ms.activeIndex', ms.activeIndex, 'ms.activeDateRange', ms.activeDateRange, 'ms.dateRanges', ms.dateRanges, 'swipersLoaded', swipersLoaded.value, 'swiperSummaryEl', swiperSummaryEl.value)
+  console.log('In InsightsTab  > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
 
-  activeIndex.value = event.detail[0].activeIndex
-  // updateDateButtonLabel()
-
-  if (segDateId.value === 'Monthly') {
-    pickedDateYYYYsMMsDD.value = formatDate(dateRangesMonthsIdxToDate(activeIndex.value), "YYYY/MM/DD")
-  } else if (segDateId.value === 'Yearly') {
-    pickedDateYYYYsMMsDD.value = formatDate(dateRangesYears.value[activeIndex.value], "YYYY/MM/DD")
-  }
+  ms.activeIndex = event.detail[0].activeIndex
 }
+
+//kill-restart swiper when dateRanges change
+watch(() => ms.dateRanges, (newVal, oldVal) => {
+  console.log('In InsightsTab > ms.dateRanges watcher, dateRanges changed from', oldVal, 'to', newVal, 'reloading swiper container')
+  swipersLoaded.value = false
+  nextTick(() => {
+    swipersLoaded.value = true
+  })
+})
+
+
 
 </script>
 
 <style lang="scss">
-// .button-on-background .q-icon {
-//   margin-right: 8px;
-// }
-
 .q-btn-group>.q-btn-item {
   border-radius: 34px !important;
 }

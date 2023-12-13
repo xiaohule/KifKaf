@@ -118,7 +118,7 @@ import { useMomentsStore } from '../../stores/moments.js'
 //   console.log("App is offline");
 //   // Any offline handling logic...
 // });
-const momentsStore = useMomentsStore()
+const ms = useMomentsStore()
 const auth = getFirebaseAuth();
 const route = useRoute();
 const router = useRouter();
@@ -309,7 +309,7 @@ const continueWithApple = async () => {
   if (isOffline()) return
   try {
     const authorizationCode = await signInWithApple();
-    momentsStore.setAuthorizationCode(authorizationCode)
+    ms.setAuthorizationCode(authorizationCode)
   } catch (error) {
     console.error(error);
   }
