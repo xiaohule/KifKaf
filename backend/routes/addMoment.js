@@ -25,6 +25,7 @@ const axios = require("axios");
 const { db, openai } = require("../utils/servicesConfig");
 
 const promptVersion = "gpt4_7_2_1";
+axios.defaults.baseURL = process.env.API_URL;
 
 // ROUTER SETUP
 var router = express.Router();
@@ -148,8 +149,10 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
 
     // TRIGGER COMPUTE INSIGHTS IF NEEDED
     try {
+      // "http://localhost:3000/api/learn/compute-insights/",
+      console.log("process.env.API_URL", process.env.API_URL);
       const computeInsightsResponse = await axios.post(
-        "http://localhost:3000/api/learn/compute-insights/",
+        `/api/learn/compute-insights/`,
         {
           threshold: 3,
           origin: "addMoment",
@@ -169,6 +172,8 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
       console.error(
         "In addMoment > Error in compute insights triggered by mom",
         req.body,
+        "computeInsightsError=",
+        computeInsightsError,
       );
     }
   } catch (error) {

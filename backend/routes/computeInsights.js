@@ -159,12 +159,12 @@ router.post(
         });
       }
 
-      console.log(
-        "In computeInsights for uid",
-        req.uid,
-        ", messages to be sent to thread:",
-        messages,
-      );
+      // console.log(
+      //   "In computeInsights for uid",
+      //   req.uid,
+      //   ", messages to be sent to thread:",
+      //   messages,
+      // );
 
       // RUN AND PERSIST MESSAGES PER PERIOD
       // for each key of messages run initAggregateDoc on aggregateMonthlyInsightsDocRef with key as month
@@ -174,7 +174,7 @@ router.post(
           console.log(
             "In computeInsights for uid",
             req.uid,
-            ", Object.keys(messages).forEach with  key:",
+            ", for loop currently at key:",
             key,
             "messages[key]:",
             messages[key],
@@ -213,19 +213,26 @@ router.post(
             );
           } else {
             //add messages to existing thread
-            const threadMessages = await openai.beta.threads.messages.create(
-              threadId,
-              messages[key],
-            );
             console.log(
               "In computeInsights for uid",
               req.uid,
-              ", thread id ",
-              threadId,
-              "found for doc ",
+              ", thread id found, messages[key]:",
+              messages[key],
+            );
+            let messageThread;
+            for (const message of messages[key]) {
+              messageThread = await openai.beta.threads.messages.create(
+                threadId,
+                message,
+              );
+            }
+            console.log(
+              "In computeInsights for uid",
+              req.uid,
+              ", thread id found for doc ",
               `${key}-insights`,
               "updated thread",
-              threadMessages,
+              messageThread,
             );
           }
 
