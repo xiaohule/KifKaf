@@ -102,7 +102,7 @@ text-on-primary">{{ ms.getWelcomeTutorialStep +
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    Your emotions tell a story. After 5 Moments, patterns start emerging.
+                    Your emotions tell a story. After 3 Moments, patterns start emerging.
                   </q-item-label>
                 </q-item-section>
                 <q-item-section thumbnail>

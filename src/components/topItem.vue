@@ -14,8 +14,8 @@
       <q-item class="q-pa-none" dense style="min-height: 0px;">
         <q-item-section class="text-subtitle2 text-weight-medium">{{ topItem.needName }}</q-item-section>
         <q-item-section side class="text-body2 text-on-surface">{{ parseFloat((topItem[props.topType ==
-                  'satisfaction' ? 'satisfactionImpactLabelValue' : (props.topType == 'unsatisfaction'
-                  ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
+          'satisfaction' ? 'satisfactionImpactLabelValue' : (props.topType == 'unsatisfaction'
+            ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
         </q-item-section>
       </q-item>
       <q-item class="q-pa-none" dense style="min-height: 0px;">
@@ -24,8 +24,8 @@
           {{ topItem.occurrenceCount == 1 ? 'moment' : 'moments' }}
         </q-item-section>
         <q-item-section side class="text-caption text-outline">{{ props.topType == 'satisfaction' ?
-                  'of all satisfaction' : (props.topType == 'unsatisfaction'
-                  ? 'of all dissatisfaction' : 'of total importance') }}
+          'of all satisfaction' : (props.topType == 'unsatisfaction'
+            ? 'of all dissatisfaction' : 'of total importance') }}
         </q-item-section>
       </q-item>
     </q-item-section>
@@ -38,13 +38,13 @@
     </q-item-section>
     <q-item-section>
       <div v-if="props.topType == 'satisfaction'">
-        No satisfied needs for this period.
+        No satisfied needs yet for this period.
       </div>
       <div v-else-if="props.topType == 'unsatisfaction'">
-        No dissatisfied needs for this period.
+        No dissatisfied needs yet for this period.
       </div>
       <div v-else>
-        No needs for this period.
+        No needs yet for this period.
       </div>
     </q-item-section>
   </q-item>

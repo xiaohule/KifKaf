@@ -127,7 +127,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.contains("Dissatisfiers").should("be.visible");
     cy.contains("All").should("be.visible");
     //TODO:2 add a test
-    // cy.contains("Log Moments in the Home tab").should("be.visible");
+    // cy.contains("Log Moments").should("be.visible");
     cy.get("footer").contains("Home").click();
     cy.url({ timeout: 40000 }).should("not.include", "insights");
     //Settings
