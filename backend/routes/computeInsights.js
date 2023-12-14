@@ -9,10 +9,7 @@ const {
   unlockId,
   validateComputeInsightsRequest,
 } = require("../middlewares/validateRequestMiddleware");
-const { Timestamp, FieldValue } = require("firebase-admin/firestore");
-const {
-  initAggregateDoc,
-} = require("../utils/persistNeedsDataSuccessPathUtils");
+const { FieldValue } = require("firebase-admin/firestore");
 const { db, openai } = require("../utils/servicesConfig");
 
 // ROUTER SETUP
@@ -167,7 +164,7 @@ router.post(
       // );
 
       // RUN AND PERSIST MESSAGES PER PERIOD
-      // for each key of messages run initAggregateDoc on aggregateMonthlyInsightsDocRef with key as month
+      // for each key of messages initialize aggregateMonthlyInsightsDoc with key as month
       //TODO:5 parallelize with Promise.allSettled instead
       for (const key of Object.keys(messages)) {
         try {
@@ -200,12 +197,15 @@ router.post(
             lastUpdate: FieldValue.serverTimestamp(),
           };
 
+          let threadId;
           if (!aggregateMonthlyInsightsDoc.exists) {
             batch.set(aggregateMonthlyInsightsDocRef, defaultStructure);
+            threadId = "";
+          } else {
+            threadId = aggregateMonthlyInsightsDoc.data().threadId;
           }
 
           // THREAD CREATION OR UPDATE
-          let threadId = aggregateMonthlyInsightsDoc.data().threadId;
           if (!threadId) {
             //create a new thread and add messages
             const messageThread = await openai.beta.threads.create({
