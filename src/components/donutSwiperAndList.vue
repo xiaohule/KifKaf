@@ -40,8 +40,8 @@
               <q-item class="q-pa-none" dense style="min-height: 0px;">
                 <q-item-section class="text-subtitle2 text-weight-medium">{{ item.needName }}</q-item-section>
                 <q-item-section side class="text-body2 text-on-surface">{{ parseFloat((item[ms.needsToggleModel ==
-                                  'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction'
-                                  ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
+                  'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction'
+                    ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
                 </q-item-section>
               </q-item>
 
@@ -51,8 +51,8 @@
                   {{ item.occurrenceCount == 1 ? 'moment' : 'moments' }}
                 </q-item-section>
                 <q-item-section side class="text-caption text-outline">{{ ms.needsToggleModel == 'satisfaction' ?
-                                  'of all satisfaction' : (ms.needsToggleModel == 'unsatisfaction'
-                                  ? 'of all dissatisfaction' : 'of total importance') }}
+                  'of all satisfaction' : (ms.needsToggleModel == 'unsatisfaction'
+                    ? 'of all dissatisfaction' : 'of total importance') }}
                 </q-item-section>
               </q-item>
             </q-item-section>
@@ -68,22 +68,22 @@
       <div v-if="!ms || !ms.getHasNeeds">
         <!-- Add Moments in the Home tab to learn more about your needs! -->
         <div v-if="ms.needsToggleModel == 'satisfaction'">
-          Log Moments in the Home tab to discover the needs from which you get the most satisfaction!
+          Log Moments to discover the needs from which you get the most satisfaction!
         </div>
-        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">Log Moments in the Home tab to discover the
+        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">Log Moments to discover the
           needs that cause you the most dissatisfaction.</div>
         <div v-else>
-          Log Moments in the Home tab to discover what needs bear the most importance to you!</div>
+          Log Moments to discover what needs bear the most importance to you!</div>
       </div>
       <div v-else-if="ms.activeIndex === ms.dateRanges.length - 1">
         <!-- Add Moments in the Home tab to learn more about your needs! -->
         <div v-if="ms.needsToggleModel == 'satisfaction'">
-          Keep logging Moments in the Home tab to discover the needs from which you get the most satisfaction!
+          Keep logging Moments to discover the needs from which you get the most satisfaction!
         </div>
-        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">Keep logging Moments in the Home tab to discover the
+        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">Keep logging Moments to discover the
           needs that cause you the most dissatisfaction.</div>
         <div v-else>
-          Keep logging your Moments in the Home tab to discover what needs bear the most importance to you!</div>
+          Keep logging your Moments to discover what needs bear the most importance to you!</div>
       </div>
       <!-- system ready but no need recorded for the period-->
       <div v-else>

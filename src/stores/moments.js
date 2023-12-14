@@ -31,8 +31,8 @@ const {
   addToDate,
   formatDate,
 } = date;
-
 import { useDateUtils } from "../composables/dateUtils.js";
+import { inspirationalQuotes } from "../utils/quoteUtils.js";
 
 export const useMomentsStore = defineStore("moments", () => {
   const {
@@ -320,10 +320,10 @@ export const useMomentsStore = defineStore("moments", () => {
         showWelcomeTutorial: true,
       };
       try {
-        const userDoc = await getDoc(userDocRef.value);
+        const userDocCheck = await getDoc(userDocRef.value);
         if (
-          !userDoc.exists() ||
-          !userDoc.data().hasOwnProperty("showWelcomeTutorial")
+          !userDocCheck.exists() ||
+          !userDocCheck.data().hasOwnProperty("showWelcomeTutorial")
         ) {
           console.log(
             "In moments.js > fetchUser, User doc not initialized, initializing it",
@@ -341,6 +341,7 @@ export const useMomentsStore = defineStore("moments", () => {
       });
 
       userFetched.value = true;
+      console.log("In moments.js, userFetched true");
     } catch (error) {
       console.log("Error in fetchUser", error);
     }
@@ -472,6 +473,25 @@ export const useMomentsStore = defineStore("moments", () => {
   };
   const getWelcomeTutorialStep = computed(() => {
     return userDoc?.value?.welcomeTutorialStep ?? false;
+  });
+
+  const momentWithOkNeedsThisMonthCount = computed(() => {
+    if (!momentsFetched.value) {
+      return null;
+    }
+
+    return momentsColl.value.filter((moment) => {
+      return (
+        isBetweenDates(
+          moment.date.toDate(),
+          startOfDate(currentDate.value, "month"),
+          endOfDate(currentDate.value, "month"),
+        ) &&
+        Object.keys(moment.needs).length > 0 &&
+        !moment.needs.Oops &&
+        !moment.needs.error
+      );
+    }).length;
   });
 
   const deleteMoment = async (momentId) => {
@@ -823,19 +843,25 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.revisitMoment ?? false;
   });
 
-  const getRandomMomentId = async (mood = "happy", atLeastWeeks = 3) => {
+  const getRandomMomentIdOfTheDay = async (
+    mood = "happy",
+    atLeastWeeks = 3,
+  ) => {
     // Check if today's date is different from the last revisit date
-    console.log(
-      "In moments.js > getRandomMomentId, getRevisitMoment.value:",
-      getRevisitMoment.value,
-      "currentDate.value:",
-      currentDate.value,
-    );
-    if (getRevisitMoment.value.date === currentDate.value) {
-      console.log(
-        "In moments.js > getRandomMomentId, getRevisitMoment.value.date === currentDate.value, returning:",
-        getRevisitMoment.value.id,
-      );
+    // console.log(
+    //   "In moments.js > getRandomMomentIdOfTheDay, getRevisitMoment.value:",
+    //   getRevisitMoment.value,
+    //   "currentDate.value:",
+    //   currentDate.value,
+    // );
+    if (
+      getRevisitMoment.value &&
+      isSameDate(getRevisitMoment.value.date.toDate(), currentDate.value, "day")
+    ) {
+      // console.log(
+      //   "In moments.js > getRandomMomentIdOfTheDay, getRevisitMoment.value.date === currentDate.value, returning:",
+      //   getRevisitMoment.value.id,
+      // );
       return getRevisitMoment.value.id; // Return the cached ID
     }
 
@@ -861,7 +887,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
     if (filteredMoments.length > 0) {
       const randomIndex = Math.floor(Math.random() * filteredMoments.length);
-      setUserDocValue({
+      await setUserDocValue({
         revisitMoment: {
           id: filteredMoments[randomIndex].id,
           date: currentDate.value,
@@ -870,7 +896,41 @@ export const useMomentsStore = defineStore("moments", () => {
       return filteredMoments[randomIndex].id;
     }
 
-    return null; // or any default value you prefer
+    return null;
+  };
+
+  const getPlaceholderQuote = computed(() => {
+    console.log(
+      "In moments.js > getPlaceholderQuote, userDoc.value:",
+      userDoc.value,
+    );
+    return userDoc?.value?.placeholderQuote ?? false;
+  });
+
+  //get a random quote but keep it for the day, so there should be no change on refresh it a given day
+  const getPlaceholderQuoteOfTheDayId = async () => {
+    // Check if today's date is different from the last revisit date
+    if (
+      getPlaceholderQuote.value &&
+      isSameDate(
+        getPlaceholderQuote.value.date.toDate(),
+        currentDate.value,
+        "day",
+      )
+    ) {
+      return getPlaceholderQuote.value.id; // Return the cached ID
+    }
+
+    const randomQuoteIndex = Math.floor(
+      Math.random() * inspirationalQuotes.length,
+    );
+    await setUserDocValue({
+      placeholderQuote: {
+        id: randomQuoteIndex,
+        date: currentDate.value,
+      },
+    });
+    return randomQuoteIndex;
   };
 
   function $reset() {
@@ -896,6 +956,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
   return {
     user,
+    userDoc,
     momentsColl,
     shouldResetSwiper,
     donutSegmentClicked,
@@ -924,6 +985,7 @@ export const useMomentsStore = defineStore("moments", () => {
     aggregateDataFetched,
     aggDataNeeds,
     aggDataInsights,
+    momentWithOkNeedsThisMonthCount,
     setWelcomeTutorialStep,
     setShowWelcomeTutorial,
     addMoment,
@@ -937,7 +999,8 @@ export const useMomentsStore = defineStore("moments", () => {
     fetchAggregateData,
     getUniqueDaysDateFromDateRangeAndNeed,
     getSortedMomsFromDayAndNeed,
-    getRandomMomentId,
+    getRandomMomentIdOfTheDay,
+    getPlaceholderQuoteOfTheDayId,
     $reset,
   };
 });

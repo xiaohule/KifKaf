@@ -187,9 +187,22 @@ router.post(
           const aggregateMonthlyInsightsDocRef = userDocRef
             .collection("aggregateMonthly")
             .doc(`${key}-insights`);
-          await initAggregateDoc(aggregateMonthlyInsightsDocRef, "insights"); //init if non-existent, do nothing otherwise
           const aggregateMonthlyInsightsDoc =
             await aggregateMonthlyInsightsDocRef.get();
+
+          const defaultStructure = {
+            threadId: "",
+            nSuccessRun: 0,
+            summary: "",
+            quote: { text: "", author: "", why: "" },
+            book: { title: "", author: "", why: "" },
+            suggestions: { continue: [], stop: [], start: [] },
+            lastUpdate: FieldValue.serverTimestamp(),
+          };
+
+          if (!aggregateMonthlyInsightsDoc.exists) {
+            batch.set(aggregateMonthlyInsightsDocRef, defaultStructure);
+          }
 
           // THREAD CREATION OR UPDATE
           let threadId = aggregateMonthlyInsightsDoc.data().threadId;
