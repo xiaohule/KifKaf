@@ -19,6 +19,7 @@ import {
   EmailAuthProvider,
 } from "firebase/auth";
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import { Notify } from "quasar";
 import { currentUser } from "../boot/firebaseBoot.js";
 import { date } from "quasar";
@@ -33,6 +34,23 @@ const {
 } = date;
 import { useDateUtils } from "../composables/dateUtils.js";
 import { inspirationalQuotes } from "../utils/quoteUtils.js";
+
+axiosRetry(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  onRetry: (retryCount, error, requestConfig) => {
+    console.log(
+      "In axiosRetry, retrying with retryCount:",
+      retryCount,
+      "err:",
+      error,
+      "requestConfig.url:",
+      requestConfig.url,
+      "requestConfig.data:",
+      requestConfig.data,
+    );
+  },
+});
 
 export const useMomentsStore = defineStore("moments", () => {
   const {
@@ -113,7 +131,8 @@ export const useMomentsStore = defineStore("moments", () => {
     momentsColl.value.forEach((moment) => {
       const momentDate = moment.date.toDate();
       if (
-        !dateRange ||
+        (!moment.deleted && //to avoid deleted moments
+          !dateRange) ||
         isBetweenDates(momentDate, dateFrom, dateTo, {
           inclusiveFrom: true,
           inclusiveTo: true,
@@ -482,6 +501,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
     return momentsColl.value.filter((moment) => {
       return (
+        !moment.deleted &&
         isBetweenDates(
           moment.date.toDate(),
           startOfDate(currentDate.value, "month"),
@@ -494,14 +514,22 @@ export const useMomentsStore = defineStore("moments", () => {
     }).length;
   });
 
+  const momentsCollLength = computed(() => {
+    if (!momentsFetched.value) {
+      return null;
+    }
+
+    return momentsColl.value.filter((moment) => !moment.deleted).length;
+  });
+
   const deleteMoment = async (momentId) => {
     try {
       console.log("In moment.js > deleteMoment for momentId:", momentId);
       const momentDoc = doc(momentsCollRef.value, momentId);
       const momentArchive = (await getDoc(momentDoc)).data();
-      const momentsCollLength = momentsColl.value.length;
       const otherMomHasNeeds = momentsColl.value.some((moment) => {
         return (
+          !moment.deleted &&
           moment.id !== momentId &&
           moment.needs &&
           Object.keys(moment.needs).length > 0
@@ -514,18 +542,20 @@ export const useMomentsStore = defineStore("moments", () => {
         "momentArchive:",
         momentArchive,
         "momentsCollLength:",
-        momentsCollLength,
+        momentsCollLength.value,
         "otherMomHaveNeeds:",
         otherMomHasNeeds,
       );
 
       const batch = writeBatch(db);
 
-      batch.delete(momentDoc);
+      // batch.delete(momentDoc);
+      //instead of deleting just set the flag deleted to true
+      batch.update(momentDoc, { deleted: true });
 
       if (!otherMomHasNeeds) {
         batch.update(userDocRef.value, {
-          welcomeTutorialStep: momentsCollLength < 2 ? 0 : 1,
+          welcomeTutorialStep: momentsCollLength.value < 2 ? 0 : 1,
           hasNeeds: false,
         });
       }
@@ -550,7 +580,6 @@ export const useMomentsStore = defineStore("moments", () => {
         `/api/learn/delete-moment/`,
         {
           momentId,
-          momentArchive,
         },
         {
           headers: {
@@ -573,6 +602,7 @@ export const useMomentsStore = defineStore("moments", () => {
       moment.needs = {};
       moment.retries = 0;
       moment.sentToThread = false;
+      moment.deleted = false;
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
       const newMomDocRef = doc(momentsCollRef.value);
@@ -685,7 +715,7 @@ export const useMomentsStore = defineStore("moments", () => {
     if (
       !momentsFetched.value ||
       !getHasNeeds.value || // return null if user has no needs to block welcome tuto button "View needs"
-      !momentsColl.value.length
+      !momentsCollLength.value
     ) {
       return;
     }
@@ -696,6 +726,7 @@ export const useMomentsStore = defineStore("moments", () => {
     // Filter moments to include only those whose 'needs' object exists is not 'Oops'
     const filteredMoms = sortedMoms.filter(
       (moment) =>
+        !moment.deleted &&
         Object.keys(moment.needs).length > 0 &&
         !moment.needs.Oops &&
         !moment.needs.error,
@@ -811,8 +842,9 @@ export const useMomentsStore = defineStore("moments", () => {
     console.log("In getSortedMomsFromDayAndNeed");
     const dayDate = dayToDate(day);
 
-    let moms = momentsColl.value.filter((moment) =>
-      isSameDate(moment.date.toDate(), dayDate, "day"),
+    let moms = momentsColl.value.filter(
+      (moment) =>
+        !moment.deleted && isSameDate(moment.date.toDate(), dayDate, "day"),
     );
 
     if (need) {
@@ -871,6 +903,7 @@ export const useMomentsStore = defineStore("moments", () => {
     const filteredMoments = momentsColl.value.filter((moment) => {
       const momentDate = moment.date.toDate();
       if (
+        !moment.deleted &&
         momentDate < weeksAgo &&
         Object.keys(moment.needs).length > 0 &&
         !moment.needs.Oops &&
@@ -947,7 +980,6 @@ export const useMomentsStore = defineStore("moments", () => {
     shouldResetSwiper.value = false;
     donutSegmentClicked.value = null;
     insightsInitialized.value = false;
-    dateRangeButtonLabel.value = "This month";
     needsToggleModel.value = "top";
     activeIndex.value = null;
     segDateId.value = "Monthly";
@@ -957,7 +989,6 @@ export const useMomentsStore = defineStore("moments", () => {
   return {
     user,
     userDoc,
-    momentsColl,
     shouldResetSwiper,
     donutSegmentClicked,
     dateRangeButtonLabel,

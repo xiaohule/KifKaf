@@ -5,7 +5,7 @@ const authenticateUser = async (req, res, next) => {
 
   if (!idToken) {
     return res
-      .status(403)
+      .status(401)
       .json({ message: "Unauthorized: No ID token provided." });
   }
 
@@ -15,7 +15,7 @@ const authenticateUser = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Token verification error", error);
-    return res.status(403).json({ message: "Unauthorized: Invalid ID token." });
+    return res.status(401).json({ message: "Unauthorized: Invalid ID token." });
   }
 };
 

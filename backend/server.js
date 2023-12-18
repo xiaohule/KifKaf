@@ -3,7 +3,6 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
-// const chatRouter = require("./routes/chat");
 const addMomentRouter = require("./routes/addMoment");
 const deleteMomentRouter = require("./routes/deleteMoment");
 const computeInsightsRouter = require("./routes/computeInsights");
@@ -111,7 +110,6 @@ app.use(
     ],
   }),
 );
-// app.use("/api/chat", chatRouter);
 app.use("/api/learn", addMomentRouter);
 app.use("/api/learn", deleteMomentRouter);
 app.use("/api/learn", computeInsightsRouter);

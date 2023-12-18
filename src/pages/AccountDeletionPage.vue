@@ -81,6 +81,24 @@ import { deleteUser, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
 import axios from 'axios';
+import axiosRetry from "axios-retry";
+
+axiosRetry(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  onRetry: (retryCount, error, requestConfig) => {
+    console.log(
+      "In axiosRetry, retrying with retryCount:",
+      retryCount,
+      "err:",
+      error,
+      "requestConfig.url:",
+      requestConfig.url,
+      "requestConfig.data:",
+      requestConfig.data,
+    );
+  },
+});
 
 const ms = useMomentsStore()
 const errorDialogOpened = ref(false)

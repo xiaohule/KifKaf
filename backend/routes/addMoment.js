@@ -57,10 +57,10 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
     console.log(
       "In addMoment > LLM response received for",
       req.body,
-      "XXX response=",
-      response,
-      "openaiResponseMessage.content=",
-      openaiResponseMessage.content,
+      // "XXX response=",
+      // response,
+      // "openaiResponseMessage.content=",
+      // openaiResponseMessage.content,
       "momentNeedsData=",
       momentNeedsData,
     );
@@ -137,8 +137,26 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
     await persistUnexpectedNeedsIfAny(db, req, momentNeedsData);
 
     // SUCCESS PATH: ADD NEEDS TO MOM DOC & UPDATE AGGREGATE DOCS
-    await persistNeedsData(db, req, userDocRef, momentDocRef, momentNeedsData);
-    unlockId(req.body.momentId);
+    try {
+      await persistNeedsData(
+        db,
+        req,
+        userDocRef,
+        momentDocRef,
+        momentNeedsData,
+      );
+      unlockId(req.body.momentId);
+    } catch (error) {
+      console.error(error);
+      unlockId(req.body.momentId);
+      return res.status(409).json({
+        message:
+          "In addMoment > persistNeedsDataSuccessPathUtils aborting persistNeedsData bec. either momentDoc doesn't exist or momentDoc.data().needs already filled",
+        moment: req.body.momentText,
+        momentId: req.body.momentId,
+        error: error,
+      });
+    }
 
     // SEND SUCCESS RESPONSE IMMEDIATELY
     res.status(200).json({
@@ -172,8 +190,8 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
       console.error(
         "In addMoment > Error in compute insights triggered by mom",
         req.body,
-        "computeInsightsError=",
-        computeInsightsError,
+        // "computeInsightsError=",
+        // computeInsightsError,
       );
     }
   } catch (error) {

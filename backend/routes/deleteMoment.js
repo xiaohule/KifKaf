@@ -10,7 +10,6 @@ const {
 const {
   updateAggDataAfterMomDelete,
 } = require("../utils/deleteMomentSuccessPathUtils");
-// } = require("../utils/persistNeedsDataSuccessPathUtils");
 const { db } = require("../utils/servicesConfig");
 
 // ROUTER SETUP
@@ -32,7 +31,7 @@ router.post(
       const userDocRef = db.collection("users").doc(req.uid);
       // console.log("deleteMoment> userDocRef:", userDocRef);
 
-      // SUCCESS PATH: RECALCULATE AGGREGATE DOCS
+      // SUCCESS PATH: RECALCULATE AGGREGATE DOCS and DELETE MOMENT DOC
       await updateAggDataAfterMomDelete(db, req, userDocRef);
 
       unlockId(req.body.momentId, "deleteMoment");

@@ -12,7 +12,6 @@ import {
   updateDoc,
   increment,
   orderBy,
-  limit,
   doc,
 } from "firebase/firestore";
 import {
@@ -31,12 +30,28 @@ import { markRaw, ref, watch } from "vue";
 // import Vue3Lottie from "vue3-lottie";
 import { debounce } from "lodash";
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import * as Sentry from "@sentry/vue";
 // import { Device } from "@capacitor/device";
 // import { Platform, is } from "quasar";
 // console.log("Platform is", Platform.is);
 
-axios.defaults.baseURL = process.env.API_URL;
+axiosRetry(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  onRetry: (retryCount, error, requestConfig) => {
+    console.log(
+      "In axiosRetry, retrying with retryCount:",
+      retryCount,
+      "err:",
+      error,
+      "requestConfig.url:",
+      requestConfig.url,
+      "requestConfig.data:",
+      requestConfig.data,
+    );
+  },
+});
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMydjsxDCNqYeYFbNL0q8VtzM8sXE_rXg",
@@ -94,6 +109,7 @@ export const getFirebaseAuth = () => {
 export const isLoadingAuth = ref(true);
 
 export const currentUser = ref(null);
+const userDocRef = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 try {
   onAuthStateChanged(getFirebaseAuth(), (user) => {
@@ -196,11 +212,7 @@ const setDeviceLanguage = async () => {
   if (process.env.MODE !== "capacitor") {
     deviceLanguage = navigator.language || navigator.userLanguage;
     // console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
-    await setDoc(
-      doc(db, "users", currentUser.value.uid),
-      { deviceLanguage },
-      { merge: true },
-    );
+    await setDoc(userDocRef.value, { deviceLanguage }, { merge: true });
   } else {
     try {
       const { Device } = await import("@capacitor/device");
@@ -209,11 +221,7 @@ const setDeviceLanguage = async () => {
       //   "In firebaseBoot Capacitor mode, deviceLanguage is",
       //   deviceLanguage,
       // );
-      await setDoc(
-        doc(db, "users", currentUser.value.uid),
-        { deviceLanguage },
-        { merge: true },
-      );
+      await setDoc(userDocRef.value, { deviceLanguage }, { merge: true });
     } catch (error) {
       console.error(
         "In firebaseBoot, Failed to get deviceLanguage for Capacitor, error:",
@@ -224,94 +232,138 @@ const setDeviceLanguage = async () => {
   console.log("In firebaseBoot, just set deviceLanguage to", deviceLanguage);
 };
 
-//LLM CALL RETRIES: at each start of the app, look for up to 3 moments with empty needsImportances have not been rated and retry the LLM call
-const emptyNeedsMomentsRetry = async () => {
+//ADD MOMENT RETRY: at each start of the app, look for moments with empty needs and retry the LLM call
+const addDeleteMomentRetry = async () => {
   // console.log(
-  //   "In firebaseBoot > emptyNeedsMomentsRetry > capacitor mode is",
+  //   "In firebaseBoot > addDeleteMomentRetry > capacitor mode is",
   //   process.env.MODE === "capacitor",
   // );
 
   if (!currentUser.value || !currentUser.value.uid) {
     console.log(
-      "In firebaseBoot, in emptyNeedsMomentsRetry, returning early because no user",
+      "In firebaseBoot > in addDeleteMomentRetry, returning early because no user",
     );
     return;
   }
 
   // Query moments where needs is empty
-  const emptyNeedsQuery = query(
-    collection(db, `users/${currentUser.value.uid}/moments`),
+  const addMomentRetryQuery = query(
+    collection(userDocRef.value, "moments"),
     where("needs", "==", {}),
     where("retries", "<", 3),
     orderBy("retries"),
     orderBy("date", "desc"),
-    limit(5),
   );
 
-  const momentsWithEmptyNeeds = await getDocs(emptyNeedsQuery);
+  const deleteMomentRetryQuery = query(
+    collection(userDocRef.value, "moments"),
+    where("deleted", "==", true),
+    // where("deleteRetries", "<", 3),
+  );
 
-  // Check if there are no matches and return early if true //alternative is momentsWithEmptyNeeds.empty
-  if (!momentsWithEmptyNeeds.size) {
-    console.log(
-      "In firebaseBoot, in emptyNeedsMomentsRetry, no moments with empty needs found",
-    );
+  const addMomentRetrySnapshot = await getDocs(addMomentRetryQuery);
+  const deleteMomentRetrySnapshot = await getDocs(deleteMomentRetryQuery);
+
+  if (!addMomentRetrySnapshot.size && !deleteMomentRetrySnapshot.size) {
+    console.log("In firebaseBoot > addDeleteMomentRetry, no retry to execute");
     return;
   }
 
   const idToken = await currentUser.value.getIdToken(/* forceRefresh */ true);
 
-  // Use Promise.all to process all moments concurrently
-  const processPromises = momentsWithEmptyNeeds.docs.map(async (doc) => {
-    console.log(
-      "In firebaseBoot > emptyNeedsMomentsRetry, will trigger retry call to llm for:",
-      doc.data(),
-    );
-    try {
-      const response = await axios.post(
-        `/api/learn/add-moment/`,
-        {
-          momentText: doc.data().text,
-          momentDate: JSON.stringify(doc.data().date),
-          momentId: doc.id,
-        },
-        {
-          headers: {
-            authorization: `Bearer ${idToken}`,
+  if (addMomentRetrySnapshot.size) {
+    // Use Promise.all to process all moments concurrently
+    const addMomentPromises = addMomentRetrySnapshot.docs.map(async (doc) => {
+      console.log(
+        "In firebaseBoot > in addDeleteMomentRetry > addMomentPromises, retrying addMoment for:",
+        doc.data(),
+      );
+      try {
+        const response = await axios.post(
+          `/api/learn/add-moment/`,
+          {
+            momentText: doc.data().text,
+            momentDate: JSON.stringify(doc.data().date),
+            momentId: doc.id,
           },
-        },
-      );
-      console.log("In addMoment", response.data);
+          {
+            headers: {
+              authorization: `Bearer ${idToken}`,
+            },
+          },
+        );
+        console.log(
+          "In firebaseBoot > in addDeleteMomentRetry > addMomentPromises, add-moment response:",
+          response.data,
+        );
 
-      await updateDoc(doc.ref, {
-        retries: increment(1),
-      });
-    } catch (error) {
-      console.error(
-        "In firebaseBoot.js > emptyNeedsMomentsRetry error:",
-        error,
-      );
-    }
-  });
+        await updateDoc(doc.ref, {
+          retries: increment(1),
+        });
+      } catch (error) {
+        console.error(
+          "In firebaseBoot.js > addDeleteMomentRetry > addMomentPromises error:",
+          error,
+        );
+      }
+    });
 
-  // Wait for all moments to be processed
-  await Promise.all(processPromises);
+    // Wait for all moments to be processed
+    await Promise.all(addMomentPromises);
+  }
+
+  if (deleteMomentRetrySnapshot.size) {
+    const deleteMomentPromises = deleteMomentRetrySnapshot.docs.map(
+      async (doc) => {
+        console.log(
+          "In firebaseBoot > addDeleteMomentRetry > deleteMomentPromises, retrying deleteMoment for:",
+          doc.data(),
+        );
+        try {
+          const response = await axios.post(
+            `/api/learn/delete-moment/`,
+            {
+              momentId: doc.id,
+            },
+            {
+              headers: {
+                authorization: `Bearer ${idToken}`,
+              },
+            },
+          );
+          console.log(
+            "In firebaseBoot > addDeleteMomentRetry > deleteMomentPromises delete-moment response:",
+            response.data,
+          );
+        } catch (error) {
+          console.error(
+            "In firebaseBoot.js > addDeleteMomentRetry > deleteMomentPromises error:",
+            error,
+          );
+        }
+      },
+    );
+
+    // Wait for all moments to be processed
+    await Promise.all(deleteMomentPromises);
+  }
 };
 
-const llmRetryHandler = debounce(
+const httpRetryHandler = debounce(
   () => {
-    console.log("In firebaseBoot, calling llmRetryHandler");
-    emptyNeedsMomentsRetry();
+    console.log("In firebaseBoot, calling httpRetryHandler");
+    addDeleteMomentRetry();
   },
   60000,
   { leading: true, trailing: false },
 );
 
-//Call llmRetryHandler when going online
-window.addEventListener("online", llmRetryHandler);
-//Call llmRetryHandler when foregrounding app
+//Call httpRetryHandler when going online
+window.addEventListener("online", httpRetryHandler);
+//Call httpRetryHandler when foregrounding app
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
-    llmRetryHandler();
+    httpRetryHandler();
   }
 });
 
@@ -410,13 +462,14 @@ export default boot(({ router }) => {
     );
   });
 
-  // Call llmRetryHandler during app initialization
+  // Call httpRetryHandler during app initialization
   watch(
     currentUser,
     (newVal) => {
       if (newVal) {
+        userDocRef.value = doc(db, "users", currentUser.value.uid);
         setDeviceLanguage();
-        llmRetryHandler();
+        httpRetryHandler();
       }
     },
     { immediate: true },
