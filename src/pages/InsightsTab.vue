@@ -22,16 +22,19 @@
           ]">
             <div class="text-subtitle2
  text-outline text-weight-regular q-pb-md">A quick peek at someone amazing</div>
-            <div v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0" style="min-height: 0px;">
+            <div
+              v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
+              style="min-height: 0px;">
               {{ ms.aggDataInsights[ms.activeDateRange].summary }}
             </div>
             <div v-else-if="!ms.getHasNeeds" style="min-height: 0px;">
               <!-- No summary available for this period. -->
               👉 3 Moments a month will bring your summary to life.
             </div>
-            <div v-else-if="ms.momentWithOkNeedsThisMonthCount < 3" style="min-height: 0px;">
-              {{ `👉 ${Math.max(0, 3 - ms.momentWithOkNeedsThisMonthCount)} more Moment${Math.max(0, 3 -
-                ms.momentWithOkNeedsThisMonthCount) > 0 ? 's' : ''} to go this month to bring your summary to life.` }}
+            <div v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="min-height: 0px;">
+              {{ `👉 ${Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(0, 3 -
+                ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 0 ? 's' : ''} to go this month to bring your summary
+              to life.` }}
             </div>
             <div v-else style="min-height: 0px;">
               Preparing your summary...
@@ -45,8 +48,9 @@
       <div class="text-subtitle1
  text-outline text-weight-regular text-center">Daily inspiration drawn from your Moments</div>
       <q-item>
-        <q-item-section v-if="ms.aggDataInsights?.[ms.activeDateRange]?.quote?.text?.length > 0"><span>{{
-          ms.aggDataInsights[ms.activeDateRange].quote.text }}</span><span class="text-caption text-outline">{{
+        <q-item-section
+          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.quote?.text?.length > 0"><span>{{
+            ms.aggDataInsights[ms.activeDateRange].quote.text }}</span><span class="text-caption text-outline">{{
     ms.aggDataInsights[ms.activeDateRange].quote.author }}</span>
         </q-item-section>
         <q-item-section v-else><span>{{ placeholderQuote }}</span> <span class="text-caption text-outline">{{
@@ -104,17 +108,19 @@
       <div class="text-subtitle1
  text-outline text-weight-regular text-center">The Right Book for Right Now?</div>
       <q-item>
-        <q-item-section v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book?.title?.length > 0"><span>{{
-          ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">by {{
+        <q-item-section
+          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.book?.title?.length > 0"><span>{{
+            ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">by {{
     ms.aggDataInsights[ms.activeDateRange].book.author }}</span>
         </q-item-section>
         <q-item-section v-else-if="!ms.getHasNeeds"><span>👉 Log 3 Moments to start getting reading recommendations
             curated for your growth.
           </span>
         </q-item-section>
-        <q-item-section v-else-if="ms.momentWithOkNeedsThisMonthCount < 3"><span> {{ `👉 ${Math.max(0, 3 -
-          ms.momentWithOkNeedsThisMonthCount)} more Moment${Math.max(0, 3 -
-            ms.momentWithOkNeedsThisMonthCount) > 0 ? 's' : ''} to go this month to bring your reading recommendations to
+        <q-item-section v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3"><span> {{ `👉 ${Math.max(0, 3 -
+          ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(0, 3 -
+            ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 0 ? 's' : ''} to go this month to bring your reading
+            recommendations to
             life.` }}
           </span>
         </q-item-section>
@@ -153,7 +159,8 @@
             <div class="text-subtitle2
  text-outline text-weight-regular q-pb-md">Take it or leave it: custom tweaks for life’s peaks</div>
 
-            <q-list v-if="ms.aggDataInsights?.[ms.activeDateRange]?.suggestions">
+            <q-list
+              v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.suggestions">
               <q-item-label class="text-subtitle2 text-weight-medium text-outline">Continue</q-item-label>
 
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue"
@@ -178,9 +185,10 @@
               <!-- No summary available for this period. -->
               👉 3 Moments a month will bring your suggestions to life.
             </div>
-            <div v-else-if="ms.momentWithOkNeedsThisMonthCount < 3" style="min-height: 0px;">
-              {{ `👉 ${Math.max(0, 3 - ms.momentWithOkNeedsThisMonthCount)} more Moment${Math.max(0, 3 -
-                ms.momentWithOkNeedsThisMonthCount) > 0 ? 's' : ''} to go this month to bring your suggestions to life.` }}
+            <div v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="min-height: 0px;">
+              {{ `👉 ${Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(0, 3 -
+                ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 0 ? 's' : ''} to go this month to bring your
+              suggestions to life.` }}
             </div>
             <div v-else style="min-height: 0px;">
               Preparing your suggestions...
@@ -191,20 +199,23 @@
       </swiper-container>
     </div>
 
-    <div v-if="revisitMoment" class="q-px-md">
+    <div v-if="revisitMoment">
       <div class="q-mb-sm text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date) }}...
       </div>
 
-      <q-card flat class="bg-surface q-mb-md q-px-none q-pt-md q-pb-lg rounded-borders-14">
-        <div clickable v-ripple class="q-px-none q-py-sm" style="min-height: 0px;"
+      <q-card flat class="bg-surface q-px-md rounded-borders-14 q-pt-md q-pb-lg">
+        <div clickable v-ripple class="q-px-none" style="min-height: 0px;"
           @click="momentModalId = revisitMomentId; momentModalOpened = true">
 
-          <q-item class="q-px-xs" style="min-height: 0px;">
+          <q-item class="q-px-none q-py-none" style="min-height: 0px;">
             <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
-              <q-icon color="on-background" name="r_fast_rewind" size="lg" />
+              <!-- <q-icon color="on-background" name="r_fast_rewind" size="lg" /> -->
+              <q-avatar size="42px" font-size="28px" color="background" icon="r_fast_rewind">
+
+              </q-avatar>
             </q-item-section>
 
-            <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ revisitMoment.text
+            <q-item-section class="text-body2 q-pb-none q-pl-md">{{ revisitMoment.text
             }}</q-item-section>
           </q-item>
           <!-- <q-item class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">

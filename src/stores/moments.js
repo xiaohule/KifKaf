@@ -494,24 +494,45 @@ export const useMomentsStore = defineStore("moments", () => {
     return userDoc?.value?.welcomeTutorialStep ?? false;
   });
 
-  const momentWithOkNeedsThisMonthCount = computed(() => {
+  const getDateRangeOkNeedsCounts = computed(() => {
     if (!momentsFetched.value) {
       return null;
     }
 
-    return momentsColl.value.filter((moment) => {
-      return (
-        !moment.deleted &&
-        isBetweenDates(
-          moment.date.toDate(),
-          startOfDate(currentDate.value, "month"),
-          endOfDate(currentDate.value, "month"),
-        ) &&
-        Object.keys(moment.needs).length > 0 &&
-        !moment.needs.Oops &&
-        !moment.needs.error
-      );
-    }).length;
+    const okNeedsCounts = {};
+    dateRangesMonths.value.forEach((month) => {
+      okNeedsCounts[month] = momentsColl.value.filter((moment) => {
+        return (
+          !moment.deleted &&
+          isBetweenDates(
+            moment.date.toDate(),
+            startOfDate(month, "month"),
+            endOfDate(month, "month"),
+          ) &&
+          Object.keys(moment.needs).length > 0 &&
+          !moment.needs.Oops &&
+          !moment.needs.error
+        );
+      }).length;
+
+      dateRangesYears.value.forEach((year) => {
+        okNeedsCounts[year] = momentsColl.value.filter((moment) => {
+          return (
+            !moment.deleted &&
+            isBetweenDates(
+              moment.date.toDate(),
+              startOfDate(year, "year"),
+              endOfDate(year, "year"),
+            ) &&
+            Object.keys(moment.needs).length > 0 &&
+            !moment.needs.Oops &&
+            !moment.needs.error
+          );
+        }).length;
+      });
+    });
+
+    return okNeedsCounts;
   });
 
   const momentsCollLength = computed(() => {
@@ -590,7 +611,7 @@ export const useMomentsStore = defineStore("moments", () => {
       console.log("In deleteMoment", response.data);
       await fetchAggregateData(true /*force*/); //to get the insights update if older period
       // TODO:4 this is a bit overkill, we could just update the relevant aggregate docs
-      Notify.create("Insights recalculation complete.");
+      // Notify.create("Insights recalculation complete.");
     } catch (error) {
       console.log("Error in deleteMoment", error);
     }
@@ -1016,7 +1037,7 @@ export const useMomentsStore = defineStore("moments", () => {
     aggregateDataFetched,
     aggDataNeeds,
     aggDataInsights,
-    momentWithOkNeedsThisMonthCount,
+    getDateRangeOkNeedsCounts,
     setWelcomeTutorialStep,
     setShowWelcomeTutorial,
     addMoment,

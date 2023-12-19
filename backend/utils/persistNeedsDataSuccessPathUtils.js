@@ -55,7 +55,7 @@ const initAggregateDoc = async (aggregateDocRef, type = "") => {
 };
 
 const getAggregateDocRefs = async (userDocRef, rawMomentDate) => {
-  console.log("getAggregateDocRefs > rawMomentDate:", rawMomentDate);
+  // console.log("getAggregateDocRefs > rawMomentDate:", rawMomentDate);
   let momentDateObject = rawMomentDate;
   if (typeof momentDateObject === "string") {
     momentDateObject = JSON.parse(rawMomentDate);
@@ -64,7 +64,7 @@ const getAggregateDocRefs = async (userDocRef, rawMomentDate) => {
     momentDateObject.seconds,
     momentDateObject.nanoseconds,
   );
-  console.log("getAggregateDocRefs > momentTs:", momentTs);
+  // console.log("getAggregateDocRefs > momentTs:", momentTs);
   const momentDate = momentTs.toDate();
   const momentYear = momentDate.getFullYear().toString();
   const momentMonth = momentDate.getMonth() + 1;

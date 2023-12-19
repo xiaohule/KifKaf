@@ -99,14 +99,9 @@ function validateDeleteMomentRequest(req, res, next) {
   next();
 }
 
-function validateComputeInsightsRequest(req, res, next) {
-  next();
-}
-
 module.exports = {
   validateAddMomentRequest,
   validateDeleteMomentRequest,
-  validateComputeInsightsRequest,
   lockId,
   unlockId,
   isIdLocked,

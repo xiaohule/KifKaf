@@ -168,7 +168,7 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
     // TRIGGER COMPUTE INSIGHTS IF NEEDED
     try {
       // "http://localhost:3000/api/learn/compute-insights/",
-      console.log("process.env.API_URL", process.env.API_URL);
+      // console.log("process.env.API_URL", process.env.API_URL);
       const computeInsightsResponse = await axios.post(
         `/api/learn/compute-insights/`,
         {
@@ -181,10 +181,10 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
           },
         },
       );
-      console.log(
-        "In addMoment > computeInsightsResponse:",
-        computeInsightsResponse.data,
-      );
+      // console.log(
+      //   "In addMoment > computeInsightsResponse:",
+      //   computeInsightsResponse.data,
+      // );
     } catch (computeInsightsError) {
       // Log the error, but do not send a response because a response has already been sent
       console.error(
