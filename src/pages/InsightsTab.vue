@@ -16,16 +16,14 @@
             'bg-surface',
             'q-px-md',
             'rounded-borders-14',
-            'q-pt-md',
-            'q-pb-lg',
+            'q-py-md',
             ms.dateRanges.length < 2 ? '' : 'marginBottom32px',
           ]">
             <div class="text-subtitle2
  text-outline text-weight-regular q-pb-md">A quick peek at someone amazing</div>
             <div
               v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
-              style="min-height: 0px;">
-              {{ ms.aggDataInsights[ms.activeDateRange].summary }}
+              style="min-height: 0px;" v-html="ms.aggDataInsights[ms.activeDateRange].summary">
             </div>
             <div v-else-if="!ms.getHasNeeds" style="min-height: 0px;">
               <!-- No summary available for this period. -->
@@ -78,7 +76,7 @@
             'q-px-md',
             'rounded-borders-14',
             'q-pt-md',
-            ms.needsToggleModel === 'top' ? 'q-pb-lg' : '',
+            ms.needsToggleModel === 'top' ? 'q-pb-md' : '',
             ms.dateRanges.length < 2 ? '' : 'marginBottom32px',
           ]">
             <div class="text-subtitle2
@@ -152,8 +150,7 @@
             'bg-surface',
             'q-px-md',
             'rounded-borders-14',
-            'q-pt-md',
-            'q-pb-lg',
+            'q-py-md',
             ms.dateRanges.length < 2 ? '' : 'marginBottom32px',
           ]">
             <div class="text-subtitle2
@@ -203,7 +200,7 @@
       <div class="q-mb-sm text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date) }}...
       </div>
 
-      <q-card flat class="bg-surface q-px-md rounded-borders-14 q-pt-md q-pb-lg">
+      <q-card flat class="bg-surface q-px-md rounded-borders-14 q-py-md">
         <div clickable v-ripple class="q-px-none" style="min-height: 0px;"
           @click="momentModalId = revisitMomentId; momentModalOpened = true">
 

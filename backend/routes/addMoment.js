@@ -145,7 +145,6 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
         momentDocRef,
         momentNeedsData,
       );
-      unlockId(req.body.momentId);
     } catch (error) {
       console.error(error);
       unlockId(req.body.momentId);
@@ -159,6 +158,7 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
     }
 
     // SEND SUCCESS RESPONSE IMMEDIATELY
+    unlockId(req.body.momentId);
     res.status(200).json({
       message: "In addMoment > Successful update of moment needs and aggData",
       moment: req.body.momentText,
@@ -166,34 +166,19 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
     });
 
     // TRIGGER COMPUTE INSIGHTS IF NEEDED
-    try {
-      // "http://localhost:3000/api/learn/compute-insights/",
-      // console.log("process.env.API_URL", process.env.API_URL);
-      const computeInsightsResponse = await axios.post(
-        `/api/learn/compute-insights/`,
-        {
-          threshold: 3,
-          origin: "addMoment",
+    // console.log("process.env.API_URL", process.env.API_URL);
+    await axios.post(
+      `/api/learn/compute-insights/`,
+      {
+        threshold: 3,
+        origin: "addMoment",
+      },
+      {
+        headers: {
+          authorization: req.headers.authorization,
         },
-        {
-          headers: {
-            authorization: req.headers.authorization,
-          },
-        },
-      );
-      // console.log(
-      //   "In addMoment > computeInsightsResponse:",
-      //   computeInsightsResponse.data,
-      // );
-    } catch (computeInsightsError) {
-      // Log the error, but do not send a response because a response has already been sent
-      console.error(
-        "In addMoment > Error in compute insights triggered by mom",
-        req.body,
-        // "computeInsightsError=",
-        // computeInsightsError,
-      );
-    }
+      },
+    );
   } catch (error) {
     // If an error occurs before the success response is sent, send a failure response
     console.error(error);

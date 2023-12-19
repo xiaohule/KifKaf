@@ -46,30 +46,36 @@ async function pollRunCompletion(
 }
 
 function parseJsonFromInsights(insightsString) {
-  // Regular expression to match JSON wrapped in triple backticks
-  const jsonRegex = /```json\n([\s\S]*?)\n```/;
-  const matches = insightsString.match(jsonRegex);
+  try {
+    // First, attempt to parse the string directly as JSON
+    return JSON.parse(insightsString);
+  } catch (error) {
+    // If direct parsing fails, try extracting JSON using the regular expression to match JSON wrapped in triple backticks
+    const jsonRegex = /```json\n([\s\S]*?)\n```/;
+    const matches = insightsString.match(jsonRegex);
 
-  if (matches && matches[1]) {
-    try {
-      // Parse the matched JSON string
-      return JSON.parse(matches[1]);
-    } catch (error) {
-      console.error("Error parsing JSON: ", error);
-      //STOP ROUTE FOR THIS PERIOD IF ERROR PARSING JSON
+    if (matches && matches[1]) {
+      try {
+        // Parse the matched JSON string
+        return JSON.parse(matches[1]);
+      } catch (parseError) {
+        console.error("Error parsing JSON: ", parseError);
+        //STOP ROUTE FOR THIS PERIOD IF ERROR PARSING JSON
+        throw new Error(
+          "In computeInsights > parseJsonFromInsights error with" +
+            insightsString +
+            ":" +
+            JSON.stringify(parseError),
+        );
+      }
+    } else {
+      console.error("No JSON found in the insights string.");
+      //STOP ROUTE FOR THIS PERIOD IF NO JSON FOUND
       throw new Error(
         "In computeInsights > parseJsonFromInsights error with" +
-          insightsString +
-          ":" +
-          JSON.stringify(error),
+          insightsString,
       );
     }
-  } else {
-    console.error("No JSON found in the insights string.");
-    //STOP ROUTE FOR THIS PERIOD IF NO JSON FOUND
-    throw new Error(
-      "In computeInsights > parseJsonFromInsights error with" + insightsString,
-    );
   }
 }
 
@@ -251,7 +257,12 @@ router.post("/compute-insights/", async (req, res) => {
 
         // DECIDE WHETHER TO RUN
         const messagesList = await openai.beta.threads.messages.list(threadId);
-        const nMessages = messagesList.data.length;
+        // const nMessages = messagesList.data.length;
+        //count user messages only
+        const nMessages = messagesList.data.filter(
+          (message) => message.role === "user",
+        ).length;
+
         console.log(
           "In computeInsights for uid",
           req.uid,
@@ -267,7 +278,7 @@ router.post("/compute-insights/", async (req, res) => {
         // RUN TRIGGERING
         if (nMessages >= threshold) {
           const run = await openai.beta.threads.runs.create(threadId, {
-            assistant_id: "asst_rcBnWZtThCU7wUxkbZt8d7O8",
+            assistant_id: "asst_tG10j9aoT8jhDMg2Vv80QbRq", //  "asst_rcBnWZtThCU7wUxkbZt8d7O8",
           });
 
           // RUN POLLING
@@ -316,9 +327,7 @@ router.post("/compute-insights/", async (req, res) => {
             key,
             " insightsObject:",
             insightsObject,
-            "based on adding the ",
-            nMessages,
-            " messages:",
+            "based on adding new message(s):",
             messages[key],
           );
 
