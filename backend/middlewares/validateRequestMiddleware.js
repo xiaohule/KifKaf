@@ -74,22 +74,9 @@ function validateAddMomentRequest(req, res, next) {
 }
 
 function validateDeleteMomentRequest(req, res, next) {
-  console.log(
-    "validateDeleteMomentRequest > req.body:",
-    req.body,
-    "req.body.momentArchive.needs:",
-    req.body.momentArchive.needs,
-  );
-  if (
-    !req.body.momentArchive.needs ||
-    req.body.momentArchive.needs.Oops ||
-    req.body.momentArchive.needs.error
-  ) {
+  if (!req.body.momentId) {
     return res.status(400).json({
-      message:
-        "Error: aborting agg data update following deletion of mom, bec. needs.Oops or needs.error",
-      moment: req.body.momentArchive,
-      momentId: req.body.momentId,
+      message: "Error: aborting delete-moment bec. no momentId in body",
     });
   }
 
@@ -112,14 +99,9 @@ function validateDeleteMomentRequest(req, res, next) {
   next();
 }
 
-function validateComputeInsightsRequest(req, res, next) {
-  next();
-}
-
 module.exports = {
   validateAddMomentRequest,
   validateDeleteMomentRequest,
-  validateComputeInsightsRequest,
   lockId,
   unlockId,
   isIdLocked,

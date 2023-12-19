@@ -42,6 +42,25 @@ import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useMomentsStore } from './../stores/moments.js'
 import { useRouter } from 'vue-router'
+import axios from "axios";
+import axiosRetry from "axios-retry";
+
+axiosRetry(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  onRetry: (retryCount, error, requestConfig) => {
+    console.log(
+      "In axiosRetry, retrying with retryCount:",
+      retryCount,
+      "err:",
+      error,
+      "requestConfig.url:",
+      requestConfig.url,
+      "requestConfig.data:",
+      requestConfig.data,
+    );
+  },
+});
 
 const $q = useQuasar()
 const router = useRouter()
@@ -76,8 +95,6 @@ const sendContactUsMessage = async () => {
   const senderEmail = ms?.user?.email ? ms.user.email : emailAddress.value
   const senderName = ms?.user?.displayName ? ms.user.displayName : "Unknown"
   try {
-    const axiosModule = await import('axios');
-    const axios = axiosModule.default;
     await axios.post('https://us-central1-kifkaf-d4850.cloudfunctions.net/sendEmail', {
       senderEmail: senderEmail,
       message: "Message sent by user " + senderName + "(" + senderEmail + ") : " + contactUsMessage.value

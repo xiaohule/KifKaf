@@ -4,6 +4,7 @@ const {
   generateNewRawData,
   generateNewDisplayData,
 } = require("./generateAggregateDataUtils");
+const { unlockId } = require("../middlewares/validateRequestMiddleware");
 
 const needsInitValues = {
   occurrenceCount: 0,
@@ -54,7 +55,7 @@ const initAggregateDoc = async (aggregateDocRef, type = "") => {
 };
 
 const getAggregateDocRefs = async (userDocRef, rawMomentDate) => {
-  console.log("getAggregateDocRefs > rawMomentDate:", rawMomentDate);
+  // console.log("getAggregateDocRefs > rawMomentDate:", rawMomentDate);
   let momentDateObject = rawMomentDate;
   if (typeof momentDateObject === "string") {
     momentDateObject = JSON.parse(rawMomentDate);
@@ -63,7 +64,7 @@ const getAggregateDocRefs = async (userDocRef, rawMomentDate) => {
     momentDateObject.seconds,
     momentDateObject.nanoseconds,
   );
-  console.log("getAggregateDocRefs > momentTs:", momentTs);
+  // console.log("getAggregateDocRefs > momentTs:", momentTs);
   const momentDate = momentTs.toDate();
   const momentYear = momentDate.getFullYear().toString();
   const momentMonth = momentDate.getMonth() + 1;
@@ -113,6 +114,20 @@ const persistNeedsData = async (
 
   //persist llm data in firestore
   await db.runTransaction(async (t) => {
+    const momentDoc = await t.get(momentDocRef);
+
+    //if either the moment doc doesn't exist or the moment needs already contains some values, abort the transaction
+    if (!momentDoc.exists || Object.keys(momentDoc.data().needs).length > 0) {
+      throw new Error(
+        "In addMoment > persistNeedsDataSuccessPathUtils aborting persistNeedsData bec. either momentDoc doesn't exist or momentDoc.data().needs already filled" +
+          JSON.stringify(req.body) +
+          " here is momentDoc.exists: " +
+          momentDoc.exists +
+          " and here is momentDoc.data().needs: " +
+          momentDoc.data().needs,
+      );
+    }
+
     const aggregateYearlyRawDoc = await t.get(aggregateYearlyRawDocRef);
     const aggregateMonthlyRawDoc = await t.get(aggregateMonthlyRawDocRef);
 
@@ -130,24 +145,23 @@ const persistNeedsData = async (
 
     // console.log("In transaction before update, newYearlyDisplayData", newYearlyDisplayData);
     //update aggregate docs
-    t.update(aggregateYearlyRawDocRef, newYearlyRawData);
-    t.update(aggregateMonthlyRawDocRef, newMonthlyRawData);
-    t.update(aggregateYearlyDocRef, newYearlyDisplayData);
-    t.update(aggregateMonthlyDocRef, newMonthlyDisplayData);
+    await t.update(aggregateYearlyRawDocRef, newYearlyRawData);
+    await t.update(aggregateMonthlyRawDocRef, newMonthlyRawData);
+    await t.update(aggregateYearlyDocRef, newYearlyDisplayData);
+    await t.update(aggregateMonthlyDocRef, newMonthlyDisplayData);
 
-    t.update(momentDocRef, { needs: momentNeedsData });
-    t.update(userDocRef, { hasNeeds: true });
+    await t.update(momentDocRef, { needs: momentNeedsData });
+    await t.update(userDocRef, { hasNeeds: true });
     //TODO:2 for more safety of the data we could check if the moment needs were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
+    console.log(
+      "Transaction success for ",
+      req.body,
+      "docs updated: ",
+      //keep only the last two part of the path
+      aggregateYearlyDocRef.path.split("/").slice(-2).join("/"),
+      aggregateMonthlyDocRef.path.split("/").slice(-2).join("/"),
+    );
   });
-
-  console.log(
-    "Transaction success for ",
-    req.body,
-    "docs updated: ",
-    //keep only the last two part of the path
-    aggregateYearlyDocRef.path.split("/").slice(-2).join("/"),
-    aggregateMonthlyDocRef.path.split("/").slice(-2).join("/"),
-  );
 };
 
 module.exports = {
