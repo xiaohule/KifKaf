@@ -6,18 +6,22 @@ body {
   border-radius: 14px;
 }
 
-* {
+input,
+textarea {
+  user-select: text; /* Allow text selection */
+}
+
+.selectable-text {
+  user-select: text; /* Class to make text selectable */
+}
+
+.native-mobile {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
   -moz-user-select: none; /* Old versions of Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera, and Firefox */
-}
-
-input,
-textarea {
-  user-select: text; /* Allow text selection */
 }
 
 .q-notifications__list--bottom {
@@ -37,6 +41,13 @@ textarea {
   border-top-left-radius: 14px;
 }
 
+body.q-ios-padding .q-dialog__inner {
+  padding-bottom: 0 !important;
+  // padding-top: -10 !important;
+  // padding-top: constant(safe-area-inset-top) // for iOS 11.0
+  // padding-top: env(safe-area-inset-top); // for iOS 11.2 +
+}
+
 // .q-dialog__inner--bottom {
 //   padding-bottom: 0 !important;
 // }
@@ -50,10 +61,3 @@ textarea {
 //   padding-top: 0 !important;
 //   padding-bottom: 0 !important;
 // }
-
-body.q-ios-padding .q-dialog__inner {
-  padding-bottom: 0 !important;
-  // padding-top: -10 !important;
-  // padding-top: constant(safe-area-inset-top) // for iOS 11.0
-  // padding-top: env(safe-area-inset-top); // for iOS 11.2 +
-}

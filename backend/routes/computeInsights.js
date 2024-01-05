@@ -18,8 +18,8 @@ async function pollRunCompletion(
   key,
   threadId,
   runId,
-  interval = 5000,
-  maxAttempts = 20,
+  interval = 2000,
+  maxAttempts = 100,
 ) {
   let attempts = 0;
   while (attempts < maxAttempts) {
@@ -82,7 +82,7 @@ function parseJsonFromInsights(insightsString) {
 async function waitForLockRelease(
   uid,
   lockName,
-  interval = 5000,
+  interval = 2000,
   maxRetries = 20,
 ) {
   let retries = 0;
@@ -223,6 +223,12 @@ router.post("/compute-insights/", async (req, res) => {
           const defaultStructure = {
             threadId: threadId,
             nSuccessRun: 0,
+            isNew: {
+              summary: false,
+              quote: false,
+              book: false,
+              suggestions: false,
+            },
             summary: "",
             quote: { text: "", author: "", why: "" },
             book: { title: "", author: "", why: "" },
@@ -348,6 +354,12 @@ router.post("/compute-insights/", async (req, res) => {
           //persist insights data in firestore in aggregateMonthlyInsightsDoc.insights
           await aggregateMonthlyInsightsDocRef.update({
             nSuccessRun: FieldValue.increment(1),
+            isNew: {
+              summary: true,
+              quote: true,
+              book: true,
+              suggestions: true,
+            },
             ...insightsObject,
             lastUpdate: FieldValue.serverTimestamp(),
           });

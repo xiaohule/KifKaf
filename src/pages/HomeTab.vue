@@ -81,7 +81,7 @@
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
                 <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
               </q-item-section>
-              <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
+              <q-item-section class="selectable-text text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
               }}</q-item-section>
             </q-item>
             <q-item v-if="moment.needs && (moment.needs.error || moment.needs.Oops)" class="q-px-xs q-pt-none q-pb-xs"
@@ -100,8 +100,6 @@
           </div>
         </q-card>
       </div>
-      <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
-        :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-pa-lg text-center" flat>
@@ -112,6 +110,9 @@
       </q-card>
     </q-dialog>
   </q-page>
+
+  <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
+    :expected-llm-call-duration="expectedLlmCallDuration" />
 </template>
 
 <script setup>
@@ -149,6 +150,9 @@ onMounted(async () => {
     }
     if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
     momsWithScrolledNeeds.value = {};
+    if (!ms.aggregateDataFetched) {
+      await ms.fetchAggregateData();
+    }
   } catch (error) {
     console.error('await ms.fetchMoments() error:', error);
   }

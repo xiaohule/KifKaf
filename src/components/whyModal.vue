@@ -1,7 +1,8 @@
 <template>
   <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event.target)" position="bottom"
     style="max-width: 600px">
-    <q-card class="bg-background q-px-sm" flat v-touch-swipe.mouse.down="(event) => { needsInfoOpened = false }">
+    <q-card class="bg-background q-px-sm" flat
+      v-touch-swipe.mouse.down="(event) => { $emit('update:modelValue', false) }">
 
       <div>
         <q-card-section class="text-h6 text-weight-medium"> {{ modalTitle }}
@@ -35,7 +36,6 @@ import { useMomentsStore } from './../stores/moments.js'
 import { inspirationalQuotes } from "../utils/quoteUtils.js";
 
 const ms = useMomentsStore()
-// const modalTitle = ref("")
 const originalText = ref("")
 const author = ref("")
 const whyText = ref("")

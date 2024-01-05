@@ -34,6 +34,7 @@ const {
 } = date;
 import { useDateUtils } from "../composables/dateUtils.js";
 import { inspirationalQuotes } from "../utils/quoteUtils.js";
+import { useRouter } from "vue-router";
 
 axiosRetry(axios, {
   retries: 3,
@@ -61,8 +62,10 @@ export const useMomentsStore = defineStore("moments", () => {
     getDatePickerLabel,
     monthDateRangeToDate,
   } = useDateUtils();
+  const router = useRouter();
   const user = currentUser;
   const userDocRef = ref(null);
+  const aggMonthlyCollRef = ref(null);
   const momentsCollRef = ref(null);
   const userDoc = ref(null);
   const momentsColl = ref([]);
@@ -73,8 +76,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateDataFetched = ref(false);
   const shouldResetSwiper = ref(false);
   const donutSegmentClicked = ref(null);
-
-  const insightsInitialized = ref(false);
+  const firstOnSnapshotDone = ref(false);
   const needsToggleModel = ref("top");
   const activeIndex = ref(null);
   const segDateId = ref("Monthly");
@@ -202,7 +204,6 @@ export const useMomentsStore = defineStore("moments", () => {
   watch(
     dateRangesMonths,
     (newValue, oldValue) => {
-      // && !insightsInitialized.value
       if (
         segDateId.value === "Monthly" &&
         oldValue?.length !== newValue?.length &&
@@ -219,7 +220,6 @@ export const useMomentsStore = defineStore("moments", () => {
           newValue.length - 1,
         );
         activeIndex.value = newValue.length - 1;
-        // insightsInitialized.value = true; //block the first update of activeIndex to the last index once done once, to avoid swiping just bec. new add data
       }
     },
     { immediate: true },
@@ -250,14 +250,12 @@ export const useMomentsStore = defineStore("moments", () => {
   watch(
     dateRangesYears,
     (newValue, oldValue) => {
-      // && !insightsInitialized.value
       if (
         segDateId.value === "Yearly" &&
         oldValue?.length !== newValue?.length &&
         activeIndex.value !== newValue.length - 1
       ) {
         activeIndex.value = newValue.length - 1;
-        // insightsInitialized.value = true;
       }
     },
     { immediate: true },
@@ -332,12 +330,7 @@ export const useMomentsStore = defineStore("moments", () => {
       // Check if user doc exists, if not create & initialize it, BEWARE this way of doing means that if we add new field to the user doc data model a script/manual update should be run to add it to existing users (but it's better than the alternative of transactional write for offline)
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       momentsCollRef.value = collection(userDocRef.value, "moments");
-      const defaultUserDocValues = {
-        deviceLanguage: "en-US",
-        hasNeeds: false,
-        welcomeTutorialStep: 0,
-        showWelcomeTutorial: true,
-      };
+
       try {
         const userDocCheck = await getDoc(userDocRef.value);
         if (
@@ -347,6 +340,13 @@ export const useMomentsStore = defineStore("moments", () => {
           console.log(
             "In moments.js > fetchUser, User doc not initialized, initializing it",
           );
+          const defaultUserDocValues = {
+            deviceLanguage: "en-US",
+            hasNeeds: false,
+            welcomeTutorialStep: 0,
+            showWelcomeTutorial: true,
+            showInsightsBadge: false,
+          };
           await setDoc(userDocRef.value, defaultUserDocValues, {
             merge: true,
           });
@@ -774,7 +774,7 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       const aggYearlyCollRef = collection(userDocRef.value, "aggregateYearly");
-      const aggMonthlyCollRef = collection(
+      aggMonthlyCollRef.value = collection(
         userDocRef.value,
         "aggregateMonthly",
       );
@@ -784,7 +784,7 @@ export const useMomentsStore = defineStore("moments", () => {
         aggDataNeeds.value[currentYear.value] = doc.data();
       });
 
-      onSnapshot(doc(aggMonthlyCollRef, currentYYYYdMM.value), (doc) => {
+      onSnapshot(doc(aggMonthlyCollRef.value, currentYYYYdMM.value), (doc) => {
         aggDataNeeds.value[currentYYYYdMM.value] = doc.data();
       });
 
@@ -798,7 +798,7 @@ export const useMomentsStore = defineStore("moments", () => {
         });
       });
 
-      getDocs(aggMonthlyCollRef).then((querySnapshot) => {
+      getDocs(aggMonthlyCollRef.value).then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           if (doc.id.length === 7 && doc.id !== currentYYYYdMM.value) {
             aggDataNeeds.value[doc.id] = doc.data();
@@ -815,9 +815,27 @@ export const useMomentsStore = defineStore("moments", () => {
       );
 
       onSnapshot(
-        doc(aggMonthlyCollRef, `${currentYYYYdMM.value}-insights`),
-        (doc) => {
-          aggDataInsights.value[currentYYYYdMM.value] = doc.data();
+        doc(aggMonthlyCollRef.value, `${currentYYYYdMM.value}-insights`),
+        async (snapshot) => {
+          aggDataInsights.value[currentYYYYdMM.value] = snapshot.data();
+          console.log(
+            "In moments.js onSnapshot aggDataNeeds.value[currentYYYYdMM.value] just ran:",
+            aggDataNeeds.value[currentYYYYdMM.value],
+            "with firstOnSnapshotDone.value:",
+            firstOnSnapshotDone.value,
+            "and showInsightsBadge:",
+            userDoc.value.showInsightsBadge,
+          );
+          if (!firstOnSnapshotDone.value) firstOnSnapshotDone.value = true;
+          //add condition that user is not on Insights tab to avoid triggering the badge when user is already on Insights tab
+          else if (
+            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.summary ||
+            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.suggestions
+          ) {
+            await setUserDocValue({
+              showInsightsBadge: router.currentRoute.value.path !== "/insights",
+            });
+          }
         },
       );
 
@@ -832,7 +850,7 @@ export const useMomentsStore = defineStore("moments", () => {
         });
       });
 
-      getDocs(aggMonthlyCollRef).then((querySnapshot) => {
+      getDocs(aggMonthlyCollRef.value).then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           if (
             doc.id.endsWith("-insights") &&
@@ -892,8 +910,34 @@ export const useMomentsStore = defineStore("moments", () => {
       );
     }
   };
+
+  const setAggDataInsightsValue = async (YYYYdMM, value) => {
+    console.log("In moment.js > setAggDataInsights for value", value);
+    try {
+      if (!aggregateDataFetched.value) {
+        await fetchAggregateData();
+      }
+      await setDoc(
+        doc(aggMonthlyCollRef.value, `${YYYYdMM}-insights`),
+        { ...value },
+        { merge: true },
+      );
+    } catch (error) {
+      console.log(
+        "In moment.js > Error in setAggDataInsights for value",
+        value,
+        ",error:",
+        error,
+      );
+    }
+  };
+
   const getRevisitMoment = computed(() => {
     return userDoc?.value?.revisitMoment ?? false;
+  });
+
+  const getShowInsightsBadge = computed(() => {
+    return userDoc?.value?.showInsightsBadge ?? false;
   });
 
   const getRandomMomentIdOfTheDay = async (
@@ -1000,7 +1044,6 @@ export const useMomentsStore = defineStore("moments", () => {
     aggregateDataFetched.value = false;
     shouldResetSwiper.value = false;
     donutSegmentClicked.value = null;
-    insightsInitialized.value = false;
     needsToggleModel.value = "top";
     activeIndex.value = null;
     segDateId.value = "Monthly";
@@ -1038,6 +1081,7 @@ export const useMomentsStore = defineStore("moments", () => {
     aggDataNeeds,
     aggDataInsights,
     getDateRangeOkNeedsCounts,
+    getShowInsightsBadge,
     setWelcomeTutorialStep,
     setShowWelcomeTutorial,
     addMoment,
@@ -1053,6 +1097,8 @@ export const useMomentsStore = defineStore("moments", () => {
     getSortedMomsFromDayAndNeed,
     getRandomMomentIdOfTheDay,
     getPlaceholderQuoteOfTheDayId,
+    setUserDocValue,
+    setAggDataInsightsValue,
     $reset,
   };
 });

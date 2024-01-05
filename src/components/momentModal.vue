@@ -26,23 +26,25 @@
           <div class="text-weight-medium text-primary col-auto">Edit</div> -->
           </q-card-section>
           <q-card-section class="q-px-none q-py-sm">
-            <div class="">{{ moment.text }}</div>
+            <div class="selectable-text">{{ moment.text }}</div>
           </q-card-section>
         </q-card>
 
         <q-card class="bg-surface q-mb-md q-px-md q-py-md" style="border-radius: 14px" flat>
-          <q-card-section horizontal class="q-px-none">
+          <!-- <q-card-section horizontal class="q-px-none">
             <div class="text-weight-medium text-outline col">Needs<q-btn flat color="primary" icon="o_info" dense
-                size="10px" @click="needsInfoOpened = true" /></div>
-
-            <!-- <q-card-actions vertical class="col-auto q-pa-none">
-            <q-btn flat color="primary" icon="edit" dense size="sm" />
-          </q-card-actions>
-          <div class="text-weight-medium text-primary col-auto">Edit</div> -->
-          </q-card-section>
+                size="10px" @click="learnMoreModalSection = 'momentNeeds'; learnMoreModalOpened = true" /></div>
+          </q-card-section> -->
+          <q-item class="q-px-none q-py-none" style="min-height: 0px;">
+            <q-item-section class="text-weight-medium text-outline">Needs</q-item-section>
+            <q-item-section side class="text-subtitle2 text-weight-medium text-primary"
+              @click="learnMoreModalSection = 'momentNeeds'; learnMoreModalOpened = true">
+              Learn more
+            </q-item-section>
+          </q-item>
 
           <q-card-section v-if="moment.needs && (moment.needs.error || moment.needs.Oops)"
-            class="q-px-none q-py-sm text-error" style="min-height: 0px;">
+            class="selectable-text q-px-none q-py-sm text-error" style="min-height: 0px;">
             {{ "Oops: " + (moment.needs.error ||
               moment.needs.Oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
             <!-- add the "+" for manually adding needs -->
@@ -81,47 +83,6 @@
       </div>
     </q-card>
 
-    <q-dialog v-model="needsInfoOpened" position="bottom" style="max-width: 600px">
-      <q-card class="bg-background q-px-sm" flat v-touch-swipe.mouse.down="(event) => { needsInfoOpened = false }">
-
-        <q-card-section class="text-h6 text-weight-medium">Moment's needs
-        </q-card-section>
-
-        <q-card-section class="q-py-xs text-outline">These are the needs related to your moment picked from our list of
-          Universal Human Needs. <br><br>The full list is composed of:<br>
-
-          <q-list>
-            <q-expansion-item v-for="categ in Object.entries(needsCategories)" :key="categ[0]" group="needsCategories"
-              header-class="q-px-none">
-              <template v-slot:header>
-                <q-item-section avatar>
-                  <q-avatar :icon="categ[1][0]" :color="categ[1][1]" text-color="background">
-                  </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  {{ categ[0] }} needs </q-item-section>
-              </template>
-
-              <q-card class="bg-background q-pa-none">
-                <q-card-section class="q-pa-none">
-                  <!-- [["Physical Well-Being", ["🛡️", "Physiological & Safety"]],
-  ["Sustenance & Nourishment", ["🍎", "Physiological & Safety"]],
-  // ... (and so on for each entry in the needsMap)] -->
-                  <q-chip v-for="need in Object.entries(needsMap).filter(need => need[1][1] === categ[0])" :key="need[0]"
-                    outline :icon="need[1][0]" color="outline" :label="need[0]" class="needs" />
-                </q-card-section>
-              </q-card>
-            </q-expansion-item>
-          </q-list>
-        </q-card-section>
-
-        <q-card-actions align="center">
-          <q-btn rounded color="primary" padding="md md" @click="needsInfoOpened = false" class="text-body1 text-weight-medium
-q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
     <q-dialog v-model="deleteDialogOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-px-sm q-pt-sm q-pb-lg" flat
         v-touch-swipe.mouse.down="(event) => { deleteDialogOpened = false }">
@@ -139,22 +100,26 @@ q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
-
   </q-dialog>
+
+  <learn-more-modal v-model="learnMoreModalOpened" :section="learnMoreModalSection" />
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
-import { needsMap, needsCategories, getChipColor } from "./../utils/needsUtils";
+import { needsMap, getChipColor } from "./../utils/needsUtils";
 import { useDateUtils } from '../composables/dateUtils.js'
+import learnMoreModal from 'src/components/learnMoreModal.vue'
 
 const ms = useMomentsStore()
-const moment = ref(null)
-const needsInfoOpened = ref(false)
-const deleteDialogOpened = ref(false)
 const { formatDayForMomList } = useDateUtils()
+
+const moment = ref(null)
+const deleteDialogOpened = ref(false)
+const learnMoreModalOpened = ref(false)
+const learnMoreModalSection = ref("")
 
 const props = defineProps({
   modelValue: {
