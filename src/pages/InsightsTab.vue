@@ -35,7 +35,7 @@
                 v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
                 style="min-height: 0px;" v-html="ms.aggDataInsights[ms.activeDateRange].summary">
               </div>
-              <div v-else-if="!ms.getHasNeeds" style="min-height: 0px;">
+              <div v-else-if="!ms.userDoc.hasNeeds" style="min-height: 0px;">
                 <!-- No summary available for this period. -->
                 👉 3 Moments a month will bring your summary to life.
               </div>
@@ -135,7 +135,7 @@
             ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">by {{
     ms.aggDataInsights[ms.activeDateRange].book.author }}</span>
         </q-item-section>
-        <q-item-section class="selectable-text" v-else-if="!ms.getHasNeeds"><span>👉 Log 3 Moments to start getting
+        <q-item-section class="selectable-text" v-else-if="!ms.userDoc.hasNeeds"><span>👉 Log 3 Moments to start getting
             reading recommendations
             curated for your growth.
           </span>
@@ -210,7 +210,7 @@
                 {{ suggestion }}
               </q-item>
             </q-list>
-            <div v-else-if="!ms.getHasNeeds" style="min-height: 0px;">
+            <div v-else-if="!ms.userDoc.hasNeeds" style="min-height: 0px;">
               <!-- No summary available for this period. -->
               👉 3 Moments a month will bring your suggestions to life.
             </div>

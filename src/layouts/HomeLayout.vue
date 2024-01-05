@@ -35,7 +35,7 @@
           data-cy="home-home-tab" />
         <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/insights" class="q-pt-xs q-pb-lg"
           data-cy="home-insights-tab" @click="ms.setUserDocValue({ showInsightsBadge: false })">
-          <q-badge v-show="ms.getShowInsightsBadge" color="red" rounded floating />
+          <q-badge v-show="ms.userDoc?.showInsightsBadge" color="red" rounded floating />
         </q-route-tab>
         <!-- ou stats ou needs ou learn -->
         <!-- re-add tabs when ready -->

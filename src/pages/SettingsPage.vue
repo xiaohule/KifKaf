@@ -299,8 +299,8 @@ onMounted(async () => {
       await ms.fetchUser();
     }
     console.log("In SettingsPage > onMounted before pickedLang setting, currently set at:", pickedLanguage.value);
-    pickedLanguage.value = ms.getSpeechRecoLanguage ||
-      ms.getDeviceLanguage ||
+    pickedLanguage.value = ms.userDoc.speechRecoLanguage ||
+      ms.userDoc.deviceLanguage ||
       "en-US";
     console.log("In SettingsPage > onMounted pickedLanguage set at:", pickedLanguage.value);
   } catch (error) {
@@ -404,9 +404,9 @@ const updateSetting = async () => {
   //TODO:2 disable Save button when no change were made and when one validation is not passed
 }
 
-watch(pickedLanguage, (newVal, oldVal) => {
+watch(pickedLanguage, async (newVal, oldVal) => {
   console.log("In SettingsPage, pickedLanguage changed from", oldVal, "to", newVal);
-  ms?.setSpeechRecoLanguage(newVal);
+  await ms?.setUserDocValue({ speechRecoLanguage });
 })
 
 const logOut = async () => {

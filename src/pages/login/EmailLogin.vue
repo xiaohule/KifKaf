@@ -309,7 +309,7 @@ const continueWithApple = async () => {
   if (isOffline()) return
   try {
     const authorizationCode = await signInWithApple();
-    ms.setAuthorizationCode(authorizationCode)
+    await ms.setUserDocValue({ authorizationCode })
   } catch (error) {
     console.error(error);
   }

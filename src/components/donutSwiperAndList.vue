@@ -65,7 +65,7 @@
 
     <div v-else class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat>
       <!-- system not ready or no need ever recorded -->
-      <div v-if="!ms || !ms.getHasNeeds">
+      <div v-if="!ms || !ms.userDoc.hasNeeds">
         <!-- Add Moments in the Home tab to learn more about your needs! -->
         <div v-if="ms.needsToggleModel == 'satisfaction'">
           Log Moments to discover the needs from which you get the most satisfaction!

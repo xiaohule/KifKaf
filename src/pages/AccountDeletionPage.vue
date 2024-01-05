@@ -135,7 +135,7 @@ const handleOnline = async () => {
 
     console.log("in AccountDeletionPage, fetchedSignInMethods:", fetchedSignInMethods);
     if (fetchedSignInMethods.includes("apple.com")) {
-      const authorizationCode = ms.getAuthorizationCode;
+      const authorizationCode = ms.userDoc.authorizationCode;
       if (authorizationCode) {
         console.log("in AccountDeletionPage, attempting to revoke apple tokens, authorizationCode:", authorizationCode);
         await revokeAppleTokens(authorizationCode);

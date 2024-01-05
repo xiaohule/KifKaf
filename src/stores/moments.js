@@ -355,8 +355,8 @@ export const useMomentsStore = defineStore("moments", () => {
         console.log("In moments.js > fetchUser, getDoc failed: ", error);
       }
 
-      onSnapshot(userDocRef.value, (doc) => {
-        userDoc.value = doc.data();
+      onSnapshot(userDocRef.value, (snapshot) => {
+        userDoc.value = snapshot.data();
       });
 
       userFetched.value = true;
@@ -393,106 +393,6 @@ export const useMomentsStore = defineStore("moments", () => {
       console.log("Error in updateUser: ", error);
     }
   };
-
-  const getDeviceLanguage = computed(() => {
-    return userDoc?.value?.deviceLanguage ?? false;
-  });
-
-  const getHasNeeds = computed(() => {
-    return userDoc?.value?.hasNeeds ?? false;
-  });
-
-  const setAuthorizationCode = async (authorizationCode) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setAuthorizationCode: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-
-      await setDoc(userDocRef.value, { authorizationCode }, { merge: true });
-    } catch (error) {
-      console.log("Error in setAuthorizationCode", error);
-    }
-  };
-  const getAuthorizationCode = computed(() => {
-    return userDoc?.value?.authorizationCode ?? false;
-  });
-
-  const setSpeechRecoLanguage = async (speechRecoLanguage) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setSpeechRecoLanguage: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-
-      await setDoc(userDocRef.value, { speechRecoLanguage }, { merge: true });
-    } catch (error) {
-      console.log("Error in setSpeechRecoLanguage", error);
-    }
-  };
-  const getSpeechRecoLanguage = computed(() => {
-    return userDoc?.value?.speechRecoLanguage ?? false;
-  });
-
-  const setSignInMethods = async (signInMethods) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setSignInMethods: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-
-      await setDoc(userDocRef.value, { signInMethods }, { merge: true });
-    } catch (error) {
-      console.log("Error in setSignInMethods", error);
-    }
-  };
-  const getSignInMethods = computed(() => {
-    return userDoc?.value?.signInMethods ?? false;
-  });
-
-  const setShowWelcomeTutorial = async (showWelcomeTutorial) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js >setShowWelcomeTutorial: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-      console.log(
-        "In setShowWelcomeTutorial, showWelcomeTutorial:",
-        showWelcomeTutorial,
-      );
-      await setDoc(userDocRef.value, { showWelcomeTutorial }, { merge: true });
-    } catch (error) {
-      console.log("Error in setShowWelcomeTutorial", error);
-    }
-  };
-  const getShowWelcomeTutorial = computed(() => {
-    return userDoc?.value?.showWelcomeTutorial ?? false;
-  });
-
-  const setWelcomeTutorialStep = async (welcomeTutorialStep) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setWelcomeTutorialStep: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-      await setDoc(userDocRef.value, { welcomeTutorialStep }, { merge: true });
-    } catch (error) {
-      console.log("Error in setWelcomeTutorialStep", error);
-    }
-  };
-  const getWelcomeTutorialStep = computed(() => {
-    return userDoc?.value?.welcomeTutorialStep ?? false;
-  });
 
   const getDateRangeOkNeedsCounts = computed(() => {
     if (!momentsFetched.value) {
@@ -637,8 +537,11 @@ export const useMomentsStore = defineStore("moments", () => {
         );
       }
 
-      if (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
-        await setWelcomeTutorialStep(1);
+      if (
+        !userDoc.value.welcomeTutorialStep ||
+        userDoc.value.welcomeTutorialStep === 0
+      )
+        await setUserDocValue({ welcomeTutorialStep: 1 });
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the previous await are resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
@@ -723,8 +626,8 @@ export const useMomentsStore = defineStore("moments", () => {
           await fetchMoments();
         }
 
-        onSnapshot(doc(momentsCollRef.value, momentId), (doc) => {
-          momentRef.value = doc.data();
+        onSnapshot(doc(momentsCollRef.value, momentId), (snapshot) => {
+          momentRef.value = snapshot.data();
         });
       } catch (error) {
         console.log("Error in getMomentById", error);
@@ -735,7 +638,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const getLatestMomWithNeedsId = computed(() => {
     if (
       !momentsFetched.value ||
-      !getHasNeeds.value || // return null if user has no needs to block welcome tuto button "View needs"
+      !userDoc.value.hasNeeds || // return null if user has no needs to block welcome tuto button "View needs"
       !momentsCollLength.value
     ) {
       return;
@@ -780,13 +683,16 @@ export const useMomentsStore = defineStore("moments", () => {
       );
 
       //AGGDATANEEDS
-      onSnapshot(doc(aggYearlyCollRef, currentYear.value), (doc) => {
-        aggDataNeeds.value[currentYear.value] = doc.data();
+      onSnapshot(doc(aggYearlyCollRef, currentYear.value), (snapshot) => {
+        aggDataNeeds.value[currentYear.value] = snapshot.data();
       });
 
-      onSnapshot(doc(aggMonthlyCollRef.value, currentYYYYdMM.value), (doc) => {
-        aggDataNeeds.value[currentYYYYdMM.value] = doc.data();
-      });
+      onSnapshot(
+        doc(aggMonthlyCollRef.value, currentYYYYdMM.value),
+        (snapshot) => {
+          aggDataNeeds.value[currentYYYYdMM.value] = snapshot.data();
+        },
+      );
 
       //TODO:2 first try getDocsFromCache, if fails then getDocsFromServer
       getDocs(aggYearlyCollRef).then((querySnapshot) => {
@@ -809,8 +715,8 @@ export const useMomentsStore = defineStore("moments", () => {
       //AGGDATAINSIGHTS
       onSnapshot(
         doc(aggYearlyCollRef, `${currentYear.value}-insights`),
-        (doc) => {
-          aggDataInsights.value[currentYear.value] = doc.data();
+        (snapshot) => {
+          aggDataInsights.value[currentYear.value] = snapshot.data();
         },
       );
 
@@ -893,7 +799,6 @@ export const useMomentsStore = defineStore("moments", () => {
     return moms?.sort((a, b) => b.date.seconds - a.date.seconds);
   };
 
-  //TODO:5 replace other setDoc with this one
   const setUserDocValue = async (value) => {
     console.log("In moment.js > setUserDocValue for value", value);
     try {
@@ -932,34 +837,30 @@ export const useMomentsStore = defineStore("moments", () => {
     }
   };
 
-  const getRevisitMoment = computed(() => {
-    return userDoc?.value?.revisitMoment ?? false;
-  });
-
-  const getShowInsightsBadge = computed(() => {
-    return userDoc?.value?.showInsightsBadge ?? false;
-  });
-
   const getRandomMomentIdOfTheDay = async (
     mood = "happy",
     atLeastWeeks = 3,
   ) => {
     // Check if today's date is different from the last revisit date
     // console.log(
-    //   "In moments.js > getRandomMomentIdOfTheDay, getRevisitMoment.value:",
-    //   getRevisitMoment.value,
+    //   "In moments.js > getRandomMomentIdOfTheDay, userDoc.value.revisitMoment:",
+    //   userDoc.value.revisitMoment,
     //   "currentDate.value:",
     //   currentDate.value,
     // );
     if (
-      getRevisitMoment.value &&
-      isSameDate(getRevisitMoment.value.date.toDate(), currentDate.value, "day")
+      userDoc.value.revisitMoment &&
+      isSameDate(
+        userDoc.value.revisitMoment.date.toDate(),
+        currentDate.value,
+        "day",
+      )
     ) {
       // console.log(
-      //   "In moments.js > getRandomMomentIdOfTheDay, getRevisitMoment.value.date === currentDate.value, returning:",
-      //   getRevisitMoment.value.id,
+      //   "In moments.js > getRandomMomentIdOfTheDay, userDoc.value.revisitMoment.date === currentDate.value, returning:",
+      //   userDoc.value.revisitMoment.id,
       // );
-      return getRevisitMoment.value.id; // Return the cached ID
+      return userDoc.value.revisitMoment.id; // Return the cached ID
     }
 
     const weeksAgo = new Date();
@@ -997,26 +898,18 @@ export const useMomentsStore = defineStore("moments", () => {
     return null;
   };
 
-  const getPlaceholderQuote = computed(() => {
-    console.log(
-      "In moments.js > getPlaceholderQuote, userDoc.value:",
-      userDoc.value,
-    );
-    return userDoc?.value?.placeholderQuote ?? false;
-  });
-
   //get a random quote but keep it for the day, so there should be no change on refresh it a given day
   const getPlaceholderQuoteOfTheDayId = async () => {
     // Check if today's date is different from the last revisit date
     if (
-      getPlaceholderQuote.value &&
+      userDoc.value.placeholderQuote &&
       isSameDate(
-        getPlaceholderQuote.value.date.toDate(),
+        userDoc.value.placeholderQuote.date.toDate(),
         currentDate.value,
         "day",
       )
     ) {
-      return getPlaceholderQuote.value.id; // Return the cached ID
+      return userDoc.value.placeholderQuote.id; // Return the cached ID
     }
 
     const randomQuoteIndex = Math.floor(
@@ -1064,13 +957,6 @@ export const useMomentsStore = defineStore("moments", () => {
     pickedDateYYYYsMMsDD,
     suggestions,
     userFetched,
-    getHasNeeds,
-    getAuthorizationCode,
-    getDeviceLanguage,
-    getSpeechRecoLanguage,
-    getSignInMethods,
-    getShowWelcomeTutorial,
-    getWelcomeTutorialStep,
     momentsFetched,
     getUniqueDaysTs,
     getOldestMomentDate,
@@ -1081,16 +967,10 @@ export const useMomentsStore = defineStore("moments", () => {
     aggDataNeeds,
     aggDataInsights,
     getDateRangeOkNeedsCounts,
-    getShowInsightsBadge,
-    setWelcomeTutorialStep,
-    setShowWelcomeTutorial,
     addMoment,
     deleteMoment,
     fetchUser,
     updateUser,
-    setAuthorizationCode,
-    setSpeechRecoLanguage,
-    setSignInMethods,
     fetchMoments,
     fetchAggregateData,
     getUniqueDaysDateFromDateRangeAndNeed,
