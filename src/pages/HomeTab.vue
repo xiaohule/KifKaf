@@ -56,8 +56,9 @@
       </template>
     </q-parallax>
 
-    <welcome-tutorial v-if="ms.userDoc.showWelcomeTutorial" :new-mom-text="newMomText" :new-mom-input-ref="newMomInputRef"
-      @update:new-mom-text="newMomText = $event" @click:view-needs="momentModalId = $event; momentModalOpened = true"
+    <welcome-tutorial v-if="ms?.userDoc?.showWelcomeTutorial" :new-mom-text="newMomText"
+      :new-mom-input-ref="newMomInputRef" @update:new-mom-text="newMomText = $event"
+      @click:view-needs="momentModalId = $event; momentModalOpened = true"
       class="q-px-md negative-margin-welcome-tutorial" />
 
     <div v-if="!ms || !ms.getUniqueDaysTs || ms.getUniqueDaysTs.length == 0"></div>
@@ -69,8 +70,8 @@
           'text-weight-medium',
           'q-pa-none',
           'q-mb-sm',
-          (index === 0 && !ms.userDoc.showWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
-          (index === 0 && !ms.userDoc.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
+          (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
+          (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
         ]">{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
           <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple

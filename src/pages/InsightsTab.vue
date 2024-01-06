@@ -35,7 +35,7 @@
                 v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
                 style="min-height: 0px;" v-html="ms.aggDataInsights[ms.activeDateRange].summary">
               </div>
-              <div v-else-if="!ms.userDoc.hasNeeds" style="min-height: 0px;">
+              <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">
                 <!-- No summary available for this period. -->
                 👉 3 Moments a month will bring your summary to life.
               </div>
@@ -135,7 +135,7 @@
             ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">by {{
     ms.aggDataInsights[ms.activeDateRange].book.author }}</span>
         </q-item-section>
-        <q-item-section class="selectable-text" v-else-if="!ms.userDoc.hasNeeds"><span>👉 Log 3 Moments to start getting
+        <q-item-section class="selectable-text" v-else-if="!ms.userDoc?.hasNeeds"><span>👉 Log 3 Moments to start getting
             reading recommendations
             curated for your growth.
           </span>
@@ -210,7 +210,7 @@
                 {{ suggestion }}
               </q-item>
             </q-list>
-            <div v-else-if="!ms.userDoc.hasNeeds" style="min-height: 0px;">
+            <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">
               <!-- No summary available for this period. -->
               👉 3 Moments a month will bring your suggestions to life.
             </div>
@@ -384,21 +384,35 @@ const onIntersection = (section, YYYYdMM) => {
         if (YYYYdMM !== currentYYYYdMM) {
           await ms.fetchAggregateData(true);
         }
-      }, 300); // Adjust delay as needed
+      }, 3000); // Adjust delay as needed
     }
   }
 }
 
 const intersectionOptions = (section, YYYYdMM = null) => {
-  return {
-    handler: onIntersection(section, YYYYdMM),
-    cfg: {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.5,// Trigger when 50% of the target is visible
+  if (ms.aggDataInsights[YYYYdMM]?.isNew?.[section]) {
+    return {
+      handler: onIntersection(section, YYYYdMM),
+      cfg: {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.9,// Trigger when 50% of the target is visible
+      }
+    }
+  }
+  else {
+    // Return a no-op handler when the condition is not met
+    return {
+      handler: () => { },
+      cfg: {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.9, // Adjust as necessary
+      }
     }
   }
 }
+
 
 </script>
 
@@ -412,7 +426,7 @@ const intersectionOptions = (section, YYYYdMM = null) => {
 }
 
 .fade-transition {
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 1.0s ease-in-out; //TODO:2 why not working?
   opacity: 1;
 }
 

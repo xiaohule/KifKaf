@@ -3,27 +3,41 @@ const routes = [
     path: "/",
     component: () => import("layouts/HomeLayout.vue"),
     meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/HomeTab.vue") }],
+    children: [
+      { name: "home", path: "", component: () => import("pages/HomeTab.vue") },
+    ],
   },
   {
     path: "/insights",
     component: () => import("layouts/InsightsLayout.vue"),
     meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/InsightsTab.vue") }],
+    children: [
+      {
+        name: "insights",
+        path: "",
+        component: () => import("pages/InsightsTab.vue"),
+      },
+    ],
   },
   {
     path: "/insights/needs",
     component: () => import("layouts/NeedsPageLayout.vue"),
     meta: { requiresAuth: true },
     children: [
-      { path: "", component: () => import("pages/NeedsChartPage.vue") },
+      {
+        name: "needs",
+        path: "",
+        component: () => import("pages/NeedsChartPage.vue"),
+      },
     ],
   },
   {
     path: "/insights/needs/:needSlug",
     component: () => import("layouts/GoBackTitleLayout.vue"),
     meta: { requiresAuth: true },
-    children: [{ path: "", component: () => import("pages/NeedPage.vue") }],
+    children: [
+      { name: "need", path: "", component: () => import("pages/NeedPage.vue") },
+    ],
   },
   {
     path: "/settings",
@@ -32,6 +46,7 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       {
+        name: "settings",
         path: "",
         component: () => import("pages/SettingsPage.vue"),
       },

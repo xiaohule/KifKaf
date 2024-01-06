@@ -63,7 +63,9 @@ export const useSpeechRecognition = async (
       //TODO:2 here in the case of no user setting we're implicitly hoping that device language will be supported by the speech reco API
       if (!isRecognizing.value) {
         webRecognitionInstance.lang =
-          ms.userDoc.speechRecoLanguage || ms.userDoc.deviceLanguage || "en-US";
+          ms.userDoc?.speechRecoLanguage ||
+          ms.userDoc?.deviceLanguage ||
+          "en-US";
         webRecognitionInstance.onresult = (event) => {
           try {
             let finalTranscript = "";
@@ -167,8 +169,8 @@ export const useSpeechRecognition = async (
 
             SpeechRecognition.start({
               language:
-                ms.userDoc.speechRecoLanguage ||
-                ms.userDoc.deviceLanguage ||
+                ms.userDoc?.speechRecoLanguage ||
+                ms.userDoc?.deviceLanguage ||
                 "en-US",
               maxResults: 1,
               prompt: "Say something",

@@ -72,11 +72,11 @@ const topLabel = computed(() => {
 })
 
 const topItem = computed(() => {
-  console.log('In topItem > computed topItem for topType', props.topType, 'and activeDateRange', ms.activeDateRange)
+  // console.log('In topItem > computed topItem for topType', props.topType, 'and activeDateRange', ms.activeDateRange)
+  // console.log('In topItem > computed topItem, ms.aggDataNeeds[ms.activeDateRange][props.topType]', ms.aggDataNeeds &&
+  //   ms.aggDataNeeds[ms.activeDateRange] &&
+  //   ms.aggDataNeeds[ms.activeDateRange][props.topType][0])
 
-  console.log('In topItem > computed topItem, ms.aggDataNeeds[ms.activeDateRange][props.topType]', ms.aggDataNeeds &&
-    ms.aggDataNeeds[ms.activeDateRange] &&
-    ms.aggDataNeeds[ms.activeDateRange][props.topType][0])
   return ms.aggDataNeeds &&
     ms.aggDataNeeds[ms.activeDateRange] &&
     ms.aggDataNeeds[ms.activeDateRange][props.topType][0]

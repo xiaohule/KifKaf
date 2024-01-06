@@ -299,8 +299,8 @@ onMounted(async () => {
       await ms.fetchUser();
     }
     console.log("In SettingsPage > onMounted before pickedLang setting, currently set at:", pickedLanguage.value);
-    pickedLanguage.value = ms.userDoc.speechRecoLanguage ||
-      ms.userDoc.deviceLanguage ||
+    pickedLanguage.value = ms.userDoc?.speechRecoLanguage ||
+      ms.userDoc?.deviceLanguage ||
       "en-US";
     console.log("In SettingsPage > onMounted pickedLanguage set at:", pickedLanguage.value);
   } catch (error) {

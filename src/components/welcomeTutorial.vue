@@ -1,5 +1,5 @@
 <template>
-  <div v-if="ms.userDoc.showWelcomeTutorial" class="q-px-md negative-margin-welcome-tutorial">
+  <div v-if="ms?.userDoc?.showWelcomeTutorial" class="q-px-md negative-margin-welcome-tutorial">
     <q-list>
 
       <q-item class="q-px-xs q-py-none margin-top-if-height-sm">
@@ -13,11 +13,11 @@
 
       <q-item class="q-pl-xs q-pr-sm q-pt-xs q-pb-xs" style="min-height: 0px;">
         <q-item-section class="text-subtitle2 text-weight-medium">
-          <q-linear-progress :value="ms.userDoc.welcomeTutorialStep / 3" color="surface" track-color="grey" rounded
+          <q-linear-progress :value="ms.userDoc?.welcomeTutorialStep / 3" color="surface" track-color="grey" rounded
             animation-speed="500" />
         </q-item-section>
         <q-item-section side class="text-caption
-text-on-primary">{{ ms.userDoc.welcomeTutorialStep +
+text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
   "/3 complete" }}
         </q-item-section>
       </q-item>
@@ -26,7 +26,7 @@ text-on-primary">{{ ms.userDoc.welcomeTutorialStep +
         <!-- ref="swiperWelcomeTutorial"  init="false"  auto-height="true" pagination-dynamic-bullets="true" slides-per-view="1.05"-->
         <swiper-container ref="swiperTuto" :pagination="true" :grab-cursor="true" space-between="10" style="width: 100%;">
           <swiper-slide>
-            <q-card v-if="ms.userDoc.welcomeTutorialStep < 0.5" class="bg-surface q-py-md q-px-xs rounded-borders-14"
+            <q-card v-if="ms.userDoc?.welcomeTutorialStep < 0.5" class="bg-surface q-py-md q-px-xs rounded-borders-14"
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
@@ -62,7 +62,7 @@ text-on-primary">{{ ms.userDoc.welcomeTutorialStep +
             </q-card>
           </swiper-slide>
           <swiper-slide>
-            <q-card v-if="ms.userDoc.welcomeTutorialStep < 2" class="bg-surface q-py-md q-px-xs rounded-borders-14"
+            <q-card v-if="ms.userDoc?.welcomeTutorialStep < 2" class="bg-surface q-py-md q-px-xs rounded-borders-14"
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
@@ -97,7 +97,7 @@ text-on-primary">{{ ms.userDoc.welcomeTutorialStep +
             </q-card>
           </swiper-slide>
           <swiper-slide>
-            <q-card v-if="ms.userDoc.welcomeTutorialStep < 3" class="bg-surface q-py-md q-px-xs rounded-borders-14"
+            <q-card v-if="ms.userDoc?.welcomeTutorialStep < 3" class="bg-surface q-py-md q-px-xs rounded-borders-14"
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
@@ -164,8 +164,8 @@ const router = useRouter()
 const swiperTuto = ref(null)
 onMounted(() => {
   console.log('ONMOUNTED TUTO')
-  if (swiperTuto.value && swiperTuto.value.swiper && ms.userDoc.welcomeTutorialStep)
-    swiperTuto.value.swiper.slideTo(ms.userDoc.welcomeTutorialStep, 0, false)
+  if (swiperTuto.value && swiperTuto.value.swiper && ms.userDoc?.welcomeTutorialStep)
+    swiperTuto.value.swiper.slideTo(ms.userDoc?.welcomeTutorialStep, 0, false)
 });
 
 //WELCOME TUTORIAL

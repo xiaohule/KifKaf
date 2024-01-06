@@ -21,7 +21,11 @@ import {
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import { Notify } from "quasar";
-import { currentUser } from "../boot/firebaseBoot.js";
+import {
+  currentUser,
+  logEvent,
+  setUserProperty,
+} from "../boot/firebaseBoot.js";
 import { date } from "quasar";
 const {
   getDateDiff,
@@ -53,15 +57,16 @@ axiosRetry(axios, {
   },
 });
 
+const {
+  currentDate,
+  currentYear,
+  currentYYYYdMM,
+  dayToDate,
+  getDatePickerLabel,
+  monthDateRangeToDate,
+} = useDateUtils();
+
 export const useMomentsStore = defineStore("moments", () => {
-  const {
-    currentDate,
-    currentYear,
-    currentYYYYdMM,
-    dayToDate,
-    getDatePickerLabel,
-    monthDateRangeToDate,
-  } = useDateUtils();
   const router = useRouter();
   const user = currentUser;
   const userDocRef = ref(null);
@@ -97,14 +102,14 @@ export const useMomentsStore = defineStore("moments", () => {
   );
 
   const getUniqueDaysDateFromDateRangeAndNeed = (dateRange = "", need = "") => {
-    console.log(
-      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, momentsFetched",
-      momentsFetched.value,
-      " dateRange:",
-      dateRange,
-      "need:",
-      need,
-    );
+    // console.log(
+    //   "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, momentsFetched",
+    //   momentsFetched.value,
+    //   " dateRange:",
+    //   dateRange,
+    //   "need:",
+    //   need,
+    // );
     if (!momentsFetched.value) {
       return [];
     }
@@ -124,7 +129,11 @@ export const useMomentsStore = defineStore("moments", () => {
       }
     }
     console.log(
-      "in getUniqueDaysDateFromDateRangeAndNeed, dateFrom:",
+      "in getUniqueDaysDateFromDateRangeAndNeed, dateRange:",
+      dateRange,
+      "need:",
+      need,
+      "dateFrom:",
       dateFrom,
       "dateTo:",
       dateTo,
@@ -140,12 +149,12 @@ export const useMomentsStore = defineStore("moments", () => {
           inclusiveTo: true,
         })
       ) {
-        console.log(
-          "In getUniqueDaysDateFromDateRangeAndNeed, momentDate:",
-          momentDate,
-          "moment:",
-          moment,
-        );
+        // console.log(
+        //   "In getUniqueDaysDateFromDateRangeAndNeed, momentDate:",
+        //   momentDate,
+        //   "moment:",
+        //   moment,
+        // );
         if (!need || moment.needs[need]) {
           const dayStr = startOfDate(momentDate, "day").toISOString(); //toISOStr to make it a string so that Set can ensure uniqueness
           uniqueDaysSet.add(dayStr);
@@ -528,6 +537,7 @@ export const useMomentsStore = defineStore("moments", () => {
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
       const newMomDocRef = doc(momentsCollRef.value);
       await setDoc(newMomDocRef, moment);
+      logEvent("moment_added", { value: newMomDocRef.id });
 
       if (navigator.onLine) {
         Notify.create("Moment saved.");
@@ -560,6 +570,8 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       );
       console.log("In addMoment", response.data);
+      logEvent("moment_needs_analyzed", { value: newMomDocRef.id });
+
       // Notify.create("Needs analysis complete.");
     } catch (error) {
       console.log("Error in addMoment", error);
@@ -730,7 +742,7 @@ export const useMomentsStore = defineStore("moments", () => {
             "with firstOnSnapshotDone.value:",
             firstOnSnapshotDone.value,
             "and showInsightsBadge:",
-            userDoc.value.showInsightsBadge,
+            userDoc.value?.showInsightsBadge,
           );
           if (!firstOnSnapshotDone.value) firstOnSnapshotDone.value = true;
           //add condition that user is not on Insights tab to avoid triggering the badge when user is already on Insights tab
@@ -784,7 +796,7 @@ export const useMomentsStore = defineStore("moments", () => {
     // if (!momentsFetched.value) {
     //   await fetchMoments();
     // }
-    console.log("In getSortedMomsFromDayAndNeed");
+    // console.log("In getSortedMomsFromDayAndNeed");
     const dayDate = dayToDate(day);
 
     let moms = momentsColl.value.filter(
@@ -806,6 +818,9 @@ export const useMomentsStore = defineStore("moments", () => {
         await fetchUser();
       }
       await setDoc(userDocRef.value, { ...value }, { merge: true });
+      for (const [key, val] of Object.entries(value)) {
+        setUserProperty(key, val);
+      }
     } catch (error) {
       console.log(
         "In moment.js > Error in setUserDocValue for value",

@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "@capacitor-community/speech-recognition": "^5.0.0",
+    "@capacitor-firebase/analytics": "^5.3.0",
     "@capacitor-firebase/app-check": "^5.3.0",
     "@capacitor-firebase/authentication": "^5.3.0",
     "@capacitor/android": "^5.6.0",
