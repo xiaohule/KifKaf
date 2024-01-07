@@ -41,6 +41,7 @@ import * as Sentry from "@sentry/vue";
 // import { Platform, is } from "quasar";
 // console.log("Platform is", Platform.is);
 
+axios.defaults.baseURL = process.env.API_URL;
 axiosRetry(axios, {
   retries: 3,
   retryDelay: axiosRetry.exponentialDelay,

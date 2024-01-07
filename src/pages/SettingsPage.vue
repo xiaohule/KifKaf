@@ -406,7 +406,7 @@ const updateSetting = async () => {
 
 watch(pickedLanguage, async (newVal, oldVal) => {
   console.log("In SettingsPage, pickedLanguage changed from", oldVal, "to", newVal);
-  await ms?.setUserDocValue({ speechRecoLanguage });
+  await ms?.setUserDocValue({ speechRecoLanguage: newVal });
 })
 
 const logOut = async () => {
