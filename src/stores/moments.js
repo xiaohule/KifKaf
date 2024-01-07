@@ -40,6 +40,7 @@ import { useDateUtils } from "../composables/dateUtils.js";
 import { inspirationalQuotes } from "../utils/quoteUtils.js";
 import { useRouter } from "vue-router";
 
+axios.defaults.baseURL = process.env.API_URL;
 axiosRetry(axios, {
   retries: 3,
   retryDelay: axiosRetry.exponentialDelay,
@@ -538,7 +539,6 @@ export const useMomentsStore = defineStore("moments", () => {
       const newMomDocRef = doc(momentsCollRef.value);
       await setDoc(newMomDocRef, moment);
       logEvent("moment_added", { value: newMomDocRef.id });
-
       if (navigator.onLine) {
         Notify.create("Moment saved.");
       } else {
@@ -552,10 +552,11 @@ export const useMomentsStore = defineStore("moments", () => {
         userDoc.value.welcomeTutorialStep === 0
       )
         await setUserDocValue({ welcomeTutorialStep: 1 });
+
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the previous await are resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
-      console.log("In addMoment, will trigger call to llm for:", moment);
+      console.log("In addMoment, triggering call to llm for:", moment);
       const response = await axios.post(
         `/api/learn/add-moment/`,
         {
@@ -569,7 +570,15 @@ export const useMomentsStore = defineStore("moments", () => {
           },
         },
       );
-      console.log("In addMoment", response.data);
+
+      console.log("In addMoment llm response:", response.data);
+      //if response doesn't contain message field throw an error
+      if (!response.data.message) {
+        throw new Error(
+          "In addMoment > Error in response from llm, response.data:",
+          response.data,
+        );
+      }
       logEvent("moment_needs_analyzed", { value: newMomDocRef.id });
 
       // Notify.create("Needs analysis complete.");
