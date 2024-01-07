@@ -170,7 +170,10 @@ describe("Insights Stats validation", () => {
     cy.reload();
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
-      cy.contains("2023").should("be.visible");
+      cy.contains("2024").should("be.visible");
+      cy.contains("Yearly").should("be.visible").click();
+      cy.contains("2023").should("be.visible").click();
+      cy.contains("Monthly").should("be.visible").click();
       cy.contains("Nov").should("be.visible").click();
       cy.contains("Done").should("be.visible").click();
     });
@@ -308,7 +311,10 @@ describe("Need page validation", () => {
     cy.reload();
     cy.contains("This month").should("be.visible").click();
     cy.withinDialog((el) => {
-      cy.contains("2023").should("be.visible");
+      cy.contains("2024").should("be.visible");
+      cy.contains("Yearly").should("be.visible").click();
+      cy.contains("2023").should("be.visible").click();
+      cy.contains("Monthly").should("be.visible").click();
       cy.contains("Nov").should("be.visible").click();
       cy.contains("Done").should("be.visible").click();
     });
@@ -326,7 +332,7 @@ describe("Need page validation", () => {
     cy.contains("Needs").should("be.visible");
     cy.contains("Neutral").should("be.visible");
 
-    cy.contains("info").click();
+    cy.contains("Learn more").click();
     cy.get(".q-expansion-item").should("be.visible");
     cy.contains("Got it").click();
     cy.contains("close").click();

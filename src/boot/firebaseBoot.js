@@ -20,7 +20,12 @@ import {
   indexedDBLocalPersistence,
   initializeAuth,
 } from "firebase/auth";
-// import { getAnalytics } from "firebase/analytics";
+import {
+  getAnalytics,
+  logEvent as webLogEvent,
+  setUserId as webSetUserId,
+  setUserProperties as webSetUserProperties,
+} from "firebase/analytics";
 import {
   initializeAppCheck,
   ReCaptchaV3Provider,
@@ -69,6 +74,83 @@ try {
 } catch (error) {
   console.error("Error initializing Firebase app:", error);
 }
+
+let firebaseAnalytics;
+try {
+  if (process.env.MODE !== "capacitor") {
+    firebaseAnalytics = getAnalytics(firebaseApp);
+  } else {
+    import("@capacitor-firebase/analytics")
+      .then(async (module) => {
+        firebaseAnalytics = module.FirebaseAnalytics;
+      })
+      .catch((error) => {
+        console.error(
+          "In firebaseBoot, Failed to initialize app check for Capacitor, error:",
+          error,
+        );
+      });
+  }
+} catch (error) {
+  console.error("Error initializing Firebase Analytics:", error);
+}
+
+export const setUserId = async (userId) => {
+  if (process.env.MODE !== "capacitor") {
+    webSetUserId(firebaseAnalytics, userId);
+  } else {
+    await firebaseAnalytics.setUserId({ userId: userId });
+  }
+};
+
+export const setUserProperty = async (propertyKey, propertyValue) => {
+  if (process.env.MODE !== "capacitor") {
+    webSetUserProperties(firebaseAnalytics, {
+      [propertyKey]: propertyValue,
+    });
+  } else {
+    await firebaseAnalytics.setUserProperty({
+      key: propertyKey,
+      value: propertyValue,
+    });
+  }
+};
+
+//export logEvent function such that it is equally available in web and capacitor
+export const logEvent = async (eventName, eventParams) => {
+  if (process.env.MODE !== "capacitor") {
+    console.log(
+      "In firebaseBoot > logEvent, web mode eventName:",
+      eventName,
+      "eventParams:",
+      eventParams,
+    );
+    webLogEvent(firebaseAnalytics, eventName, eventParams);
+  } else {
+    console.log(
+      "In firebaseBoot > logEvent, capacitor mode eventName:",
+      eventName,
+      "eventParams:",
+      eventParams,
+    );
+    await firebaseAnalytics.logEvent({ name: eventName, params: eventParams });
+  }
+};
+
+export const setCurrentScreen = async (screenName, screenClass) => {
+  if (process.env.MODE !== "capacitor") {
+    webLogEvent(firebaseAnalytics, "screen_view", {
+      firebase_screen: screenName,
+      firebase_screen_class: screenClass,
+    });
+  } else {
+    await firebaseAnalytics.setCurrentScreen({
+      screenName: screenName,
+      screenClassOverride: screenClass,
+    });
+  }
+};
+
 // Use IndexedDb persistence. Cf. https://github.com/firebase/firebase-js-sdk/issues/6087#issuecomment-1233478793 for markRaw
 let dbInstance;
 try {
@@ -115,14 +197,16 @@ try {
   onAuthStateChanged(getFirebaseAuth(), (user) => {
     // console.log("onAuthStateChanged", user);
     currentUser.value = user;
-    if (user?.uid) Sentry.setUser({ id: user.uid });
+    if (user?.uid) {
+      Sentry.setUser({ id: user.uid });
+      setUserId(user.uid);
+    }
     isLoadingAuth.value = false;
     // else router.push("/login");
   });
 } catch (error) {
   console.error("Error with onAuthStateChanged:", error);
 }
-// const analytics = getAnalytics(firebaseApp);
 
 //APP CHECK
 // const checkIfVirtualDevice = async () => {
@@ -229,6 +313,7 @@ const setDeviceLanguage = async () => {
       );
     }
   }
+  setUserProperty("deviceLanguage", deviceLanguage);
   console.log("In firebaseBoot, just set deviceLanguage to", deviceLanguage);
 };
 

@@ -21,7 +21,11 @@ import {
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import { Notify } from "quasar";
-import { currentUser } from "../boot/firebaseBoot.js";
+import {
+  currentUser,
+  logEvent,
+  setUserProperty,
+} from "../boot/firebaseBoot.js";
 import { date } from "quasar";
 const {
   getDateDiff,
@@ -34,6 +38,7 @@ const {
 } = date;
 import { useDateUtils } from "../composables/dateUtils.js";
 import { inspirationalQuotes } from "../utils/quoteUtils.js";
+import { useRouter } from "vue-router";
 
 axiosRetry(axios, {
   retries: 3,
@@ -52,17 +57,20 @@ axiosRetry(axios, {
   },
 });
 
+const {
+  currentDate,
+  currentYear,
+  currentYYYYdMM,
+  dayToDate,
+  getDatePickerLabel,
+  monthDateRangeToDate,
+} = useDateUtils();
+
 export const useMomentsStore = defineStore("moments", () => {
-  const {
-    currentDate,
-    currentYear,
-    currentYYYYdMM,
-    dayToDate,
-    getDatePickerLabel,
-    monthDateRangeToDate,
-  } = useDateUtils();
+  const router = useRouter();
   const user = currentUser;
   const userDocRef = ref(null);
+  const aggMonthlyCollRef = ref(null);
   const momentsCollRef = ref(null);
   const userDoc = ref(null);
   const momentsColl = ref([]);
@@ -73,8 +81,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggregateDataFetched = ref(false);
   const shouldResetSwiper = ref(false);
   const donutSegmentClicked = ref(null);
-
-  const insightsInitialized = ref(false);
+  const firstOnSnapshotDone = ref(false);
   const needsToggleModel = ref("top");
   const activeIndex = ref(null);
   const segDateId = ref("Monthly");
@@ -95,14 +102,14 @@ export const useMomentsStore = defineStore("moments", () => {
   );
 
   const getUniqueDaysDateFromDateRangeAndNeed = (dateRange = "", need = "") => {
-    console.log(
-      "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, momentsFetched",
-      momentsFetched.value,
-      " dateRange:",
-      dateRange,
-      "need:",
-      need,
-    );
+    // console.log(
+    //   "In moments.js > getUniqueDaysDateFromDateRangeAndNeed, momentsFetched",
+    //   momentsFetched.value,
+    //   " dateRange:",
+    //   dateRange,
+    //   "need:",
+    //   need,
+    // );
     if (!momentsFetched.value) {
       return [];
     }
@@ -122,7 +129,11 @@ export const useMomentsStore = defineStore("moments", () => {
       }
     }
     console.log(
-      "in getUniqueDaysDateFromDateRangeAndNeed, dateFrom:",
+      "in getUniqueDaysDateFromDateRangeAndNeed, dateRange:",
+      dateRange,
+      "need:",
+      need,
+      "dateFrom:",
       dateFrom,
       "dateTo:",
       dateTo,
@@ -138,12 +149,12 @@ export const useMomentsStore = defineStore("moments", () => {
           inclusiveTo: true,
         })
       ) {
-        console.log(
-          "In getUniqueDaysDateFromDateRangeAndNeed, momentDate:",
-          momentDate,
-          "moment:",
-          moment,
-        );
+        // console.log(
+        //   "In getUniqueDaysDateFromDateRangeAndNeed, momentDate:",
+        //   momentDate,
+        //   "moment:",
+        //   moment,
+        // );
         if (!need || moment.needs[need]) {
           const dayStr = startOfDate(momentDate, "day").toISOString(); //toISOStr to make it a string so that Set can ensure uniqueness
           uniqueDaysSet.add(dayStr);
@@ -202,7 +213,6 @@ export const useMomentsStore = defineStore("moments", () => {
   watch(
     dateRangesMonths,
     (newValue, oldValue) => {
-      // && !insightsInitialized.value
       if (
         segDateId.value === "Monthly" &&
         oldValue?.length !== newValue?.length &&
@@ -219,7 +229,6 @@ export const useMomentsStore = defineStore("moments", () => {
           newValue.length - 1,
         );
         activeIndex.value = newValue.length - 1;
-        // insightsInitialized.value = true; //block the first update of activeIndex to the last index once done once, to avoid swiping just bec. new add data
       }
     },
     { immediate: true },
@@ -250,14 +259,12 @@ export const useMomentsStore = defineStore("moments", () => {
   watch(
     dateRangesYears,
     (newValue, oldValue) => {
-      // && !insightsInitialized.value
       if (
         segDateId.value === "Yearly" &&
         oldValue?.length !== newValue?.length &&
         activeIndex.value !== newValue.length - 1
       ) {
         activeIndex.value = newValue.length - 1;
-        // insightsInitialized.value = true;
       }
     },
     { immediate: true },
@@ -332,12 +339,7 @@ export const useMomentsStore = defineStore("moments", () => {
       // Check if user doc exists, if not create & initialize it, BEWARE this way of doing means that if we add new field to the user doc data model a script/manual update should be run to add it to existing users (but it's better than the alternative of transactional write for offline)
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       momentsCollRef.value = collection(userDocRef.value, "moments");
-      const defaultUserDocValues = {
-        deviceLanguage: "en-US",
-        hasNeeds: false,
-        welcomeTutorialStep: 0,
-        showWelcomeTutorial: true,
-      };
+
       try {
         const userDocCheck = await getDoc(userDocRef.value);
         if (
@@ -347,6 +349,13 @@ export const useMomentsStore = defineStore("moments", () => {
           console.log(
             "In moments.js > fetchUser, User doc not initialized, initializing it",
           );
+          const defaultUserDocValues = {
+            deviceLanguage: "en-US",
+            hasNeeds: false,
+            welcomeTutorialStep: 0,
+            showWelcomeTutorial: true,
+            showInsightsBadge: false,
+          };
           await setDoc(userDocRef.value, defaultUserDocValues, {
             merge: true,
           });
@@ -355,8 +364,8 @@ export const useMomentsStore = defineStore("moments", () => {
         console.log("In moments.js > fetchUser, getDoc failed: ", error);
       }
 
-      onSnapshot(userDocRef.value, (doc) => {
-        userDoc.value = doc.data();
+      onSnapshot(userDocRef.value, (snapshot) => {
+        userDoc.value = snapshot.data();
       });
 
       userFetched.value = true;
@@ -393,106 +402,6 @@ export const useMomentsStore = defineStore("moments", () => {
       console.log("Error in updateUser: ", error);
     }
   };
-
-  const getDeviceLanguage = computed(() => {
-    return userDoc?.value?.deviceLanguage ?? false;
-  });
-
-  const getHasNeeds = computed(() => {
-    return userDoc?.value?.hasNeeds ?? false;
-  });
-
-  const setAuthorizationCode = async (authorizationCode) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setAuthorizationCode: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-
-      await setDoc(userDocRef.value, { authorizationCode }, { merge: true });
-    } catch (error) {
-      console.log("Error in setAuthorizationCode", error);
-    }
-  };
-  const getAuthorizationCode = computed(() => {
-    return userDoc?.value?.authorizationCode ?? false;
-  });
-
-  const setSpeechRecoLanguage = async (speechRecoLanguage) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setSpeechRecoLanguage: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-
-      await setDoc(userDocRef.value, { speechRecoLanguage }, { merge: true });
-    } catch (error) {
-      console.log("Error in setSpeechRecoLanguage", error);
-    }
-  };
-  const getSpeechRecoLanguage = computed(() => {
-    return userDoc?.value?.speechRecoLanguage ?? false;
-  });
-
-  const setSignInMethods = async (signInMethods) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setSignInMethods: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-
-      await setDoc(userDocRef.value, { signInMethods }, { merge: true });
-    } catch (error) {
-      console.log("Error in setSignInMethods", error);
-    }
-  };
-  const getSignInMethods = computed(() => {
-    return userDoc?.value?.signInMethods ?? false;
-  });
-
-  const setShowWelcomeTutorial = async (showWelcomeTutorial) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js >setShowWelcomeTutorial: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-      console.log(
-        "In setShowWelcomeTutorial, showWelcomeTutorial:",
-        showWelcomeTutorial,
-      );
-      await setDoc(userDocRef.value, { showWelcomeTutorial }, { merge: true });
-    } catch (error) {
-      console.log("Error in setShowWelcomeTutorial", error);
-    }
-  };
-  const getShowWelcomeTutorial = computed(() => {
-    return userDoc?.value?.showWelcomeTutorial ?? false;
-  });
-
-  const setWelcomeTutorialStep = async (welcomeTutorialStep) => {
-    try {
-      if (!userFetched.value) {
-        console.log(
-          "In moment.js > setWelcomeTutorialStep: User not yet fetched, fetching it",
-        );
-        await fetchUser();
-      }
-      await setDoc(userDocRef.value, { welcomeTutorialStep }, { merge: true });
-    } catch (error) {
-      console.log("Error in setWelcomeTutorialStep", error);
-    }
-  };
-  const getWelcomeTutorialStep = computed(() => {
-    return userDoc?.value?.welcomeTutorialStep ?? false;
-  });
 
   const getDateRangeOkNeedsCounts = computed(() => {
     if (!momentsFetched.value) {
@@ -628,6 +537,7 @@ export const useMomentsStore = defineStore("moments", () => {
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
       const newMomDocRef = doc(momentsCollRef.value);
       await setDoc(newMomDocRef, moment);
+      logEvent("moment_added", { value: newMomDocRef.id });
 
       if (navigator.onLine) {
         Notify.create("Moment saved.");
@@ -637,8 +547,11 @@ export const useMomentsStore = defineStore("moments", () => {
         );
       }
 
-      if (!getWelcomeTutorialStep.value || getWelcomeTutorialStep.value === 0)
-        await setWelcomeTutorialStep(1);
+      if (
+        !userDoc.value.welcomeTutorialStep ||
+        userDoc.value.welcomeTutorialStep === 0
+      )
+        await setUserDocValue({ welcomeTutorialStep: 1 });
       //LLM NEEDS ASSESSMENT (due to being in async func, this only runs when/if the previous await are resolved and only if it is also fulfilled as otherwise the try/catch will catch the error and the code will not continue to run)
       //WARNING the following may take up to 30s to complete if bad connection, replies, llm hallucinations OR never complete
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
@@ -657,6 +570,8 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       );
       console.log("In addMoment", response.data);
+      logEvent("moment_needs_analyzed", { value: newMomDocRef.id });
+
       // Notify.create("Needs analysis complete.");
     } catch (error) {
       console.log("Error in addMoment", error);
@@ -723,8 +638,8 @@ export const useMomentsStore = defineStore("moments", () => {
           await fetchMoments();
         }
 
-        onSnapshot(doc(momentsCollRef.value, momentId), (doc) => {
-          momentRef.value = doc.data();
+        onSnapshot(doc(momentsCollRef.value, momentId), (snapshot) => {
+          momentRef.value = snapshot.data();
         });
       } catch (error) {
         console.log("Error in getMomentById", error);
@@ -735,7 +650,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const getLatestMomWithNeedsId = computed(() => {
     if (
       !momentsFetched.value ||
-      !getHasNeeds.value || // return null if user has no needs to block welcome tuto button "View needs"
+      !userDoc.value.hasNeeds || // return null if user has no needs to block welcome tuto button "View needs"
       !momentsCollLength.value
     ) {
       return;
@@ -774,19 +689,22 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       const aggYearlyCollRef = collection(userDocRef.value, "aggregateYearly");
-      const aggMonthlyCollRef = collection(
+      aggMonthlyCollRef.value = collection(
         userDocRef.value,
         "aggregateMonthly",
       );
 
       //AGGDATANEEDS
-      onSnapshot(doc(aggYearlyCollRef, currentYear.value), (doc) => {
-        aggDataNeeds.value[currentYear.value] = doc.data();
+      onSnapshot(doc(aggYearlyCollRef, currentYear.value), (snapshot) => {
+        aggDataNeeds.value[currentYear.value] = snapshot.data();
       });
 
-      onSnapshot(doc(aggMonthlyCollRef, currentYYYYdMM.value), (doc) => {
-        aggDataNeeds.value[currentYYYYdMM.value] = doc.data();
-      });
+      onSnapshot(
+        doc(aggMonthlyCollRef.value, currentYYYYdMM.value),
+        (snapshot) => {
+          aggDataNeeds.value[currentYYYYdMM.value] = snapshot.data();
+        },
+      );
 
       //TODO:2 first try getDocsFromCache, if fails then getDocsFromServer
       getDocs(aggYearlyCollRef).then((querySnapshot) => {
@@ -798,7 +716,7 @@ export const useMomentsStore = defineStore("moments", () => {
         });
       });
 
-      getDocs(aggMonthlyCollRef).then((querySnapshot) => {
+      getDocs(aggMonthlyCollRef.value).then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           if (doc.id.length === 7 && doc.id !== currentYYYYdMM.value) {
             aggDataNeeds.value[doc.id] = doc.data();
@@ -809,15 +727,33 @@ export const useMomentsStore = defineStore("moments", () => {
       //AGGDATAINSIGHTS
       onSnapshot(
         doc(aggYearlyCollRef, `${currentYear.value}-insights`),
-        (doc) => {
-          aggDataInsights.value[currentYear.value] = doc.data();
+        (snapshot) => {
+          aggDataInsights.value[currentYear.value] = snapshot.data();
         },
       );
 
       onSnapshot(
-        doc(aggMonthlyCollRef, `${currentYYYYdMM.value}-insights`),
-        (doc) => {
-          aggDataInsights.value[currentYYYYdMM.value] = doc.data();
+        doc(aggMonthlyCollRef.value, `${currentYYYYdMM.value}-insights`),
+        async (snapshot) => {
+          aggDataInsights.value[currentYYYYdMM.value] = snapshot.data();
+          console.log(
+            "In moments.js onSnapshot aggDataNeeds.value[currentYYYYdMM.value] just ran:",
+            aggDataNeeds.value[currentYYYYdMM.value],
+            "with firstOnSnapshotDone.value:",
+            firstOnSnapshotDone.value,
+            "and showInsightsBadge:",
+            userDoc.value?.showInsightsBadge,
+          );
+          if (!firstOnSnapshotDone.value) firstOnSnapshotDone.value = true;
+          //add condition that user is not on Insights tab to avoid triggering the badge when user is already on Insights tab
+          else if (
+            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.summary ||
+            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.suggestions
+          ) {
+            await setUserDocValue({
+              showInsightsBadge: router.currentRoute.value.path !== "/insights",
+            });
+          }
         },
       );
 
@@ -832,7 +768,7 @@ export const useMomentsStore = defineStore("moments", () => {
         });
       });
 
-      getDocs(aggMonthlyCollRef).then((querySnapshot) => {
+      getDocs(aggMonthlyCollRef.value).then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           if (
             doc.id.endsWith("-insights") &&
@@ -860,7 +796,7 @@ export const useMomentsStore = defineStore("moments", () => {
     // if (!momentsFetched.value) {
     //   await fetchMoments();
     // }
-    console.log("In getSortedMomsFromDayAndNeed");
+    // console.log("In getSortedMomsFromDayAndNeed");
     const dayDate = dayToDate(day);
 
     let moms = momentsColl.value.filter(
@@ -875,7 +811,6 @@ export const useMomentsStore = defineStore("moments", () => {
     return moms?.sort((a, b) => b.date.seconds - a.date.seconds);
   };
 
-  //TODO:5 replace other setDoc with this one
   const setUserDocValue = async (value) => {
     console.log("In moment.js > setUserDocValue for value", value);
     try {
@@ -883,6 +818,9 @@ export const useMomentsStore = defineStore("moments", () => {
         await fetchUser();
       }
       await setDoc(userDocRef.value, { ...value }, { merge: true });
+      for (const [key, val] of Object.entries(value)) {
+        setUserProperty(key, val);
+      }
     } catch (error) {
       console.log(
         "In moment.js > Error in setUserDocValue for value",
@@ -892,9 +830,27 @@ export const useMomentsStore = defineStore("moments", () => {
       );
     }
   };
-  const getRevisitMoment = computed(() => {
-    return userDoc?.value?.revisitMoment ?? false;
-  });
+
+  const setAggDataInsightsValue = async (YYYYdMM, value) => {
+    console.log("In moment.js > setAggDataInsights for value", value);
+    try {
+      if (!aggregateDataFetched.value) {
+        await fetchAggregateData();
+      }
+      await setDoc(
+        doc(aggMonthlyCollRef.value, `${YYYYdMM}-insights`),
+        { ...value },
+        { merge: true },
+      );
+    } catch (error) {
+      console.log(
+        "In moment.js > Error in setAggDataInsights for value",
+        value,
+        ",error:",
+        error,
+      );
+    }
+  };
 
   const getRandomMomentIdOfTheDay = async (
     mood = "happy",
@@ -902,20 +858,24 @@ export const useMomentsStore = defineStore("moments", () => {
   ) => {
     // Check if today's date is different from the last revisit date
     // console.log(
-    //   "In moments.js > getRandomMomentIdOfTheDay, getRevisitMoment.value:",
-    //   getRevisitMoment.value,
+    //   "In moments.js > getRandomMomentIdOfTheDay, userDoc.value.revisitMoment:",
+    //   userDoc.value.revisitMoment,
     //   "currentDate.value:",
     //   currentDate.value,
     // );
     if (
-      getRevisitMoment.value &&
-      isSameDate(getRevisitMoment.value.date.toDate(), currentDate.value, "day")
+      userDoc.value.revisitMoment &&
+      isSameDate(
+        userDoc.value.revisitMoment.date.toDate(),
+        currentDate.value,
+        "day",
+      )
     ) {
       // console.log(
-      //   "In moments.js > getRandomMomentIdOfTheDay, getRevisitMoment.value.date === currentDate.value, returning:",
-      //   getRevisitMoment.value.id,
+      //   "In moments.js > getRandomMomentIdOfTheDay, userDoc.value.revisitMoment.date === currentDate.value, returning:",
+      //   userDoc.value.revisitMoment.id,
       // );
-      return getRevisitMoment.value.id; // Return the cached ID
+      return userDoc.value.revisitMoment.id; // Return the cached ID
     }
 
     const weeksAgo = new Date();
@@ -953,26 +913,18 @@ export const useMomentsStore = defineStore("moments", () => {
     return null;
   };
 
-  const getPlaceholderQuote = computed(() => {
-    console.log(
-      "In moments.js > getPlaceholderQuote, userDoc.value:",
-      userDoc.value,
-    );
-    return userDoc?.value?.placeholderQuote ?? false;
-  });
-
   //get a random quote but keep it for the day, so there should be no change on refresh it a given day
   const getPlaceholderQuoteOfTheDayId = async () => {
     // Check if today's date is different from the last revisit date
     if (
-      getPlaceholderQuote.value &&
+      userDoc.value.placeholderQuote &&
       isSameDate(
-        getPlaceholderQuote.value.date.toDate(),
+        userDoc.value.placeholderQuote.date.toDate(),
         currentDate.value,
         "day",
       )
     ) {
-      return getPlaceholderQuote.value.id; // Return the cached ID
+      return userDoc.value.placeholderQuote.id; // Return the cached ID
     }
 
     const randomQuoteIndex = Math.floor(
@@ -1000,7 +952,6 @@ export const useMomentsStore = defineStore("moments", () => {
     aggregateDataFetched.value = false;
     shouldResetSwiper.value = false;
     donutSegmentClicked.value = null;
-    insightsInitialized.value = false;
     needsToggleModel.value = "top";
     activeIndex.value = null;
     segDateId.value = "Monthly";
@@ -1021,13 +972,6 @@ export const useMomentsStore = defineStore("moments", () => {
     pickedDateYYYYsMMsDD,
     suggestions,
     userFetched,
-    getHasNeeds,
-    getAuthorizationCode,
-    getDeviceLanguage,
-    getSpeechRecoLanguage,
-    getSignInMethods,
-    getShowWelcomeTutorial,
-    getWelcomeTutorialStep,
     momentsFetched,
     getUniqueDaysTs,
     getOldestMomentDate,
@@ -1038,21 +982,18 @@ export const useMomentsStore = defineStore("moments", () => {
     aggDataNeeds,
     aggDataInsights,
     getDateRangeOkNeedsCounts,
-    setWelcomeTutorialStep,
-    setShowWelcomeTutorial,
     addMoment,
     deleteMoment,
     fetchUser,
     updateUser,
-    setAuthorizationCode,
-    setSpeechRecoLanguage,
-    setSignInMethods,
     fetchMoments,
     fetchAggregateData,
     getUniqueDaysDateFromDateRangeAndNeed,
     getSortedMomsFromDayAndNeed,
     getRandomMomentIdOfTheDay,
     getPlaceholderQuoteOfTheDayId,
+    setUserDocValue,
+    setAggDataInsightsValue,
     $reset,
   };
 });

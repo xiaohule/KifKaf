@@ -56,8 +56,9 @@
       </template>
     </q-parallax>
 
-    <welcome-tutorial v-if="ms.getShowWelcomeTutorial" :new-mom-text="newMomText" :new-mom-input-ref="newMomInputRef"
-      @update:new-mom-text="newMomText = $event" @click:view-needs="momentModalId = $event; momentModalOpened = true"
+    <welcome-tutorial v-if="ms?.userDoc?.showWelcomeTutorial" :new-mom-text="newMomText"
+      :new-mom-input-ref="newMomInputRef" @update:new-mom-text="newMomText = $event"
+      @click:view-needs="momentModalId = $event; momentModalOpened = true"
       class="q-px-md negative-margin-welcome-tutorial" />
 
     <div v-if="!ms || !ms.getUniqueDaysTs || ms.getUniqueDaysTs.length == 0"></div>
@@ -69,8 +70,8 @@
           'text-weight-medium',
           'q-pa-none',
           'q-mb-sm',
-          (index === 0 && !ms.getShowWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
-          (index === 0 && !ms.getShowWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
+          (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
+          (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
         ]">{{ formatDayForMomList(day) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
           <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
@@ -81,7 +82,7 @@
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
                 <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
               </q-item-section>
-              <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
+              <q-item-section class="selectable-text text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
               }}</q-item-section>
             </q-item>
             <q-item v-if="moment.needs && (moment.needs.error || moment.needs.Oops)" class="q-px-xs q-pt-none q-pb-xs"
@@ -100,8 +101,6 @@
           </div>
         </q-card>
       </div>
-      <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
-        :expected-llm-call-duration="expectedLlmCallDuration" />
     </div>
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-pa-lg text-center" flat>
@@ -112,6 +111,9 @@
       </q-card>
     </q-dialog>
   </q-page>
+
+  <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
+    :expected-llm-call-duration="expectedLlmCallDuration" />
 </template>
 
 <script setup>
@@ -149,6 +151,9 @@ onMounted(async () => {
     }
     if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
     momsWithScrolledNeeds.value = {};
+    if (!ms.aggregateDataFetched) {
+      await ms.fetchAggregateData();
+    }
   } catch (error) {
     console.error('await ms.fetchMoments() error:', error);
   }

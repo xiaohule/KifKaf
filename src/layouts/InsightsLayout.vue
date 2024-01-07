@@ -44,10 +44,9 @@
         <q-route-tab name="search" icon="search" label="Search" to="/search" /> -->
       </q-tabs>
     </q-footer>
-
-    <date-picker-modal v-model="filterDialogOpened" />
-
   </q-layout>
+
+  <date-picker-modal v-model="filterDialogOpened" />
 </template>
 
 <script setup>

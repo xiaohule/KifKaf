@@ -31,9 +31,12 @@
     <q-footer class="bg-transparent footer-blurred" bordered>
       <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
         class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
-        <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" data-cy="home-home-tab" />
+        <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" @click="handleHomeClick"
+          data-cy="home-home-tab" />
         <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/insights" class="q-pt-xs q-pb-lg"
-          data-cy="home-insights-tab" />
+          data-cy="home-insights-tab" @click="ms.setUserDocValue({ showInsightsBadge: false })">
+          <q-badge v-show="ms?.userDoc?.showInsightsBadge" color="red" rounded floating />
+        </q-route-tab>
         <!-- ou stats ou needs ou learn -->
         <!-- re-add tabs when ready -->
         <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
@@ -52,8 +55,10 @@ This makes your code more efficient and easier to read. The behavior of using na
 import { ref, onMounted, onUnmounted } from 'vue'
 import { debounce } from 'lodash' // Assuming lodash is installed
 import { useRouter } from 'vue-router'
+import { useMomentsStore } from './../stores/moments.js'
 
 const router = useRouter()
+const ms = useMomentsStore()
 const tab = ref('Home')
 const isBackgroundDark = ref(true) // assuming the default is dark
 const isScrolled = ref(false) // assuming the default is dark
@@ -81,6 +86,13 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
+
+//reset swiper position to latest month/year when clicking on insights tab
+const handleHomeClick = () => {
+  if (router.currentRoute.value.path === '/') {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }
+}
 </script>
 
 <style lang="scss">
@@ -96,6 +108,13 @@ onUnmounted(() => {
 
 .invert-color {
   filter: invert(100%);
+}
+
+.q-tab .q-badge {
+  top: 5px;
+  right: 4px;
+  min-height: 8px;
+  padding: 2px 4px;
 }
 </style>
 

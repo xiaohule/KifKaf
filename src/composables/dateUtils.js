@@ -65,12 +65,12 @@ export function useDateUtils() {
   };
 
   const dayToDate = (day) => {
-    console.log(
-      "In dateUtils.js > dayToDate, day:",
-      day,
-      "typeof day",
-      typeof day,
-    );
+    // console.log(
+    //   "In dateUtils.js > dayToDate, day:",
+    //   day,
+    //   "typeof day",
+    //   typeof day,
+    // );
     if (!day) {
       return;
     }
@@ -88,9 +88,7 @@ export function useDateUtils() {
     if (!day) {
       return;
     }
-
-    console.log("in formatDayForMomList");
-
+    // console.log("in formatDayForMomList");
     const dayDate = dayToDate(day);
 
     // if (!forDisplay) return formatDate(dayDate, "MMMM D, YYYY");

@@ -4,7 +4,6 @@ const {
   generateNewRawData,
   generateNewDisplayData,
 } = require("./generateAggregateDataUtils");
-const { unlockId } = require("../middlewares/validateRequestMiddleware");
 
 const needsInitValues = {
   occurrenceCount: 0,
@@ -35,19 +34,9 @@ const initAggregateDoc = async (aggregateDocRef, type = "") => {
           totalUnsatisfactionImpact: 0,
           lastUpdate: FieldValue.serverTimestamp(),
         }
-      : type === "insights"
-        ? {
-            threadId: "",
-            nSuccessRun: 0,
-            summary: "",
-            quote: { text: "", author: "", why: "" },
-            book: { title: "", author: "", why: "" },
-            suggestions: { continue: [], stop: [], start: [] },
-            lastUpdate: FieldValue.serverTimestamp(),
-          }
-        : {
-            lastUpdate: FieldValue.serverTimestamp(),
-          };
+      : {
+          lastUpdate: FieldValue.serverTimestamp(),
+        };
   if (!aggregateDoc.exists) {
     // If the document doesn't exist, create it with the default structure
     await aggregateDocRef.set(defaultStructure);
