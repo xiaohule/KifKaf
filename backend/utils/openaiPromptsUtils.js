@@ -333,11 +333,87 @@ const gpt4_7_2_1_params = (momentText) => {
   };
 };
 
-const createOpenaiRequestOptions = (promptVersion, momentText) => {
-  if (promptVersion === "gpt4_7_2_1") {
-    return gpt4_7_2_1_params(momentText); //gpt4_params(momentText);
-  } else {
-    return gpt3_5_params(momentText);
+const gpt4_insightsJSONCleanup_params = (insightsString) => {
+  return {
+    messages: [
+      {
+        role: "system",
+        content: `
+**Instructions**:
+The user will provide an invalid JSON. Please correct it to return a valid JSON in the specified format and nothing else.
+
+The expected format is:
+{
+  "summary": "string",
+  "quote": {
+    "text": "string",
+    "author": "string",
+    "why": "string"
+  },
+  "suggestions": {
+    "continue": ["Up to 3 strings"],
+    "stop": ["Up to 3 strings"],
+    "start": ["Up to 3 strings"]
+  },
+  "book": {
+    "title": "string",
+    "author": "string",
+    "why": "string"
+  }
+}
+
+**Important**: Only return the corrected and valid JSON in the specified format. No explanations, no commentary, nothing else `,
+      },
+      {
+        role: "user",
+        content:
+          '{"summary": "<p>This month presents a delightful mix of <em>curiosity</em>, <em>high spirits</em>, and profound <em>relaxation</em>.", "quote": {"text": "Life is a balance between holding on and letting go.", "author": "Rumi", "why": "This quote encapsulates the essence of your recent experiences"}, "suggestions": {"continue": ["Practicing activities that center your body and mind, like the movement course.", "Embracing the company of friends for motivation and shared joy."], "stop": ["Overlooking the signs of mental fatigue that may require rest and reflection."], "start": ["Setting aside time for purposeful reflection after intense activities or learning."], "book": {"title": "The Power of Now: A Guide to Spiritual Enlightenment", "author": "Eckhart Tolle", "why": "Eckhart Tolle\'s exploration of mindfulness and the beauty of the present moment could enrich the sense of peace you found at the end of your movement course. "}}',
+      },
+      {
+        role: "assistant",
+        content:
+          '{"summary": "<p>This month presents a delightful mix of <em>curiosity</em>, <em>high spirits</em>, and profound <em>relaxation</em>.", "quote": {"text": "Life is a balance between holding on and letting go.", "author": "Rumi", "why": "This quote encapsulates the essence of your recent experiences"}, "suggestions": {"continue": ["Practicing activities that center your body and mind, like the movement course.", "Embracing the company of friends for motivation and shared joy."], "stop": ["Overlooking the signs of mental fatigue that may require rest and reflection."], "start": ["Setting aside time for purposeful reflection after intense activities or learning."]}, "book": {"title": "The Power of Now: A Guide to Spiritual Enlightenment", "author": "Eckhart Tolle", "why": "Eckhart Tolle\'s exploration of mindfulness and the beauty of the present moment could enrich the sense of peace you found at the end of your movement course. "}}',
+      },
+      {
+        role: "user",
+        content:
+          '{"summary": "Hello roc}kwell", "quote": {"text": "Life is a balance between holding on and letting go.", "author": "Rumi", "why": "This quote encapsulates the essence of your recent experiences"}, "suggestions": {"continue": ["Practicing activities that center" your body and mind, like the movement course.", "Embracing the company of friends for motivation and shared joy."], "start": ["Setting aside time for purposeful reflection after intense activities or learning."], "book": {"title": "The {{Power of Now: A Guide to Spiritual Enlightenment", "author": "Eckhart Tolle", "why": "Eckhart Tolle\'s exploration of mindfulness and the beauty of the present moment could enrich the sense of peace you found at the end of your movement course. "}}',
+      },
+      {
+        role: "assistant",
+        content:
+          '{"summary":"Hello rockwell","quote":{"text":"Life is a balance between holding on and letting go.","author":"Rumi","why":"This quote encapsulates the essence of your recent experiences"},"suggestions":{"continue":["Practicing activities that center your body and mind, like the movement course.","Embracing the company of friends for motivation and shared joy."],"start":["Setting aside time for purposeful reflection after intense activities or learning."]},"book":{"title":"The Power of Now: A Guide to Spiritual Enlightenment","author":"Eckhart Tolle","why":"Eckhart Tolle\'s exploration of mindfulness and the beauty of the present moment could enrich the sense of peace you found at the end of your movement course."}}',
+      },
+      {
+        role: "user",
+        content: insightsString.trim(),
+      },
+    ],
+    model: "gpt-4-1106-preview", // "gpt-4",
+    temperature: 0,
+    max_tokens: 1000,
+    response_format: { type: "json_object" },
+    // top_p: 1, //Defaults to 1
+    // frequency_penalty: 0, //Defaults to 0
+    // presence_penalty: 0, //Defaults to 0
+    // stream: true,
+    //user:"user123456" //https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids //TODO:2  to do for safety
+  };
+};
+
+const createOpenaiRequestOptions = (
+  promptVersion,
+  content,
+  completionType = "needsAnalysis",
+) => {
+  if (completionType === "needsAnalysis") {
+    if (promptVersion === "gpt4_7_2_1") {
+      return gpt4_7_2_1_params(content); //gpt4_params(momentText);
+    } else {
+      return gpt3_5_params(content);
+    }
+  } else if (completionType === "insightsJSONCleanup") {
+    return gpt4_insightsJSONCleanup_params(content);
   }
 };
 

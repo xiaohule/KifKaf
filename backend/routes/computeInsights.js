@@ -7,8 +7,11 @@ const {
   isIdLocked,
   unlockId,
 } = require("../middlewares/validateRequestMiddleware");
+const { createOpenaiRequestOptions } = require("../utils/openaiPromptsUtils");
 const { FieldValue } = require("firebase-admin/firestore");
 const { db, openai } = require("../utils/servicesConfig");
+
+const promptVersion = "gpt4_7_2_1";
 
 // ROUTER SETUP
 var router = express.Router();
@@ -45,45 +48,53 @@ async function pollRunCompletion(
   return false; // Max attempts reached without completion
 }
 
-function parseJsonFromInsights(insightsString) {
+// Helper function to attempt parsing JSON
+const tryParseJSON = (jsonStr) => {
   try {
-    // First, attempt to parse the string directly as JSON
-    return JSON.parse(insightsString);
+    return JSON.parse(jsonStr);
   } catch (error) {
-    // If direct parsing fails, try extracting JSON using the regular expression to match JSON wrapped in triple backticks
-    const jsonRegex = /```json\n([\s\S]*?)\n```/;
-    const matches = insightsString.match(jsonRegex);
+    return error;
+  }
+};
 
-    if (matches && matches[1]) {
-      try {
-        // Parse the matched JSON string
-        return JSON.parse(matches[1]);
-      } catch (parseError) {
-        console.error("Error parsing JSON: ", parseError);
-        //STOP ROUTE FOR THIS PERIOD IF ERROR PARSING JSON
-        throw new Error(
-          "In computeInsights > parseJsonFromInsights error with" +
-            insightsString +
-            ":" +
-            JSON.stringify(parseError),
-        );
-      }
-    } else {
-      console.error("No JSON found in the insights string.");
-      //STOP ROUTE FOR THIS PERIOD IF NO JSON FOUND
-      throw new Error(
-        "In computeInsights > parseJsonFromInsights error with" +
-          insightsString,
-      );
+const parseJsonFromInsights = async (insightsString, uid) => {
+  // Directly attempt to parse the input as JSON
+  let parsed = tryParseJSON(insightsString);
+  if (!(parsed instanceof Error)) {
+    return parsed; // Parsed successfully, return the result
+  }
+
+  // Attempt to extract JSON using the regular expression for triple backticks
+  const jsonRegex = /```json\n([\s\S]*?)\n```/;
+  const matches = insightsString.match(jsonRegex);
+  if (matches && matches[1]) {
+    // Attempt to parse the extracted JSON string
+    parsed = tryParseJSON(matches[1]);
+    if (!(parsed instanceof Error)) {
+      return parsed; // Parsed successfully, return the result
     }
   }
-}
+  // At this point, JSON parsing has failed even after attempted correction, saving it for manual review
+  await db.collection("invalidInsightsStrings").add({
+    insightsString: insightsString,
+    parsedError: parsed.message,
+    lastUpdate: FieldValue.serverTimestamp(),
+    user: uid,
+  });
+  console.error(
+    "In computeInsights > parseJsonFromInsights, failed to parse insightsString JSON. insightsString:",
+    insightsString,
+    "Error:",
+    parsed.message,
+  );
+  return false;
+};
 
 async function waitForLockRelease(
   uid,
   lockName,
   interval = 2000,
-  maxRetries = 20,
+  maxRetries = 100,
 ) {
   let retries = 0;
   while (retries < maxRetries) {
@@ -315,7 +326,7 @@ router.post("/compute-insights/", async (req, res) => {
           const responseMessages =
             await openai.beta.threads.messages.list(threadId);
 
-          let insightsString = responseMessages.data[0].content[0].text.value;
+          const insightsString = responseMessages.data[0].content[0].text.value;
           console.log(
             "In computeInsights for uid",
             req.uid,
@@ -325,7 +336,33 @@ router.post("/compute-insights/", async (req, res) => {
             insightsString,
           );
 
-          const insightsObject = parseJsonFromInsights(insightsString);
+          let insightsObject = await parseJsonFromInsights(
+            insightsString,
+            req.uid,
+          );
+          //if insightsObject is false, ask an llm to fix the insightsString JSON
+          if (!insightsObject) {
+            let openaiRequestOptions = createOpenaiRequestOptions(
+              promptVersion,
+              insightsString,
+              "insightsJSONCleanup",
+            );
+            const response =
+              await openai.chat.completions.create(openaiRequestOptions);
+            let openaiResponseMessage = response.choices[0].message;
+            insightsObject = await parseJsonFromInsights(
+              openaiResponseMessage.content,
+            );
+            console.log(
+              "In computeInsights for uid",
+              req.uid,
+              ", for period",
+              key,
+              " insightsObject corrected to",
+              insightsObject,
+            );
+          }
+
           console.log(
             "In computeInsights for uid",
             req.uid,
