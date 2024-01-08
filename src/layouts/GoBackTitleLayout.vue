@@ -19,16 +19,16 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+
 // const props = defineProps({
 //   title: {
 //     type: String,
 //     default: '',
 //   }
 // });
-
 const router = useRouter()
 
-const goBack = async () => {
+const goBack = () => {
   if (window.history.length > 1) {
     // console.log('In goBack, history.length:', window.history.length)
     router.go(-1) // Go back to the previous page if there's a history

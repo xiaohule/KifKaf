@@ -110,10 +110,10 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-  </q-page>
 
-  <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
-    :expected-llm-call-duration="expectedLlmCallDuration" />
+    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
+      :expected-llm-call-duration="expectedLlmCallDuration" />
+  </q-page>
 </template>
 
 <script setup>

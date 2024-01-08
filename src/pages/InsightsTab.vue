@@ -2,7 +2,7 @@
 <template >
   <q-page class="q-mx-auto q-px-md q-pt-xs q-pb-md" style="max-width: 600px">
 
-    <div class="q-mt-xs q-mb-md">
+    <div v-if="ms.segDateId !== 'Yearly'" class="q-mt-xs q-mb-md">
       <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ `${ms.dateRangeButtonLabel}'s
         summary` }}</div>
 
@@ -31,6 +31,7 @@
             </q-item>
 
             <div class="selectable-text">
+              <!-- getDateRangeOkNeedsCounts prevents display to occur if user has deleted all moms -->
               <div
                 v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
                 style="min-height: 0px;" v-html="ms.aggDataInsights[ms.activeDateRange].summary">
@@ -53,7 +54,7 @@
       </swiper-container>
     </div>
 
-    <div class="q-my-xl">
+    <div v-if="ms.segDateId !== 'Yearly'" class="q-my-xl">
       <div class="text-subtitle1
  text-outline text-weight-regular text-center">Daily inspiration drawn from your Moments</div>
       <q-item class="q-pl-xs q-pr-none">
@@ -126,7 +127,7 @@
       </swiper-container>
     </div>
 
-    <div class="q-my-xl">
+    <div v-if="ms.segDateId !== 'Yearly'" class="q-my-xl">
       <div class="text-subtitle1
  text-outline text-weight-regular text-center">The Right Book for Right Now?</div>
       <q-item class="q-pl-xs q-pr-none">
@@ -160,7 +161,7 @@
       </q-item>
     </div>
 
-    <div class="q-my-md">
+    <div v-if="ms.segDateId !== 'Yearly'" class="q-my-md">
       <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ `${ms.dateRangeButtonLabel}'s
         suggestions` }}</div>
 
@@ -258,12 +259,12 @@
         </div>
       </q-card>
     </div>
-    <!-- <Vue3Lottie :animationData="lottie1" :width="300" :speed="0.5" :loop="true" :autoplay="true" /> -->
-  </q-page>
 
-  <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
-  <why-modal v-model="whyModalOpened" :section="whyModalSection" />
-  <learn-more-modal v-model="learnMoreModalOpened" :section="learnMoreModalSection" />
+    <!-- <Vue3Lottie :animationData="lottie1" :width="300" :speed="0.5" :loop="true" :autoplay="true" /> -->
+    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
+    <why-modal v-model="whyModalOpened" :section="whyModalSection" />
+    <learn-more-modal v-model="learnMoreModalOpened" :section="learnMoreModalSection" />
+  </q-page>
 </template>
 
 <script setup>

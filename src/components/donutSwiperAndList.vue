@@ -19,7 +19,8 @@
       style="padding-bottom: 10px;" />
   </div>
 
-  <q-card class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat>
+  <!-- because messes with siwper when in NeedsPageLayout -->
+  <q-card class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat v-touch-swipe.mouse.right="(event) => { goBack() }">
     <div
       v-if="ms.aggDataNeeds && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]?.length > 0">
       <q-list class="q-mt-xs">
@@ -221,6 +222,16 @@ const donutSegmentClicked = ({ needName, clickedSegmentIndex }) => {
   donutChartClickedSegmentIndex.value = clickedSegmentIndex
   emits('reset:deselectSegment')
 }
+
+const goBack = () => {
+  if (window.history.length > 1) {
+    // console.log('In goBack, history.length:', window.history.length)
+    router.go(-1) // Go back to the previous page if there's a history
+  } else {
+    // console.log('In goBack, history.length:', window.history.length, "going to home")
+    router.push({ path: '/' }) // Redirect to root if there's no history
+  }
+}
 </script>
 
 <style lang="scss">
@@ -240,24 +251,6 @@ const donutSegmentClicked = ({ needName, clickedSegmentIndex }) => {
 }
 
 swiper-container {
-  // width: 100%;
-  // height: 100%;
-  // height: 100vh; // This will make the container fill the entire height of the screen
   --swiper-pagination-color: #{$primary};
-  // --swiper-pagination-left: auto;
-  // --swiper-pagination-right: 8px;
-  // --swiper-pagination-bottom: 15px;
-  // --swiper-pagination-top: auto;
-  // --swiper-pagination-fraction-color: inherit;
-  // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
-  // --swiper-pagination-progressbar-size: 4px;
-  // --swiper-pagination-bullet-size: 12px;
-  // --swiper-pagination-bullet-width: 8px;
-  // --swiper-pagination-bullet-height: 8px;
-  // --swiper-pagination-bullet-inactive-color: #000;
-  // --swiper-pagination-bullet-inactive-opacity: 0.2;
-  // --swiper-pagination-bullet-opacity: 1;
-  // --swiper-pagination-bullet-horizontal-gap: 4px;
-  // --swiper-pagination-bullet-vertical-gap: 6px;
 }
 </style>
