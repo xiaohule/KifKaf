@@ -16,6 +16,7 @@
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		C70785BC2AFFD7130068CCCC /* GoogleService-Info-Dev.plist in Resources */ = {isa = PBXBuildFile; fileRef = C70785BB2AFFD7130068CCCC /* GoogleService-Info-Dev.plist */; };
+		C785F4162B4D78FA00DD12B2 /* Enablebounce.m in Sources */ = {isa = PBXBuildFile; fileRef = C785F4152B4D78FA00DD12B2 /* Enablebounce.m */; };
 		C7DEE8312ACABAE000D08E7A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C7DEE8302ACABAE000D08E7A /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -35,6 +36,8 @@
 		BFCFAD1CC1647A79FB36C9C7 /* Pods-KifKaf.debug dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KifKaf.debug dev.xcconfig"; path = "Pods/Target Support Files/Pods-KifKaf/Pods-KifKaf.debug dev.xcconfig"; sourceTree = "<group>"; };
 		C1EA12CF251600C73D9A3F9D /* Pods-KifKaf.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KifKaf.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KifKaf/Pods-KifKaf.debug.xcconfig"; sourceTree = "<group>"; };
 		C70785BB2AFFD7130068CCCC /* GoogleService-Info-Dev.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Dev.plist"; sourceTree = "<group>"; };
+		C785F4142B4D78F900DD12B2 /* KifKaf-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KifKaf-Bridging-Header.h"; sourceTree = "<group>"; };
+		C785F4152B4D78FA00DD12B2 /* Enablebounce.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Enablebounce.m; sourceTree = "<group>"; };
 		C7B527982ACB116400C02BE7 /* KifKaf.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KifKaf.entitlements; sourceTree = "<group>"; };
 		C7DEE8302ACABAE000D08E7A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F578EB5C0C7F53C89543CDB2 /* Pods_KifKaf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KifKaf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,6 +96,8 @@
 				504EC3131FED79650016851F /* Info.plist */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
+				C785F4152B4D78FA00DD12B2 /* Enablebounce.m */,
+				C785F4142B4D78F900DD12B2 /* KifKaf-Bridging-Header.h */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -145,7 +150,7 @@
 				TargetAttributes = {
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
-						LastSwiftMigration = 1500;
+						LastSwiftMigration = 1520;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -244,6 +249,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C785F4162B4D78FA00DD12B2 /* Enablebounce.m in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -394,7 +400,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = KifKaf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 236382978W;
 				GOOGLE_SERVICE_INFO_PLIST = "${SRCROOT}/App/GoogleService-Info.plist";
 				INFOPLIST_FILE = App/Info.plist;
@@ -404,11 +410,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.kifkaf.kifkaf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/KifKaf-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -423,7 +430,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = KifKaf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 236382978W;
 				GOOGLE_SERVICE_INFO_PLIST = "${SRCROOT}/App/GoogleService-Info.plist";
 				INFOPLIST_FILE = App/Info.plist;
@@ -433,10 +440,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.kifkaf.kifkaf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "App/KifKaf-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -511,7 +519,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = KifKaf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 236382978W;
 				GOOGLE_SERVICE_INFO_PLIST = "${SRCROOT}/App/GoogleService-Info-Dev.plist";
 				INFOPLIST_FILE = App/Info.plist;
@@ -521,11 +529,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = app.kifkaf.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/KifKaf-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -595,7 +604,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = KifKaf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 236382978W;
 				GOOGLE_SERVICE_INFO_PLIST = "${SRCROOT}/App/GoogleService-Info-Dev.plist";
 				INFOPLIST_FILE = App/Info.plist;
@@ -605,10 +614,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.kifkaf.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "App/KifKaf-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

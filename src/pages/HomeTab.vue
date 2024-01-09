@@ -110,6 +110,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <br />
 
     <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
       :expected-llm-call-duration="expectedLlmCallDuration" />

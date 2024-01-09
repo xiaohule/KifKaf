@@ -260,6 +260,7 @@
         </div>
       </q-card>
     </div>
+    <br />
 
     <!-- <Vue3Lottie :animationData="lottie1" :width="300" :speed="0.5" :loop="true" :autoplay="true" /> -->
     <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
