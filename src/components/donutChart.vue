@@ -1,6 +1,6 @@
 <!-- here we display the correct donut chart for the requested date range -->
 <template>
-  <div style="position: relative;" :class="props.embedded ? 'smallDoughnut' : 'bigDoughnut'">
+  <div style="position: relative;" :class="props.embedded ? 'smallDoughnut' : 'bigDoughnut'" @click="handleClick">
 
     <Doughnut v-if="loaded" ref="chartRef" :data="chartData" :options="chartOptions" class="q-mx-auto" />
 
@@ -13,16 +13,16 @@
           {{ needsMap[chartData.datasets[0].labels[clickedIndex]][0] }}
         </q-avatar>
         <div class="text-body2 text-center q-mt-md q-mb-sm">{{ chartData.datasets[0].labels[clickedIndex]
-                  }}</div>
+        }}</div>
         <div class="text-h3 text-on-surface text-weight-bolder text-center">{{
-                  parseFloat((chartData.datasets[0].data[clickedIndex] *
-                  100).toFixed(0)) + "%" }}
+          parseFloat((chartData.datasets[0].data[clickedIndex] *
+            100).toFixed(0)) + "%" }}
         </div>
       </div>
 
       <div class="text-body2 text-center q-my-sm" v-else>{{ ms.needsToggleModel == 'satisfaction' ? 'Satisfiers' :
-              (ms.needsToggleModel == 'unsatisfaction' ?
-              'Dissatisfiers' : 'Top needs') }}</div>
+        (ms.needsToggleModel == 'unsatisfaction' ?
+          'Dissatisfiers' : 'Top needs') }}</div>
     </div>
   </div>
 </template>
@@ -30,12 +30,15 @@
 <script setup>
 import { ref, nextTick, watchEffect, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useRouter } from 'vue-router'
 import { Chart as ChartJS, ArcElement } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
 import { needsMap, needToColor } from "./../utils/needsUtils";
 ChartJS.register(ArcElement);
 
 const ms = useMomentsStore()
+const router = useRouter()
+
 const loaded = ref(false)
 const chartRef = ref(null)
 const isSegmentClicked = ref(false)
@@ -73,36 +76,41 @@ const props = defineProps({
 const emits = defineEmits(['click:segment', 'update:chartData'])
 
 const handleClick = (evt, item, chart) => {
-  console.log('In donutChart ', ms.activeDateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
-  // Check if any segment is clicked
-  if (chartData.value.datasets[0].labels[0] === 'No data') return
+  console.log('In donutChart props.embedded', props.embedded, " for ", ms.activeDateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
 
-  else if (item.length > 0 && clickedIndex.value !== item[0].index) {
-    isSegmentClicked.value = true;
-    clickedIndex.value = item[0].index;
+  if (props.embedded) {
+    router.push('/insights/needs')
+  } else {
+    // Check if any segment is clicked
+    if (chartData.value.datasets[0].labels[0] === 'No data' || !item) return
 
-    console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with', { needName: chartData.value.datasets[0].labels[clickedIndex.value] });
+    else if (item.length > 0 && clickedIndex.value !== item[0].index) {
+      isSegmentClicked.value = true;
+      clickedIndex.value = item[0].index;
 
-    emits('click:segment', { needName: chartData.value.datasets[0].labels[clickedIndex.value], clickedSegmentIndex: clickedIndex.value })
-    chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
-      // If the segment is clicked, ensure it's coloured, for other segments, ensure they are greyed out
-      colors[index] = index === clickedIndex.value ? chartData.value.datasets[0].hoverBackgroundColor[index] : '#c0c6dc';
-    });
+      console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with', { needName: chartData.value.datasets[0].labels[clickedIndex.value] });
+
+      emits('click:segment', { needName: chartData.value.datasets[0].labels[clickedIndex.value], clickedSegmentIndex: clickedIndex.value })
+      chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
+        // If the segment is clicked, ensure it's coloured, for other segments, ensure they are greyed out
+        colors[index] = index === clickedIndex.value ? chartData.value.datasets[0].hoverBackgroundColor[index] : '#c0c6dc';
+      });
+    }
+
+    else {
+      isSegmentClicked.value = false;
+      clickedIndex.value = null;
+
+      console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with null');
+
+      emits('click:segment', { needName: null, clickedSegmentIndex: null })
+      chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
+        // Reset to original color when clicking outside
+        colors[index] = chartData.value.datasets[0].hoverBackgroundColor[index];
+      });
+    }
+    chart.update();
   }
-
-  else {
-    isSegmentClicked.value = false;
-    clickedIndex.value = null;
-
-    console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with null');
-
-    emits('click:segment', { needName: null, clickedSegmentIndex: null })
-    chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
-      // Reset to original color when clicking outside
-      colors[index] = chartData.value.datasets[0].hoverBackgroundColor[index];
-    });
-  }
-  chart.update();
 }
 const chartOptions = ref({
   cutout: props.embedded ? '82%' : '86%',

@@ -15,43 +15,59 @@
 
     <q-page-container>
       <router-view v-slot="{ Component }">
-        <!-- v-touch-swipe.mouse.right="(event) => { goBack() }" -->
+        <!-- v-touch-swipe.mouse.right="handleSwipeRight" -->
         <component :is="Component" />
       </router-view>
     </q-page-container>
 
     <date-picker-modal v-model="filterDialogOpened" />
-
   </q-layout>
 </template>
 
 <script setup>
 import { useMomentsStore } from './../stores/moments.js'
-import { useRouter } from 'vue-router'
+// import { useRouter } from 'vue-router'
 import datePickerModal from "./../components/datePickerModal.vue";
 import { ref } from 'vue'
 
-// const props = defineProps({
-//   title: {
-//     type: String,
-//     default: '',
-//   }
-// });
 const ms = useMomentsStore()
-const router = useRouter()
+// const router = useRouter()
 
 const filterDialogOpened = ref(false)
 
-const goBack = async () => {
-  if (window.history.length > 1) {
-    // console.log('In goBack, history.length:', window.history.length)
-    router.go(-1) // Go back to the previous page if there's a history
-  } else {
-    // console.log('In goBack, history.length:', window.history.length, "going to home")
-    router.push({ path: '/' }) // Redirect to root if there's no history
-  }
-}
+// const goBack = () => {
+//   if (window.history.length > 1) {
+//     // console.log('In goBack, history.length:', window.history.length)
+//     router.go(-1) // Go back to the previous page if there's a history
+//   } else {
+//     // console.log('In goBack, history.length:', window.history.length, "going to home")
+//     router.push({ path: '/' }) // Redirect to root if there's no history
+//   }
+// }
 
+// // Function to check if the event target is inside a swiper-container
+// const isEventFromSwiper = (event) => {
+//   let target = event.evt.target;
+//   while (target != null) {
+//     // Check if the target or its parent has a nodeName of 'SWIPER-CONTAINER'
+//     if (target.nodeName === 'SWIPER-CONTAINER') {
+//       return true;
+//     }
+//     target = target.parentNode;
+//   }
+//   return false;
+// };
+
+// const handleSwipeRight = (event) => {
+//   console.log('In NeedsPageLayout > v-touch-swipe.mouse.right, event.evt.target:', event.evt.target);
+
+//   // Check if the swipe event originated from within a swiper-container
+//   if (!isEventFromSwiper(event)) {
+//     goBack();
+//   } else {
+//     console.log('Swipe originated inside swiper-container, not triggering goBack()');
+//   }
+// }
 </script>
 
 <style lang="scss"></style>

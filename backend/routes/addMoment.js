@@ -164,8 +164,20 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
       moment: req.body.momentText,
       momentId: req.body.momentId,
     });
+  } catch (error) {
+    // If an error occurs before the success response is sent, send a failure response
+    console.error(error);
+    unlockId(req.body.momentId);
+    return res.status(500).json({
+      message: "In addMoment > An error occurred while updating moment needs",
+      moment: req.body.momentText,
+      momentId: req.body.momentId,
+      error: error,
+    });
+  }
 
-    // TRIGGER COMPUTE INSIGHTS IF NEEDED
+  // TRIGGER COMPUTE INSIGHTS (IF NEEDED)
+  try {
     // console.log("process.env.API_URL", process.env.API_URL);
     await axios.post(
       `/api/learn/compute-insights/`,
@@ -180,17 +192,9 @@ router.post("/add-moment/", validateAddMomentRequest, async (req, res) => {
       },
     );
   } catch (error) {
-    // If an error occurs before the success response is sent, send a failure response
     console.error(error);
-    unlockId(req.body.momentId);
-    return res.status(500).json({
-      message:
-        "In addMoment > An error occurred while updating moment needs or aggData or computing insights",
-      moment: req.body.momentText,
-      momentId: req.body.momentId,
-      error: error,
-    });
   }
+  return;
 });
 
 module.exports = router;

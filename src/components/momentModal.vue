@@ -100,9 +100,9 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </q-dialog>
 
-  <learn-more-modal v-model="learnMoreModalOpened" :section="learnMoreModalSection" />
+    <learn-more-modal v-model="learnMoreModalOpened" :section="learnMoreModalSection" />
+  </q-dialog>
 </template>
 
 <script setup>

@@ -82,10 +82,9 @@
         </q-card>
       </div>
     </div>
+    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
+      :expected-llm-call-duration="expectedLlmCallDuration" />
   </q-page>
-
-  <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
-    :expected-llm-call-duration="expectedLlmCallDuration" />
 </template>
 
 <script setup>

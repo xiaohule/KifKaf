@@ -81,144 +81,144 @@ const gpt3_5_params = (momentText) => {
   };
 };
 
-const systemMessageContentGpt4_long = `
-**Context**:
-We are collaborating to understand the satisfaction and importance levels of various human needs from described Moments. You specialize in human needs psychology.
+// const systemMessageContentGpt4_long = `
+// **Context**:
+// We are collaborating to understand the satisfaction and importance levels of various human needs from described Moments. You specialize in human needs psychology.
 
-**Instructions**:
-Follow these steps when responding to user inputs:
+// **Instructions**:
+// Follow these steps when responding to user inputs:
 
-Step 1 - User provides a Moment.
+// Step 1 - User provides a Moment.
 
-Step 2 - For each need of the list of Universal Human Needs (see below), assess whether the Moment indicates the satisfaction or lack thereof for that need or suggests that the user attaches importance to this need.
+// Step 2 - For each need of the list of Universal Human Needs (see below), assess whether the Moment indicates the satisfaction or lack thereof for that need or suggests that the user attaches importance to this need.
 
-Note for Step 2:
-If you don't understand the user's Moment reply with \`Oops: I'm sorry, but I was unable to analyze your needs for this Moment because {Reason}. Could you please retry with {Advice}\` and ignore following steps.
+// Note for Step 2:
+// If you don't understand the user's Moment reply with \`Oops: I'm sorry, but I was unable to analyze your needs for this Moment because {Reason}. Could you please retry with {Advice}\` and ignore following steps.
 
-Step 3 - From the needs identified in Step 2, select a maximum of 5 that correlate most with the Moment. Fewer is fine, but no more than 5.
+// Step 3 - From the needs identified in Step 2, select a maximum of 5 that correlate most with the Moment. Fewer is fine, but no more than 5.
 
-Step 4 - For each need selected at step 3, rate on a scale from [0.0,1.0]:
+// Step 4 - For each need selected at step 3, rate on a scale from [0.0,1.0]:
 
-- Its level of satisfaction for the user. 0.0 means that this need was fully unsatisfied and 1.0 means fully satisfied. Choose 0.5 if the satisfaction level appears neutral or uncertain.
-- The importance the user is likely attaching to this need. 0.0 means the Moment suggests that this need isn't important at all for the user currently and 1.0 means highly important. Choose 0.5 for moderate importance.
+// - Its level of satisfaction for the user. 0.0 means that this need was fully unsatisfied and 1.0 means fully satisfied. Choose 0.5 if the satisfaction level appears neutral or uncertain.
+// - The importance the user is likely attaching to this need. 0.0 means the Moment suggests that this need isn't important at all for the user currently and 1.0 means highly important. Choose 0.5 for moderate importance.
 
-Return your result in the following JSON Format. Only include needs with non-zero importance. Avoid explanations, just return the expected JSON result.
-\`{"need_name": [satisfaction_value, importance_value], ...}\`
+// Return your result in the following JSON Format. Only include needs with non-zero importance. Avoid explanations, just return the expected JSON result.
+// \`{"need_name": [satisfaction_value, importance_value], ...}\`
 
-Insights for Step 4:
-- A strong sense of a need being met or unmet is a clear cue of its high importance to the user.
-- Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for "Felt so bad when running after eating spinach" we have no information on whether the need for "Physical Movement" was met during this unfortunate Moment but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.
-- A Moment might hint at a need's importance even if the need is not explicitly mentioned.
-- Over-satisfaction of a need might hint at the unsatisfaction of another need.
-  e.g., For "Feeling overwhelmed from too much social interaction", the "Social Connection" need may be over-satisfied and of lesser importance currently for the user, but the "Boundaries & Privacy" need might be unsatisfied and of higher importance.
+// Insights for Step 4:
+// - A strong sense of a need being met or unmet is a clear cue of its high importance to the user.
+// - Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for "Felt so bad when running after eating spinach" we have no information on whether the need for "Physical Movement" was met during this unfortunate Moment but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.
+// - A Moment might hint at a need's importance even if the need is not explicitly mentioned.
+// - Over-satisfaction of a need might hint at the unsatisfaction of another need.
+//   e.g., For "Feeling overwhelmed from too much social interaction", the "Social Connection" need may be over-satisfied and of lesser importance currently for the user, but the "Boundaries & Privacy" need might be unsatisfied and of higher importance.
 
-**Universal Human Needs**:
-\`${JSON.stringify(needsList)}\`
-`;
+// **Universal Human Needs**:
+// \`${JSON.stringify(needsList)}\`
+// `;
 
-const systemMessageContentGpt4_avg = `
-**Context**:
-You specialize in universal human needs psychology.
+// const systemMessageContentGpt4_avg = `
+// **Context**:
+// You specialize in universal human needs psychology.
 
-**Instructions**:
-Step 1 - User provides a Moment.
+// **Instructions**:
+// Step 1 - User provides a Moment.
 
-Step 2 - If you don't understand the Moment, return \`Oops: I'm sorry, but I was unable to analyze this Moment because {Reason}. Could you please retry with {Advice}\`.
+// Step 2 - If you don't understand the Moment, return \`Oops: I'm sorry, but I was unable to analyze this Moment because {Reason}. Could you please retry with {Advice}\`.
 
-Step 3 - For each need of the list of needs below, assess whether the Moment indicates the satisfaction or unsatisfaction of it, or if it suggests that the user attaches importance to this need.
-In the list of universal human needs below, pick those that seem to carry the most importance for the user. Pick between 1 and 5 needs.
+// Step 3 - For each need of the list of needs below, assess whether the Moment indicates the satisfaction or unsatisfaction of it, or if it suggests that the user attaches importance to this need.
+// In the list of universal human needs below, pick those that seem to carry the most importance for the user. Pick between 1 and 5 needs.
 
-Step 4 - For each need selected at step 3, rate on a scale from [0.0,1.0]:
-- Its level of satisfaction for the user. 0.0 means that this need was fully unsatisfied and 1.0 means fully satisfied. Choose 0.5 if the satisfaction level appears neutral or uncertain.
-- The importance the user is likely attaching to this need. 0.0 means the Moment suggests that this need isn't important at all for the user currently and 1.0 means highly important. Choose 0.5 for moderate importance.
+// Step 4 - For each need selected at step 3, rate on a scale from [0.0,1.0]:
+// - Its level of satisfaction for the user. 0.0 means that this need was fully unsatisfied and 1.0 means fully satisfied. Choose 0.5 if the satisfaction level appears neutral or uncertain.
+// - The importance the user is likely attaching to this need. 0.0 means the Moment suggests that this need isn't important at all for the user currently and 1.0 means highly important. Choose 0.5 for moderate importance.
 
-Return result as JSON:\`{"need_name": [satisfaction_value, importance_value], ...}\`. Only include needs with non-zero importance. Avoid explanations, just return the expected JSON result.
+// Return result as JSON:\`{"need_name": [satisfaction_value, importance_value], ...}\`. Only include needs with non-zero importance. Avoid explanations, just return the expected JSON result.
 
-Insights for Step 4:
-- A strong sense of a need being met or unmet is a clear cue of its high importance to the user.
-- Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for Moment "Felt so bad when running after eating spinach" we have no information on whether the need for "Physical Movement" was met during this unfortunate Moment but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.
-- A Moment might hint at a need's importance even if the need is not explicitly mentioned.
-- Over-satisfaction of a need might hint at the unsatisfaction of another need.
-  e.g., For "Feeling overwhelmed from too much social interaction", the "Social Connection" need may be over-satisfied and of lesser importance currently for the user, but the "Boundaries & Privacy" need might be unsatisfied and of higher importance.
+// Insights for Step 4:
+// - A strong sense of a need being met or unmet is a clear cue of its high importance to the user.
+// - Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for Moment "Felt so bad when running after eating spinach" we have no information on whether the need for "Physical Movement" was met during this unfortunate Moment but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.
+// - A Moment might hint at a need's importance even if the need is not explicitly mentioned.
+// - Over-satisfaction of a need might hint at the unsatisfaction of another need.
+//   e.g., For "Feeling overwhelmed from too much social interaction", the "Social Connection" need may be over-satisfied and of lesser importance currently for the user, but the "Boundaries & Privacy" need might be unsatisfied and of higher importance.
 
-**Universal Human Needs**:
-\`${JSON.stringify(needsList)}\`
-`;
+// **Universal Human Needs**:
+// \`${JSON.stringify(needsList)}\`
+// `;
 
-const systemMessageContentGpt4 = `
-**Context**:
-You are an expert in analyzing universal human needs from user-provided Moments.
+// const systemMessageContentGpt4 = `
+// **Context**:
+// You are an expert in analyzing universal human needs from user-provided Moments.
 
-**Needs List**:
-\`${JSON.stringify(needsList)}\`
+// **Needs List**:
+// \`${JSON.stringify(needsList)}\`
 
-**Instructions**:
-- Review the Moment provided by the user.
-- Determine up to 5 relevant needs from the predefined list that relate to the Moment.
-- For each identified need, rate on a [0.0,1.0] scale:
-  -- Satisfaction level (0.0 = fully unsatisfied, 1.0 = fully satisfied, 0.5 = neutral/uncertain).
-  -- Importance to the user (0.0 = not important, 1.0 = highly important, 0.5 = moderately important).
+// **Instructions**:
+// - Review the Moment provided by the user.
+// - Determine up to 5 relevant needs from the predefined list that relate to the Moment.
+// - For each identified need, rate on a [0.0,1.0] scale:
+//   -- Satisfaction level (0.0 = fully unsatisfied, 1.0 = fully satisfied, 0.5 = neutral/uncertain).
+//   -- Importance to the user (0.0 = not important, 1.0 = highly important, 0.5 = moderately important).
 
-**Guidelines:**
--- A strong sense of a need being met or unmet is a clear cue of its high importance to the user.
--- Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for Moment "Felt so bad when running after eating spinach" we have no information on whether the need for "Physical Movement" was met during this unfortunate Moment but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.
+// **Guidelines:**
+// -- A strong sense of a need being met or unmet is a clear cue of its high importance to the user.
+// -- Even with no clear information on a need satisfaction, one can sometimes still infer that it has importance. e.g., for Moment "Felt so bad when running after eating spinach" we have no information on whether the need for "Physical Movement" was met during this unfortunate Moment but we can infer that it is somehow important for the user, otherwise he wouldn't go for a run anyway.
 
-**Response**:
-- Return a JSON with only the needs of non-zero importance: \`{"need_name": [satisfaction_value, importance_value], ...}\`.
-- If clarification is needed, respond with: \`Oops: your moment is {issue}. Please retry with {Advice}.\`.
-`;
+// **Response**:
+// - Return a JSON with only the needs of non-zero importance: \`{"need_name": [satisfaction_value, importance_value], ...}\`.
+// - If clarification is needed, respond with: \`Oops: your moment is {issue}. Please retry with {Advice}.\`.
+// `;
 
-const gpt4_params = (momentText) => {
-  return {
-    model: "gpt-4",
-    messages: [
-      {
-        role: "system",
-        content: systemMessageContentGpt4.trim(),
-      },
-      {
-        role: "user",
-        content:
-          "Feeling like I am wasting my time at the playfight workshop because I'm not learning anything.",
-      },
-      {
-        role: "assistant",
-        content:
-          '{"Learning": [0.0, 1.0],"Competence & Effectiveness": [0.0, 0.9],"Exploration, Novelty & Inspiration": [0.0, 0.8],"Challenge": [0.0, 0.7]}',
-      },
-      {
-        role: "user",
-        content:
-          "Je me sens bien d'aller voir les copains pour dîner avec eux mais un petit peu agitée tout de même parce que j'ai beaucoup bossé je sens que mon besoin de récompense est élevé",
-      },
-      {
-        role: "assistant",
-        content:
-          '{"Rest & Relaxation": [0.5, 0.9],"Social Connection": [0.8, 1.0],"Emotional Safety & Inner Peace": [0.5, 0.9],"Self-Esteem & Social Recognition": [0.7, 0.9],"Fairness & Justice": [0.7, 0.8]}',
-      },
-      {
-        role: "user",
-        content: "Feeling",
-      },
-      {
-        role: "assistant",
-        content:
-          "Oops: your moment is incomplete. Please retry with more details.",
-      },
-      {
-        role: "user",
-        content: momentText.trim(),
-      },
-    ],
-    temperature: 0,
-    max_tokens: 100,
-    // top_p: 1, //Defaults to 1
-    // frequency_penalty: 0, //Defaults to 0
-    // presence_penalty: 0, //Defaults to 0
-    // stream: true,
-    //user:"user123456" //https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids //TODO:2  to do for safety
-  };
-};
+// const gpt4_params = (momentText) => {
+//   return {
+//     model: "gpt-4",
+//     messages: [
+//       {
+//         role: "system",
+//         content: systemMessageContentGpt4.trim(),
+//       },
+//       {
+//         role: "user",
+//         content:
+//           "Feeling like I am wasting my time at the playfight workshop because I'm not learning anything.",
+//       },
+//       {
+//         role: "assistant",
+//         content:
+//           '{"Learning": [0.0, 1.0],"Competence & Effectiveness": [0.0, 0.9],"Exploration, Novelty & Inspiration": [0.0, 0.8],"Challenge": [0.0, 0.7]}',
+//       },
+//       {
+//         role: "user",
+//         content:
+//           "Je me sens bien d'aller voir les copains pour dîner avec eux mais un petit peu agitée tout de même parce que j'ai beaucoup bossé je sens que mon besoin de récompense est élevé",
+//       },
+//       {
+//         role: "assistant",
+//         content:
+//           '{"Rest & Relaxation": [0.5, 0.9],"Social Connection": [0.8, 1.0],"Emotional Safety & Inner Peace": [0.5, 0.9],"Self-Esteem & Social Recognition": [0.7, 0.9],"Fairness & Justice": [0.7, 0.8]}',
+//       },
+//       {
+//         role: "user",
+//         content: "Feeling",
+//       },
+//       {
+//         role: "assistant",
+//         content:
+//           "Oops: your moment is incomplete. Please retry with more details.",
+//       },
+//       {
+//         role: "user",
+//         content: momentText.trim(),
+//       },
+//     ],
+//     temperature: 0,
+//     max_tokens: 100,
+//     // top_p: 1, //Defaults to 1
+//     // frequency_penalty: 0, //Defaults to 0
+//     // presence_penalty: 0, //Defaults to 0
+//     // stream: true,
+//     //user:"user123456" //https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids //TODO:2  to do for safety
+//   };
+// };
 
 const systemMessageContentGpt4_7_2_1 = `
 **Context**:
@@ -321,10 +321,10 @@ const gpt4_7_2_1_params = (momentText) => {
         content: momentText.trim(),
       },
     ],
-    model: "gpt-4", // "gpt-4-1106-preview",
+    model: "gpt-4-1106-preview", // "gpt-4",
     temperature: 0,
     max_tokens: 300,
-    // response_format: { type: "json_object" },
+    response_format: { type: "json_object" },
     // top_p: 1, //Defaults to 1
     // frequency_penalty: 0, //Defaults to 0
     // presence_penalty: 0, //Defaults to 0
