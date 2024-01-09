@@ -98,6 +98,15 @@ export const useMomentsStore = defineStore("moments", () => {
       formatDate(currentDate.value, "YYYY-MM")
     );
   });
+  const prevDateRange = computed(() => {
+    const prevIndex = activeIndex.value - 1;
+    if (prevIndex >= 0) {
+      return (
+        dateRanges.value[prevIndex] ?? formatDate(currentDate.value, "YYYY-MM")
+      );
+    }
+    return null;
+  });
   const dateRangeButtonLabel = computed(() =>
     getDatePickerLabel(activeDateRange.value),
   );
@@ -977,6 +986,7 @@ export const useMomentsStore = defineStore("moments", () => {
     activeIndex,
     segDateId,
     activeDateRange,
+    prevDateRange,
     dateRanges,
     pickedDateYYYYsMMsDD,
     suggestions,

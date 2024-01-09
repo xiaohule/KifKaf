@@ -115,9 +115,10 @@
                 { label: 'All', value: 'importance' }
               ]" />
             <div v-if="ms.needsToggleModel === 'top'">
-              <top-item top-type="satisfaction" />
-              <top-item top-type="unsatisfaction" />
-              <top-item top-type="importance" />
+              <top-item top-type="satisfier" />
+              <top-item top-type="dissatisfier" />
+              <top-item v-if="ms.prevDateRange" top-type="gainer" />
+              <top-item v-if="ms.prevDateRange" top-type="loser" />
             </div>
             <div v-else>
               <donut-swiper-and-list v-if="ms.activeIndex !== undefined" :embedded="true" />
