@@ -82,9 +82,23 @@
       <h5>Governing Law & Jurisdiction</h5>
       <p>These Terms are governed by French law, and any disputes will be resolved in the courts of Paris.</p>
 
+      <h5>Acknowledgements</h5>
+      <p>The Service includes content sourced from various creators and platforms. We would like to extend our
+        gratitude to the following contributors for their valuable additions:</p>
+      <ul>
+        <li><a href="https://www.freepik.com/free-vector/water-bubbles-background-design_1171662.htm">Image by
+            pinnacleanimates</a> on Freepik
+        </li>
+        <li>Image by <a href="https://www.freepik.com/free-vector/notebook-mockup_726387.htm">Freepik</a>
+        </li>
+        <li><a
+            href="https://www.freepik.com/free-vector/abstract-vector-colorful-mesh-dark-background-futuristic-style-card-elegant-background-business-presentations-corrupted-point-sphere-chaos-aesthetics_22421018.htm#&position=4&from_view=author&uuid=63844ca8-19c6-4994-b873-c9e3a865dbf8">Image
+            by GarryKillian</a> on Freepik</li>
+      </ul>
+
       <br />
-      <p>Effective Date: January 1, 2023</p>
-      <p>Last Updated: October 26, 2023</p>
+      <p>Effective Date: January 1, 2023 <br />
+        Last Updated: October 26, 2023</p>
     </q-card>
   </q-page>
 </template>
