@@ -13,6 +13,7 @@ import {
   increment,
   orderBy,
   doc,
+  Timestamp,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -319,7 +320,7 @@ const setDeviceLanguage = async () => {
 };
 
 //ADD MOMENT RETRY: at each start of the app, look for moments with empty needs and retry the LLM call
-const addDeleteMomentRetry = async () => {
+export const addDeleteMomentRetry = async (force = false) => {
   // console.log(
   //   "In firebaseBoot > addDeleteMomentRetry > capacitor mode is",
   //   process.env.MODE === "capacitor",
@@ -336,7 +337,7 @@ const addDeleteMomentRetry = async () => {
   const addMomentRetryQuery = query(
     collection(userDocRef.value, "moments"),
     where("needs", "==", {}),
-    where("retries", "<", 3),
+    where("retries", "<", force ? 10 : 3),
     orderBy("retries"),
     orderBy("date", "desc"),
   );
@@ -365,6 +366,10 @@ const addDeleteMomentRetry = async () => {
         doc.data(),
       );
       try {
+        await updateDoc(doc.ref, {
+          lastTouch: Timestamp.now(),
+        });
+
         const response = await axios.post(
           `/api/learn/add-moment/`,
           {

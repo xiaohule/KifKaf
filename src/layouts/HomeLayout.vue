@@ -2,7 +2,7 @@
   <q-layout view="hHh lpr fFf" class="bg-background">
 
     <q-header class="bg-transparent" :bordered="!isBackgroundDark">
-      <q-toolbar :class="['q-mx-auto', 'q-pr-xs', isScrolled ? 'toolbar-blurred' : '']"
+      <q-toolbar :class="['q-mx-auto', 'q-pr-xs', isScrolled ? 'toolbar-blurred' : 'toolbar-blurred']"
         style="max-width: 600px; overflow: hidden;">
         <q-avatar size="sm" square @click="router.push('/')">
           <img :class="{ 'invert-color': isBackgroundDark }" src="~assets/icon-kifkaf-no-background.svg" />

@@ -1,119 +1,122 @@
 <template >
   <q-page class="q-mx-auto q-pa-none" style="max-width: 600px;">
-    <q-parallax style="height: 60vh; max-height:600px; margin-top: -100px;" :speed="0.5">
-      <template v-slot:media>
-        <img src="~assets/home-background-1-tinified.png">
-        <!-- trop dark mais pas mal-->
-        <!-- <img src="~assets/ink.png"> -->
-        <!-- pas mal -->
-        <!-- <img src="~assets/pexels-brakou-abdelghani-1723637.png"> -->
-        <!-- pas mal -->
-        <!-- <img src="~assets/pexels-brakou-abdelghani-11723637.png"> -->
+    <q-pull-to-refresh @refresh="refresh">
 
-        <!-- trop froid -->
-        <!-- <img src="~assets/luke-chesser-3rWagdKBF7U-unsplash.png"> -->
-        <!-- pas mal à réorienter -->
-        <!-- <img src="~assets/luke-chesser-eICUFSeirc0-unsplash.png"> -->
+      <q-parallax style="height: 60vh; max-height:600px; margin-top: -100px;" :speed="0.5">
+        <template v-slot:media>
+          <img src="~assets/home-background-1-tinified.png">
+          <!-- trop dark mais pas mal-->
+          <!-- <img src="~assets/ink.png"> -->
+          <!-- pas mal -->
+          <!-- <img src="~assets/pexels-brakou-abdelghani-1723637.png"> -->
+          <!-- pas mal -->
+          <!-- <img src="~assets/pexels-brakou-abdelghani-11723637.png"> -->
 
-        <!-- <img src="~assets/home2.png"> -->
-        <!-- <img src="~assets/basicGradient.png"> -->
-        <!-- pas mal -->
-        <!-- <img src="~assets/Rectangle29.png"> -->
-        <!-- <img src="~assets/Rectangle31.png"> -->
-        <!-- <img src="~assets/Rectangle32.png"> -->
-      </template>
-      <template v-slot:content>
+          <!-- trop froid -->
+          <!-- <img src="~assets/luke-chesser-3rWagdKBF7U-unsplash.png"> -->
+          <!-- pas mal à réorienter -->
+          <!-- <img src="~assets/luke-chesser-eICUFSeirc0-unsplash.png"> -->
 
-        <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
-        <!-- /* display: grid; */
+          <!-- <img src="~assets/home2.png"> -->
+          <!-- <img src="~assets/basicGradient.png"> -->
+          <!-- pas mal -->
+          <!-- <img src="~assets/Rectangle29.png"> -->
+          <!-- <img src="~assets/Rectangle31.png"> -->
+          <!-- <img src="~assets/Rectangle32.png"> -->
+        </template>
+        <template v-slot:content>
+
+          <!-- // TODO:1 make the btn align with the end of the text area when it grows -->
+          <!-- /* display: grid; */
   /* grid-template-rows: 1fr 2fr; Ratio for B and C */
   /* overflow: hidden; Hide B when the container is too small */     -->
-        <div style="width: 100%;  margin-top: 100px; height: 60vh; position: relative; z-index: 20;">
-          <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{
-            getGreetingLabel }}{{
+          <div style="width: 100%;  margin-top: 100px; height: 60vh; position: relative; z-index: 20;">
+            <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{
+              getGreetingLabel }}{{
     userFirstName }} 👋</div>
-          <div class="pushed-up-if-height-xs q-py-md">
-            <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
-            <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
-              v-model="newMomText" :shadow-text="inputShadowText" lazy-rules="ondemand" :rules="newMomRules"
-              @blur="inputBlurred" type="text" autogrow rounded outlined bg-color="surface" color="transparent"
-              :placeholder="placeholderText" input-class="new-moment-input">
-              <template v-slot:append>
-                <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
-                  size="17px" @click="toggleSpeech" />
-                <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round icon="r_stop"
-                  size="17px" class="pulse-animation" @click="toggleSpeech" />
-              </template>
-              <template v-slot:after>
-                <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense color="surface"
-                  text-color="primary" icon="r_arrow_forward" size="20px" padding="xs" />
-                <q-btn v-else round dense unelevated color="surface" text-color="primary" disable icon="r_arrow_forward"
-                  size="20px" padding="sm" />
-              </template>
-            </q-input>
+            <div class="pushed-up-if-height-xs q-py-md">
+              <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
+              <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
+                v-model="newMomText" :shadow-text="inputShadowText" lazy-rules="ondemand" :rules="newMomRules"
+                @blur="inputBlurred" type="text" autogrow rounded outlined bg-color="surface" color="transparent"
+                :placeholder="placeholderText" input-class="new-moment-input">
+                <template v-slot:append>
+                  <q-btn v-if="showSpeechRecognitionButton && !isRecognizing" color="primary" flat dense round icon="mic"
+                    size="17px" @click="toggleSpeech" />
+                  <q-btn v-else-if="showSpeechRecognitionButton && isRecognizing" color="primary" dense round
+                    icon="r_stop" size="17px" class="pulse-animation" @click="toggleSpeech" />
+                </template>
+                <template v-slot:after>
+                  <q-btn v-if="newMomText.length !== 0 && !isRecognizing" @click="onSubmit" round dense color="surface"
+                    text-color="primary" icon="r_arrow_forward" size="20px" padding="xs" />
+                  <q-btn v-else round dense unelevated color="surface" text-color="primary" disable icon="r_arrow_forward"
+                    size="20px" padding="sm" />
+                </template>
+              </q-input>
+            </div>
           </div>
+        </template>
+      </q-parallax>
+
+      <welcome-tutorial v-if="ms?.userDoc?.showWelcomeTutorial" :new-mom-text="newMomText"
+        :new-mom-input-ref="newMomInputRef" @update:new-mom-text="newMomText = $event"
+        @click:view-needs="momentModalId = $event; momentModalOpened = true"
+        class="q-px-md negative-margin-welcome-tutorial" />
+
+      <div v-if="!ms || !ms.getUniqueDaysTs || ms.getUniqueDaysTs.length == 0"></div>
+      <div v-else class="q-px-md">
+        <div v-for="( day, index ) in  ms.getUniqueDaysTs " :key="day">
+
+          <div :class="[
+            'text-h6',
+            'text-weight-medium',
+            'q-pa-none',
+            'q-mb-sm',
+            (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
+            (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
+          ]">{{ formatDayForMomList(day) }}</div>
+          <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
+            <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
+              class="q-px-none q-py-sm" style="min-height: 0px;"
+              @click="momentModalId = moment.id; momentModalOpened = true">
+
+              <q-item class="q-px-xs" style="min-height: 0px;">
+                <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
+                  <moment-sync-icon :moment-id="moment.id" />
+                </q-item-section>
+                <q-item-section class="selectable-text text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
+                }}</q-item-section>
+              </q-item>
+              <q-item v-if="moment.needs && (moment.needs.error || moment.needs.Oops)" class="q-px-xs q-pt-none q-pb-xs"
+                style="min-height: 0px;">
+                <!--TODO:2 do this part add the "+" for manually adding needs -->
+              </q-item>
+              <q-item v-else-if="moment.needs && Object.keys(moment.needs).length > 0"
+                class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
+                <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
+                  @scroll="onChipsRowScroll($event, moment.id)">
+                  <q-chip v-for="need in Object.entries(moment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
+                    :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+                    class="needs" />
+                </div>
+              </q-item>
+            </div>
+          </q-card>
         </div>
-      </template>
-    </q-parallax>
-
-    <welcome-tutorial v-if="ms?.userDoc?.showWelcomeTutorial" :new-mom-text="newMomText"
-      :new-mom-input-ref="newMomInputRef" @update:new-mom-text="newMomText = $event"
-      @click:view-needs="momentModalId = $event; momentModalOpened = true"
-      class="q-px-md negative-margin-welcome-tutorial" />
-
-    <div v-if="!ms || !ms.getUniqueDaysTs || ms.getUniqueDaysTs.length == 0"></div>
-    <div v-else class="q-px-md">
-      <div v-for="( day, index ) in  ms.getUniqueDaysTs " :key="day">
-
-        <div :class="[
-          'text-h6',
-          'text-weight-medium',
-          'q-pa-none',
-          'q-mb-sm',
-          (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
-          (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-        ]">{{ formatDayForMomList(day) }}</div>
-        <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
-          <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
-            class="q-px-none q-py-sm" style="min-height: 0px;"
-            @click="momentModalId = moment.id; momentModalOpened = true">
-
-            <q-item class="q-px-xs" style="min-height: 0px;">
-              <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
-                <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
-              </q-item-section>
-              <q-item-section class="selectable-text text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
-              }}</q-item-section>
-            </q-item>
-            <q-item v-if="moment.needs && (moment.needs.error || moment.needs.Oops)" class="q-px-xs q-pt-none q-pb-xs"
-              style="min-height: 0px;">
-              <!--TODO:2 do this part add the "+" for manually adding needs -->
-            </q-item>
-            <q-item v-else-if="moment.needs && Object.keys(moment.needs).length > 0"
-              class="q-px-none q-pt-none q-pb-xs chip-container" style="min-height: 0px; width:100%;">
-              <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
-                @scroll="onChipsRowScroll($event, moment.id)">
-                <q-chip v-for="need in Object.entries(moment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-                  :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
-                  class="needs" />
-              </div>
-            </q-item>
-          </div>
-        </q-card>
       </div>
-    </div>
-    <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
-      <q-card class="bg-background q-pa-lg text-center" flat>
-        <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
-        <q-card-section class="text-h6 text-weight-medium q-py-md text-left	">
-          <div v-html="errorDialogText"></div>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
-    <br />
+      <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
+        <q-card class="bg-background q-pa-lg text-center" flat>
+          <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
+          <q-card-section class="text-h6 text-weight-medium q-py-md text-left	">
+            <div v-html="errorDialogText"></div>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+      <br />
 
-    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
-      :expected-llm-call-duration="expectedLlmCallDuration" />
+      <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
+
+    </q-pull-to-refresh>
   </q-page>
 </template>
 
@@ -127,6 +130,7 @@ import momentModal from 'src/components/momentModal.vue'
 import welcomeTutorial from 'src/components/welcomeTutorial.vue'
 import { needsMap, getChipColor } from "./../utils/needsUtils";
 import { useDateUtils } from './../composables/dateUtils.js'
+import { addDeleteMomentRetry } from 'src/boot/firebaseBoot';
 
 //STORE INITIALIZATION
 const ms = useMomentsStore()
@@ -138,7 +142,6 @@ const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
 const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
-const expectedLlmCallDuration = ref(60);
 const momentModalOpened = ref(false);
 const momentModalId = ref("");
 
@@ -152,8 +155,8 @@ onMounted(async () => {
     }
     if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
     momsWithScrolledNeeds.value = {};
-    if (!ms.aggregateDataFetched) {
-      await ms.fetchAggregateData();
+    if (!ms.aggDataInsightsFetched) {
+      await ms.fetchAggDataInsights();
     }
   } catch (error) {
     console.error('await ms.fetchMoments() error:', error);
@@ -168,8 +171,6 @@ const userFirstName = computed(() => {
   }
   return ''
 })
-
-
 
 watch([errorDialogOpened, momentModalOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {
   if (newVal1 || newVal2) emits('update:isDialogOpened', true)
@@ -239,6 +240,7 @@ const onSubmit = (event) => {
   newMomDate.value = Timestamp.now()
   ms.addMoment({
     date: newMomDate.value,
+    lastTouch: newMomDate.value,
     text: newMomText.value.trim(),
   })
   newMomText.value = ''
@@ -253,6 +255,11 @@ const setChipsRowPadding = (id) => {
   // If the scrollLeft value for the given ID is 0 or undefined, return the desired padding. Otherwise, no padding.
   return momsWithScrolledNeeds.value[id] ? 'padding-left: 0;' : 'padding-left: 56px;';
 };
+
+const refresh = async (done) => {
+  await addDeleteMomentRetry(true)
+  done()
+}
 </script>
 
 <style lang="scss">
@@ -403,6 +410,19 @@ const setChipsRowPadding = (id) => {
   .negative-margin-welcome-tutorial {
     z-index: 10; // make it lower than parallax content (20) so that priority is given to typing in the input
   }
+
+
+  // .q-pull-to-refresh__puller-container {
+  //   top: 0px !important;
+  // }
+
+  // #q-app>div>div>main>div>div.q-pull-to-refresh__puller-container.fixed.row.flex-center.no-pointer-events.z-top {
+  //   top: 0px !important;
+  // }
+
+  // .z-top {
+  //     z-index: 7000 !important;
+  // }
 }
 </style>
 

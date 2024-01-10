@@ -434,11 +434,6 @@ const deleteAccount = async () => {
   deleteDialogOpened.value = false
   console.log("In SettingsPage, heading to account deletion page");
   router.push('/account-deletion')
-  // setTimeout(() => {
-  //   ms.$reset()
-  //   router.push('/welcome')
-  //   console.log('logged out')
-  // }, 10)
 }
 </script>
 

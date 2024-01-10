@@ -13,7 +13,7 @@
           <q-item-section class="text-h6 text-weight-medium">{{
             formatDayForMomList(moment.date?.seconds, true) }}</q-item-section>
           <q-item-section avatar class="q-px-none" style="min-width: 20px;">
-            <moment-sync-icon :moment-id="momentId" :expected-llm-call-duration="expectedLlmCallDuration" />
+            <moment-sync-icon :moment-id="momentId" />
           </q-item-section>
         </q-item>
 
@@ -130,10 +130,6 @@ const props = defineProps({
   momentId: {
     required: true,
     type: String,
-  },
-  expectedLlmCallDuration: {
-    type: Number,
-    default: 60
   },
 });
 const emits = defineEmits(['update:modelValue']);

@@ -41,8 +41,8 @@
                 👉 3 Moments a month will bring your summary to life.
               </div>
               <div v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="min-height: 0px;">
-                {{ `👉 ${Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(0, 3 -
-                  ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 0 ? 's' : ''} to go this month to bring your summary
+                {{ `👉 ${Math.max(1, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(1, 3 -
+                  ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 1 ? 's' : ''} to go this month to bring your summary
                 to life.` }}
               </div>
               <div v-else style="min-height: 0px;">
@@ -306,11 +306,14 @@ onMounted(async () => {
     if (!ms.momentsFetched) {
       await ms.fetchMoments();
     }
-    if (!ms.aggregateDataFetched) {
-      await ms.fetchAggregateData();
+    if (!ms.aggDataInsightsFetched) {
+      await ms.fetchAggDataInsights();
+    }
+    if (!ms.aggDataNeedsFetched) {
+      await ms.fetchAggDataNeeds();
     }
   } catch (error) {
-    console.error('await ms.fetchAggregateData() error:', error);
+    console.error('await momentsStore fetching error:', error);
   }
 })
 
@@ -385,7 +388,7 @@ const onIntersection = (section, YYYYdMM) => {
       setTimeout(async () => {
         await ms.setAggDataInsightsValue(YYYYdMM, { isNew: { [section]: false } });
         if (YYYYdMM !== currentYYYYdMM) {
-          await ms.fetchAggregateData(true);
+          await ms.fetchAggDataInsights(true);
         }
       }, 3000); // Adjust delay as needed
     }
