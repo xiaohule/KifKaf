@@ -25,8 +25,8 @@ const deselectSegment = ref(false)
 
 onMounted(async () => {
   try {
-    if (!ms.aggregateDataFetched) {
-      await ms.fetchAggregateData();
+    if (!ms.aggDataNeedsFetched) {
+      await ms.fetchAggDataNeeds();
     }
     if (!ms.momentsFetched) {
       await ms.fetchMoments();

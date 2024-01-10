@@ -26,24 +26,24 @@
 
 <script setup>
 import { useMomentsStore } from './../stores/moments.js'
-// import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import datePickerModal from "./../components/datePickerModal.vue";
 import { ref } from 'vue'
 
 const ms = useMomentsStore()
-// const router = useRouter()
+const router = useRouter()
 
 const filterDialogOpened = ref(false)
 
-// const goBack = () => {
-//   if (window.history.length > 1) {
-//     // console.log('In goBack, history.length:', window.history.length)
-//     router.go(-1) // Go back to the previous page if there's a history
-//   } else {
-//     // console.log('In goBack, history.length:', window.history.length, "going to home")
-//     router.push({ path: '/' }) // Redirect to root if there's no history
-//   }
-// }
+const goBack = () => {
+  if (window.history.length > 1) {
+    // console.log('In goBack, history.length:', window.history.length)
+    router.go(-1) // Go back to the previous page if there's a history
+  } else {
+    // console.log('In goBack, history.length:', window.history.length, "going to home")
+    router.push({ path: '/' }) // Redirect to root if there's no history
+  }
+}
 
 // // Function to check if the event target is inside a swiper-container
 // const isEventFromSwiper = (event) => {

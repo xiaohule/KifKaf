@@ -61,7 +61,7 @@
 
             <q-item class="q-px-xs" style="min-height: 0px;">
               <q-item-section avatar top class="q-px-none" style="min-width: 20px;">
-                <moment-sync-icon :moment-id="moment.id" :expected-llm-call-duration="expectedLlmCallDuration" />
+                <moment-sync-icon :moment-id="moment.id" />
               </q-item-section>
               <q-item-section class="text-body2 q-pb-none q-pl-none q-pr-md">{{ moment.text
               }}</q-item-section>
@@ -82,8 +82,7 @@
         </q-card>
       </div>
     </div>
-    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId"
-      :expected-llm-call-duration="expectedLlmCallDuration" />
+    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
   </q-page>
 </template>
 
@@ -108,17 +107,16 @@ const { currentYYYYdMM, getDatePickerLabel, formatDayForMomList } = useDateUtils
 const needName = ref('')
 const dateRange = ref(currentYYYYdMM.value)
 //MOM PAGE
-const expectedLlmCallDuration = ref(60);
 const momentModalOpened = ref(false);
 const momentModalId = ref("");
 
 onMounted(async () => {
   try {
-    if (!ms.aggregateDataFetched) {
-      await ms.fetchAggregateData();
-    }
     if (!ms.momentsFetched) {
       await ms.fetchMoments();
+    }
+    if (!ms.aggDataNeedsFetched) {
+      await ms.fetchAggDataNeeds();
     }
   } catch (error) {
     console.error('In NeedPage > await ms.fetchMoments() error:', error);

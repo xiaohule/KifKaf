@@ -104,8 +104,6 @@
     </div>
     <br />
     <br />
-    <br />
-    <br />
 
     <!--TODO:1 allow for not re-inputting email if not needed -->
     <q-dialog v-model="editDialogOpened" position="bottom" style="max-width: 600px">
@@ -436,11 +434,6 @@ const deleteAccount = async () => {
   deleteDialogOpened.value = false
   console.log("In SettingsPage, heading to account deletion page");
   router.push('/account-deletion')
-  // setTimeout(() => {
-  //   ms.$reset()
-  //   router.push('/welcome')
-  //   console.log('logged out')
-  // }, 10)
 }
 </script>
 

@@ -30,12 +30,12 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
-                  <q-item-label>
+                  <q-item-section class="text-body2">
                     Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
-                  </q-item-label>
+                  </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
-                  <img src="~assets/tuto1.svg"
+                  <img v-cloak src="~assets/tuto1.svg"
                     style="max-height: 100%; width: auto; object-fit: contain; margin-right:16px;" />
                 </q-item-section>
               </q-item>
@@ -51,9 +51,9 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
                   <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
                     First Moment logged
                   </q-item-label>
-                  <q-item-label>
+                  <q-item-section class="text-body2 text-secondary">
                     Emotions are your body's language. Embrace the habit of noting them down and you're halfway there!
-                  </q-item-label>
+                  </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
@@ -66,11 +66,11 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
-                  <q-item-label>
-                    For each moment, KifKaf surfaces the related needs and how well they're being met. </q-item-label>
+                  <q-item-section class="text-body2">
+                    For each moment, KifKaf surfaces the related needs and how well they're being met. </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
-                  <img src="~assets/tuto2.svg"
+                  <img v-cloak src="~assets/tuto2.svg"
                     style="max-height: 100%; width: auto; object-fit: contain; margin-right:8px;" />
                 </q-item-section>
               </q-item>
@@ -86,9 +86,9 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
                   <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
                     Needs Revealed
                   </q-item-label>
-                  <q-item-label>
+                  <q-item-section class="text-body2 text-secondary">
                     Understanding the deeper needs behind your feelings paves the way to fulfillment.
-                  </q-item-label>
+                  </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
@@ -101,19 +101,31 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
-                  <q-item-label>
-                    Your emotions tell a story. After 3 Moments, patterns start emerging.
-                  </q-item-label>
+                  <q-item-section v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] === 0" class="text-body2"> Your
+                    emotions tell a story. After 3 Moments, patterns start
+                    emerging.
+                  </q-item-section>
+                  <q-item-section v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" class="text-body2">
+                    Your emotions tell a story.
+                    Add {{ `${3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]} more Moment${3 -
+                      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 1 ? 's' : ''} to see patterns emerge.` }}
+                  </q-item-section>
+                  <q-item-section v-else-if="!ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length"
+                    class="text-body1">
+                    Preparing your Insights...
+                  </q-item-section>
+                  <q-item-section v-else class="text-body1">
+                    👇 Your Insights are ready! 👇 </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
-                  <img src="~assets/tuto3_1.png"
+                  <img v-cloak src="~assets/tuto3_1.png"
                     style="max-height: 100%; width: auto; object-fit: contain; margin-right:8px;" />
                 </q-item-section>
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="Explore Insights" @click="tutoExploreInsights" :disable="!ms.getLatestMomWithNeedsId"
-                  style="width: 100%; " no-caps />
+                  label="Explore Insights" @click="tutoExploreInsights"
+                  :disable="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
@@ -122,9 +134,9 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
                   <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
                     You’re all set!
                   </q-item-label>
-                  <q-item-label>
+                  <q-item-section class="text-body2 text-secondary">
                     Keep logging Moments to fine-tune KifKaf and get the most out of it.
-                  </q-item-label>
+                  </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
@@ -162,6 +174,7 @@ const router = useRouter()
 
 // const swiperInitialized = ref(false)
 const swiperTuto = ref(null)
+
 onMounted(() => {
   console.log('ONMOUNTED TUTO')
   if (swiperTuto.value && swiperTuto.value.swiper && ms.userDoc?.welcomeTutorialStep)
@@ -197,6 +210,10 @@ const tutoExploreInsights = async () => {
   .margin-top-if-height-sm {
     margin-top: 25px;
   }
+}
+
+[v-cloak] {
+  display: none;
 }
 </style>
 
