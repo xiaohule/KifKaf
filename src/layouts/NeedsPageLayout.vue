@@ -6,10 +6,11 @@
         <q-btn data-cy="go-back-button" flat round icon="r_arrow_back" @click="goBack" />
         <!-- <q-toolbar-title class="absolute-center">{{ title }}</q-toolbar-title> -->
       </q-toolbar>
-      <q-toolbar v-if="ms.dateRangeButtonLabel" class="q-mx-auto q-pb-sm q-pl-md"
+      <q-toolbar v-if="getDatePickerLabel(ms.activeDateRange, t)" class="q-mx-auto q-pb-sm q-pl-md"
         style="max-width: 600px; min-height:0px;">
         <q-btn unelevated rounded no-caps class="q-py-none text-subtitle2 bg-surface text-on-surface"
-          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ ms.dateRangeButtonLabel }}</q-btn>
+          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ getDatePickerLabel(ms.activeDateRange, t)
+          }}</q-btn>
       </q-toolbar>
     </q-header>
 
@@ -26,12 +27,16 @@
 
 <script setup>
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from "vue-i18n"
 import { useRouter } from 'vue-router'
 import datePickerModal from "./../components/datePickerModal.vue";
 import { ref } from 'vue'
+import { useDateUtils } from '../composables/dateUtils.js'
 
 const ms = useMomentsStore()
+const { t } = useI18n()
 const router = useRouter()
+const { getDatePickerLabel } = useDateUtils()
 
 const filterDialogOpened = ref(false)
 

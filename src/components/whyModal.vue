@@ -20,7 +20,9 @@
         </q-item-section>
       </q-item>
 
-      <q-card-section class="q-pt-lg text-body1 text-weight-regular">{{ whyText }}</q-card-section>
+      <q-card-section class="q-pt-lg text-body1 text-weight-regular">
+        <div v-html="whyText"></div>
+      </q-card-section>
 
       <q-card-actions align="center">
         <q-btn rounded color="primary" padding="md md" @click="(event) => { $emit('update:modelValue', false) }" class="text-body1 text-weight-medium
@@ -33,9 +35,10 @@ q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
 <script setup>
 import { watch, ref, watchEffect, computed } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
-import { inspirationalQuotes } from "../utils/quoteUtils.js";
+import { useI18n } from "vue-i18n"
 
 const ms = useMomentsStore()
+const { t } = useI18n()
 const originalText = ref("")
 const author = ref("")
 const whyText = ref("")
@@ -68,7 +71,7 @@ const modalTitle = computed(() => {
 
 watch(() => ms.userDoc, async (newVal) => {
   if (newVal) {
-    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId()
+    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId(t('inspirationalQuotes').length)
   }
 }, { immediate: true })
 
@@ -92,9 +95,9 @@ watchEffect(() => {
     whyText.value = insight.why;
   }
   else if (props.section === "quote" && placeholderQuoteOfTheDayId.value !== "") {
-    originalText.value = inspirationalQuotes[placeholderQuoteOfTheDayId.value]?.quote
-    author.value = inspirationalQuotes[placeholderQuoteOfTheDayId.value]?.author
-    whyText.value = "👉 This was a random quote, log 3 more Moments to see personalized quotes inspired by your Moments.";
+    originalText.value = t('inspirationalQuotes')[placeholderQuoteOfTheDayId.value]?.quote
+    author.value = t('inspirationalQuotes')[placeholderQuoteOfTheDayId.value]?.author
+    whyText.value = t('randomQuoteText');
   }
 });
 

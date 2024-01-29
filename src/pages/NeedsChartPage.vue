@@ -3,9 +3,9 @@
 
     <q-btn-toggle v-model="ms.needsToggleModel" class="q-gutter-sm q-mb-sm" color="transparent" text-color="outline"
       toggle-color="surface" toggle-text-color="on-surface" unelevated no-caps :ripple="false" :options="[
-        { label: 'Satisfiers', value: 'satisfaction' },
-        { label: 'Dissatisfiers', value: 'unsatisfaction' },
-        { label: 'All', value: 'importance' }
+        { label: t('satisfiers'), value: 'satisfaction' },
+        { label: t('dissatisfiers'), value: 'unsatisfaction' },
+        { label: t('all'), value: 'importance' }
       ]" />
 
     <donut-swiper-and-list v-if="ms.activeIndex !== undefined" :embedded="false" :deselect-segment="deselectSegment"
@@ -16,10 +16,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from 'vue-i18n';
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
 
 // INITIALIZATION
 const ms = useMomentsStore()
+const { t } = useI18n()
 
 const deselectSegment = ref(false)
 

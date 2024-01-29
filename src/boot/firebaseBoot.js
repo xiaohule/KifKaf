@@ -7,8 +7,8 @@ import {
   query,
   collection,
   where,
+  getDoc,
   getDocs,
-  setDoc,
   updateDoc,
   increment,
   orderBy,
@@ -38,9 +38,8 @@ import { debounce } from "lodash";
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import * as Sentry from "@sentry/vue";
-// import { Device } from "@capacitor/device";
-// import { Platform, is } from "quasar";
-// console.log("Platform is", Platform.is);
+import { i18n } from "./i18nBoot";
+import { setQuasarLangPack } from "./quasarLangPackBoot";
 
 axios.defaults.baseURL = process.env.API_URL;
 axiosRetry(axios, {
@@ -291,32 +290,30 @@ if (
     });
 }
 
-//DEVICE LANGUAGE
-const setDeviceLanguage = async () => {
-  let deviceLanguage = "";
+const setAppLocaleToUserPreference = async (userDocRef) => {
+  const userDocSnap = await getDoc(userDocRef.value);
+  if (userDocSnap.exists()) {
+    const userLocale = userDocSnap.data().locale;
+    if (userLocale) {
+      i18n.global.locale.value = userLocale;
 
-  if (process.env.MODE !== "capacitor") {
-    deviceLanguage = navigator.language || navigator.userLanguage;
-    // console.log("In firebaseBoot web mode, deviceLanguage is", deviceLanguage);
-    await setDoc(userDocRef.value, { deviceLanguage }, { merge: true });
-  } else {
-    try {
-      const { Device } = await import("@capacitor/device");
-      deviceLanguage = (await Device.getLanguageTag()).value; // deviceLanguage = "en-US";
-      // console.log(
-      //   "In firebaseBoot Capacitor mode, deviceLanguage is",
-      //   deviceLanguage,
-      // );
-      await setDoc(userDocRef.value, { deviceLanguage }, { merge: true });
-    } catch (error) {
-      console.error(
-        "In firebaseBoot, Failed to get deviceLanguage for Capacitor, error:",
-        error,
+      //quasar lang pack
+      await setQuasarLangPack(userLocale);
+
+      console.log(
+        "In firebaseBoot > in setLocaleToUserPreference, just set app locale to user's picked locale: ",
+        userLocale,
       );
-    }
-  }
-  setUserProperty("deviceLanguage", deviceLanguage);
-  console.log("In firebaseBoot, just set deviceLanguage to", deviceLanguage);
+    } else
+      console.log(
+        "In firebaseBoot > in setLocaleToUserPreference, userDocSnap.data() is",
+        userDocSnap.data(),
+        "not containing locale",
+      );
+  } else
+    console.log(
+      "In firebaseBoot > in setLocaleToUserPreference, not able to get userDocSnap",
+    );
 };
 
 //ADD MOMENT RETRY: at each start of the app, look for moments with empty needs and retry the LLM call
@@ -559,7 +556,7 @@ export default boot(({ router }) => {
     (newVal) => {
       if (newVal) {
         userDocRef.value = doc(db, "users", currentUser.value.uid);
-        setDeviceLanguage();
+        setAppLocaleToUserPreference(userDocRef);
         httpRetryHandler();
       }
     },

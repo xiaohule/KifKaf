@@ -35,6 +35,8 @@ module.exports = configure(function (ctx) {
     // https://v2.quasar.dev/quasar-cli/boot-files
     boot: [
       "sentryBoot",
+      "i18nBoot",
+      "quasarLangPackBoot",
       "firebaseBoot",
       "browserAddressbarColor",
       "swiperBoot",

@@ -4,11 +4,8 @@
     style="max-width: 600px">
     <q-card class="bg-background q-px-sm" v-touch-swipe.mouse.down="(event) => { $emit('update:modelValue', false) }">
 
-      <q-card-section class="text-h5 text-weight-medium">Filter period
-      </q-card-section>
-      <q-card-section class="q-pt-xs text-outline">Filtering the period will take into account only the
-        moments that happened
-        during the selected period. </q-card-section>
+      <q-card-section class="text-h5 text-weight-medium">{{ t('filterPeriod') }}</q-card-section>
+      <q-card-section class="q-pt-xs text-outline">{{ t('filterPeriodText') }} </q-card-section>
       <div class="q-px-md">
         <segmented-control v-model="ms.segDateId" :segments="segDate" element-name='LearnTabSegDate' />
       </div>
@@ -25,7 +22,7 @@
 
       <q-card-actions align="center">
         <q-btn rounded color="primary" padding="md md" @click="$emit('update:modelValue', false)" class="text-body1
-q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
+q-ma-sm q-mb-lg full-width" no-caps>{{ t('done') }}</q-btn>
       </q-card-actions>
     </q-card>
 
@@ -35,12 +32,14 @@ q-ma-sm q-mb-lg full-width" no-caps>Done</q-btn>
 <script setup>
 import { ref, watch } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from 'vue-i18n';
 import { useDateUtils } from '../composables/dateUtils.js'
 import SegmentedControl from "./../components/SegmentedControl.vue";
 import { date } from 'quasar'
 const { formatDate, getDateDiff, getMaxDate } = date;
 
 const ms = useMomentsStore()
+const { t } = useI18n()
 const { currentDateYYYYsMM } = useDateUtils()
 
 const props = defineProps({
@@ -52,7 +51,7 @@ const props = defineProps({
 });
 const emits = defineEmits(['update:modelValue']);
 
-const segDate = ref([{ title: "Monthly", id: "Monthly" }, { title: "Yearly", id: "Yearly" }])
+const segDate = ref([{ title: t('monthly'), id: "Monthly" }, { title: t('yearly'), id: "Yearly" }])
 
 const monthsKey = ref(Date.now())
 const yearsKey = ref(Date.now())

@@ -1,7 +1,8 @@
 <template>
   <div v-if="isSatDissatTopItem || (!isSatDissatTopItem && topItem)">
     <q-item class="q-px-none q-pb-none" style="min-height: 0px;">
-      <q-item-label class="text-subtitle2 text-weight-medium text-outline">{{ `Top ${props.topType}` }}</q-item-label>
+      <q-item-label class="text-subtitle2 text-weight-medium text-outline">{{ t('top' + capitalize(props.topType))
+      }}</q-item-label>
     </q-item>
 
     <q-item v-if="topItem" class="q-pb-sm q-px-none" clickable
@@ -13,7 +14,8 @@
       </q-item-section>
       <q-item-section>
         <q-item class="q-pa-none" dense style="min-height: 0px;">
-          <q-item-section class="text-subtitle2 text-weight-medium">{{ topItem.needName }}</q-item-section>
+          <q-item-section class="text-subtitle2 text-weight-medium">{{ t('needsList.' + topItem.needName)
+          }}</q-item-section>
           <q-item-section v-if="isSatDissatTopItem" side class="text-body2 text-on-surface">{{
             parseFloat((topItem[props.topType ===
               'satisfier' ? 'satisfactionImpactLabelValue' : 'unsatisfactionImpactLabelValue'] * 100).toFixed(0)) + "%" }}
@@ -34,9 +36,9 @@
           </q-item-section>
           <q-item-section v-if="isSatDissatTopItem" side class="text-caption text-outline">{{ props.topType ===
             'satisfier'
-            ? 'of all satisfaction' : 'of all dissatisfaction' }}
+            ? t('ofAllSat') : t('ofAllDissat') }}
           </q-item-section>
-          <q-item-section v-else side class="text-caption text-outline">satisfaction vs. last month
+          <q-item-section v-else side class="text-caption text-outline">{{ t('satVsLastMonth') }}
           </q-item-section>
         </q-item>
       </q-item-section>
@@ -49,17 +51,13 @@
       </q-item-section>
       <q-item-section>
         <div v-if="props.topType == 'satisfier'">
-          No satisfied needs yet for this period.
-        </div>
+          {{ t('topSatEmpty') }} </div>
         <div v-else-if="props.topType == 'dissatisfier'">
-          No dissatisfied needs yet for this period.
-        </div>
+          {{ t('topDissatEmpty') }} </div>
         <div v-if="props.topType == 'gainer'">
-          No gainer yet for this period.
-        </div>
+          {{ t('topGainerEmpty') }} </div>
         <div v-else-if="props.topType == 'loser'">
-          No loser yet for this period.
-        </div>
+          {{ t('topLoserEmpty') }} </div>
       </q-item-section>
     </q-item>
   </div>
@@ -68,10 +66,14 @@
 <script setup>
 import { computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router'
 import { needsMap, needToColor } from "./../utils/needsUtils";
+import { format } from 'quasar'
+const { capitalize } = format
 
 const ms = useMomentsStore()
+const { t } = useI18n()
 const router = useRouter()
 
 const props = defineProps({

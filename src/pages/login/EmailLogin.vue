@@ -2,18 +2,18 @@
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
 
     <div v-if="!showWaitingForEmailVerif && !showPasswordRecovery && !showWaitingForPwdRecoveryEmail">
-      <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Log in to KifKaf</div>
+      <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">{{ t('loginToKifKaf') }}</div>
 
       <q-form @submit="onSubmit">
-        <q-input data-cy="email-input" ref="emailInputRef" v-model="userEmail" placeholder="Enter your email" type='email'
-          class="q-my-md" outlined bg-color="surface-variant" color="transparent" clearable>
+        <q-input data-cy="email-input" ref="emailInputRef" v-model="userEmail" :placeholder="t('enterYourEmail')"
+          type='email' class="q-my-md" outlined bg-color="surface-variant" color="transparent" clearable>
         </q-input>
 
-        <q-input v-if="isSignUp" ref="nameInputRef" v-model="userName" placeholder="What should we call you?" type='text'
+        <q-input v-if="isSignUp" ref="nameInputRef" v-model="userName" :placeholder="t('whatShouldWeCallYou')" type='text'
           name="name" class="q-my-md" outlined bg-color="surface-variant" color="transparent" clearable>
         </q-input>
 
-        <q-input v-if="onSubmitWasPressed" ref="pwdInputRef" v-model="userPassword" placeholder="Enter your password"
+        <q-input v-if="onSubmitWasPressed" ref="pwdInputRef" v-model="userPassword" :placeholder="t('enterYourPwd')"
           :type="pwdVisible ? 'text' : 'password'" class="q-my-md" outlined bg-color="surface-variant"
           color="transparent">
           <template v-slot:append>
@@ -23,20 +23,21 @@
         </q-input>
 
         <div>
-          <q-btn v-if="!onSubmitWasPressed" rounded label="Continue" type="submit" color="primary"
+          <q-btn v-if="!onSubmitWasPressed" rounded :label="t('continue')" type="submit" color="primary"
             class="q-ma-md full-width" padding="md" :disable="!isValidEmail" no-caps />
-          <q-btn v-else rounded label="Sign in" type="submit" color="primary" class="q-ma-md full-width" padding="md"
+          <q-btn v-else rounded :label="t('signin')" type="submit" color="primary" class="q-ma-md full-width" padding="md"
             :disable="!isValidPassword" no-caps />
         </div>
       </q-form>
 
       <div v-if="onSubmitWasPressed" class="text-subtitle2 text-center">
-        <a class="text-primary" style="text-decoration: none" @click="showPasswordRecovery = true">Trouble signing in?</a>
+        <a class="text-primary" style="text-decoration: none" @click="showPasswordRecovery = true">{{
+          t('troubleSigningIn') }}</a>
       </div>
 
       <div class="or-separator q-my-md">
         <div class="line"></div>
-        <div class="or-text text-subtitle2 text-outline q-px-sm">or</div>
+        <div class="or-text text-subtitle2 text-outline q-px-sm">{{ t('or') }}</div>
         <div class="line"></div>
       </div>
 
@@ -46,39 +47,37 @@
           <template v-slot:default>
             <img style="width: 24px; height: 24px; margin-right: 12px;" src="~assets/sign_in_icon_google_light_normal.svg"
               alt="Google">
-            Continue with Google
-          </template>
+            {{ t('continueWithGoogle') }} </template>
         </q-btn>
-        <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with Apple"
+        <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
           @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
           icon="fa-brands fa-apple" />
       </div>
     </div>
 
     <div v-else-if="showWaitingForEmailVerif">
-      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Log in to KifKaf</div>
-      <div class="q-mx-sm q-my-md">A verification email has been sent. <br /> Please check your inbox and click on the
-        link in the email to verify your account.</div>
+      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">{{ t('loginToKifKaf') }}</div>
+      <div class="q-mx-sm q-my-md"> {{ t('aVerificationEmailSentTo', { email: userEmail }) }}</div>
+      <div class="q-mx-sm q-my-md"> {{ t('pleaseCheck') }}</div>
     </div>
 
     <div v-else-if="showWaitingForPwdRecoveryEmail">
-      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Check your email</div>
-      <div class="q-mx-sm q-my-md">Follow the instructions sent to {{ userEmail }} to recover your password.</div>
-      <q-btn rounded label="Done" type="submit" color="primary" class="q-ma-md full-width" padding="md"
+      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">{{ t('checkYourInbox') }} </div>
+      <div class="q-mx-sm q-my-md">{{ t('followInstructions', { email: userEmail }) }} </div>
+      <q-btn rounded :label="t('done')" type="submit" color="primary" class="q-ma-md full-width" padding="md"
         @click="router.push('/login')" no-caps />
     </div>
 
     <div v-else-if="showPasswordRecovery">
-      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">Recover your password</div>
-      <div class="q-mx-sm q-my-md">Get instructions sent to this email that explain how to reset
-        your password.
+      <div class="text-h4 text-weight-medium q-mx-sm q-mb-md">{{ t('recoverPwd') }}</div>
+      <div class="q-mx-sm q-my-md">{{ t('getInstructionsText') }}
       </div>
       <q-form @submit="onSendPasswordRecoveryEmail()">
-        <q-input v-model="userEmail" placeholder="Enter your email" type='email' class="q-my-md" outlined
+        <q-input v-model="userEmail" :placeholder="t('enterYourEmail')" type='email' class="q-my-md" outlined
           bg-color="surface-variant" color="transparent" clearable>
         </q-input>
         <div>
-          <q-btn rounded label="Send" type="submit" color="primary" class="q-ma-md full-width" padding="md"
+          <q-btn rounded :label="t('send')" type="submit" color="primary" class="q-ma-md full-width" padding="md"
             :disable="!isValidEmail" no-caps />
         </div>
       </q-form>
@@ -87,7 +86,7 @@
     <q-separator class="q-my-md" />
 
     <div class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
-        style="text-decoration: none">Contact us</a>
+        style="text-decoration: none">{{ t('contactUs') }}</a>
     </div>
 
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
@@ -108,17 +107,19 @@
 
 <script setup>
 import { ref, computed, watch, onUnmounted, nextTick } from 'vue';
+import { useMomentsStore } from '../../stores/moments.js'
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { getFirebaseAuth, currentUser } from "../../boot/firebaseBoot.js";
 import { signInWithEmailAndPassword, fetchSignInMethodsForEmail, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
-import { useMomentsStore } from '../../stores/moments.js'
 
 //   window.addEventListener('offline', () => {
 //   console.log("App is offline");
 //   // Any offline handling logic...
 // });
 const ms = useMomentsStore()
+const { t } = useI18n();
 const auth = getFirebaseAuth();
 const route = useRoute();
 const router = useRouter();
@@ -152,7 +153,7 @@ const isValidPassword = computed(() => {
 
 const isOffline = () => {
   if (!navigator?.onLine) {
-    errorDialogText.value = `You are offline. Please connect to the internet to sign in.`
+    errorDialogText.value = t('error.signInOffline')
     errorDialogOpened.value = true
     return true
   }
@@ -236,32 +237,32 @@ const handleAuthError = (errorCode, errorMessage) => {
   console.log("Error signing in:", errorCode, errorMessage);
 
   if (errorCode === 'auth/wrong-password') {
-    errorDialogText.value = `Incorrect password or email ${userEmail.value}`
+    errorDialogText.value = t('error.incorrectPwdOrEmail', { email: userEmail.value })
     errorDialogOpened.value = true
     // The email and password you entered don't match.
   }
   else if (errorCode === 'auth/user-not-found') {
-    errorDialogText.value = `No user found with email ${userEmail.value}`
+    errorDialogText.value = t('error.noUserWithEmail', { email: userEmail.value })
     errorDialogOpened.value = true
     // That email address doesn't match an existing account.
   }
   else if (errorCode === 'auth/invalid-email') {
-    errorDialogText.value = `Invalid email ${userEmail.value}`
+    errorDialogText.value = t('error.invalidEmail', { email: userEmail.value })
     errorDialogOpened.value = true
     // That email address is invalid.
   }
   else if (errorCode === 'auth/user-disabled') {
-    errorDialogText.value = `User with email ${userEmail.value} is disabled`
+    errorDialogText.value = t('error.userDisabled', { email: userEmail.value })
     errorDialogOpened.value = true
     // The user account has been disabled by an administrator.
   }
   else if (errorCode === 'auth/email-already-in-use') {
-    errorDialogText.value = `Email ${userEmail.value} is already in use`
+    errorDialogText.value = t('error.emailInUse', { email: userEmail.value })
     errorDialogOpened.value = true
     // The email address is already in use by another account.
   }
   else {
-    errorDialogText.value = `Error signing in with email ${userEmail.value}`
+    errorDialogText.value = t('error.signingIn', { email: userEmail.value })
     errorDialogOpened.value = true
   }
 }

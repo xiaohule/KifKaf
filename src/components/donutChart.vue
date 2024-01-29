@@ -12,17 +12,18 @@
           :color="needToColor()[chartData.datasets[0].labels[clickedIndex]]">
           {{ needsMap[chartData.datasets[0].labels[clickedIndex]][0] }}
         </q-avatar>
-        <div class="text-body2 text-center q-mt-md q-mb-sm">{{ chartData.datasets[0].labels[clickedIndex]
-        }}</div>
+        <div class="text-body2 text-center q-mt-md q-mb-sm">
+          {{ t('needsList.' + chartData.datasets[0].labels[clickedIndex])
+          }}</div>
         <div class="text-h3 text-on-surface text-weight-bolder text-center">{{
           parseFloat((chartData.datasets[0].data[clickedIndex] *
             100).toFixed(0)) + "%" }}
         </div>
       </div>
 
-      <div class="text-body2 text-center q-my-sm" v-else>{{ ms.needsToggleModel == 'satisfaction' ? 'Satisfiers' :
+      <div class="text-body2 text-center q-my-sm" v-else>{{ ms.needsToggleModel == 'satisfaction' ? t('satisfiers') :
         (ms.needsToggleModel == 'unsatisfaction' ?
-          'Dissatisfiers' : 'Top needs') }}</div>
+          t('dissatisfiers') : t('all')) }}</div>
     </div>
   </div>
 </template>
@@ -30,6 +31,7 @@
 <script setup>
 import { ref, nextTick, watchEffect, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router'
 import { Chart as ChartJS, ArcElement } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
@@ -37,6 +39,7 @@ import { needsMap, needToColor } from "./../utils/needsUtils";
 ChartJS.register(ArcElement);
 
 const ms = useMomentsStore()
+const { t } = useI18n()
 const router = useRouter()
 
 const loaded = ref(false)

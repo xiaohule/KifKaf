@@ -1,7 +1,7 @@
 {
   "name": "kifkaf-app",
-  "version": "1.1.2",
-  "buildNumber": "14",
+  "version": "1.1.4",
+  "buildNumber": "16",
   "description": "KifKaf - Feelings Journal - Log moments & meet your needs",
   "productName": "KifKaf",
   "author": "na",
@@ -33,6 +33,7 @@
     "swiper": "^11.0.5",
     "vue": "^3.4.7",
     "vue-chartjs": "^5.3.0",
+    "vue-i18n": "^9.9.0",
     "vue-router": "^4.2.5",
     "vue3-lottie": "^3.2.0"
   },

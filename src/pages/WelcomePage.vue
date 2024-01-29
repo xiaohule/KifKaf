@@ -25,7 +25,7 @@
 
     <div class="fixed-buttons">
       <!-- max-width: 300px; -->
-      <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" label="Log in"
+      <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" :label="t('login')"
         @click="() => router.push('/login')" class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
     </div>
   </q-page>
@@ -33,9 +33,11 @@
 
 <script setup>
 import { onMounted, onUnmounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { currentUser } from "../boot/firebaseBoot.js";
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const to =

@@ -9,17 +9,19 @@
           <img src="~assets/icon-kifkaf-no-background.svg" />
         </q-avatar>
         <q-toolbar-title class="text-on-surface text-center text-subtitle1 text-weight-medium
-">{{ tab }}</q-toolbar-title>
+">{{ t(tab) }}</q-toolbar-title>
         <router-link to="/settings" style="text-decoration: none;">
           <q-btn flat round dense icon="account_circle" size="20px" class="text-on-surface">
           </q-btn>
         </router-link>
 
       </q-toolbar>
-      <q-toolbar v-if="ms.dateRangeButtonLabel" class="q-mx-auto q-pb-sm" style="max-width: 600px; min-height:0px;">
+      <q-toolbar v-if="getDatePickerLabel(ms.activeDateRange, t)" class="q-mx-auto q-pb-sm"
+        style="max-width: 600px; min-height:0px;">
 
         <q-btn unelevated rounded no-caps class="q-py-none text-subtitle2 bg-surface text-on-surface"
-          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ ms.dateRangeButtonLabel }}</q-btn>
+          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ getDatePickerLabel(ms.activeDateRange, t)
+          }}</q-btn>
       </q-toolbar>
     </q-header>
 
@@ -35,13 +37,10 @@
     <q-footer class="bg-transparent footer-blurred" bordered>
       <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
         class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
-        <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" data-cy="insights-home-tab" />
-        <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/insights" class="q-pt-xs q-pb-lg"
+        <q-route-tab name="home" icon="r_edit" :label="t('home')" to="/" class="q-pt-xs q-pb-lg"
+          data-cy="insights-home-tab" />
+        <q-route-tab name="insights" icon="r_insights" :label="t('insights')" to="/insights" class="q-pt-xs q-pb-lg"
           @click="handleInsightsClick" data-cy="insights-insights-tab" />
-        <!-- ou stats ou needs ou learn -->
-        <!-- re-add tabs when ready -->
-        <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
-        <q-route-tab name="search" icon="search" label="Search" to="/search" /> -->
       </q-tabs>
     </q-footer>
 
@@ -58,12 +57,16 @@ This makes your code more efficient and easier to read. The behavior of using na
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from "vue-i18n"
 import datePickerModal from "./../components/datePickerModal.vue";
+import { useDateUtils } from '../composables/dateUtils.js'
 
 const router = useRouter()
 const ms = useMomentsStore()
+const { t } = useI18n()
+const { getDatePickerLabel } = useDateUtils()
 
-const tab = ref('Insights')
+const tab = ref('insights')
 const filterDialogOpened = ref(false)
 
 //reset swiper position to latest month/year when clicking on insights tab

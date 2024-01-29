@@ -37,8 +37,8 @@ const {
   formatDate,
 } = date;
 import { useDateUtils } from "../composables/dateUtils.js";
-import { inspirationalQuotes } from "../utils/quoteUtils.js";
 import { useRouter } from "vue-router";
+import { i18n } from "./../boot/i18nBoot.js";
 
 axios.defaults.baseURL = process.env.API_URL;
 axiosRetry(axios, {
@@ -63,7 +63,6 @@ const {
   currentYear,
   currentYYYYdMM,
   dayToDate,
-  getDatePickerLabel,
   monthDateRangeToDate,
 } = useDateUtils();
 
@@ -110,9 +109,6 @@ export const useMomentsStore = defineStore("moments", () => {
     }
     return null;
   });
-  const dateRangeButtonLabel = computed(() =>
-    getDatePickerLabel(activeDateRange.value),
-  );
 
   const getUniqueDaysDateFromDateRangeAndNeed = (dateRange = "", need = "") => {
     // console.log(
@@ -368,7 +364,6 @@ export const useMomentsStore = defineStore("moments", () => {
             "In moments.js > fetchUser, User doc not initialized, initializing it",
           );
           const defaultUserDocValues = {
-            deviceLanguage: "en-US",
             hasNeeds: false,
             welcomeTutorialStep: 0,
             showWelcomeTutorial: true,
@@ -392,6 +387,18 @@ export const useMomentsStore = defineStore("moments", () => {
       console.log("Error in fetchUser", error);
     }
   };
+
+  const getSpeechRecoLanguage = computed(() => {
+    console.log(
+      "In moments.js > computed getSpeechRecoLanguage, userDoc.value:",
+      userDoc.value,
+      "returning:",
+      userDoc.value?.speechRecoLanguage || userDoc.value?.locale || "en-US",
+    );
+    return (
+      userDoc.value?.speechRecoLanguage || userDoc.value?.locale || "en-US"
+    );
+  });
 
   const updateUser = async (changes) => {
     try {
@@ -512,11 +519,9 @@ export const useMomentsStore = defineStore("moments", () => {
 
       //TODO:5 batch to also add momid and momarchive to list of deleted moments in user doc so that it can be used for retries
       if (navigator.onLine) {
-        Notify.create("Moment deleted.");
+        Notify.create(i18n.global.t("momentDeleted"));
       } else {
-        Notify.create(
-          "Moment deleted. Insights recalculation will complete next time you’re online.",
-        );
+        Notify.create(i18n.global.t("momentDeletedOffline"));
       }
 
       const idToken = await user.value.getIdToken(/* forceRefresh */ true);
@@ -557,11 +562,9 @@ export const useMomentsStore = defineStore("moments", () => {
       await setDoc(newMomDocRef, moment);
       logEvent("moment_added", { value: newMomDocRef.id });
       if (navigator.onLine) {
-        Notify.create("Moment saved.");
+        Notify.create(i18n.global.t("momentSaved"));
       } else {
-        Notify.create(
-          "Moment saved. Needs analysis will complete next time you’re online.",
-        );
+        Notify.create(i18n.global.t("momentSavedOffline"));
       }
 
       if (
@@ -953,7 +956,7 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   //get a random quote but keep it for the day, so there should be no change on refresh it a given day
-  const getPlaceholderQuoteOfTheDayId = async () => {
+  const getPlaceholderQuoteOfTheDayId = async (quoteListLength) => {
     // Check if today's date is different from the last revisit date
     if (
       userDoc.value.placeholderQuote &&
@@ -966,9 +969,7 @@ export const useMomentsStore = defineStore("moments", () => {
       return userDoc.value.placeholderQuote.id; // Return the cached ID
     }
 
-    const randomQuoteIndex = Math.floor(
-      Math.random() * inspirationalQuotes.length,
-    );
+    const randomQuoteIndex = Math.floor(Math.random() * quoteListLength);
     await setUserDocValue({
       placeholderQuote: {
         id: randomQuoteIndex,
@@ -1007,7 +1008,6 @@ export const useMomentsStore = defineStore("moments", () => {
     momentsFetched,
     shouldResetSwiper,
     donutSegmentClicked,
-    dateRangeButtonLabel,
     needsToggleModel,
     activeIndex,
     segDateId,
@@ -1026,6 +1026,7 @@ export const useMomentsStore = defineStore("moments", () => {
     aggDataNeedsFetched,
     aggDataInsightsFetched,
     getDateRangeOkNeedsCounts,
+    getSpeechRecoLanguage,
     fetchUser,
     updateUser,
     setUserDocValue,
