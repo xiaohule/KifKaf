@@ -11,9 +11,7 @@
 
       <q-card-section class="q-py-xs text-outline">
         <div v-if="props.section === 'momentNeeds'" class="q-pb-sm" v-html="t('momentNeedsLearnMore.html')"></div>
-        <div v-else-if="props.section === 'needs'" class="q-pb-sm">KifKaf analyzes each moment you log to update your
-          needs' snapshot.<br><br> Our approach is grounded in a well-defined framework of key human needs:</div>
-
+        <div v-else-if="props.section === 'needs'" class="q-pb-sm" v-html="t('needsStats.learnMoreHtml')"></div>
         <q-list>
           <q-expansion-item v-for="categ in Object.entries(needsCategories)" :key="categ[0]" group="needsCategories"
             header-class="q-px-none">
@@ -48,12 +46,9 @@ q-ma-sm q-mb-lg full-width" no-caps>{{ t('gotIt') }}</q-btn>
 
 <script setup>
 import { computed } from 'vue';
-import { useMomentsStore } from './../stores/moments.js'
 import { useI18n } from "vue-i18n"
 import { needsMap, needsCategories } from "./../utils/needsUtils";
 
-
-const ms = useMomentsStore()
 const { t } = useI18n()
 
 const props = defineProps({

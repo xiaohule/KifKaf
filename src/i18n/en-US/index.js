@@ -124,6 +124,7 @@ export default {
   relatedNeeds: "Related needs",
   learnMore: "Learn more",
   why: "Why?",
+  whyDefaultTitle: "Why am I seeing this?",
   satisfiedNeed: "Satisfied need",
   neutralNeed: "Neutral need",
   dissatisfiedNeed: "Dissatisfied need",
@@ -138,7 +139,7 @@ export default {
   cancel: "Cancel",
   momentNeedsLearnMore: {
     title: "Needs list",
-    html: "These are the needs related to your moment picked from our list of Universal Human Needs. <br><br>The full list is composed of:",
+    html: "KifKaf analyzes your Moment and uncover the underlying needs, whether they are satisfied, dissatisfied, or neutral (related to your feelings but neither satisfied nor frustrated).<br><br>Our analysis is based on 33 essential needs, organized into 5 distinct categories:",
   },
   needsCategories: {
     physiologicalAndSafety: "Physiological & Safety needs",
@@ -190,19 +191,40 @@ export default {
   summaryEmptyCountdown:
     "Preparing your summary... | 👉 {count} more Moment to go this month to bring your summary to life. | 👉 {count} more Moments to go this month to bring your summary to life.",
   quoteSubtitle: "Daily inspiration drawn from your Moments",
-  needsWeatherTitle: "{date}'s needs",
-  needsWeatherTitleThisMonth: "This month's needs",
-  needsWeatherTitleThisYear: "This year's needs",
-  needsWeatherSubtitle: "Your needs weather report",
+  quoteWhyTitle: "Why this quote?",
+  needsStats: {
+    title: "{date}'s needs",
+    titleThisMonth: "This month's needs",
+    titleThisYear: "This year's needs",
+    subtitle: "Your needs weather report",
+    learnMoreHtml:
+      "KifKaf analyzes each Moments you log to update your needs weather snapshot.<br><br>Our analysis is based on 33 essential needs, organized into 5 distinct categories:",
+    emptyInitSat:
+      "Log Moments to discover the needs from which you get the most satisfaction!",
+    emptyInitDissat:
+      "Log Moments to discover the needs that cause you the most dissatisfaction.",
+    emptyInitAll:
+      "Log Moments to discover what needs bear the most importance to you!",
+    emptyPeriodSat:
+      "No satisfied needs yet for this period. | No satisfied needs for this period.",
+    emptyPeriodDissat:
+      "No dissatisfied needs yet for this period. |  No dissatisfied needs for this period. ",
+    emptyPeriodAll:
+      "No needs identified yet for this period. | No needs identified for this period.",
+  },
   tops: "Tops",
   topSatisfier: "Top satisfier",
   topDissatisfier: "Top dissatisfier",
   topGainer: "Top gainer",
   topLoser: "Top loser",
-  topSatEmpty: "No satisfied needs yet for this period.",
-  topDissatEmpty: "No dissatisfied needs yet for this period.",
-  topGainerEmpty: "No top gainer yet for this period.",
-  topLoserEmpty: "No top loser yet for this period.",
+  topSatEmpty:
+    "No satisfied needs yet for this period. | No satisfied needs for this period.",
+  topDissatEmpty:
+    "No dissatisfied needs yet for this period. | No dissatisfied needs for this period.",
+  topGainerEmpty:
+    "No top gainer yet for this period. | No top gainer for this period.",
+  topLoserEmpty:
+    "No top loser yet for this period. | No top loser for this period.",
   ofAllSat: "of all satisfaction",
   ofAllDissat: "of all dissatisfaction",
   ofTotalImp: "of total importance",
@@ -212,6 +234,7 @@ export default {
   all: "All",
   showMore: "Show more",
   bookSubtitle: "The Right Book for Right Now?",
+  bookWhyTitle: "Why this book recommendation?",
   by: "by",
   bookEmpty:
     "👉 Log 3 Moments to start getting reading recommendations curated for your growth.",
@@ -237,7 +260,9 @@ export default {
   accountDetails: "Account details",
   name: "Name",
   email: "Email",
-  janeDoeEmail: "jane.doe@mail.com",
+  janeDoeAccount: "jane.doe",
+  janeDoeDomain: "email.com",
+  janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Password",
   appLanguage: "App language",
   speechRecoLanguage: "Speech recognition language",
@@ -257,7 +282,7 @@ export default {
   changeEmail: "Change email",
   enterYourEmail: "Enter your email address",
   enterYourPwdToConfirm: "Enter your password to confirm",
-  changePassword: "Change password",
+  changePwd: "Change password",
   existingPwd: "Existing password",
   enterYourExistingPwd: "Enter your existing password",
   newPwd: "New password",
@@ -335,6 +360,6 @@ export default {
       quote: "You can't stop the waves, but you can learn to surf.",
     },
   ],
-  randomQuoteText:
-    "👉 This was a random quote, log 3 more Moments to see personalized quotes inspired by your Moments.",
+  randomQuoteCountdown:
+    "Preparing your quote... | 👉 This quote is not personalized, {count} more Moment to go this month to see a quote inspired by your journal. | 👉 This quote is not personalized, {count} more Moments to go this month to see a quote inspired by your journal. ",
 };

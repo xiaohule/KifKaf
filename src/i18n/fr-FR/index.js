@@ -126,6 +126,7 @@ export default {
   relatedNeeds: "Besoins associés",
   learnMore: "En savoir plus",
   why: "Pourquoi?",
+  whyDefaultTitle: "Pourquoi est-ce que je vois ça?",
   satisfiedNeed: "Besoin satisfait",
   neutralNeed: "Besoin neutre",
   dissatisfiedNeed: "Besoin frustré",
@@ -140,7 +141,7 @@ export default {
   cancel: "Annuler",
   momentNeedsLearnMore: {
     title: "Liste des besoins",
-    html: "KifKaf analyse votre Ressenti et met en lumière les besoins sous-jacents, qu'ils soient satisfaits, frustrés ou neutres (liés à votre Ressenti mais ni satisfait ni frustré)<br><br>Notre analyse s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
+    html: "KifKaf analyse votre Ressenti et met en lumière les besoins sous-jacents, qu'ils soient satisfaits, frustrés ou neutres (liés à votre Ressenti mais ni satisfait ni frustré).<br><br>Notre analyse s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
   },
   needsCategories: {
     physiologicalAndSafety: "Besoins physiologique et de sécurité",
@@ -193,12 +194,29 @@ export default {
   summarySubtitle: "Coup d'oeil sur vos besoins du moment",
   summaryEmpty: "👉 3 Ressentis par mois donneront vie à votre aperçu.",
   summaryEmptyCountdown:
-    "Préparation de votre aperçu... | 👉 {count} autre Ressenti à saisir ce mois-ci pour donner vie à votre aperçu. | 👉 {count} autres Ressentis à saisir ce mois-ci pour donner vie à votre aperçu.",
+    "Préparation de votre aperçu... | 👉 Encore {count} Ressenti à saisir ce mois-ci pour donner vie à votre aperçu. | 👉 Encore {count} Ressentis à saisir ce mois-ci pour donner vie à votre aperçu.",
   quoteSubtitle: "Citation inspirée par vos Ressentis",
-  needsWeatherTitle: "Besoins de {date}",
-  needsWeatherTitleThisMonth: "Besoins du mois",
-  needsWeatherTitleThisYear: "Besoins de l'année",
-  needsWeatherSubtitle: "La météo de vos besoins",
+  quoteWhyTitle: "Pourquoi cette citation?",
+  needsStats: {
+    title: "Besoins de {date}",
+    titleThisMonth: "Besoins du mois",
+    titleThisYear: "Besoins de l'année",
+    subtitle: "La météo de vos besoins",
+    learnMoreHtml:
+      "KifKaf analyse chacun de vos Ressentis pour mettre à jour la météo de vos besoins.<br><br>Notre analyse s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
+    emptyInitSat:
+      "Capturez un Ressenti positif pour commencer à découvrir vos besoins les plus satisfaits.",
+    emptyInitDissat:
+      "Capturez un premier Ressenti négatif pour commencer à découvrir vos besoins les plus frustrés.",
+    emptyInitAll:
+      "Capturez un premier Ressenti pour commencer à découvrir les besoins les plus importants pour vous.",
+    emptyPeriodSat:
+      "Pas encore de besoins satisfaits sur cette période. | Pas de besoins satisfaits sur cette période.",
+    emptyPeriodDissat:
+      "Pas encore de besoins frustrés sur cette période. |  Pas de besoins frustrés sur cette période.",
+    emptyPeriodAll:
+      "Pas encore de besoins identifiés pour cette période. | Pas de besoins identifiés pour cette période. ",
+  },
   //   Source de Kifs/Source de Kafs
   // Dynamiseur/Sapeur
   // Source d'énergie/Drain d'énergie
@@ -208,10 +226,14 @@ export default {
   topDissatisfier: "Top frustrateur",
   topGainer: "Plus forte hausse de satisfaction",
   topLoser: "Plus forte baisse de satisfaction",
-  topSatEmpty: "Pas encore de satisfacteur sur cette période.",
-  topDissatEmpty: "Pas encore de frustrateur sur cette période.",
-  topGainerEmpty: "Pas encore de forte hausse sur cette période.",
-  topLoserEmpty: "Pas encore de forte baisse sur cette période.",
+  topSatEmpty:
+    "Pas encore de besoins satisfaits sur cette période. | Pas de besoins satisfaits sur cette période.",
+  topDissatEmpty:
+    "Pas encore de besoins frustrés sur cette période. | Pas de besoins frustrés sur cette période.",
+  topGainerEmpty:
+    "Pas de forte hausse sur cette période. | Pas de forte hausse sur cette période.",
+  topLoserEmpty:
+    "Pas de forte baisse sur cette période. | Pas de forte baisse sur cette période.",
   ofAllSat: "de toute la satisfaction",
   ofAllDissat: "de toute la frustration",
   ofTotalImp: "de l'importance totale",
@@ -221,11 +243,12 @@ export default {
   all: "Tous",
   showMore: "Tout afficher",
   bookSubtitle: "Le bon livre pour maintenant?",
+  bookWhyTitle: "Pourquoi ce livre?",
   by: "par",
   bookEmpty:
-    "👉 3 Ressentis par mois vous donneront des recommandations de lecture adaptées à votre croissance.",
+    "👉 3 Ressentis par mois vous donneront des recommandations de lecture inspirées par votre journal",
   bookEmptyCountdown:
-    "Préparation de vos recommandations de lecture... | 👉 {count} autre Ressenti à saisir ce mois-ci pour commencer à recevoir des recommandations de lecture adaptées à votre croissance. | 👉 {count} autres Ressentis à saisir ce mois-ci pour commencer à recevoir des recommandations de lecture adaptées à votre croissance.",
+    "Préparation de vos recommandations de lecture... | 👉 Encore {count} Ressenti à saisir ce mois-ci pour voir des recommandations de lecture inspirées par votre journal. | 👉 Encore {count} Ressentis à saisir ce mois-ci pour voir des recommandations de lecture inspirées par votre journal.",
   suggestionsTitle: "Suggestions de {date}",
   suggestionsTitleThisMonth: "Suggestions du mois",
   suggestionsTitleThisYear: "Suggestions de l'année",
@@ -235,7 +258,7 @@ export default {
   start: "À démarrer?",
   suggestionsEmpty: "👉 3 Ressentis par mois donneront vie à vos suggestions.",
   suggestionsEmptyCountdown:
-    "Préparation de vos suggestions... | 👉 {count} autre Ressenti à saisir ce mois-ci pour donner vie à vos suggestions. | 👉 {count} autres Ressentis à saisir ce mois-ci pour donner vie à vos suggestions.",
+    "Préparation de vos suggestions... | 👉 Encore {count} Ressenti à saisir ce mois-ci pour donner vie à vos suggestions. | 👉 Encore {count} Ressentis à saisir ce mois-ci pour donner vie à vos suggestions.",
   filterPeriod: "Sélectionnez une période",
   filterPeriodText:
     "L'analyse prendra en compte uniquement les Ressentis de la période sélectionnée.",
@@ -246,7 +269,9 @@ export default {
   accountDetails: "Compte",
   name: "Nom",
   email: "Email",
-  janeDoeEmail: "jeanne.dupont@mail.com",
+  janeDoeAccount: "jeanne.dupont",
+  janeDoeDomain: "email.com",
+  janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Mot de passe",
   appLanguage: "Langue de l'application",
   speechRecoLanguage: "Langue de la reconnaissance vocale",
@@ -267,7 +292,7 @@ export default {
   changeEmail: "Changer d'email",
   enterYourEmail: "Entrez votre adresse email",
   enterYourPwdToConfirm: "Entrez votre mot de passe pour confirmer",
-  changePassword: "Changer de mot de passe",
+  changePwd: "Changer de mot de passe",
   existingPwd: "Mot de passe actuel",
   enterYourExistingPwd: "Entrez votre mot de passe actuel",
   newPwd: "Nouveau mot de passe",
@@ -292,9 +317,10 @@ export default {
   pleaseTypeYourMessage: "Veuillez saisir votre message",
   messageSent: "Message envoyé à l'équipe KifKaf. Merci!",
   inspirationalQuotes: [
+    //keep same number as en-US
     {
       author: "Socrates",
-      quote: "La vie qui non examinée ne vaut pas la peine d'être vécue.",
+      quote: "La vie non examinée ne vaut pas la peine d'être vécue.",
     },
     {
       author: "Lao Tzu",
@@ -322,11 +348,6 @@ export default {
         "Le plus grand secret pour le bonheur, c'est d'être bien avec soi.",
     },
     {
-      author: "Søren Kierkegaard",
-      quote:
-        "La vie ne peut être comprise qu'en regardant en arrière; mais elle doit être vécue en regardant en avant.",
-    },
-    {
       author: "Sénèque",
       quote:
         "La vie, ce n'est pas d'attendre que les orages passent, c'est d'apprendre comment danser sous la pluie.",
@@ -349,9 +370,14 @@ export default {
     {
       author: "Jon Kabat-Zinn",
       quote:
-        "Vous ne pouvez pas arrêter les vagues, mais vous pouvez apprendre à surfer.",
+        "Vous ne pouvez pas arrêter les vagues, mais vous pouvez apprendre à les surfer.",
     },
+    // {
+    //   author: "Søren Kierkegaard",
+    //   quote:
+    //     "La vie ne peut être comprise qu'en regardant en arrière; mais elle doit être vécue en regardant en avant.",
+    // },
   ],
-  randomQuoteText:
-    "👉 This was a random quote, log 3 more Moments to see personalized quotes inspired by your Moments.",
+  randomQuoteCountdown:
+    "Préparation de votre citation... | 👉 Cette citation n'est pas personnalisée, encore {count} Ressenti à saisir ce mois-ci pour qu'elle soit inspirée par votre journal. | 👉 Cette citation n'est pas personnalisée, encore {count} Ressentis à saisir ce mois-ci pour qu'elle soit inspirée par votre journal.",
 };

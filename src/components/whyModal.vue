@@ -26,7 +26,7 @@
 
       <q-card-actions align="center">
         <q-btn rounded color="primary" padding="md md" @click="(event) => { $emit('update:modelValue', false) }" class="text-body1 text-weight-medium
-q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
+q-ma-sm q-mb-lg full-width" no-caps>{{ t('gotIt') }}</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -61,11 +61,11 @@ const emits = defineEmits(['update:modelValue']);
 const modalTitle = computed(() => {
   switch (props.section) {
     case "quote":
-      return "Why am I seeing this quote?";
+      return t('quoteWhyTitle');
     case "book":
-      return "Why am I seeing this book recommendation?";
+      return t('bookWhyTitle');
     default:
-      return "Why am I seeing this?";
+      return t('whyDefaultTitle');
   }
 });
 
@@ -95,9 +95,10 @@ watchEffect(() => {
     whyText.value = insight.why;
   }
   else if (props.section === "quote" && placeholderQuoteOfTheDayId.value !== "") {
-    originalText.value = t('inspirationalQuotes')[placeholderQuoteOfTheDayId.value]?.quote
-    author.value = t('inspirationalQuotes')[placeholderQuoteOfTheDayId.value]?.author
-    whyText.value = t('randomQuoteText');
+    originalText.value = t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].quote')
+    author.value = t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].author')
+    whyText.value = t('randomQuoteCountdown', Math.max(0, 3 -
+      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]));
   }
 });
 

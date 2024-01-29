@@ -51,13 +51,13 @@
       </q-item-section>
       <q-item-section>
         <div v-if="props.topType == 'satisfier'">
-          {{ t('topSatEmpty') }} </div>
+          {{ t('topSatEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
         <div v-else-if="props.topType == 'dissatisfier'">
-          {{ t('topDissatEmpty') }} </div>
+          {{ t('topDissatEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
         <div v-if="props.topType == 'gainer'">
-          {{ t('topGainerEmpty') }} </div>
+          {{ t('topGainerEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
         <div v-else-if="props.topType == 'loser'">
-          {{ t('topLoserEmpty') }} </div>
+          {{ t('topLoserEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
       </q-item-section>
     </q-item>
   </div>

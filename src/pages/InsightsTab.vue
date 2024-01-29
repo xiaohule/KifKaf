@@ -80,9 +80,9 @@
         <q-item-section class="text-h6 text-weight-medium text-on-background">{{
           (isDatePickerLabelCurrent(ms.activeDateRange) &&
             ms.segDateId === 'Yearly') ?
-          t('needsWeatherTitleThisYear') : (isDatePickerLabelCurrent(ms.activeDateRange) ? t('needsWeatherTitleThisMonth')
+          t('needsStats.titleThisYear') : (isDatePickerLabelCurrent(ms.activeDateRange) ? t('needsStats.titleThisMonth')
             :
-            t('needsWeatherTitle',
+            t('needsStats.title',
               { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() })) }}</q-item-section>
         <q-item-section side class="text-subtitle2 text-weight-medium text-primary"
           @click="learnMoreModalSection = 'needs'; learnMoreModalOpened = true">{{ t('learnMore') }}
@@ -106,7 +106,7 @@
 
             <q-item class="q-px-none q-pt-none q-pb-md" style="min-height: 0px;">
               <q-item-section class="text-subtitle2
- text-outline text-weight-regular">{{ t('needsWeatherSubtitle') }}</q-item-section>
+ text-outline text-weight-regular">{{ t('needsStats.subtitle') }}</q-item-section>
             </q-item>
 
             <q-btn-toggle v-model="ms.needsToggleModel" class="q-gutter-xs q-mb-sm" color="transparent"
@@ -321,9 +321,9 @@ watch(() => ms.userDoc, async (newVal) => {
 }, { immediate: true })
 
 const placeholderQuote = computed(() =>
-  t('inspirationalQuotes')[placeholderQuoteOfTheDayId.value]?.quote ?? "")
+  t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].quote') ?? "")
 const placeholderQuoteAuthor = computed(() =>
-  t('inspirationalQuotes')[placeholderQuoteOfTheDayId.value]?.author ?? "")
+  t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].author') ?? "")
 
 watch(revisitMomentId, (newVal) => {
   if (newVal) {
