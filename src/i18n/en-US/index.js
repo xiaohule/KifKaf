@@ -9,6 +9,7 @@ export default {
   continueWithGoogle: "Continue with Google",
   continueWithApple: "Continue with Apple",
   continueWithEmail: "Continue with Email",
+  continue: "Continue",
   byContinuingText: "By continuing, you are indicating that you accept our",
   whatShouldWeCallYou: "What should we call you?",
   enterYourPwd: "Enter your password",
@@ -99,6 +100,7 @@ export default {
     step1:
       "Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.",
     step1Action: "Log a moment",
+    dummyMoment: "Feeling excited to get to know me better with KifKaf!",
     step1DoneTitle: "First moment logged",
     step1DoneText:
       "Emotions are your body's language. Embrace the habit of noting them down and you're halfway there!",
@@ -133,6 +135,7 @@ export default {
     "Moment saved. Needs analysis will complete next time you’re online.",
   deleteMoment: "Delete moment",
   deleteMomentText: "We will automatically recalculate your Insights.",
+  delete: "Delete",
   momentDeleted: "Moment deleted",
   momentDeletedOffline:
     "Moment deleted. Insights recalculation will complete next time you’re online.",
@@ -228,7 +231,8 @@ export default {
   ofAllSat: "of all satisfaction",
   ofAllDissat: "of all dissatisfaction",
   ofTotalImp: "of total importance",
-  satVsLastMonth: "satisfaction vs last month",
+  satVsLastMonth: "satisfaction vs previous month",
+  satVsLastYear: "satisfaction vs previous year",
   satisfiers: "Satisfiers",
   dissatisfiers: "Dissatisfiers",
   all: "All",
@@ -244,9 +248,9 @@ export default {
   suggestionsTitleThisMonth: "This month's suggestions",
   suggestionsTitleThisYear: "This year's suggestions",
   suggestionsSubtitle: "Take it or leave it: custom tweaks for life’s peaks",
-  continue: "Continue",
-  stop: "Stop",
-  start: "Start?",
+  toContinue: "Continue",
+  toStop: "Stop",
+  toStart: "Start?",
   suggestionsEmpty: "👉 3 Moments a month will bring your suggestions to life.",
   suggestionsEmptyCountdown:
     "Preparing your suggestions... | 👉 {count} more Moment to go this month to bring your suggestions to life. | 👉 {count} more Moments to go this month to bring your suggestions to life.",
@@ -307,6 +311,7 @@ export default {
   pleaseTypeYourMessage: "Please type your message",
   messageSent: "Message sent to KifKaf team. Thank you!",
   inspirationalQuotes: [
+    //keep this list's length to 11 or change getPlaceholderQuoteOfTheDayId argument
     {
       author: "Carl Jung",
       quote:

@@ -71,32 +71,32 @@ const modalTitle = computed(() => {
 
 watch(() => ms.userDoc, async (newVal) => {
   if (newVal) {
-    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId(t('inspirationalQuotes').length)
+    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId(11) // t('inspirationalQuotes').length
   }
 }, { immediate: true })
 
-function getOriginalTextBySection(section, insight) {
+function getOriginalTextBySection(section, insights) {
   switch (section) {
     case "quote":
-      return insight.text;
+      return insights.text;
     case "book":
-      return insight.title;
+      return insights.title;
     default:
       return "";
   }
 }
 
 watchEffect(() => {
-  const insight = ms.aggDataInsights[ms.activeDateRange]?.[props.section];
+  const insights = ms.aggDataInsights[ms.activeDateRange]?.[props.section];
 
-  if (insight) {
-    originalText.value = getOriginalTextBySection(props.section, insight);
-    author.value = insight.author ?? "";
-    whyText.value = insight.why;
+  if ((insights?.text || insights?.title) && insights.author && insights.why) {
+    originalText.value = getOriginalTextBySection(props.section, insights);
+    author.value = insights.author ?? "";
+    whyText.value = insights.why;
   }
   else if (props.section === "quote" && placeholderQuoteOfTheDayId.value !== "") {
-    originalText.value = t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].quote')
-    author.value = t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].author')
+    originalText.value = t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].quote')
+    author.value = t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].author')
     whyText.value = t('randomQuoteCountdown', Math.max(0, 3 -
       ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]));
   }

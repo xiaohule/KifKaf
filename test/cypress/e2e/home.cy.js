@@ -298,7 +298,7 @@ describe("Insights Stats validation", () => {
     cy.contains("Monthly").click();
     cy.contains("Sep").click();
     cy.contains("Done").click();
-    cy.contains("No satisfied needs yet for this period.").should("be.visible");
+    cy.contains("No satisfied needs for this period.").should("be.visible");
   });
 });
 

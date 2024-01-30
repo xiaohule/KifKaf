@@ -176,7 +176,7 @@ onMounted(() => {
 
 //WELCOME TUTORIAL
 const tutoLogMoment = () => {
-  emits('update:newMomText', 'Feeling excited to get to know me better with KifKaf!');
+  emits('update:newMomText', t('welcomeTutorial.dummyMoment'));
   nextTick(() => {
     // newMomInputRef.value.$el.querySelector('textarea').select()
     props.newMomInputRef.$el.querySelector('textarea').select()

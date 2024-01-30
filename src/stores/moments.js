@@ -956,7 +956,7 @@ export const useMomentsStore = defineStore("moments", () => {
   };
 
   //get a random quote but keep it for the day, so there should be no change on refresh it a given day
-  const getPlaceholderQuoteOfTheDayId = async (quoteListLength) => {
+  const getPlaceholderQuoteOfTheDayId = async (quoteListLength = 11) => {
     // Check if today's date is different from the last revisit date
     if (
       userDoc.value.placeholderQuote &&
@@ -969,7 +969,7 @@ export const useMomentsStore = defineStore("moments", () => {
       return userDoc.value.placeholderQuote.id; // Return the cached ID
     }
 
-    const randomQuoteIndex = Math.floor(Math.random() * quoteListLength);
+    const randomQuoteIndex = Math.floor(Math.random() * (quoteListLength - 1));
     await setUserDocValue({
       placeholderQuote: {
         id: randomQuoteIndex,

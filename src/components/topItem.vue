@@ -38,7 +38,8 @@
             'satisfier'
             ? t('ofAllSat') : t('ofAllDissat') }}
           </q-item-section>
-          <q-item-section v-else side class="text-caption text-outline">{{ t('satVsLastMonth') }}
+          <q-item-section v-else side class="text-caption text-outline">{{ ms.segDateId === 'Monthly' ?
+            t('satVsLastMonth') : t('satVsLastYear') }}
           </q-item-section>
         </q-item>
       </q-item-section>

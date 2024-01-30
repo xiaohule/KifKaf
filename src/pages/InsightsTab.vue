@@ -65,8 +65,10 @@
           <span class="text-caption text-outline">{{
             placeholderQuoteAuthor }}</span></q-item-section>
         <q-item-section side>
-          <q-item-label class="text-primary text-weight-medium text-subtitle2"
-            @click="whyModalSection = 'quote'; whyModalOpened = true">{{ t('why') }}</q-item-label>
+          <q-btn class="text-primary text-weight-medium text-subtitle2"
+            @click="whyModalSection = 'quote'; whyModalOpened = true" no-caps flat :ripple="false"
+            padding="xs none xs sm">{{ t('why')
+            }}</q-btn>
           <q-icon color="outline" name="r_format_quote" size="lg" />
           <!-- <q-avatar size="42px" font-size="28px" color="surface" text-color="on-background" icon="r_format_quote"> </q-avatar>-->
         </q-item-section>
@@ -84,9 +86,11 @@
             :
             t('needsStats.title',
               { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() })) }}</q-item-section>
-        <q-item-section side class="text-subtitle2 text-weight-medium text-primary"
-          @click="learnMoreModalSection = 'needs'; learnMoreModalOpened = true">{{ t('learnMore') }}
-        </q-item-section>
+        <q-btn side class="text-subtitle2 text-weight-medium text-primary"
+          @click="learnMoreModalSection = 'needs'; learnMoreModalOpened = true" no-caps flat :ripple="false"
+          padding="xs none xs sm">{{
+            t('learnMore') }}
+        </q-btn>
       </q-item>
 
       <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperNeedsEl" :init="true"
@@ -151,9 +155,11 @@
           </span>
         </q-item-section>
         <q-item-section side>
-          <q-item-label v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book"
+          <q-btn v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book.title"
             class="text-primary text-weight-medium text-subtitle2"
-            @click="whyModalSection = 'book'; whyModalOpened = true">{{ t('why') }}</q-item-label>
+            @click="whyModalSection = 'book'; whyModalOpened = true" no-caps flat :ripple="false"
+            padding="xs none xs sm">{{ t('why')
+            }}</q-btn>
           <q-icon color="outline" name="local_library" size="md" class="q-pt-xs q-px-xs" />
         </q-item-section>
       </q-item>
@@ -192,20 +198,22 @@
 
             <q-list class="selectable-text"
               v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.suggestions">
-              <q-item-label class="text-subtitle2 text-weight-medium text-outline">{{ t('continue') }}</q-item-label>
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline">{{ t('toContinue') }}</q-item-label>
 
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
                 {{ suggestion }}
               </q-item>
-              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('stop') }}</q-item-label>
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('toStop')
+              }}</q-item-label>
 
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.stop"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
                 {{ suggestion }}
               </q-item>
 
-              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('start') }}</q-item-label>
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('toStart')
+              }}</q-item-label>
 
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.start"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
@@ -316,14 +324,14 @@ onMounted(async () => {
 watch(() => ms.userDoc, async (newVal) => {
   if (newVal) {
     revisitMomentId.value = await ms.getRandomMomentIdOfTheDay()
-    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId(t('inspirationalQuotes').length)
+    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId(11)// t('inspirationalQuotes').length
   }
 }, { immediate: true })
 
 const placeholderQuote = computed(() =>
-  t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].quote') ?? "")
+  t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].quote') ?? "")
 const placeholderQuoteAuthor = computed(() =>
-  t('inspirationalQuotes[' + [placeholderQuoteOfTheDayId.value] + '].author') ?? "")
+  t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].author') ?? "")
 
 watch(revisitMomentId, (newVal) => {
   if (newVal) {

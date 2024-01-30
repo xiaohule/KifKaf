@@ -181,6 +181,7 @@ export const getFirebaseAuth = () => {
           persistence: indexedDBLocalPersistence,
         });
       }
+      auth.useDeviceLanguage(); // or  auth.languageCode = 'it'; to explicitly set it
     } catch (error) {
       console.error("Error initializing authentication:", error);
     }

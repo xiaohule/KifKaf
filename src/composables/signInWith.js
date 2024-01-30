@@ -16,7 +16,7 @@ export const signInWithGoogle = async () => {
   try {
     const provider = new GoogleAuthProvider();
     //     auth.languageCode = 'it';
-    auth.useDeviceLanguage(); // To apply the default browser preference instead of explicitly setting it.
+    // auth.useDeviceLanguage(); // To apply the default browser preference instead of explicitly setting it.
     if (
       process.env.MODE !== "capacitor" //  || process.env.NODE_ENV === "development" || isVirtualDevice
     ) {

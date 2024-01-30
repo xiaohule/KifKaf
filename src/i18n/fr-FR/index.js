@@ -8,12 +8,13 @@ export default {
   loginToKifKaf: "Se connecter à KifKaf",
   continueWithGoogle: "Continuer avec Google",
   continueWithApple: "Continuer avec Apple",
-  continueWithEmail: "Continuer avec Email",
+  continueWithEmail: "Continuer avec un email",
+  continue: "Continuer",
   byContinuingText: "En continuant, vous acceptez nos",
-  whatShouldWeCallYou: "Comment souhaitez-vous qu'on vous appelle ?",
+  whatShouldWeCallYou: "Comment souhaitez-vous qu'on vous nomme?",
   enterYourPwd: "Entrez votre mot de passe",
   signin: "Se connecter",
-  troubleSigningIn: "Problème de connexion ?",
+  troubleSigningIn: "Problème de connexion?",
   aVerificationEmailSentTo: "Un email de vérification a été envoyé à {email}.",
   pleaseCheck:
     "Veuillez vérifier votre boîte de réception et cliquer sur le lien dans l'email pour vérifier votre compte.",
@@ -57,7 +58,7 @@ export default {
   or: "ou",
   and: "et",
   home: "Journal",
-  insights: "Analyse",
+  insights: "Explorer", //Analyse Eclairages Tendances Perspectives Besoins Besoins & +
   thisMonth: "Ce mois",
   thisYear: "Cette année",
   monthsList: {
@@ -98,6 +99,8 @@ export default {
     step1:
       "Capturez les bons et les mauvais moments dans votre journal intime KifKaf, accessible uniquement à vous.",
     step1Action: "Capturer un Ressenti", //Consignez/saisissez/immortalisez/enregistrez/capturez/documentez/notez
+    dummyMoment:
+      "Super enthousiaste à l'idée de mieux me connaître avec KifKaf!", //Hâte de mieux me comprendre en utilisant KifKaf!"
     step1DoneTitle: "Premier Ressenti capturé",
     step1DoneText:
       "Les émotions sont le langage de votre corps. Les entendre et les noter est le premier pas vers une meilleure connaissance de soi." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie!"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:6 clarifier et différencier de step2DoneText
@@ -118,7 +121,7 @@ export default {
     step3Action: "Explorer votre analyse",
     step3DoneTitle: "Tout est prêt!", //TODO:6 s'assurer que tt est dégenré, et avoir des CTA clair et vendre les bénéfices du produit et non le produit lui-même
     step3DoneText:
-      "Continuez à capturer vos Ressentis pour affiner l'analyse KifKaf. Bientôt, vous n'aurez plus de secrets pour vous-même.",
+      "Continuez à capturer vos Ressentis pour affiner les éclairages apportés par KifKaf. Bientôt, vous n'aurez plus de secrets pour vous-même.",
     complete: "terminé | terminés",
   },
   moment: "Ressenti",
@@ -133,15 +136,16 @@ export default {
   momentSaved: "Ressenti enregistré",
   momentSavedOffline:
     "Ressenti enregistré. L'analyse des besoins s'effectuera dès que vous serez connecté à Internet.",
-  deleteMoment: "Supprimer le Ressenti",
-  deleteMomentText: "Nous allons automatiquement recalculer votre analyse.",
-  momentDeleted: "Ressenti supprimé",
+  deleteMoment: "Effacer le Ressenti",
+  deleteMomentText: "La météo de vos besoins sera mise à jour.",
+  delete: "Effacer",
+  momentDeleted: "Ressenti effacé",
   momentDeletedOffline:
-    "Ressenti supprimé. Votre analyse sera mise à jour dès que vous serez connecté à Internet.",
+    "Ressenti effacé. Votre météo des besoins sera mise à jour dès que vous serez connecté à Internet.",
   cancel: "Annuler",
   momentNeedsLearnMore: {
     title: "Liste des besoins",
-    html: "KifKaf analyse votre Ressenti et met en lumière les besoins sous-jacents, qu'ils soient satisfaits, frustrés ou neutres (liés à votre Ressenti mais ni satisfait ni frustré).<br><br>Notre analyse s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
+    html: "KifKaf analyse votre Ressenti et met en lumière les besoins sous-jacents.<br><br>Notre méthode s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :", //, qu'ils soient satisfaits, frustrés ou neutres (liés à votre Ressenti mais ni satisfait ni frustré)
   },
   needsCategories: {
     physiologicalAndSafety: "Besoins physiologique et de sécurité",
@@ -203,7 +207,7 @@ export default {
     titleThisYear: "Besoins de l'année",
     subtitle: "La météo de vos besoins",
     learnMoreHtml:
-      "KifKaf analyse chacun de vos Ressentis pour mettre à jour la météo de vos besoins.<br><br>Notre analyse s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
+      "KifKaf analyse chacun de vos Ressentis pour mettre à jour la météo de vos besoins.<br><br>Notre méthode s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
     emptyInitSat:
       "Capturez un Ressenti positif pour commencer à découvrir vos besoins les plus satisfaits.",
     emptyInitDissat:
@@ -237,7 +241,8 @@ export default {
   ofAllSat: "de toute la satisfaction",
   ofAllDissat: "de toute la frustration",
   ofTotalImp: "de l'importance totale",
-  satVsLastMonth: "satisfaction vs mois dernier",
+  satVsLastMonth: "satisfaction vs mois précédent",
+  satVsLastYear: "satisfaction vs année précédente",
   satisfiers: "Satisfacteurs",
   dissatisfiers: "Frustrateurs",
   all: "Tous",
@@ -253,9 +258,9 @@ export default {
   suggestionsTitleThisMonth: "Suggestions du mois",
   suggestionsTitleThisYear: "Suggestions de l'année",
   suggestionsSubtitle: "Ajustements personnalisés à prendre ou à laisser",
-  continue: "À continuer",
-  stop: "À stopper",
-  start: "À démarrer?",
+  toContinue: "À continuer",
+  toStop: "À stopper",
+  toStart: "À démarrer?",
   suggestionsEmpty: "👉 3 Ressentis par mois donneront vie à vos suggestions.",
   suggestionsEmptyCountdown:
     "Préparation de vos suggestions... | 👉 Encore {count} Ressenti à saisir ce mois-ci pour donner vie à vos suggestions. | 👉 Encore {count} Ressentis à saisir ce mois-ci pour donner vie à vos suggestions.",
@@ -287,7 +292,7 @@ export default {
     "Suppression de votre compte en cours, veuillez rester sur cette page...",
   accountDeleted: "Compte supprimé",
   accountDeletedText:
-    "Votre compte a été supprimé. Tout vos Ressentis, analyses et données associées ont été effacés.",
+    "Votre compte a été supprimé. Tout vos Ressentis, éclairages et données associées ont été effacés.",
   changeName: "Changer de nom",
   changeEmail: "Changer d'email",
   enterYourEmail: "Entrez votre adresse email",
@@ -301,7 +306,7 @@ export default {
   changeAppLanguage: "Changer la langue de l'application",
   logoutText: "Vous serez redirigé vers l'écran de connexion.",
   deleteAccountText:
-    "La suppression de votre compte est définitive. Tous vos Ressentis, analyses et données associées seront effacés.",
+    "La suppression de votre compte est définitive. Tous vos Ressentis, éclairages et données associées seront effacés.",
   pleaseTypeName: "Veuillez saisir votre nom",
   pleaseTypeEmail: "Veuillez saisir votre email",
   pleaseTypeSmthg: "Veuillez saisir quelque chose",
@@ -317,7 +322,7 @@ export default {
   pleaseTypeYourMessage: "Veuillez saisir votre message",
   messageSent: "Message envoyé à l'équipe KifKaf. Merci!",
   inspirationalQuotes: [
-    //keep same number as en-US
+    ////keep this list's length to 11 or change getPlaceholderQuoteOfTheDayId argument
     {
       author: "Socrates",
       quote: "La vie non examinée ne vaut pas la peine d'être vécue.",
@@ -379,5 +384,5 @@ export default {
     // },
   ],
   randomQuoteCountdown:
-    "Préparation de votre citation... | 👉 Cette citation n'est pas personnalisée, encore {count} Ressenti à saisir ce mois-ci pour qu'elle soit inspirée par votre journal. | 👉 Cette citation n'est pas personnalisée, encore {count} Ressentis à saisir ce mois-ci pour qu'elle soit inspirée par votre journal.",
+    "Préparation de votre citation... | 👉 Cette citation n'est pas personnalisée. Encore {count} Ressenti à saisir ce mois-ci pour qu'elle soit inspirée par votre journal. | 👉 Cette citation n'est pas personnalisée. Encore {count} Ressentis à saisir ce mois-ci pour qu'elle soit inspirée par votre journal.",
 };

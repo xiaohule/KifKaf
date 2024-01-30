@@ -37,9 +37,10 @@
           </q-card-section> -->
           <q-item class="q-px-none q-py-none" style="min-height: 0px;">
             <q-item-section class="text-weight-medium text-outline">{{ t('relatedNeeds') }}</q-item-section>
-            <q-item-section side class="text-subtitle2 text-weight-medium text-primary"
-              @click="learnMoreModalSection = 'momentNeeds'; learnMoreModalOpened = true">{{ t('learnMore') }}
-            </q-item-section>
+            <q-btn side class="text-subtitle2 text-weight-medium text-primary"
+              @click="learnMoreModalSection = 'momentNeeds'; learnMoreModalOpened = true" no-caps flat :ripple="false"
+              padding="none none none sm">{{ t('learnMore') }}
+            </q-btn>
           </q-item>
 
           <q-card-section v-if="moment.needs && (moment.needs.error || moment.needs.Oops)"
@@ -86,15 +87,15 @@
       <q-card class="bg-background q-px-sm q-pt-sm q-pb-lg" flat
         v-touch-swipe.mouse.down="(event) => { deleteDialogOpened = false }">
         <q-card-section>
-          <div class="text-h6 text-weight-medium">{{ t('deleteMoment') + " ?" }} </div>
+          <div class="text-h6 text-weight-medium">{{ t('deleteMoment') + "?" }} </div>
         </q-card-section>
         <q-card-section class="q-pt-none text-outline">
           {{ t('deleteMomentText') }} </q-card-section>
         <q-card-actions align="around">
           <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" rounded :label="t('cancel')" color="primary"
             padding="sm xl" v-close-popup no-caps />
-          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" flat rounded :label="t('deleteMoment')"
-            color="primary" padding="sm xl" v-close-popup no-caps @click="deleteMoment" />
+          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" flat rounded :label="t('delete')" color="primary"
+            padding="sm xl" v-close-popup no-caps @click="deleteMoment" />
         </q-card-actions>
       </q-card>
     </q-dialog>
