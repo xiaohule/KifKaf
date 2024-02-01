@@ -31,8 +31,7 @@
         </q-item>
         <q-item class="q-pa-none" dense style="min-height: 0px;">
           <q-item-section class="text-caption text-outline">
-            {{ topItem.occurrenceCount }}
-            {{ topItem.occurrenceCount == 1 ? 'moment' : 'moments' }}
+            {{ t('moment', topItem.occurrenceCount) }}
           </q-item-section>
           <q-item-section v-if="isSatDissatTopItem" side class="text-caption text-outline">{{ props.topType ===
             'satisfier'

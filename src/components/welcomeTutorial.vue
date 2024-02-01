@@ -97,17 +97,16 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
-                  <q-item-section v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] === 0" class="text-body2"> {{
+                  <q-item-section v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0" class="text-body1">
+                    {{ t('welcomeTutorial.step3Ready') }}
+                  </q-item-section>
+                  <q-item-section v-else-if="!ms.userDoc?.hasNeeds" class="text-body2"> {{
                     t('welcomeTutorial.step3Empty') }}
                   </q-item-section>
-                  <q-item-section v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" class="text-body2">
-                    {{ t('welcomeTutorial.step3EmptyCountdown', 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) }}
+                  <q-item-section v-else class="text-body2">
+                    {{ t('welcomeTutorial.step3EmptyCountdown', Math.max(0, 3 -
+                      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
                   </q-item-section>
-                  <q-item-section v-else-if="!ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length"
-                    class="text-body1">
-                    {{ t('welcomeTutorial.step3EmptyCountdown', 0) }} </q-item-section>
-                  <q-item-section v-else class="text-body1">
-                    {{ t('welcomeTutorial.step3Ready') }} </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <img v-cloak src="~assets/tuto3_1.png"

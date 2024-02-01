@@ -19,7 +19,7 @@
 
         <q-card class="bg-surface q-mb-md q-px-md q-py-md" style="border-radius: 14px" flat>
           <q-card-section horizontal class="q-px-none">
-            <div class="text-weight-medium text-outline col">{{ t('moment') }}</div>
+            <div class="text-weight-medium text-outline col">{{ t('momentTitle') }}</div>
             <!-- <q-card-actions vertical class="col-auto q-pa-none">
             <q-btn flat color="primary" icon="edit" dense size="sm" />
           </q-card-actions>
@@ -44,7 +44,7 @@
           </q-item>
 
           <q-card-section v-if="moment.needs && (moment.needs.error || moment.needs.Oops)"
-            class="selectable-text q-px-none q-py-sm text-error" style="min-height: 0px;">
+            class="selectable-text q-px-none q-py-sm text-negative" style="min-height: 0px;">
             {{ "Oops: " + (moment.needs.error ||
               moment.needs.Oops).replace(/[^a-zA-Z0-9!?,;.:]+$/, '') }}
             <!-- add the "+" for manually adding needs -->
@@ -59,15 +59,14 @@
             <!-- <div class="q-chip row inline no-wrap items-center text-positive q-chip--colored q-chip--outline needs" style="background-color: negative;"> -->
 
             <div class="text-caption text-center q-mt-sm">
-              <q-chip :ripple="false" outline color="positive" size="sm" :label="t('satisfiedNeed')" class="bg-error" />
-              <q-chip :ripple="false" outline color="primary" size="sm" :label="t('neutralNeed')" class="bg-scrim-dark" />
-              <q-chip :ripple="false" outline color="negative" size="sm" :label="t('dissatisfiedNeed')"
-                class="bg-transparent-red" />
+              <q-chip :ripple="false" outline color="positive" size="sm" :label="t('satisfiedNeed')" />
+              <q-chip :ripple="false" outline color="primary" size="sm" :label="t('neutralNeed')" />
+              <q-chip :ripple="false" outline color="negative" size="sm" :label="t('dissatisfiedNeed')" />
             </div>
 
 
           </q-card-section>
-          <q-card-section v-else class="q-px-none q-py-sm text-error" style="min-height: 0px;">
+          <q-card-section v-else class="q-px-none q-py-sm" style="min-height: 0px;">
           </q-card-section>
 
         </q-card>

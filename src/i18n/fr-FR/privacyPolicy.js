@@ -12,7 +12,7 @@ export default {
   <li>votre adresse email</li>
   <li>un mot de passe (crypté et non accessible par KifKaf)</li>
   <li>un pseudonyme (facultatif)</li>
-  <li>les "Ressentis" que vous ajoutez à votre journal KifKaf</li>
+  <li>les entrées de votre journal KifKaf</li>
 </ul>
 
 <p>Même sans vous connecter à un Compte KifKaf, vous pouvez choisir de partager des informations avec nous, comme une adresse email pour recevoir des mises à jour sur nos services.</p>
@@ -43,7 +43,7 @@ export default {
 <ul>
   <li>Firebase: Nous utilisons Firebase pour l'authentification, le stockage des données et d'autres services backend. Vous pouvez lire la politique de confidentialité de Firebase <a href="https://firebase.google.com/support/privacy" target="_blank">ici</a>.</li>
   <li>Sentry: Nous utilisons Sentry pour la surveillance des erreurs et de la performance. Vous pouvez lire la politique de confidentialité de Sentry <a href="https://sentry.io/privacy/" target="_blank">ici</a>.</li>
-  <li>OpenAI: Le texte des "Ressentis" saisis dans KifKaf est analysé par un modèle de la famille GPT d'OpenAI pour en déduire des analyses. Vous pouvez lire la politique de confidentialité d'OpenAI <a href="https://openai.com/policies/privacy-policy" target="_blank">ici</a>.</li>
+  <li>OpenAI: Les entrées de votre journal sont analysées par un modèle de la famille GPT d'OpenAI pour obtenir des éclairages pertinents. Vous pouvez lire la politique de confidentialité d'OpenAI <a href="https://openai.com/policies/privacy-policy" target="_blank">ici</a>.</li>
 </ul>
 
 <p>Note : Bien que nous ayons pris des mesures pour protéger la vie privée des utilisateurs, veuillez noter que le contenu des utilisateurs pourrait être analysé par des services tiers. Nous encourageons les utilisateurs à faire preuve de prudence et à éviter de partager des informations personnellement identifiables via la plateforme.</p>
@@ -59,11 +59,11 @@ export default {
   <li>Rectification : Si une de vos données personnelles semble inexacte ou incomplète, vous pouvez demander une modification.</li>
   <li>Effacement : Vous avez le droit de nous demander de supprimer ou de retirer vos données personnelles de nos systèmes.</li>
 </ul>
-<p>Pour exercer l'un de ces droits ou pour toute question sur vos droits, contactez-nous à hello@kifkaf.app.</p>
+<p>Pour exercer l'un de ces droits ou pour toute question sur vos droits, contactez-nous à hello{'@'}kifkaf.app.</p>
 
 <h5>Contact</h5>
 
-<p>Pour toute question relative à cette Politique de Confidentialité, veuillez nous envoyer un email à hello@kifkaf.app.</p>
+<p>Pour toute question relative à cette Politique de Confidentialité, veuillez nous envoyer un email à hello{'@'}kifkaf.app.</p>
 <br />
 <p>Date d'effet : 1er janvier 2023</p>
 <p>Dernière mise à jour : 26 octobre 2023</p>

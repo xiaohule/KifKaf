@@ -4,7 +4,7 @@ import tosPage from "./tos";
 export default {
   privacyPolicyPage,
   tosPage,
-  login: "Connexion",
+  login: "Se connecter",
   loginToKifKaf: "Se connecter à KifKaf",
   continueWithGoogle: "Continuer avec Google",
   continueWithApple: "Continuer avec Apple",
@@ -17,11 +17,11 @@ export default {
   troubleSigningIn: "Problème de connexion?",
   aVerificationEmailSentTo: "Un email de vérification a été envoyé à {email}.",
   pleaseCheck:
-    "Veuillez vérifier votre boîte de réception et cliquer sur le lien dans l'email pour vérifier votre compte.",
+    "Consultez votre boîte de réception et cliquer sur le lien dans l'email pour activer votre compte.",
   checkYourInbox: "Vérifier votre boîte de réception",
   followInstructions:
     "Suivez les instructions envoyées à {email} pour réinitialiser votre mot de passe.",
-  recoverPwd: "Réinitialiser votre mot de passe",
+  recoverPwd: "Réinitialiser le mot de passe",
   getInstructionsText:
     "Recevez des instructions à cet email pour réinitialiser votre mot de passe.",
   send: "Envoyer",
@@ -29,7 +29,7 @@ export default {
     signInOffline:
       "Vous êtes hors ligne. Veuillez vous connecter à Internet pour continuer.",
     accountDeletionOffline:
-      "Vous êtes hors ligne. Veuillez vous connecter à Internet pour supprimer votre compte.",
+      "Vous devez être connecté à Internet pour supprimer votre compte.",
     incorrectPwdOrEmail: "Mot de passe ou email {email} incorrect",
     noUserWithEmail: "Aucun utilisateur trouvé avec l'email {email}",
     invalidEmail: "Email {email} invalide",
@@ -37,7 +37,7 @@ export default {
     emailInUse: "L'email {email} est déjà utilisé",
     signingIn: "Erreur de connexion avec l'email {email}",
     speechRecognitionPermissionDeniedHtml: `
-      <strong>KifKaf à besoin de la permission Reconnaissance vocale pour cela.</strong><br>
+      <strong>KifKaf a besoin de la permission Reconnaissance vocale pour cela.</strong><br>
       Pour l'accorder:<br>
       1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
       2. Sélectionner <strong>KifKaf</strong>.<br>
@@ -45,7 +45,7 @@ export default {
       Vous gardez le contrôle et pouvez changer vos choix à tout moment.
     `,
     micAccessPermissionDeniedHtml: `
-      <strong>KifKaf à besoin de la permission Micro pour cela.</strong><br>
+      <strong>KifKaf a besoin de la permission Micro pour cela.</strong><br>
       Pour l'accorder:<br>
       1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
       2. Sélectionner <strong>KifKaf</strong>.<br>
@@ -53,7 +53,7 @@ export default {
       Vous gardez le contrôle et pouvez changer vos choix à tout moment.
   `,
     accountDeletionFailed:
-      "Nous sommes désolé mais nous n'avons pas pu supprimer votre compte car votre dernière connexion est expirée. S'il vous plaît, déconnectez-vous, reconnectez-vous et essayez de supprimer votre compte à nouveau.",
+      "Nous sommes désolé mais nous n'avons pas pu supprimer votre compte car votre dernière connexion est expirée. Veuillez vous déconnecter, puis vous reconnecter et essayer de nouveau de supprimer votre compte.",
   },
   or: "ou",
   and: "et",
@@ -86,45 +86,49 @@ export default {
   },
   today: "Aujourd'hui",
   yesterday: "Hier",
-  weeksAgo: "Il y a {count} semaine | Il y a {count} semaines",
-  monthsAgo: "Il y a {count} mois",
-  yearsAgo: "Il y a {count} an | Il y a {count} ans",
+  weeksAgo:
+    "souvenir de la semaine dernière | Souvenir d'il y a {count} semaines",
+  monthsAgo: "Souvenir du mois dernier | Souvenir d'il y a {count} mois",
+  yearsAgo: "Souvenir de l'année dernière | Souvenir d'il y a {count} ans",
   goodAfternoon: "Bonjour",
   goodMorning: "Bonjour",
   goodEvening: "Bonsoir",
-  momentInputPrompt: "Un nouveau Ressenti?",
+  momentInputPrompt: "Une nouvelle émotion?",
   momentInputPlaceholder: "Je me sens ... parce que ...",
   welcomeTutorial: {
     title: "Bienvenue sur KifKaf",
     step1:
-      "Capturez les bons et les mauvais moments dans votre journal intime KifKaf, accessible uniquement à vous.",
-    step1Action: "Capturer un Ressenti", //Consignez/saisissez/immortalisez/enregistrez/capturez/documentez/notez
+      "Capturez les bons et les mauvais moments dans votre journal intime KifKaf, accessible uniquement à vous.", //TODO:6 ajouter un slide ou mettre double dose sur confidentialité
+    step1Action: "Capturer une émotion", //capturez/saisissez/enregistrez/notez Captez/Consignez//immortalisez///documentez/
     dummyMoment:
       "Super enthousiaste à l'idée de mieux me connaître avec KifKaf!", //Hâte de mieux me comprendre en utilisant KifKaf!"
-    step1DoneTitle: "Premier Ressenti capturé",
+    step1DoneTitle: "Première émotion capturée",
     step1DoneText:
-      "Les émotions sont le langage de votre corps. Les entendre et les noter est le premier pas vers une meilleure connaissance de soi." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie!"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:6 clarifier et différencier de step2DoneText
+      "Les émotions sont le langage de votre corps. Prendre le temps de les entendre et les noter est un grand pas vers une meilleure compréhension de vous-même." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie!"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:6 clarifier et différencier de step2DoneText
     step2:
-      "Pour chaque Ressenti, KifKaf identifie les besoins associés et leur degré de satisfaction.",
+      "Pour chaque note saisie dans votre journal, KifKaf identifie les besoins associés et leur degré de satisfaction.",
     step2Action: "Voir les besoins",
     step2DoneTitle: "Besoins révélés",
     step2DoneText:
-      "Chaque émotion est l'expression d'un besoin. KifKaf vous aide à faire ce lien.",
+      "Derrière chaque émotion se cache un besoin essentiel. KifKaf est conçu pour vous aider à déchiffrer et comprendre ces liens précieux.", //      "Chaque émotion est l'expression d'un besoin. KifKaf vous aide à faire ce lien.",
     step3Empty:
-      "Après 3 Ressentis, la trame de vos besoins commence à se dessiner.",
-    // Vos émotions dressent une empreinte unique de besoins. Dès 3 Ressentis, des tendances commencent à émerger.",
-    //   "Dès 3 Ressentis, KifKaf établi une première analyse reconnait des patterns et le profil unique de vos besoins commence à émerger.",
-    // Vos émotions racontent une histoire. Dès 3 Ressentis, des tendances commencent à émerger.",
+      "Dès 3 notes dans votre journal, la trame de vos besoins commence à se dessiner.",
+    // Vos émotions dressent une empreinte unique de besoins. Dès 3 émotions, des tendances commencent à émerger.",
+    //   "Dès 3 émotions, KifKaf établi une première analyse reconnait des patterns et le profil unique de vos besoins commence à émerger.",
+    // Vos émotions racontent une histoire. Dès 3 émotions, des tendances commencent à émerger.",
     step3EmptyCountdown:
-      "Préparation de votre analyse... | Capturez encore {count} Ressenti pour accéder à votre analyse. | Capturez encore {count} Ressentis pour accéder à votre analyse.",
-    step3Ready: "👇 Votre analyse est prête! 👇",
-    step3Action: "Explorer votre analyse",
+      "Préparation de vos éclairages en cours. Cela prend environ 2 min. | Dès 3 notes dans votre journal, KifKaf vous propose de premiers éclairages. Plus qu'une note pour les générer. | Dès 3 notes dans votre journal, KifKaf vous propose de premiers éclairages. Plus que {count} notes pour les générer.",
+    step3Ready: "👇 Vos éclairages sont prêts! 👇",
+    step3Action: "Explorer",
     step3DoneTitle: "Tout est prêt!", //TODO:6 s'assurer que tt est dégenré, et avoir des CTA clair et vendre les bénéfices du produit et non le produit lui-même
     step3DoneText:
-      "Continuez à capturer vos Ressentis pour affiner les éclairages apportés par KifKaf. Bientôt, vous n'aurez plus de secrets pour vous-même.",
+      "Capturez régulièrement vos émotions pour affiner les éclairages apportés par KifKaf. Bientôt, vous n'aurez plus de secrets pour vous-même.",
     complete: "terminé | terminés",
   },
-  moment: "Ressenti",
+  momentTitle: "Note",
+  moment: "1 note | {count} notes",
+  momentInYourJournal:
+    "1 note de votre journal | {count} notes de votre journal",
   needs: "Besoins",
   relatedNeeds: "Besoins associés",
   learnMore: "En savoir plus",
@@ -133,19 +137,19 @@ export default {
   satisfiedNeed: "Besoin satisfait",
   neutralNeed: "Besoin neutre",
   dissatisfiedNeed: "Besoin frustré",
-  momentSaved: "Ressenti enregistré",
+  momentSaved: "Note enregistrée",
   momentSavedOffline:
-    "Ressenti enregistré. L'analyse des besoins s'effectuera dès que vous serez connecté à Internet.",
-  deleteMoment: "Effacer le Ressenti",
-  deleteMomentText: "La météo de vos besoins sera mise à jour.",
-  delete: "Effacer",
-  momentDeleted: "Ressenti effacé",
+    "Note enregistrée. L'analyse des besoins s'effectuera dès que vous serez connecté à Internet.",
+  deleteMoment: "Supprimer la note",
+  deleteMomentText: "", //j'ai retiré "Les statistiques de vos besoins seront mises à jour." pke trop geek
+  delete: "Supprimer",
+  momentDeleted: "Note supprimée",
   momentDeletedOffline:
-    "Ressenti effacé. Votre météo des besoins sera mise à jour dès que vous serez connecté à Internet.",
+    "Note supprimée. Les statistiques de vos besoins seront mises à jour dès que vous serez connecté à Internet.",
   cancel: "Annuler",
   momentNeedsLearnMore: {
     title: "Liste des besoins",
-    html: "KifKaf analyse votre Ressenti et met en lumière les besoins sous-jacents.<br><br>Notre méthode s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :", //, qu'ils soient satisfaits, frustrés ou neutres (liés à votre Ressenti mais ni satisfait ni frustré)
+    html: "KifKaf analyse les émotions présentes dans votre note et met en lumière les besoins sous-jacents.<br><br>Notre méthode s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :", //, qu'ils soient satisfaits, frustrés ou neutres (liés à votre émotions mais ni satisfait ni frustré)
   },
   needsCategories: {
     physiologicalAndSafety: "Besoins physiologique et de sécurité",
@@ -188,38 +192,39 @@ export default {
     "Meaning & Purpose": "Sens et mission",
     "Gratitude & Celebration": "Gratitude et célébration",
     "Spiritual Transcendence": "Spiritualité" /*Transcendance et sacré"*/,
+    Others: "Autres",
   },
   gotIt: "OK",
   save: "Enregistrer",
   fresh: "Nouveau",
-  summaryTitle: "Aperçu de {date}",
-  summaryTitleThisMonth: "Aperçu du mois",
-  summaryTitleThisYear: "Aperçu de l'année",
-  summarySubtitle: "Coup d'oeil sur vos besoins du moment",
-  summaryEmpty: "👉 3 Ressentis par mois donneront vie à votre aperçu.",
+  summaryTitle: "Synthèse de {date}",
+  summaryTitleThisMonth: "Synthèse du mois",
+  summaryTitleThisYear: "Synthèse de l'année",
+  summarySubtitle: "À partir des motifs récurrents de votre journal", //ou Extrait des motifs récurrents dans vos notes //Basé sur les motifs récurrents de vos notes //quintessence/distillat/extraction/essence/patterns/trame/thèmes/motifs
+  summaryEmpty: "👉 3 notes par mois donneront vie à votre synthèse.",
   summaryEmptyCountdown:
-    "Préparation de votre aperçu... | 👉 Encore {count} Ressenti à saisir ce mois-ci pour donner vie à votre aperçu. | 👉 Encore {count} Ressentis à saisir ce mois-ci pour donner vie à votre aperçu.",
-  quoteSubtitle: "Citation inspirée par vos Ressentis",
+    "👉 Préparation de votre synthèse en cours. Cela prend environ 2 min. | 👉 Plus qu'une note à saisir ce mois-ci pour accéder à votre synthèse. | 👉 Encore {count} notes à saisir ce mois-ci pour accéder à votre synthèse.",
+  quoteSubtitle: "Citation inspirée par votre journal",
   quoteWhyTitle: "Pourquoi cette citation?",
   needsStats: {
-    title: "Besoins de {date}",
+    title: "Besoins de {date}", //Baromètre/Jauge des besoins
     titleThisMonth: "Besoins du mois",
     titleThisYear: "Besoins de l'année",
-    subtitle: "La météo de vos besoins",
+    subtitle: "À partir des besoins révélés par vos émotions", //Calculé à /révélés associés
     learnMoreHtml:
-      "KifKaf analyse chacun de vos Ressentis pour mettre à jour la météo de vos besoins.<br><br>Notre méthode s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
+      "KifKaf analyse chacunes des émotions présentes dans vos notes pour mettre à jour les statistiques de vos besoins.<br><br>Notre méthode s'appuie sur 33 besoins essentiels, organisés en 5 catégories distinctes :",
     emptyInitSat:
-      "Capturez un Ressenti positif pour commencer à découvrir vos besoins les plus satisfaits.",
+      "Capturez une première émotion positive pour commencer à découvrir vos besoins satisfaits.",
     emptyInitDissat:
-      "Capturez un premier Ressenti négatif pour commencer à découvrir vos besoins les plus frustrés.",
+      "Capturez une première émotion négative pour commencer à découvrir vos besoins frustrés.",
     emptyInitAll:
-      "Capturez un premier Ressenti pour commencer à découvrir les besoins les plus importants pour vous.",
+      "Capturez une première émotion pour commencer à découvrir les besoins les plus importants pour vous.",
     emptyPeriodSat:
       "Pas encore de besoins satisfaits sur cette période. | Pas de besoins satisfaits sur cette période.",
     emptyPeriodDissat:
       "Pas encore de besoins frustrés sur cette période. |  Pas de besoins frustrés sur cette période.",
     emptyPeriodAll:
-      "Pas encore de besoins identifiés pour cette période. | Pas de besoins identifiés pour cette période. ",
+      "Pas encore de besoins identifiés sur cette période. | Pas de besoins identifiés sur cette période. ",
   },
   //   Source de Kifs/Source de Kafs
   // Dynamiseur/Sapeur
@@ -238,35 +243,35 @@ export default {
     "Pas de forte hausse sur cette période. | Pas de forte hausse sur cette période.",
   topLoserEmpty:
     "Pas de forte baisse sur cette période. | Pas de forte baisse sur cette période.",
-  ofAllSat: "de toute la satisfaction",
-  ofAllDissat: "de toute la frustration",
-  ofTotalImp: "de l'importance totale",
-  satVsLastMonth: "satisfaction vs mois précédent",
+  ofAllSat: "de vos satisfactions",
+  ofAllDissat: "de vos frustrations",
+  ofTotalImp: "d'importance",
+  satVsLastMonth: "vs. mois précédent",
   satVsLastYear: "satisfaction vs année précédente",
   satisfiers: "Satisfacteurs",
   dissatisfiers: "Frustrateurs",
   all: "Tous",
   showMore: "Tout afficher",
-  bookSubtitle: "Le bon livre pour maintenant?",
-  bookWhyTitle: "Pourquoi ce livre?",
+  bookSubtitle: "Lecture inspirée par votre journal",
+  bookWhyTitle: "Pourquoi cette lecture?",
   by: "par",
   bookEmpty:
-    "👉 3 Ressentis par mois vous donneront des recommandations de lecture inspirées par votre journal",
+    "👉 3 notes par mois donneront vie à vos recommandations de lecture.",
   bookEmptyCountdown:
-    "Préparation de vos recommandations de lecture... | 👉 Encore {count} Ressenti à saisir ce mois-ci pour voir des recommandations de lecture inspirées par votre journal. | 👉 Encore {count} Ressentis à saisir ce mois-ci pour voir des recommandations de lecture inspirées par votre journal.",
+    "👉 Préparation de vos recommandations de lecture en cours. Cela prend environ 2 min. | 👉 Plus qu'une note à saisir ce mois-ci pour accéder à vos recommandations de lecture. | 👉 Encore {count} notes à saisir ce mois-ci pour accéder à vos recommandations de lecture.",
   suggestionsTitle: "Suggestions de {date}",
   suggestionsTitleThisMonth: "Suggestions du mois",
   suggestionsTitleThisYear: "Suggestions de l'année",
-  suggestionsSubtitle: "Ajustements personnalisés à prendre ou à laisser",
+  suggestionsSubtitle: "À partir de vos joies et peines", //Élaborées Créées Modelées à partir de vos joies et peines / parcours /lutte/défis/épreuves/obstacles/difficultés
   toContinue: "À continuer",
   toStop: "À stopper",
   toStart: "À démarrer?",
-  suggestionsEmpty: "👉 3 Ressentis par mois donneront vie à vos suggestions.",
+  suggestionsEmpty: "👉 3 notes par mois donneront vie à vos suggestions.",
   suggestionsEmptyCountdown:
-    "Préparation de vos suggestions... | 👉 Encore {count} Ressenti à saisir ce mois-ci pour donner vie à vos suggestions. | 👉 Encore {count} Ressentis à saisir ce mois-ci pour donner vie à vos suggestions.",
+    "👉 Préparation de vos suggestions en cours. Cela prend environ 2 min. | 👉 Plus qu'une note à saisir ce mois-ci pour accéder à vos suggestions. | 👉 Encore {count} notes à saisir ce mois-ci pour accéder à vos suggestions.",
   filterPeriod: "Sélectionnez une période",
   filterPeriodText:
-    "L'analyse prendra en compte uniquement les Ressentis de la période sélectionnée.",
+    "Seules vos notes de journal datées de la période sélectionnée seront prises en compte.",
   done: "OK",
   monthly: "Par mois",
   yearly: "Par année",
@@ -279,7 +284,7 @@ export default {
   janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Mot de passe",
   appLanguage: "Langue de l'application",
-  speechRecoLanguage: "Langue de la reconnaissance vocale",
+  speechRecoLanguage: "Langue de reconnaissance vocale",
   privacyPolicy: "Politique de confidentialité",
   tos: "Conditions de service",
   contactUs: "Contactez-nous",
@@ -292,7 +297,7 @@ export default {
     "Suppression de votre compte en cours, veuillez rester sur cette page...",
   accountDeleted: "Compte supprimé",
   accountDeletedText:
-    "Votre compte a été supprimé. Tout vos Ressentis, éclairages et données associées ont été effacés.",
+    "Votre compte a été supprimé. L'intégralité des données associées a été supprimée.",
   changeName: "Changer de nom",
   changeEmail: "Changer d'email",
   enterYourEmail: "Entrez votre adresse email",
@@ -302,11 +307,11 @@ export default {
   enterYourExistingPwd: "Entrez votre mot de passe actuel",
   newPwd: "Nouveau mot de passe",
   createNewPwd: "Créer un nouveau mot de passe",
-  changeSpeechRecoLanguage: "Changer la langue de la reconnaissance vocale",
+  changeSpeechRecoLanguage: "Changer la langue de reconnaissance vocale",
   changeAppLanguage: "Changer la langue de l'application",
   logoutText: "Vous serez redirigé vers l'écran de connexion.",
   deleteAccountText:
-    "La suppression de votre compte est définitive. Tous vos Ressentis, éclairages et données associées seront effacés.",
+    "La suppression de votre compte est définitive. Votre journal, les éclairages et l'intégralité de vos données associées seront effacées.",
   pleaseTypeName: "Veuillez saisir votre nom",
   pleaseTypeEmail: "Veuillez saisir votre email",
   pleaseTypeSmthg: "Veuillez saisir quelque chose",
@@ -316,7 +321,7 @@ export default {
   emailUpdated: "Email mis à jour",
   pwdUpdated: "Mot de passe mis à jour",
   contactUsHtml:
-    "<p>C'est notre priorité numéro 1 que de vous offrir la meilleure expérience possible.<br/> Vos retours sont toujours les bienvenus.</p><p>Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à :</p>",
+    "<p>Chez KifKaf c'est notre priorité numéro 1 que de vous offrir la meilleure expérience possible.<br/> Vos retours seront toujours les bienvenus.</p><p>Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à :</p>",
   yourEmail: "Votre adresse email",
   yourMessage: "Votre message",
   pleaseTypeYourMessage: "Veuillez saisir votre message",
@@ -384,5 +389,5 @@ export default {
     // },
   ],
   randomQuoteCountdown:
-    "Préparation de votre citation... | 👉 Cette citation n'est pas personnalisée. Encore {count} Ressenti à saisir ce mois-ci pour qu'elle soit inspirée par votre journal. | 👉 Cette citation n'est pas personnalisée. Encore {count} Ressentis à saisir ce mois-ci pour qu'elle soit inspirée par votre journal.",
+    "👉 Préparation de votre citation en cours. Cela prend environ 2 min. | 👉 Cette citation n'est pas personnalisée. Plus qu'une note à saisir ce mois-ci pour qu'elle soit inspirée par votre journal. | 👉 Cette citation n'est pas personnalisée. Encore {count} notes à saisir ce mois-ci pour qu'elle soit inspirée par votre journal.",
 };

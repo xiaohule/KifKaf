@@ -71,11 +71,11 @@ export default {
   </li>
   <li>Erasure: You hold the right to ask us to delete or remove your personal data from our systems.</li>
 </ul>
-<p>To exercise any of these rights or for inquiries about your rights, reach out to us at hello@kifkaf.app.</p>
+<p>To exercise any of these rights or for inquiries about your rights, reach out to us at hello{'@'}kifkaf.app.</p>
 
 <h5>Contact</h5>
 
-<p>For any queries related to this Privacy Policy, kindly email us at hello@kifkaf.app.</p>
+<p>For any queries related to this Privacy Policy, kindly email us at hello{'@'}kifkaf.app.</p>
 <br />
 <p>Effective Date: January 1, 2023</p>
 <p>Last Updated: October 26, 2023</p>

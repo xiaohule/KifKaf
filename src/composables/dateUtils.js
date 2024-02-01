@@ -152,9 +152,9 @@ export function useDateUtils() {
     );
 
     const timeAgo =
-      diffInDays < 25
+      diffInMonths < 1
         ? t("weeksAgo", Math.floor(diffInDays / 7))
-        : diffInMonths < 12
+        : diffInYears < 1
           ? t("monthsAgo", diffInMonths)
           : t("yearsAgo", diffInYears);
 

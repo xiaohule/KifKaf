@@ -35,14 +35,13 @@
 
             <div class="selectable-text">
               <!-- getDateRangeOkNeedsCounts prevents display to occur if user has deleted all moms -->
-              <div
-                v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
-                style="min-height: 0px;" v-html="ms.aggDataInsights[ms.activeDateRange].summary">
+              <div v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0" style="min-height: 0px;"
+                v-html="ms.aggDataInsights[ms.activeDateRange].summary">
               </div>
               <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">{{ t('summaryEmpty') }}
               </div>
-              <div v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="min-height: 0px;">
-                {{ t('summaryEmptyCountdown', Math.max(1, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
+              <div v-else style="min-height: 0px;">
+                {{ t('summaryEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
               </div>
             </div>
           </q-card>
@@ -56,9 +55,9 @@
  text-outline text-weight-regular text-center">{{ t('quoteSubtitle') }}</div>
       <q-item class="q-pl-xs q-pr-none">
         <q-item-section class="selectable-text"
-          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.quote?.text?.length > 0"><span>{{
-            ms.aggDataInsights[ms.activeDateRange].quote.text }}</span><span class="text-caption text-outline">{{
-    ms.aggDataInsights[ms.activeDateRange].quote.author }}</span>
+          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.quote?.text?.length > 0"><span
+            v-html="ms.aggDataInsights[ms.activeDateRange].quote.text"></span><span class="text-caption text-outline"
+            v-html="ms.aggDataInsights[ms.activeDateRange].quote.author"></span>
         </q-item-section>
         <q-item-section class="selectable-text" v-else><span>{{ placeholderQuote }}</span>
           <!-- TODO:6 i18n -->
@@ -141,18 +140,16 @@
       <div class="text-subtitle1
  text-outline text-weight-regular text-center">{{ t('bookSubtitle') }}</div>
       <q-item class="q-pl-xs q-pr-none">
-        <q-item-section class="selectable-text"
-          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.book?.title?.length > 0"><span>{{
-            ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">{{ t('by')
-  }} {{
-  ms.aggDataInsights[ms.activeDateRange].book.author }}</span>
+        <q-item-section class="selectable-text" v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book?.title?.length > 0">
+          <span v-html="ms.aggDataInsights[ms.activeDateRange].book.title"></span>
+          <span class="text-caption text-outline"
+            v-html="t('by') + ' ' + ms.aggDataInsights[ms.activeDateRange].book.author"></span>
         </q-item-section>
-        <q-item-section class="selectable-text" v-else-if="!ms.userDoc?.hasNeeds"><span>{{ t('bookEmpty') }}</span>
+        <q-item-section class="selectable-text" v-else-if="!ms.userDoc?.hasNeeds">
+          <span>{{ t('bookEmpty') }}</span>
         </q-item-section>
-        <q-item-section class="selectable-text" v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3"><span>
-            {{ t('bookEmptyCountdown', Math.max(0, 3 -
-              ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
-          </span>
+        <q-item-section class="selectable-text" v-else>
+          <span>{{ t('bookEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}</span>
         </q-item-section>
         <q-item-section side>
           <q-btn v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book.title"
@@ -197,33 +194,31 @@
             </q-item>
 
             <q-list class="selectable-text"
-              v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.suggestions">
+              v-if="(ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue?.length > 0 || ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.start?.length > 0 || ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.stop?.length > 0)">
               <q-item-label class="text-subtitle2 text-weight-medium text-outline">{{ t('toContinue') }}</q-item-label>
-
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
-                {{ suggestion }}
+                <div v-html="suggestion"></div>
               </q-item>
+
               <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('toStop')
               }}</q-item-label>
-
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.stop"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
-                {{ suggestion }}
+                <div v-html="suggestion"></div>
               </q-item>
 
-              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('toStart')
-              }}</q-item-label>
-
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{
+                t('toStart') }}</q-item-label>
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.start"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
-                {{ suggestion }}
+                <div v-html="suggestion"></div>
               </q-item>
             </q-list>
             <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">
               {{ t('suggestionsEmpty') }}
             </div>
-            <div v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="min-height: 0px;">
+            <div v-else style="min-height: 0px;">
               {{ t('suggestionsEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
             </div>
           </q-card>
@@ -296,7 +291,7 @@ const swiperNeedsEl = ref(null)
 const swiperSuggestionsEl = ref(null)
 const revisitMomentId = ref("")
 const revisitMoment = ref("")
-const placeholderQuoteOfTheDayId = ref("")
+const placeholderQuoteOfTheDayId = ref(0)
 const momentModalOpened = ref(false)
 const momentModalId = ref("")
 const whyModalOpened = ref(false)
@@ -324,7 +319,7 @@ onMounted(async () => {
 watch(() => ms.userDoc, async (newVal) => {
   if (newVal) {
     revisitMomentId.value = await ms.getRandomMomentIdOfTheDay()
-    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId(11)// t('inspirationalQuotes').length
+    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId()
   }
 }, { immediate: true })
 

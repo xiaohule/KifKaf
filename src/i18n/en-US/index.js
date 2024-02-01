@@ -87,9 +87,9 @@ export default {
   },
   today: "Today",
   yesterday: "Yesterday",
-  weeksAgo: "{count} week ago | {count} weeks ago",
-  monthsAgo: "{count} month ago | {count} months ago",
-  yearsAgo: "{count} year ago | {count} years ago",
+  weeksAgo: "{count} week ago... | {count} weeks ago...",
+  monthsAgo: "{count} month ago... | {count} months ago...",
+  yearsAgo: "{count} year ago... | {count} years ago...",
   goodAfternoon: "Good Afternoon",
   goodMorning: "Good Morning",
   goodEvening: "Good Evening",
@@ -121,7 +121,10 @@ export default {
       "Keep logging Moments to fine-tune KifKaf and get the most out of it.",
     complete: "complete | complete",
   },
-  moment: "Moment", //TODO:6 change for "Feeling"?
+  momentTitle: "Moment", //TODO:6 change for "Feeling"?
+  moment: "1 moment | {count} moments",
+  momentInYourJournal:
+    "1 moment in your journal | {count} moments in your journal",
   needs: "Needs",
   relatedNeeds: "Related needs",
   learnMore: "Learn more",
@@ -182,6 +185,7 @@ export default {
     "Meaning & Purpose": "Meaning & Purpose",
     "Gratitude & Celebration": "Gratitude & Celebration",
     "Spiritual Transcendence": "Spiritual Transcendence",
+    Others: "Others",
   },
   gotIt: "Got it",
   save: "Save",
@@ -196,7 +200,7 @@ export default {
   quoteSubtitle: "Daily inspiration drawn from your Moments",
   quoteWhyTitle: "Why this quote?",
   needsStats: {
-    title: "{date}'s needs",
+    title: "{date}'s needs", //Need-O-Meter -  Needs fingerprint/Signature - NeedPrint
     titleThisMonth: "This month's needs",
     titleThisYear: "This year's needs",
     subtitle: "Your needs weather report",

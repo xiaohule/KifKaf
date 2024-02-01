@@ -10,9 +10,8 @@
       </div>
 
       <q-item>
-        <q-item-section><span>{{ originalText
-        }}</span><span class="text-caption text-outline">{{ props.section === 'book' ? 'by ' : '' }}{{ author
-}}</span>
+        <q-item-section><span v-html="originalText"></span><span class="text-caption text-outline"
+            v-html="(props.section === 'book' ? (t('by') + ' ') : '') + author"></span>
         </q-item-section>
         <q-item-section side top>
 
@@ -42,7 +41,7 @@ const { t } = useI18n()
 const originalText = ref("")
 const author = ref("")
 const whyText = ref("")
-const placeholderQuoteOfTheDayId = ref("")
+const placeholderQuoteOfTheDayId = ref(0)
 
 const props = defineProps({
   modelValue: {
@@ -71,7 +70,7 @@ const modalTitle = computed(() => {
 
 watch(() => ms.userDoc, async (newVal) => {
   if (newVal) {
-    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId(11) // t('inspirationalQuotes').length
+    placeholderQuoteOfTheDayId.value = await ms.getPlaceholderQuoteOfTheDayId()
   }
 }, { immediate: true })
 

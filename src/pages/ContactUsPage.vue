@@ -24,7 +24,8 @@
         <!-- <q-btn flat rounded :label="t('cancel')" @click="contactUsMessage = ''" /> -->
         <q-btn rounded :label="t('send')" color="primary" @click="sendContactUsMessage" padding="5px 25px"
           :loading="loading"
-          :disable="!((ms?.user?.email || (emailAddress && emailAddress.length > 0)) && contactUsMessage && contactUsMessage.length > 0)" />
+          :disable="!((ms?.user?.email || (emailAddress && emailAddress.length > 0)) && contactUsMessage && contactUsMessage.length > 0)"
+          no-caps />
       </q-card-actions>
 
     </q-card>

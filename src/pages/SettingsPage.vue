@@ -100,7 +100,7 @@
         <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
           @click="deleteDialogOpened = true">
           <q-item>
-            <q-item-section class="text-error">
+            <q-item-section class="text-negative">
               <q-item-label>{{ t('deleteAccount') }}</q-item-label>
             </q-item-section>
           </q-item>
@@ -243,9 +243,9 @@
         </q-card-section>
         <q-separator />
         <q-card-actions align="right">
-          <q-btn flat rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup />
-          <q-btn flat rounded data-cy="logout-button" :label="t('logout')" color="primary" v-close-popup
-            @click="logOut" />
+          <q-btn flat rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup no-caps />
+          <q-btn flat rounded data-cy="logout-button" :label="t('logout')" color="primary" v-close-popup @click="logOut"
+            no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -259,8 +259,8 @@
           {{ t('deleteAccountText') }}
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup />
-          <q-btn flat rounded :label="t('deleteAccount')" color="primary" v-close-popup @click="deleteAccount" />
+          <q-btn rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup no-caps />
+          <q-btn flat rounded :label="t('deleteAccount')" color="primary" v-close-popup @click="deleteAccount" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>

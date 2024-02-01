@@ -30,11 +30,11 @@
 
     <q-footer class="bg-transparent footer-blurred" bordered>
       <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
-        class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
+        class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0">
         <q-route-tab name="home" icon="r_edit" :label="t('home')" to="/" class="q-pt-xs q-pb-lg" @click="handleHomeClick"
-          data-cy="home-home-tab" />
+          data-cy="home-home-tab" :ripple="false" />
         <q-route-tab name="insights" icon="r_insights" :label="t('insights')" to="/insights" class="q-pt-xs q-pb-lg"
-          data-cy="home-insights-tab" @click="ms.setUserDocValue({ showInsightsBadge: false })">
+          data-cy="home-insights-tab" @click="ms.setUserDocValue({ showInsightsBadge: false })" :ripple="false">
           <q-badge v-show="ms?.userDoc?.showInsightsBadge" color="red" rounded floating />
         </q-route-tab>
       </q-tabs>

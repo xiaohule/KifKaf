@@ -116,7 +116,7 @@ const handleClick = (evt, item, chart) => {
   }
 }
 const chartOptions = ref({
-  cutout: props.embedded ? '82%' : '86%',
+  cutout: props.embedded ? '82%' : '82%',
   spacing: props.embedded ? 25 : 30,
   borderRadius: 14,
   borderWidth: 0,

@@ -49,8 +49,7 @@
 
               <q-item class="q-pa-none" dense style="min-height: 0px;">
                 <q-item-section class="text-caption text-outline">
-                  {{ item.occurrenceCount }}
-                  {{ item.occurrenceCount == 1 ? 'moment' : 'moments' }}
+                  {{ t('moment', item.occurrenceCount) }}
                 </q-item-section>
                 <q-item-section side class="text-caption text-outline">{{ ms.needsToggleModel == 'satisfaction' ?
                   t('ofAllSat') : (ms.needsToggleModel == 'unsatisfaction'
