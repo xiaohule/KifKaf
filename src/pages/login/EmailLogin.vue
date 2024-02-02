@@ -110,7 +110,7 @@ import { ref, computed, watch, onUnmounted, nextTick } from 'vue';
 import { useMomentsStore } from '../../stores/moments.js'
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { getFirebaseAuth, currentUser } from "../../boot/firebaseBoot.js";
+import { getFirebaseAuth, currentUser, logEvent } from "../../boot/firebaseBoot.js";
 import { signInWithEmailAndPassword, fetchSignInMethodsForEmail, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
 
@@ -195,6 +195,7 @@ const onSubmit = async (event) => {
         console.log("In EmailLogin, Signed in");
         // console.log("Signed in:", userCredential);
         if (userCredential.user.emailVerified) {
+          logEvent("login", { method: "email" });
           // User's email is already verified. Redirect to expected page.
           console.log("In EmailLogin>onSubmit User's email is already verified. Redirecting to", to);
           router.push(to);

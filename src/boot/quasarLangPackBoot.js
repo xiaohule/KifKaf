@@ -14,8 +14,8 @@ export const setQuasarLangPack = async (langIso) => {
         Quasar.lang.set(lang.default);
       });
     } catch (err) {
-      console.error(
-        `In quasarLangPackBoot > Language pack for ${langIso} not found.`,
+      console.log(
+        `In quasarLangPackBoot > Language pack for ${langIso} not found, en-US will be used.`,
         err,
       );
     }

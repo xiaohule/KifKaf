@@ -17,6 +17,7 @@
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		C70785BC2AFFD7130068CCCC /* GoogleService-Info-Dev.plist in Resources */ = {isa = PBXBuildFile; fileRef = C70785BB2AFFD7130068CCCC /* GoogleService-Info-Dev.plist */; };
 		C785F4162B4D78FA00DD12B2 /* Enablebounce.m in Sources */ = {isa = PBXBuildFile; fileRef = C785F4152B4D78FA00DD12B2 /* Enablebounce.m */; };
+		C7CC95E02B6CF947008D7708 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C7CC95E22B6CF947008D7708 /* InfoPlist.strings */; };
 		C7DEE8312ACABAE000D08E7A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C7DEE8302ACABAE000D08E7A /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,8 @@
 		C785F4142B4D78F900DD12B2 /* KifKaf-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KifKaf-Bridging-Header.h"; sourceTree = "<group>"; };
 		C785F4152B4D78FA00DD12B2 /* Enablebounce.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Enablebounce.m; sourceTree = "<group>"; };
 		C7B527982ACB116400C02BE7 /* KifKaf.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KifKaf.entitlements; sourceTree = "<group>"; };
+		C7CC95E12B6CF947008D7708 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C7CC95E32B6CF9EF008D7708 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C7DEE8302ACABAE000D08E7A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F578EB5C0C7F53C89543CDB2 /* Pods_KifKaf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KifKaf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
@@ -94,6 +97,7 @@
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
 				504EC3131FED79650016851F /* Info.plist */,
+				C7CC95E22B6CF947008D7708 /* InfoPlist.strings */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
 				C785F4152B4D78FA00DD12B2 /* Enablebounce.m */,
@@ -162,6 +166,7 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = 504EC2FB1FED79650016851F;
 			productRefGroup = 504EC3051FED79650016851F /* Products */;
@@ -185,6 +190,7 @@
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
+				C7CC95E02B6CF947008D7708 /* InfoPlist.strings in Resources */,
 				C7DEE8312ACABAE000D08E7A /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -273,6 +279,15 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
+		C7CC95E22B6CF947008D7708 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C7CC95E12B6CF947008D7708 /* en */,
+				C7CC95E32B6CF9EF008D7708 /* fr */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -280,6 +295,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -341,6 +357,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -456,6 +473,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -548,6 +566,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";

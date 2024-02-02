@@ -301,7 +301,7 @@ const localeOptions = {
   "en-US": "English",
   "fr-FR": "Français",
 };
-const speechLanguage = ref('en-US')
+const speechLanguage = ref(locale.value)
 const speechLanguageOptions = {
   "en-US": "English",
   "fr-FR": "Français",

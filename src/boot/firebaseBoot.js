@@ -202,6 +202,19 @@ try {
     if (user?.uid) {
       Sentry.setUser({ id: user.uid });
       setUserId(user.uid);
+      //To not mess with Firebase analytics identify test accounts
+      if (
+        user.email.endsWith("@yopmail.com") ||
+        user.email.endsWith("@sharklasers.com") ||
+        user.email.endsWith("@ethereal.email") ||
+        user.email === "jules.douet@gmail.com" ||
+        user.email === "xyzdelatour@gmail.com" ||
+        user.email === "xyzdelatour2@gmail.com" ||
+        user.uid === "UtCgVuTY2XUvYmnqqYULj4r5jaI3" ||
+        user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3"
+      ) {
+        setUserProperty("isTestAccount", "true");
+      }
     }
     isLoadingAuth.value = false;
     // else router.push("/login");

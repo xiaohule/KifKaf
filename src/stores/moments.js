@@ -390,13 +390,17 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const getSpeechRecoLanguage = computed(() => {
     console.log(
-      "In moments.js > computed getSpeechRecoLanguage, userDoc.value:",
-      userDoc.value,
-      "returning:",
-      userDoc.value?.speechRecoLanguage || userDoc.value?.locale || "en-US",
+      "In moments.js > computed getSpeechRecoLanguage, returning:",
+      userDoc.value?.speechRecoLanguage ||
+        userDoc.value?.locale ||
+        i18n.global.locale.value ||
+        "en-US",
     );
     return (
-      userDoc.value?.speechRecoLanguage || userDoc.value?.locale || "en-US"
+      userDoc.value?.speechRecoLanguage ||
+      userDoc.value?.locale ||
+      i18n.global.locale.value ||
+      "en-US"
     );
   });
 

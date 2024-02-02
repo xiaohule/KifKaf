@@ -25,6 +25,8 @@ export const i18n = createI18n({
   fallbackLocale: "en-US",
   globalInjection: true,
   messages,
+  missingWarn: false,
+  fallbackWarn: false,
 });
 
 export default boot(({ app }) => {
