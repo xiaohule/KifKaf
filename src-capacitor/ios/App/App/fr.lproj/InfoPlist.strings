@@ -1,0 +1,2 @@
+NSMicrophoneUsageDescription="Le micro vous permet d'enregistrer des notes à la voix.";
+NSSpeechRecognitionUsageDescription="La reconnaissance vocale vous permet d'enregistrer des notes à la voix.";
