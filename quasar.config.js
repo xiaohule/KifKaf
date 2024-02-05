@@ -97,12 +97,13 @@ module.exports = configure(function (ctx) {
         viteConf.build.sourcemap = true;
 
         // //attempt to hide logs in prod
-        // viteConf.esbuild = {
-        //   drop: ["console", "debugger"],
-        // };
+        viteConf.esbuild = {
+          // drop: ["console", "debugger"],
+          drop: ["console"],
+        };
 
-        //make log silent in prod
-        viteConf.logLevel = "silent";
+        // //make log silent in prod
+        // viteConf.logLevel = "silent";
 
         viteConf.plugins.push(
           sentryVitePlugin({
