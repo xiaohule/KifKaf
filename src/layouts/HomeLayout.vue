@@ -12,7 +12,7 @@
           'text-subtitle1',
           'text-weight-medium',
           isBackgroundDark ? 'text-on-primary' : 'text-on-surface'
-        ]">{{ tab }}</q-toolbar-title>
+        ]">{{ t(tab) }}</q-toolbar-title>
         <router-link to="/settings" style="text-decoration: none;">
           <q-btn flat round dense icon="account_circle" size="20px"
             :class="isBackgroundDark ? 'text-on-primary' : 'text-on-surface'">
@@ -30,17 +30,13 @@
 
     <q-footer class="bg-transparent footer-blurred" bordered>
       <q-tabs no-caps v-model="tab" align="justify" indicator-color="transparent" active-color="primary"
-        class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0" :ripple="false">
-        <q-route-tab name="Home" icon="r_home" label="Home" to="/" class="q-pt-xs q-pb-lg" @click="handleHomeClick"
-          data-cy="home-home-tab" />
-        <q-route-tab name="Insights" icon="r_insights" label="Insights" to="/insights" class="q-pt-xs q-pb-lg"
-          data-cy="home-insights-tab" @click="ms.setUserDocValue({ showInsightsBadge: false })">
+        class="text-secondary q-mx-auto" style="max-width: 600px;" :breakpoint="0">
+        <q-route-tab name="home" icon="r_edit" :label="t('home')" to="/" class="q-pt-xs q-pb-lg" @click="handleHomeClick"
+          data-cy="home-home-tab" :ripple="false" />
+        <q-route-tab name="insights" icon="r_insights" :label="t('insights')" to="/insights" class="q-pt-xs q-pb-lg"
+          data-cy="home-insights-tab" @click="ms.setUserDocValue({ showInsightsBadge: false })" :ripple="false">
           <q-badge v-show="ms?.userDoc?.showInsightsBadge" color="red" rounded floating />
         </q-route-tab>
-        <!-- ou stats ou needs ou learn -->
-        <!-- re-add tabs when ready -->
-        <!-- <q-route-tab name="timeline" icon="view_timeline" label="Timeline" to="/timeline" />
-        <q-route-tab name="search" icon="search" label="Search" to="/search" /> -->
       </q-tabs>
     </q-footer>
   </q-layout>
@@ -54,12 +50,17 @@ This makes your code more efficient and easier to read. The behavior of using na
  When you use “import ref from ‘vue’”, you need to call the function like this: const count = ref.ref(0)*/
 import { ref, onMounted, onUnmounted } from 'vue'
 import { debounce } from 'lodash' // Assuming lodash is installed
-import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from "vue-i18n"
+import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const ms = useMomentsStore()
-const tab = ref('Home')
+const { t } = useI18n()
+const router = useRouter()
+
+const tab = ref('home')
+// const content = ref(t('mykey4'))
+
 const isBackgroundDark = ref(true) // assuming the default is dark
 const isScrolled = ref(false) // assuming the default is dark
 const isDialogOpen = ref(false)

@@ -35,7 +35,7 @@ const props = defineProps({
   expectedLlmCallDuration: {
     required: false,
     type: Number,
-    default: 30
+    default: 45 //seconds
   },
 });
 

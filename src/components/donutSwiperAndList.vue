@@ -39,7 +39,8 @@
             <q-item-section>
 
               <q-item class="q-pa-none" dense style="min-height: 0px;">
-                <q-item-section class="text-subtitle2 text-weight-medium">{{ item.needName }}</q-item-section>
+                <q-item-section class="text-subtitle2 text-weight-medium">{{ t('needsList.' + item.needName)
+                }}</q-item-section>
                 <q-item-section side class="text-body2 text-on-surface">{{ parseFloat((item[ms.needsToggleModel ==
                   'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction'
                     ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] * 100).toFixed(0)) + "%" }}
@@ -48,12 +49,11 @@
 
               <q-item class="q-pa-none" dense style="min-height: 0px;">
                 <q-item-section class="text-caption text-outline">
-                  {{ item.occurrenceCount }}
-                  {{ item.occurrenceCount == 1 ? 'moment' : 'moments' }}
+                  {{ t('moment', item.occurrenceCount) }}
                 </q-item-section>
                 <q-item-section side class="text-caption text-outline">{{ ms.needsToggleModel == 'satisfaction' ?
-                  'of all satisfaction' : (ms.needsToggleModel == 'unsatisfaction'
-                    ? 'of all dissatisfaction' : 'of total importance') }}
+                  t('ofAllSat') : (ms.needsToggleModel == 'unsatisfaction'
+                    ? t('ofAllDissat') : t('ofTotalImp')) }}
                 </q-item-section>
               </q-item>
             </q-item-section>
@@ -69,42 +69,30 @@
       <div v-if="!ms || !ms.userDoc?.hasNeeds">
         <!-- Add Moments in the Home tab to learn more about your needs! -->
         <div v-if="ms.needsToggleModel == 'satisfaction'">
-          Log Moments to discover the needs from which you get the most satisfaction!
-        </div>
-        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">Log Moments to discover the
-          needs that cause you the most dissatisfaction.</div>
-        <div v-else>
-          Log Moments to discover what needs bear the most importance to you!</div>
-      </div>
-      <div v-else-if="ms.activeIndex === ms.dateRanges.length - 1">
-        <!-- Add Moments in the Home tab to learn more about your needs! -->
-        <div v-if="ms.needsToggleModel == 'satisfaction'">
-          Keep logging Moments to discover the needs from which you get the most satisfaction!
-        </div>
-        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">Keep logging Moments to discover the
-          needs that cause you the most dissatisfaction.</div>
-        <div v-else>
-          Keep logging your Moments to discover what needs bear the most importance to you!</div>
+          {{ t('needsStats.emptyInitSat') }} </div>
+        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">
+          {{ t('needsStats.emptyInitDissat') }} </div>
+        <div v-else>{{ t('needsStats.emptyInitAll') }} </div>
       </div>
       <!-- system ready but no need recorded for the period-->
       <div v-else>
+        <!-- Add Moments in the Home tab to learn more about your needs! -->
         <div v-if="ms.needsToggleModel == 'satisfaction'">
-          No satisfied needs for this period.
+          {{ t('needsStats.emptyPeriodSat', ms.dateRanges.length - ms.activeIndex) }}
         </div>
-        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">
-          No dissatisfied needs for this period.
-        </div>
+        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">{{ t('needsStats.emptyPeriodDissat', ms.dateRanges.length
+          - ms.activeIndex) }} </div>
         <div v-else>
-          No needs for this period.
-        </div>
+          {{ t('needsStats.emptyPeriodAll', ms.dateRanges.length - ms.activeIndex) }} </div>
       </div>
+
     </div>
 
     <q-card-actions
       v-if="props.embedded && ms.aggDataNeeds && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel].length > 0 && itemsToDisplay.length > 0"
       align="center" class="">
-      <q-btn color="primary" @click="router.push('/insights/needs')" class="q-mx-sm q-mt-sm full-width" no-caps flat>Show
-        more</q-btn>
+      <q-btn color="primary" @click="router.push('/insights/needs')" class="q-mx-sm q-mt-sm full-width" no-caps flat>{{
+        t('showMore') }}</q-btn>
     </q-card-actions>
 
   </q-card>
@@ -113,12 +101,14 @@
 <script setup>
 import { watch, ref, nextTick, computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
-import donutChart from "./../components/donutChart.vue";
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router'
+import donutChart from "./../components/donutChart.vue";
 import { needsMap, needToColor } from "./../utils/needsUtils";
 
-const router = useRouter()
 const ms = useMomentsStore()
+const { t } = useI18n()
+const router = useRouter()
 
 const props = defineProps({
   embedded: {

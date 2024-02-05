@@ -1,18 +1,11 @@
 <!-- src/pages/PrivacyPolicy.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Contact us</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">{{ t('contactUs') }}</div>
 
     <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
       <q-card-section class="q-py-xs">
-        <p>
-          It's our #1 priority to provide you with the smoothest possible experience. <br />
-          Feedback, feature requests, and
-          bug reports are always very welcome.
-        </p>
-        <p>
-          Whatever you need, just write us in the form below or email us at:
-        </p>
+        <div v-html="t('contactUsHtml')"></div>
         <div class="bg-surface-variant rounded-borders-14 q-pa-sm q-mb-md text-center text-subtitle1">
           <a href="mailto:hello@kifkaf.app" target="_top">hello@kifkaf.app</a>
         </div>
@@ -23,14 +16,16 @@
       <!-- TODO:2 add name and email and possibility to edit them -->
       <q-card-section class="q-pb-none">
         <q-input v-if="!(ms?.user?.email)" v-model="emailAddress" class="q-mx-sm" color="transparent" rounded outlined
-          type="text" bg-color="surface-variant" placeholder="Your email address" lazy-rules :rules="emailRules" />
+          type="text" bg-color="surface-variant" :placeholder="t('yourEmail')" lazy-rules :rules="emailRules" />
         <q-input v-model="contactUsMessage" class="q-mx-sm" color="transparent" rounded outlined type="textarea" rows="5"
-          bg-color="surface-variant" placeholder="Your message" lazy-rules :rules="messageRules" />
+          bg-color="surface-variant" :placeholder="t('yourMessage')" lazy-rules :rules="messageRules" />
       </q-card-section>
       <q-card-actions align="right">
-        <!-- <q-btn flat rounded label="Cancel" @click="contactUsMessage = ''" /> -->
-        <q-btn rounded label="Send" color="primary" @click="sendContactUsMessage" padding="5px 25px" :loading="loading"
-          :disable="!((ms?.user?.email || (emailAddress && emailAddress.length > 0)) && contactUsMessage && contactUsMessage.length > 0)" />
+        <!-- <q-btn flat rounded :label="t('cancel')" @click="contactUsMessage = ''" /> -->
+        <q-btn rounded :label="t('send')" color="primary" @click="sendContactUsMessage" padding="5px 25px"
+          :loading="loading"
+          :disable="!((ms?.user?.email || (emailAddress && emailAddress.length > 0)) && contactUsMessage && contactUsMessage.length > 0)"
+          no-caps />
       </q-card-actions>
 
     </q-card>
@@ -41,6 +36,7 @@
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import axios from "axios";
 import axiosRetry from "axios-retry";
@@ -63,8 +59,9 @@ axiosRetry(axios, {
 });
 
 const $q = useQuasar()
-const router = useRouter()
 const ms = useMomentsStore()
+const { t } = useI18n()
+const router = useRouter()
 
 onMounted(async () => {
   try {
@@ -81,12 +78,12 @@ const contactUsMessage = ref('')
 const loading = ref(false)
 
 const emailRules = [
-  val => (val && val.length > 0) || 'Please type your email address',
-  val => /.+@.+\..+/.test(val) || 'E-mail must be valid',
+  val => (val && val.length > 0) || t('pleaseTypeEmail'),
+  val => /.+@.+\..+/.test(val) || t('emailMustBeValid'),
 ]
 
 const messageRules = [
-  val => (val && val.length > 0) || 'Please type your message'
+  val => (val && val.length > 0) || t('pleaseTypeYourMessage')
 ]
 
 const sendContactUsMessage = async () => {
@@ -107,7 +104,7 @@ const sendContactUsMessage = async () => {
     contactUsMessage.value = ''
     $q.notify({
       icon: 'done',
-      message: 'Message sent to KifKaf team. Thank you!'
+      message: t('messageSent')
     })
   } catch (error) {
     console.error(error)

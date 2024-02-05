@@ -28,40 +28,49 @@ export function useDateUtils() {
     const hour = currentDate.value.getHours();
     // Determine the greeting based on the hour
     if (hour < 12) {
-      return "Good Morning";
+      return "goodMorning";
     } else if (hour >= 12 && hour <= 17) {
-      return "Good Afternoon";
+      return "goodAfternoon";
     } else {
-      return "Good Evening";
+      return "goodEvening";
     }
   });
 
-  const getDatePickerLabel = (dateRange) => {
+  const getDatePickerLabel = (dateRange, t) => {
     console.log("In dateUtils.js > getDatePickerLabel, dateRange:", dateRange);
     if (!dateRange) {
-      return "This month";
+      return t("thisMonth");
     }
     const periodicity =
       dateRange.split("-").length === 1 ? "Yearly" : "Monthly";
     if (periodicity === "Yearly") {
       return dateRange == currentYear.value
-        ? "This year"
+        ? t("thisYear")
         : dateRange.toString();
     } else if (periodicity === "Monthly") {
       if (dateRange == currentYYYYdMM.value) {
-        return "This month";
+        return t("thisMonth");
       } else {
         const [yearStr, monthStr] = dateRange.split("-");
-        const dateRangesMonthsDate = new Date(
-          Number(yearStr),
-          Number(monthStr) - 1,
-        );
-        return dateRangesMonthsDate.getFullYear() ===
-          currentDate.value.getFullYear()
-          ? formatDate(dateRangesMonthsDate, "MMMM")
-          : formatDate(dateRangesMonthsDate, "MMMM YYYY");
+        const monthName = t("monthsList." + monthStr);
+        const isCurrentYear = yearStr === currentYear.value.toString();
+
+        return isCurrentYear ? monthName : `${monthName} ${yearStr}`;
       }
     }
+  };
+
+  const isDatePickerLabelCurrent = (dateRange) => {
+    if (!dateRange) {
+      return true;
+    }
+    const periodicity =
+      dateRange.split("-").length === 1 ? "Yearly" : "Monthly";
+    if (periodicity === "Yearly") {
+      return dateRange == currentYear.value ? true : false;
+    } else if (periodicity === "Monthly") {
+      return dateRange == currentYYYYdMM.value ? true : false;
+    } else return false;
   };
 
   const dayToDate = (day) => {
@@ -84,29 +93,50 @@ export function useDateUtils() {
     return dayDate;
   };
 
-  const formatDayForMomList = (day, showHour = false /*forDisplay = true*/) => {
+  const formatDayForMomList = (
+    day,
+    showHour = false /*forDisplay = true*/,
+    t,
+  ) => {
     if (!day) {
       return;
     }
     // console.log("in formatDayForMomList");
     const dayDate = dayToDate(day);
 
-    // if (!forDisplay) return formatDate(dayDate, "MMMM D, YYYY");
+    const dayOfWeek = dayDate.getDay(); // Returns day of week (0 for Sunday, 1 for Monday, etc.)
+    const dayOfMonth = String(dayDate.getDate());
+    const month = String(dayDate.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-based
+    const year = dayDate.getFullYear();
 
-    const displayDay = isSameDate(dayDate, currentDate.value, "day")
-      ? "Today"
-      : isSameDate(dayDate, currentDate.value - 86400000, "day")
-        ? "Yesterday"
-        : isSameDate(dayDate, currentDate.value, "year")
-          ? formatDate(dayDate, "MMMM D")
-          : formatDate(dayDate, "MMMM D, YYYY");
+    // Translate days and months using your lists
+    const translatedDayOfWeek = t(`daysList.${dayOfWeek}`);
+    const translatedMonth = t(`monthsList.${month}`).toLowerCase();
+
+    let displayDay;
+
+    if (isSameDate(dayDate, currentDate.value, "day")) {
+      displayDay = t("today");
+    } else if (
+      isSameDate(
+        dayDate,
+        new Date(currentDate.value.getTime() - 86400000),
+        "day",
+      )
+    ) {
+      displayDay = t("yesterday");
+    } else if (isSameDate(dayDate, currentDate.value, "year")) {
+      displayDay = `${translatedDayOfWeek} ${dayOfMonth} ${translatedMonth}`;
+    } else {
+      displayDay = `${translatedDayOfWeek} ${dayOfMonth} ${translatedMonth} ${year}`;
+    }
 
     // console.log("In dateUtils.js > formatDayForMomList, displayDay:", displayDay);
     if (showHour) return displayDay + ", " + formatDate(dayDate, "HH:mm");
     else return displayDay;
   };
 
-  const formatRevisitDay = (day) => {
+  const formatRevisitDay = (day, t) => {
     if (!day) {
       return;
     }
@@ -122,11 +152,11 @@ export function useDateUtils() {
     );
 
     const timeAgo =
-      diffInDays < 25
-        ? Math.floor(diffInDays / 7) + " weeks ago"
-        : diffInMonths < 12
-          ? diffInMonths + ` month${diffInMonths > 1 ? "s" : ""} ago`
-          : diffInYears + ` year${diffInYears > 1 ? "s" : ""} ago`;
+      diffInMonths < 1
+        ? t("weeksAgo", Math.floor(diffInDays / 7))
+        : diffInYears < 1
+          ? t("monthsAgo", diffInMonths)
+          : t("yearsAgo", diffInYears);
 
     // console.log("In dateUtils.js > formatDayForMomList, displayDay:", displayDay);
     return timeAgo;
@@ -149,6 +179,7 @@ export function useDateUtils() {
     currentDateYYYYsMM,
     getGreetingLabel,
     getDatePickerLabel,
+    isDatePickerLabelCurrent,
     dayToDate,
     formatDayForMomList,
     formatRevisitDay,

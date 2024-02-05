@@ -3,105 +3,105 @@ export const needsMap = {
   //add 'Work-Life Balance'?
   "Physical Well-Being": [
     "🛡️",
-    "Physiological & Safety",
+    "physiologicalAndSafety",
     "physical-well-being",
   ], //readd Physical safety dedans ou split
   "Sustenance & Nourishment": [
     "🍎",
-    "Physiological & Safety",
+    "physiologicalAndSafety",
     "sustenance-and-nourishment",
   ],
-  Shelter: ["🏠", "Physiological & Safety", "shelter"],
-  "Financial Security": ["💰", "Physiological & Safety", "financial-security"],
-  "Rest & Relaxation": ["🌙", "Physiological & Safety", "rest-and-relaxation"], //🛋️ //🛌
-  "Physical Movement": ["🤸", "Physiological & Safety", "physical-movement"],
+  Shelter: ["🏠", "physiologicalAndSafety", "shelter"],
+  "Financial Security": ["💰", "physiologicalAndSafety", "financial-security"],
+  "Rest & Relaxation": ["🌙", "physiologicalAndSafety", "rest-and-relaxation"], //🛋️ //🛌
+  "Physical Movement": ["🤸", "physiologicalAndSafety", "physical-movement"],
   "Emotional Safety & Inner Peace": [
     "🧘",
-    "Physiological & Safety",
+    "physiologicalAndSafety",
     "emotional-safety-and-inner-peace",
   ], //"🤗","", ""],
   "Boundaries & Privacy": [
     "🚪",
-    "Physiological & Safety",
+    "physiologicalAndSafety",
     "boundaries-and-privacy",
   ],
   "Physical Contact & Intimacy": [
     "👐",
-    "Connection",
+    "connection",
     "physical-contact-and-intimacy",
   ],
-  "Contact with Nature": ["🏞️", "Connection", "contact-with-nature"],
-  "Social Connection": ["👥", "Connection", "social-connection"],
+  "Contact with Nature": ["🏞️", "connection", "contact-with-nature"],
+  "Social Connection": ["👥", "connection", "social-connection"],
   "Belongingness & Community": [
     "🏘️",
-    "Connection",
+    "connection",
     "belongingness-and-community",
   ],
   "Support, Understanding & Validation": [
     "👂",
-    "Connection",
+    "connection",
     "support-understanding-and-validation",
   ], // séparer "Support from Understanding & Validation"? OU réduire à Support & Understanding?
-  "Affection & Love": ["❤️", "Connection", "affection-and-love"],
+  "Affection & Love": ["❤️", "connection", "affection-and-love"],
   "Play, Humor & Entertainment": [
     "🎠",
-    "Connection",
+    "connection",
     "play-humor-and-entertainment",
   ], // "😂",""],"⚽",""],🎭
-  Autonomy: ["🛤️", "Esteem", "autonomy"],
+  Autonomy: ["🛤️", "esteem", "autonomy"],
   "Self-Esteem & Social Recognition": [
     "💪",
-    "Esteem",
+    "esteem",
     "self-esteem-and-social-recognition",
   ],
   "Competence & Effectiveness": [
     "🎯",
-    "Esteem",
+    "esteem",
     "competence-and-effectiveness",
   ],
   "Self-Expression & Creativity": [
     "🎨",
-    "Esteem",
+    "esteem",
     "self-expression-and-creativity",
   ],
   "Exploration, Novelty & Inspiration": [
     "🌌",
-    "Personal Growth",
+    "personalGrowth",
     "exploration-novelty-and-inspiration",
   ], //🌎 // réduire à Exploration & Novelty?
-  Learning: ["📚", "Personal Growth", "learning"],
-  "Self-Actualization": ["🌱", "Personal Growth", "self-actualization"], //merge learning and self-actualization?
-  Challenge: ["⛰️", "Personal Growth", "challenge"],
+  Learning: ["📚", "personalGrowth", "learning"],
+  "Self-Actualization": ["🌱", "personalGrowth", "self-actualization"], //merge learning and self-actualization?
+  Challenge: ["⛰️", "personalGrowth", "challenge"],
   "Outward Care & Contribution": [
     "🤲",
-    "Meaning & Transcendence",
+    "meaningAndTranscendence",
     "outward-care-and-contribution",
   ], //break in 2?
   "Fairness & Justice": [
     "⚖️",
-    "Meaning & Transcendence",
+    "meaningAndTranscendence",
     "fairness-and-justice",
   ], //🕊️
-  "Order & Structure": ["📐", "Meaning & Transcendence", "order-and-structure"],
-  "Meaning & Purpose": ["🧭", "Meaning & Transcendence", "meaning-and-purpose"], //🌌
+  "Order & Structure": ["📐", "meaningAndTranscendence", "order-and-structure"],
+  "Meaning & Purpose": ["🧭", "meaningAndTranscendence", "meaning-and-purpose"], //🌌
   "Gratitude & Celebration": [
     "🎈",
-    "Meaning & Transcendence",
+    "meaningAndTranscendence",
     "gratitude-and-celebration",
   ], //🎉 //🕯️
   "Spiritual Transcendence": [
     "🌸",
-    "Meaning & Transcendence",
+    "meaningAndTranscendence",
     "spiritual-transcendence",
   ],
 };
 
 export const needsCategories = {
-  "Physiological & Safety": ["health_and_safety", "soft-green-need"],
-  Connection: ["diversity_2", "warm-coral-need"], //groups
-  Esteem: ["palette", "muted-blue-need"],
-  "Personal Growth": ["landscape", "lavender-need"], //explore
-  "Meaning & Transcendence": ["spa", "serene-teal-need"],
+  physiologicalAndSafety: ["health_and_safety", "soft-green-need"],
+  connection: ["diversity_2", "warm-coral-need"], //groups
+  esteem: ["palette", "muted-blue-need"],
+  personalGrowth: ["landscape", "lavender-need"], //explore
+  meaningAndTranscendence: ["spa", "serene-teal-need"],
 };
 
 // Utility function to convert need slug to string

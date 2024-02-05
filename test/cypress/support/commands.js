@@ -92,7 +92,7 @@ Cypress.Commands.add("signIn", (username, password) => {
   //click on the button of type submit that contains "Sign in" text, be careful there is another element that contains text "Sign in" but it is not a button
   cy.get("button[type='submit']").click();
   // cy.url({ timeout: 20000 }).should("not.include", "login");
-  cy.contains("Home").should("be.visible");
+  cy.contains("Journal").should("be.visible");
   cy.log("Signed in as " + username + " " + password);
 });
 
@@ -104,7 +104,7 @@ Cypress.Commands.add("signUp", (username, password) => {
   cy.get("[type='password']").type(password);
   cy.get("button[type='submit']").click();
   cy.contains(
-    "A verification email has been sent. Please check your inbox and click on the link in the email to verify your account.",
+    "Please check your inbox and click on the link in the email to verify your account.",
   ).should("be.visible");
   cy.log("Verification email sent for " + username + " " + password);
   // cy.wait(5000);

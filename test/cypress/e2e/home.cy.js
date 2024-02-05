@@ -107,16 +107,16 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
 
 //TODO:2 in all tests that aren't testing signing in and moments input we should log in programmatically on an existing account with good data and split those tests into separate files
 describe("Checking main screens & Moments inputting", () => {
-  it("contain expected header, tabs, can navigate to Insights>Home>Settings>Home & can input moments in Home", () => {
+  it("contain expected header, tabs, can navigate to Insights>Journal>Settings>Journal & can input moments in Journal", () => {
     cy.visit("/");
     //assert <title> and header title are correct
     cy.title().should("include", "KifKaf");
-    // cy.contains("Home").should("be.visible");
+    // cy.contains("Journal").should("be.visible");
     //contains the expected tabs
-    cy.contains("Home").should("be.visible");
+    cy.contains("Journal").should("be.visible");
     cy.visit("/#/insights");
     cy.url().should("include", "insights");
-    //can navigate to Insights>Home>Settings>Home
+    //can navigate to Insights>Journal>Settings>Journal
     // cy.wait(1000);
     cy.dataCy("insights-home-tab").click({ force: true });
     cy.url().should("not.include", "insights");
@@ -128,7 +128,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.contains("All").should("be.visible");
     //TODO:2 add a test
     // cy.contains("Log Moments").should("be.visible");
-    cy.get("footer").contains("Home").click();
+    cy.get("footer").contains("Journal").click();
     cy.url({ timeout: 40000 }).should("not.include", "insights");
     //Settings
     cy.contains("account_circle").click();
@@ -140,7 +140,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.dataCy("go-back-button").click();
     cy.url().should("not.include", "settings");
 
-    //can input moments in Home
+    //can input moments in Journal
     cy.visit("/");
     for (const item of momentsData) {
       const now = new Date(item.date);
@@ -298,7 +298,7 @@ describe("Insights Stats validation", () => {
     cy.contains("Monthly").click();
     cy.contains("Sep").click();
     cy.contains("Done").click();
-    cy.contains("No satisfied needs yet for this period.").should("be.visible");
+    cy.contains("No satisfied needs for this period.").should("be.visible");
   });
 });
 
@@ -329,7 +329,7 @@ describe("Need page validation", () => {
 
     cy.get(":nth-child(1) > .q-card > .q-py-sm").click();
     cy.contains("Moment").should("be.visible");
-    cy.contains("Needs").should("be.visible");
+    cy.contains("needs").should("be.visible");
     cy.contains("Neutral").should("be.visible");
 
     cy.contains("Learn more").click();

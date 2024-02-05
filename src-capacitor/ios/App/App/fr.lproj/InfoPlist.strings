@@ -1,0 +1,2 @@
+NSMicrophoneUsageDescription="Le micro permet d'enregistrer des notes dans votre journal à la voix.";
+NSSpeechRecognitionUsageDescription="La reconnaissance vocale permet d'enregistrer des notes dans votre journal à la voix.";

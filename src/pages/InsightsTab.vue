@@ -2,9 +2,12 @@
 <template >
   <q-page class="q-mx-auto q-px-md q-pt-xs q-pb-md" style="max-width: 600px">
 
+    <!-- SUMMARY -->
     <div v-if="ms.segDateId !== 'Yearly'" class="q-mt-xs q-mb-md">
-      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ `${ms.dateRangeButtonLabel}'s
-        summary` }}</div>
+      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ isDatePickerLabelCurrent(ms.activeDateRange)
+        ?
+        t('summaryTitleThisMonth') : t('summaryTitle',
+          { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() }) }}</div>
 
       <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperSummaryEl" :init="true"
         :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
@@ -21,32 +24,24 @@
           ]">
             <q-item class="q-px-none q-pt-none q-pb-md" style="min-height: 0px;">
               <q-item-section class="text-subtitle2
- text-outline text-weight-regular">A quick peek at someone amazing</q-item-section>
+ text-outline text-weight-regular">{{ t('summarySubtitle') }}</q-item-section>
               <q-item-section side>
                 <q-badge v-show="ms.aggDataInsights[ms.activeDateRange]?.isNew?.summary"
                   :class="{ 'fade-transition': true, 'fade-out': !ms.aggDataInsights[ms.activeDateRange]?.isNew?.summary }"
                   class="text-subtitle2 text-weight-medium q-px-sm q-py-none" rounded color="primary-container"
-                  text-color="primary" label="Fresh" />
+                  text-color="primary" :label="t('fresh')" />
               </q-item-section>
             </q-item>
 
             <div class="selectable-text">
               <!-- getDateRangeOkNeedsCounts prevents display to occur if user has deleted all moms -->
-              <div
-                v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
-                style="min-height: 0px;" v-html="ms.aggDataInsights[ms.activeDateRange].summary">
+              <div v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0" style="min-height: 0px;"
+                v-html="ms.aggDataInsights[ms.activeDateRange].summary">
               </div>
-              <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">
-                <!-- No summary available for this period. -->
-                👉 3 Moments a month will bring your summary to life.
-              </div>
-              <div v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="min-height: 0px;">
-                {{ `👉 ${Math.max(1, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(1, 3 -
-                  ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 1 ? 's' : ''} to go this month to bring your summary
-                to life.` }}
+              <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">{{ t('summaryEmpty') }}
               </div>
               <div v-else style="min-height: 0px;">
-                Preparing your summary...
+                {{ t('summaryEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
               </div>
             </div>
           </q-card>
@@ -54,21 +49,25 @@
       </swiper-container>
     </div>
 
+    <!-- QUOTE -->
     <div v-if="ms.segDateId !== 'Yearly'" class="q-my-xl">
       <div class="text-subtitle1
- text-outline text-weight-regular text-center">Daily inspiration drawn from your Moments</div>
+ text-outline text-weight-regular text-center">{{ t('quoteSubtitle') }}</div>
       <q-item class="q-pl-xs q-pr-none">
         <q-item-section class="selectable-text"
-          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.quote?.text?.length > 0"><span>{{
-            ms.aggDataInsights[ms.activeDateRange].quote.text }}</span><span class="text-caption text-outline">{{
-    ms.aggDataInsights[ms.activeDateRange].quote.author }}</span>
+          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.quote?.text?.length > 0"><span
+            v-html="ms.aggDataInsights[ms.activeDateRange].quote.text"></span><span class="text-caption text-outline"
+            v-html="ms.aggDataInsights[ms.activeDateRange].quote.author"></span>
         </q-item-section>
-        <q-item-section class="selectable-text" v-else><span>{{ placeholderQuote }}</span> <span
-            class="text-caption text-outline">{{
-              placeholderQuoteAuthor }}</span></q-item-section>
+        <q-item-section class="selectable-text" v-else><span>{{ placeholderQuote }}</span>
+          <!-- TODO:6 i18n -->
+          <span class="text-caption text-outline">{{
+            placeholderQuoteAuthor }}</span></q-item-section>
         <q-item-section side>
-          <q-item-label class="text-primary text-weight-medium text-subtitle2"
-            @click="whyModalSection = 'quote'; whyModalOpened = true">Why?</q-item-label>
+          <q-btn class="text-primary text-weight-medium text-subtitle2"
+            @click="whyModalSection = 'quote'; whyModalOpened = true" no-caps flat :ripple="false"
+            padding="xs none xs sm">{{ t('why')
+            }}</q-btn>
           <q-icon color="outline" name="r_format_quote" size="lg" />
           <!-- <q-avatar size="42px" font-size="28px" color="surface" text-color="on-background" icon="r_format_quote"> </q-avatar>-->
         </q-item-section>
@@ -76,14 +75,21 @@
       </q-item>
     </div>
 
+    <!-- NEEDS -->
     <div class="q-my-md">
       <q-item class="q-px-none q-mb-xs">
-        <q-item-section class="text-h6 text-weight-medium text-on-background">{{ `${ms.dateRangeButtonLabel}'s
-          needs` }}</q-item-section>
-        <q-item-section side class="text-subtitle2 text-weight-medium text-primary"
-          @click="learnMoreModalSection = 'needs'; learnMoreModalOpened = true">
-          Learn more
-        </q-item-section>
+        <q-item-section class="text-h6 text-weight-medium text-on-background">{{
+          (isDatePickerLabelCurrent(ms.activeDateRange) &&
+            ms.segDateId === 'Yearly') ?
+          t('needsStats.titleThisYear') : (isDatePickerLabelCurrent(ms.activeDateRange) ? t('needsStats.titleThisMonth')
+            :
+            t('needsStats.title',
+              { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() })) }}</q-item-section>
+        <q-btn side class="text-subtitle2 text-weight-medium text-primary"
+          @click="learnMoreModalSection = 'needs'; learnMoreModalOpened = true" no-caps flat :ripple="false"
+          padding="xs none xs sm">{{
+            t('learnMore') }}
+        </q-btn>
       </q-item>
 
       <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperNeedsEl" :init="true"
@@ -103,18 +109,19 @@
 
             <q-item class="q-px-none q-pt-none q-pb-md" style="min-height: 0px;">
               <q-item-section class="text-subtitle2
- text-outline text-weight-regular">Your needs weather report</q-item-section>
+ text-outline text-weight-regular">{{ t('needsStats.subtitle') }}</q-item-section>
             </q-item>
 
             <q-btn-toggle v-model="ms.needsToggleModel" class="q-gutter-xs q-mb-sm" color="transparent"
               text-color="outline" toggle-color="on-background" toggle-text-color="surface" unelevated no-caps
-              padding="xs md" :ripple="false" :options="[
-                { label: 'Tops', value: 'top' },
-                { label: 'Satisfiers', value: 'satisfaction' },
-                { label: 'Dissatisfiers', value: 'unsatisfaction' },
-                { label: 'All', value: 'importance' }
+              :ripple="false" :options="[
+                { label: t('tops'), value: 'top' },
+                { label: t('satisfiers'), value: 'satisfaction' },
+                { label: t('dissatisfiers'), value: 'unsatisfaction' },
+                { label: t('all'), value: 'importance' }
               ]" />
             <div v-if="ms.needsToggleModel === 'top'">
+              <!-- TODO:6 i18n -->
               <top-item top-type="satisfier" />
               <top-item top-type="dissatisfier" />
               <top-item v-if="ms.prevDateRange" top-type="gainer" />
@@ -128,43 +135,39 @@
       </swiper-container>
     </div>
 
+    <!-- BOOK -->
     <div v-if="ms.segDateId !== 'Yearly'" class="q-my-xl">
       <div class="text-subtitle1
- text-outline text-weight-regular text-center">The Right Book for Right Now?</div>
+ text-outline text-weight-regular text-center">{{ t('bookSubtitle') }}</div>
       <q-item class="q-pl-xs q-pr-none">
-        <q-item-section class="selectable-text"
-          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.book?.title?.length > 0"><span>{{
-            ms.aggDataInsights[ms.activeDateRange].book.title }}</span><span class="text-caption text-outline">by {{
-    ms.aggDataInsights[ms.activeDateRange].book.author }}</span>
+        <q-item-section class="selectable-text" v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book?.title?.length > 0">
+          <span v-html="ms.aggDataInsights[ms.activeDateRange].book.title"></span>
+          <span class="text-caption text-outline"
+            v-html="t('by') + ' ' + ms.aggDataInsights[ms.activeDateRange].book.author"></span>
         </q-item-section>
-        <q-item-section class="selectable-text" v-else-if="!ms.userDoc?.hasNeeds"><span>👉 Log 3 Moments to start getting
-            reading recommendations
-            curated for your growth.
-          </span>
+        <q-item-section class="selectable-text" v-else-if="!ms.userDoc?.hasNeeds">
+          <span>{{ t('bookEmpty') }}</span>
         </q-item-section>
-        <q-item-section class="selectable-text" v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3"><span>
-            {{ `👉 ${Math.max(0, 3 -
-              ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(0, 3 -
-                ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 0 ? 's' : ''} to go this month to bring your reading
-            recommendations to
-            life.` }}
-          </span>
-        </q-item-section>
-        <q-item-section class="selectable-text" v-else><span> Prearing your reading recommendations...
-          </span>
+        <q-item-section class="selectable-text" v-else>
+          <span>{{ t('bookEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}</span>
         </q-item-section>
         <q-item-section side>
-          <q-item-label v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book"
+          <q-btn v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book.title"
             class="text-primary text-weight-medium text-subtitle2"
-            @click="whyModalSection = 'book'; whyModalOpened = true">Why?</q-item-label>
+            @click="whyModalSection = 'book'; whyModalOpened = true" no-caps flat :ripple="false"
+            padding="xs none xs sm">{{ t('why')
+            }}</q-btn>
           <q-icon color="outline" name="local_library" size="md" class="q-pt-xs q-px-xs" />
         </q-item-section>
       </q-item>
     </div>
 
+    <!-- SUGGESTIONS -->
     <div v-if="ms.segDateId !== 'Yearly'" class="q-my-md">
-      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ `${ms.dateRangeButtonLabel}'s
-        suggestions` }}</div>
+      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ isDatePickerLabelCurrent(ms.activeDateRange)
+        ?
+        t('suggestionsTitleThisMonth') : t('suggestionsTitle',
+          { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() }) }}</div>
 
       <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperSuggestionsEl" :init="true"
         :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
@@ -181,56 +184,51 @@
           ]">
             <q-item class="q-px-none q-pt-none q-pb-md" style="min-height: 0px;">
               <q-item-section class="text-subtitle2
- text-outline text-weight-regular">Take it or leave it: custom tweaks for life’s peaks</q-item-section>
+ text-outline text-weight-regular">{{ t('suggestionsSubtitle') }}</q-item-section>
               <q-item-section side top class="q-px-none" style="padding-left: 0px;">
                 <q-badge v-show="ms.aggDataInsights[ms.activeDateRange]?.isNew?.suggestions"
                   :class="{ 'fade-transition': true, 'fade-out': !ms.aggDataInsights[ms.activeDateRange]?.isNew?.suggestions }"
                   class="text-subtitle2 text-weight-medium q-px-sm q-py-none" rounded color="primary-container"
-                  text-color="primary" label="Fresh" />
+                  text-color="primary" :label="t('fresh')" />
               </q-item-section>
             </q-item>
 
             <q-list class="selectable-text"
-              v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.suggestions">
-              <q-item-label class="text-subtitle2 text-weight-medium text-outline">Continue</q-item-label>
-
+              v-if="(ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue?.length > 0 || ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.start?.length > 0 || ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.stop?.length > 0)">
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline">{{ t('toContinue') }}</q-item-label>
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
-                {{ suggestion }}
+                <div v-html="suggestion"></div>
               </q-item>
-              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">Stop</q-item-label>
 
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('toStop')
+              }}</q-item-label>
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.stop"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
-                {{ suggestion }}
+                <div v-html="suggestion"></div>
               </q-item>
 
-              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">Start?</q-item-label>
-
+              <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{
+                t('toStart') }}</q-item-label>
               <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.start"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
-                {{ suggestion }}
+                <div v-html="suggestion"></div>
               </q-item>
             </q-list>
             <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">
-              <!-- No summary available for this period. -->
-              👉 3 Moments a month will bring your suggestions to life.
-            </div>
-            <div v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="min-height: 0px;">
-              {{ `👉 ${Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])} more Moment${Math.max(0, 3 -
-                ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]) > 0 ? 's' : ''} to go this month to bring your
-              suggestions to life.` }}
+              {{ t('suggestionsEmpty') }}
             </div>
             <div v-else style="min-height: 0px;">
-              Preparing your suggestions...
+              {{ t('suggestionsEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
             </div>
           </q-card>
         </swiper-slide>
       </swiper-container>
     </div>
 
+    <!-- MEMORY -->
     <div v-if="revisitMoment">
-      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date) }}...
+      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date, t) }}...
       </div>
 
       <q-card flat class="bg-surface q-px-md rounded-borders-14 q-py-md">
@@ -253,7 +251,7 @@
               @scroll="onChipsRowScroll($event, revisitMoment.id)">
               <q-chip
                 v-for="need in Object.entries(revisitMoment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-                :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
+                :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="t('needsList.' + need[0])"
                 class="needs" />
             </div>
           </q-item> -->
@@ -272,6 +270,7 @@
 <script setup>
 import { onMounted, ref, watch, nextTick, computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from "vue-i18n"
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
 import topItem from 'src/components/topItem.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
@@ -280,10 +279,10 @@ import momentModal from 'src/components/momentModal.vue'
 import whyModal from 'src/components/whyModal.vue'
 import learnMoreModal from 'src/components/learnMoreModal.vue'
 import { useDateUtils } from '../composables/dateUtils.js'
-import { inspirationalQuotes } from "../utils/quoteUtils.js";
 
 const ms = useMomentsStore()
-const { currentYYYYdMM, formatRevisitDay } = useDateUtils()
+const { t } = useI18n()
+const { currentYYYYdMM, formatRevisitDay, getDatePickerLabel, isDatePickerLabelCurrent } = useDateUtils()
 
 //SWIPER
 const swipersLoaded = ref(true)
@@ -292,7 +291,7 @@ const swiperNeedsEl = ref(null)
 const swiperSuggestionsEl = ref(null)
 const revisitMomentId = ref("")
 const revisitMoment = ref("")
-const placeholderQuoteOfTheDayId = ref("")
+const placeholderQuoteOfTheDayId = ref(0)
 const momentModalOpened = ref(false)
 const momentModalId = ref("")
 const whyModalOpened = ref(false)
@@ -325,9 +324,9 @@ watch(() => ms.userDoc, async (newVal) => {
 }, { immediate: true })
 
 const placeholderQuote = computed(() =>
-  inspirationalQuotes[placeholderQuoteOfTheDayId.value]?.quote ?? "")
+  t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].quote') ?? "")
 const placeholderQuoteAuthor = computed(() =>
-  inspirationalQuotes[placeholderQuoteOfTheDayId.value]?.author ?? "")
+  t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].author') ?? "")
 
 watch(revisitMomentId, (newVal) => {
   if (newVal) {
@@ -425,6 +424,10 @@ const intersectionOptions = (section, YYYYdMM = null) => {
 <style lang="scss">
 .q-btn-group>.q-btn-item {
   border-radius: 34px !important;
+  // padding: 4px 23px !important;
+  padding: 6px 10px;
+  min-width: 0px;
+  min-height: 0px;
 }
 
 .marginBottom32px {

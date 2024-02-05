@@ -62,10 +62,7 @@ export const useSpeechRecognition = async (
 
       //TODO:2 here in the case of no user setting we're implicitly hoping that device language will be supported by the speech reco API
       if (!isRecognizing.value) {
-        webRecognitionInstance.lang =
-          ms.userDoc?.speechRecoLanguage ||
-          ms.userDoc?.deviceLanguage ||
-          "en-US";
+        webRecognitionInstance.lang = ms.getSpeechRecoLanguage;
         webRecognitionInstance.onresult = (event) => {
           try {
             let finalTranscript = "";
@@ -111,14 +108,14 @@ export const useSpeechRecognition = async (
       console.log("In useSpeechRecognition, speech recognition for Capacitor");
       const isAvailable = (await SpeechRecognition.available()).available;
       console.log(
-        "In useSpeechRecognition,  SpeechRecognition.available():",
+        "In useSpeechRecognition for Capacitor,  SpeechRecognition.available():",
         isAvailable,
       );
       if (isAvailable) showSpeechRecognitionButton.value = true;
       let hasPermissions = (await SpeechRecognition.checkPermissions())
         .speechRecognition;
       console.log(
-        "In useSpeechRecognition,  SpeechRecognition.checkPermissions():",
+        "In useSpeechRecognition for Capacitor,  SpeechRecognition.checkPermissions returns:",
         hasPermissions,
       );
 
@@ -131,18 +128,11 @@ export const useSpeechRecognition = async (
       toggleSpeechRecognition = async () => {
         let previousMatch = "";
         console.log(
-          "In useSpeechRecognition, toggleSpeechRecognition for Capacitor called",
+          "In useSpeechRecognition for Capacitor, toggleSpeechRecognition called",
         );
 
         if (hasPermissions === "denied") {
-          errorDialogText.value = `
-          <strong>KifKaf needs the Speech Recognition permission for this.</strong><br>
-          To grant it:<br>
-          1. Go to your phone's <strong>Settings</strong>.<br>
-          2. Scroll and tap on <strong>KifKaf</strong>.<br>
-          3. Allow access to the <strong>Speech Recognition</strong>.<br><br>
-          You have full control and can change your choices at any time.
-          `;
+          errorDialogText.value = "error.speechRecognitionPermissionDeniedHtml";
           errorDialogOpened.value = true;
           return;
         } else if (hasPermissions === "prompt") {
@@ -168,10 +158,7 @@ export const useSpeechRecognition = async (
             });
 
             SpeechRecognition.start({
-              language:
-                ms.userDoc?.speechRecoLanguage ||
-                ms.userDoc?.deviceLanguage ||
-                "en-US",
+              language: ms.getSpeechRecoLanguage,
               maxResults: 1,
               prompt: "Say something",
               partialResults: true,
@@ -185,14 +172,7 @@ export const useSpeechRecognition = async (
                 isRecognizing.value = false;
 
                 if (error.message === "User denied access to microphone") {
-                  errorDialogText.value = `
-                <strong>KifKaf needs the Microphone permission for this.</strong><br>
-                To grant it:<br>
-                1. Go to your phone's <strong>Settings</strong>.<br>
-                2. Scroll and tap on <strong>KifKaf</strong>.<br>
-                3. Allow access to the <strong>Microphone</strong>.<br><br>
-                You have full control and can change your choices at any time.
-                `;
+                  errorDialogText.value = "error.micAccessPermissionDeniedHtml";
                   errorDialogOpened.value = true;
                 }
               });

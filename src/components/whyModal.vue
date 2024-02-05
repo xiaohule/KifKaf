@@ -10,9 +10,8 @@
       </div>
 
       <q-item>
-        <q-item-section><span>{{ originalText
-        }}</span><span class="text-caption text-outline">{{ props.section === 'book' ? 'by ' : '' }}{{ author
-}}</span>
+        <q-item-section><span v-html="originalText"></span><span class="text-caption text-outline"
+            v-html="(props.section === 'book' ? (t('by') + ' ') : '') + author"></span>
         </q-item-section>
         <q-item-section side top>
 
@@ -20,11 +19,13 @@
         </q-item-section>
       </q-item>
 
-      <q-card-section class="q-pt-lg text-body1 text-weight-regular">{{ whyText }}</q-card-section>
+      <q-card-section class="q-pt-lg text-body1 text-weight-regular">
+        <div v-html="whyText"></div>
+      </q-card-section>
 
       <q-card-actions align="center">
         <q-btn rounded color="primary" padding="md md" @click="(event) => { $emit('update:modelValue', false) }" class="text-body1 text-weight-medium
-q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
+q-ma-sm q-mb-lg full-width" no-caps>{{ t('gotIt') }}</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -33,13 +34,14 @@ q-ma-sm q-mb-lg full-width" no-caps>Got it</q-btn>
 <script setup>
 import { watch, ref, watchEffect, computed } from 'vue';
 import { useMomentsStore } from './../stores/moments.js'
-import { inspirationalQuotes } from "../utils/quoteUtils.js";
+import { useI18n } from "vue-i18n"
 
 const ms = useMomentsStore()
+const { t } = useI18n()
 const originalText = ref("")
 const author = ref("")
 const whyText = ref("")
-const placeholderQuoteOfTheDayId = ref("")
+const placeholderQuoteOfTheDayId = ref(0)
 
 const props = defineProps({
   modelValue: {
@@ -58,11 +60,11 @@ const emits = defineEmits(['update:modelValue']);
 const modalTitle = computed(() => {
   switch (props.section) {
     case "quote":
-      return "Why am I seeing this quote?";
+      return t('quoteWhyTitle');
     case "book":
-      return "Why am I seeing this book recommendation?";
+      return t('bookWhyTitle');
     default:
-      return "Why am I seeing this?";
+      return t('whyDefaultTitle');
   }
 });
 
@@ -72,29 +74,30 @@ watch(() => ms.userDoc, async (newVal) => {
   }
 }, { immediate: true })
 
-function getOriginalTextBySection(section, insight) {
+function getOriginalTextBySection(section, insights) {
   switch (section) {
     case "quote":
-      return insight.text;
+      return insights.text;
     case "book":
-      return insight.title;
+      return insights.title;
     default:
       return "";
   }
 }
 
 watchEffect(() => {
-  const insight = ms.aggDataInsights[ms.activeDateRange]?.[props.section];
+  const insights = ms.aggDataInsights[ms.activeDateRange]?.[props.section];
 
-  if (insight) {
-    originalText.value = getOriginalTextBySection(props.section, insight);
-    author.value = insight.author ?? "";
-    whyText.value = insight.why;
+  if ((insights?.text || insights?.title) && insights.author && insights.why) {
+    originalText.value = getOriginalTextBySection(props.section, insights);
+    author.value = insights.author ?? "";
+    whyText.value = insights.why;
   }
   else if (props.section === "quote" && placeholderQuoteOfTheDayId.value !== "") {
-    originalText.value = inspirationalQuotes[placeholderQuoteOfTheDayId.value]?.quote
-    author.value = inspirationalQuotes[placeholderQuoteOfTheDayId.value]?.author
-    whyText.value = "👉 This was a random quote, log 3 more Moments to see personalized quotes inspired by your Moments.";
+    originalText.value = t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].quote')
+    author.value = t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].author')
+    whyText.value = t('randomQuoteCountdown', Math.max(0, 3 -
+      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]));
   }
 });
 

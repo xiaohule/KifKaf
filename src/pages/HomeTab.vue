@@ -32,10 +32,12 @@
   /* overflow: hidden; Hide B when the container is too small */     -->
           <div style="width: 100%;  margin-top: 100px; height: 60vh; position: relative; z-index: 20;">
             <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{
-              getGreetingLabel }}{{
+              t(getGreetingLabel) }}{{
     userFirstName }} 👋</div>
             <div class="pushed-up-if-height-xs q-py-md">
-              <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">Got a feeling?</div>
+              <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">{{
+                t('momentInputPrompt') }}
+              </div>
               <q-input class="text-body1 q-px-md q-py-sm" data-cy="new-moment-textarea" ref="newMomInputRef"
                 v-model="newMomText" :shadow-text="inputShadowText" lazy-rules="ondemand" :rules="newMomRules"
                 @blur="inputBlurred" type="text" autogrow rounded outlined bg-color="surface" color="transparent"
@@ -74,7 +76,7 @@
             'q-mb-sm',
             (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
             (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-          ]">{{ formatDayForMomList(day) }}</div>
+          ]">{{ formatDayForMomList(day, false, t) }}</div>
           <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
             <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
               class="q-px-none q-py-sm" style="min-height: 0px;"
@@ -96,8 +98,8 @@
                 <div class="horizontal-scroll" :style="setChipsRowPadding(moment.id)"
                   @scroll="onChipsRowScroll($event, moment.id)">
                   <q-chip v-for="need in Object.entries(moment.needs).sort(([, a], [, b]) => b.importance - a.importance)"
-                    :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]" :label="need[0]"
-                    class="needs" />
+                    :key="need[0]" outline :color="getChipColor(need[1])" :icon="needsMap[need[0]][0]"
+                    :label="t('needsList.' + need[0])" class="needs" />
                 </div>
               </q-item>
             </div>
@@ -108,7 +110,7 @@
         <q-card class="bg-background q-pa-lg text-center" flat>
           <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
           <q-card-section class="text-h6 text-weight-medium q-py-md text-left	">
-            <div v-html="errorDialogText"></div>
+            <div v-html="t(errorDialogText)"></div>
           </q-card-section>
         </q-card>
       </q-dialog>
@@ -123,6 +125,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from "vue-i18n"
 import { Timestamp } from 'firebase/firestore'
 import { showSpeechRecognitionButton, isRecognizing, useSpeechRecognition } from '../composables/speechRecognition.js'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
@@ -134,16 +137,19 @@ import { addDeleteMomentRetry } from 'src/boot/firebaseBoot';
 
 //STORE INITIALIZATION
 const ms = useMomentsStore()
+const { t } = useI18n()
 const { getGreetingLabel, formatDayForMomList } = useDateUtils()
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
-const placeholderText = 'Feeling ... because ...'
+const placeholderText = t('momentInputPlaceholder')
 const newMomInputRef = ref(null)
 const newMomText = ref('')
 const newMomDate = ref(null)
 const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 const momentModalOpened = ref(false);
 const momentModalId = ref("");
+
+// const content = ref(t('mykey4'))
 
 const emits = defineEmits(['update:isDialogOpened'])
 

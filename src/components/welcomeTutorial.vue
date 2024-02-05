@@ -3,8 +3,8 @@
     <q-list>
 
       <q-item class="q-px-xs q-py-none margin-top-if-height-sm">
-        <q-item-section class="text-body1 text-weight-medium text-on-primary">Welcome to
-          KifKaf</q-item-section>
+        <q-item-section class="text-body1 text-weight-medium text-on-primary">{{
+          t('welcomeTutorial.title') }}</q-item-section>
         <q-item-section side>
           <q-btn flat dense icon="r_close" color="background" size="10px"
             @click="ms.setUserDocValue({ showWelcomeTutorial: false })" padding="none" />
@@ -18,7 +18,7 @@
         </q-item-section>
         <q-item-section side class="text-caption
 text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
-  "/3 complete" }}
+  "/3 " + t('welcomeTutorial.complete', ms.userDoc?.welcomeTutorialStep) }}
         </q-item-section>
       </q-item>
 
@@ -31,7 +31,7 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               <q-item>
                 <q-item-section>
                   <q-item-section class="text-body2">
-                    Capture life's ups and downs with micro-journaling. Your moments are private, only you can see them.
+                    {{ t('welcomeTutorial.step1') }}
                   </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
@@ -41,19 +41,17 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="Log a Moment" @click="tutoLogMoment" :disable="newMomText.length !== 0" style="width: 100%; "
-                  no-caps />
+                  :label="t('welcomeTutorial.step1Action')" @click="tutoLogMoment" :disable="newMomText.length !== 0"
+                  style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
                   <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
-                    First Moment logged
-                  </q-item-label>
+                    {{ t('welcomeTutorial.step1DoneTitle') }} </q-item-label>
                   <q-item-section class="text-body2 text-secondary">
-                    Emotions are your body's language. Embrace the habit of noting them down and you're halfway there!
-                  </q-item-section>
+                    {{ t('welcomeTutorial.step1DoneText') }} </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
@@ -67,7 +65,7 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               <q-item>
                 <q-item-section>
                   <q-item-section class="text-body2">
-                    For each moment, KifKaf surfaces the related needs and how well they're being met. </q-item-section>
+                    {{ t('welcomeTutorial.step2') }} </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <img v-cloak src="~assets/tuto2.svg"
@@ -76,19 +74,17 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="View needs" @click="tutoViewNeeds" :disable="!ms.getLatestMomWithNeedsId" style="width: 100%; "
-                  no-caps />
+                  :label="t('welcomeTutorial.step2Action')" @click="tutoViewNeeds" :disable="!ms.getLatestMomWithNeedsId"
+                  style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
                   <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
-                    Needs Revealed
-                  </q-item-label>
+                    {{ t('welcomeTutorial.step2DoneTitle') }} </q-item-label>
                   <q-item-section class="text-body2 text-secondary">
-                    Understanding the deeper needs behind your feelings paves the way to fulfillment.
-                  </q-item-section>
+                    {{ t('welcomeTutorial.step2DoneText') }} </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <q-icon size="50px" color="positive" name="r_check_circle" class="q-mx-md" />
@@ -101,21 +97,16 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
-                  <q-item-section v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] === 0" class="text-body2"> Your
-                    emotions tell a story. After 3 Moments, patterns start
-                    emerging.
+                  <q-item-section v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0" class="text-body1">
+                    {{ t('welcomeTutorial.step3Ready') }}
                   </q-item-section>
-                  <q-item-section v-else-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" class="text-body2">
-                    Your emotions tell a story.
-                    Add {{ `${3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]} more Moment${3 -
-                      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 1 ? 's' : ''} to see patterns emerge.` }}
+                  <q-item-section v-else-if="!ms.userDoc?.hasNeeds" class="text-body2"> {{
+                    t('welcomeTutorial.step3Empty') }}
                   </q-item-section>
-                  <q-item-section v-else-if="!ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length"
-                    class="text-body1">
-                    Preparing your Insights...
+                  <q-item-section v-else class="text-body2">
+                    {{ t('welcomeTutorial.step3EmptyCountdown', Math.max(0, 3 -
+                      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
                   </q-item-section>
-                  <q-item-section v-else class="text-body1">
-                    👇 Your Insights are ready! 👇 </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
                   <img v-cloak src="~assets/tuto3_1.png"
@@ -124,7 +115,7 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  label="Explore Insights" @click="tutoExploreInsights"
+                  :label="t('welcomeTutorial.step3Action')" @click="tutoExploreInsights"
                   :disable="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
@@ -132,10 +123,9 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               <q-item>
                 <q-item-section>
                   <q-item-label class="text-subtitle1 text-on-surface text-weight-medium q-pb-sm">
-                    You’re all set!
-                  </q-item-label>
+                    {{ t('welcomeTutorial.step3DoneTitle') }} </q-item-label>
                   <q-item-section class="text-body2 text-secondary">
-                    Keep logging Moments to fine-tune KifKaf and get the most out of it.
+                    {{ t('welcomeTutorial.step3DoneText') }}
                   </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
@@ -154,6 +144,7 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
 <script setup>
 import { ref, nextTick, onMounted } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from "vue-i18n"
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -170,6 +161,7 @@ const props = defineProps({
 const emits = defineEmits(['update:newMomText', 'click:viewNeeds']);
 
 const ms = useMomentsStore()
+const { t } = useI18n()
 const router = useRouter()
 
 // const swiperInitialized = ref(false)
@@ -183,7 +175,7 @@ onMounted(() => {
 
 //WELCOME TUTORIAL
 const tutoLogMoment = () => {
-  emits('update:newMomText', 'Feeling excited to get to know me better with KifKaf!');
+  emits('update:newMomText', t('welcomeTutorial.dummyMoment'));
   nextTick(() => {
     // newMomInputRef.value.$el.querySelector('textarea').select()
     props.newMomInputRef.$el.querySelector('textarea').select()

@@ -1,18 +1,17 @@
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Log in to KifKaf</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm"> {{ t('loginToKifKaf') }}</div>
 
     <div>
       <q-btn data-cy="continue-email-button" rounded unelevated color="on-primary" text-color="scrim"
-        label="Continue with email" @click="() => router.push('/login/email')" class="text-subtitle2 full-width q-ma-sm"
-        style="height: 56px;" no-caps icon="r_mail" />
+        :label="t('continueWithEmail')" @click="() => router.push('/login/email')"
+        class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps icon="r_mail" />
       <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
         class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps>
         <template v-slot:default>
           <img style="width: 24px; height: 24px; margin-right: 12px;" src="~assets/sign_in_icon_google_light_normal.svg"
             alt="Google">
-          Continue with Google
-        </template>
+          {{ t('continueWithGoogle') }} </template>
       </q-btn>
       <!-- <q-btn rounded unelevated color="on-primary" text-color="scrim" padding="none" @click="continueWithApple()"
         class="text-subtitle2 full-width q-ma-sm" style="height: 40px;" no-caps>
@@ -22,23 +21,24 @@
           Continue with Apple
         </template>
       </q-btn> -->
-      <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with Apple"
+      <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
         @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
         icon="fa-brands fa-apple" />
     </div>
 
 
-    <div class="text-caption text-outline q-mx-sm q-my-md">By continuing, you are indicating that you accept our
-      <a data-cy="terms-link" href="/#/terms" class="text-primary" style="text-decoration: none">Terms of Service</a> and
-      <a data-cy="privacy-policy-link" href="/#/privacy-policy" class="text-primary"
-        style="text-decoration: none;">Privacy Policy</a>.
+    <div class="text-caption text-outline q-mx-sm q-my-md">{{ t('byContinuingText') }}
+      <a data-cy="terms-link" href="/#/terms" class="text-primary" style="text-decoration: none">{{ t('tos') }}</a> {{ " "
+        + t('and') + " " }}
+      <a data-cy="privacy-policy-link" href="/#/privacy-policy" class="text-primary" style="text-decoration: none;">{{
+        t('privacyPolicy') }}</a>.
     </div>
 
     <q-separator class="q-my-md" />
 
     <!-- make hyperlink to /contact page using vue router -->
     <div data-cy="contact-link" class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
-        style="text-decoration: none">Contact us</a>
+        style="text-decoration: none">{{ t('contactUs') }}</a>
     </div>
 
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
@@ -54,12 +54,15 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import { useMomentsStore } from '../../stores/moments.js'
+import { useI18n } from 'vue-i18n';
+
 import { useRoute, useRouter } from 'vue-router';
 import { currentUser } from "../../boot/firebaseBoot.js";
 import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
-import { useMomentsStore } from '../../stores/moments.js'
 
 const ms = useMomentsStore()
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const to =

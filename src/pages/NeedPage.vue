@@ -4,7 +4,7 @@
     <div v-if="ms.aggDataNeeds && ms.aggDataNeeds[dateRange] && ms.aggDataNeeds[dateRange].importance.length > 0">
 
       <q-item class="q-pt-none q-pl-none q-pr-xs q-mx-none q-pb-xs">
-        <q-item-section class="text-h4 text-weight-bold">{{ needName }}</q-item-section>
+        <q-item-section class="text-h4 text-weight-bold">{{ t('needsList.' + needName) }}</q-item-section>
         <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
           <q-avatar size="42px" font-size="28px" :color="needToColor()[needName]">
             {{ needsMap[needName][0] }}
@@ -13,12 +13,12 @@
       </q-item>
       <q-item class="q-pa-none q-mb-md" dense style="min-height: 0px;">
         <span class="q-pa-none text-body2">
-          {{ ms.aggDataNeeds[dateRange].importance.find(item => item.needName == needName).occurrenceCount }}
-          {{ ms.aggDataNeeds[dateRange].importance.find(item => item.needName == needName).occurrenceCount == 1
-            ?
-            'moment' : 'moments' }}&nbsp;</span>
+          {{
+            t('momentInYourJournal', ms.aggDataNeeds[dateRange].importance.find(item => item.needName ==
+              needName).occurrenceCount)
+          }}&nbsp;</span>
         <span class="q-pa-auto" style="font-size:0.4em;line-height:4;">●</span>
-        <span class="text-body2 text-outline">&nbsp;{{ getDatePickerLabel(dateRange) }}</span>
+        <span class="text-body2 text-outline">&nbsp;{{ getDatePickerLabel(dateRange, t) }}</span>
       </q-item>
     </div>
 
@@ -53,7 +53,7 @@
           'q-mb-sm',
           (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
           'text-on-background'
-        ]">{{ formatDayForMomList(day) }}</div>
+        ]">{{ formatDayForMomList(day, false, t) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
           <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day, needName) " :key="moment.id" clickable v-ripple
             class="q-px-none q-py-sm" style="min-height: 0px;"
@@ -75,7 +75,7 @@
                 @scroll="onChipsRowScroll($event, moment.id)">
                 <q-chip v-for="need in Object.entries(moment?.needs).sort(([, a], [, b]) => b.importance - a.importance)"
                   :key="need[0]" outline :color="getChipColor(need[1])"
-                  :icon="needsMap[need[0]][0]" :label="need[0]" class="needs" />
+                  :icon="needsMap[need[0]][0]" :label="t('needsList.' + need[0])" class="needs" />
               </div>
             </q-item> -->
           </div>
@@ -89,6 +89,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from "vue-i18n"
 import { useRoute } from 'vue-router'
 import momentSyncIcon from 'src/components/momentSyncIcon.vue';
 import momentModal from 'src/components/momentModal.vue'
@@ -98,8 +99,9 @@ import { needsMap, needToColor, needSlugToStr } from "./../utils/needsUtils";
 // import { Doughnut } from 'vue-chartjs'
 
 // INITIALIZATION
-const route = useRoute()
 const ms = useMomentsStore()
+const { t } = useI18n()
+const route = useRoute()
 const { currentYYYYdMM, getDatePickerLabel, formatDayForMomList } = useDateUtils()
 // ChartJS.register(ArcElement, DoughnutController);
 

@@ -1,0 +1,2 @@
+NSMicrophoneUsageDescription="Microphone allows you to log moments using voice.";
+NSSpeechRecognitionUsageDescription="Speech recognition allows you to log moments using voice.";

@@ -8,6 +8,8 @@ import {
   // signInWithPopup,
 } from "firebase/auth";
 import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
+import { logEvent } from "../boot/firebaseBoot.js";
+import { Quasar } from "quasar";
 
 const auth = getFirebaseAuth();
 
@@ -15,8 +17,7 @@ export const signInWithGoogle = async () => {
   try {
     const provider = new GoogleAuthProvider();
     //     auth.languageCode = 'it';
-    // // To apply the default browser preference instead of explicitly setting it.
-    // // auth.useDeviceLanguage();
+    // auth.useDeviceLanguage(); // To apply the default browser preference instead of explicitly setting it.
     if (
       process.env.MODE !== "capacitor" //  || process.env.NODE_ENV === "development" || isVirtualDevice
     ) {
@@ -35,19 +36,41 @@ export const signInWithGoogle = async () => {
       );
       await signInWithCredential(auth, credential);
     }
+    logEvent("login", { method: "google" });
   } catch (error) {
     console.error(error);
   }
+};
+
+const formatLocaleToUnderscore = (locale) => {
+  if (!locale) return "en_US"; // Default fallback
+
+  const normalized = locale.replace("-", "_").toLowerCase();
+  const parts = normalized.split("_");
+  // if (parts.length === 1) {
+  // If only language code is present
+  switch (parts[0]) {
+    case "en":
+      return "en_US";
+    case "fr":
+      return "fr_FR";
+    // Add more default regions for other languages as needed
+    default:
+      return "en_US"; //`${parts[0]}_${parts[0].toUpperCase()}`;
+  }
+  // }
+  // If both language and region codes are present
+  // return `${parts[0]}_${parts[1].toUpperCase()}`;
 };
 
 export const signInWithApple = async () => {
   try {
     let authorizationCode;
     const provider = new OAuthProvider("apple.com");
-    //     provider.setCustomParameters({
-    //   // Localize the Apple authentication screen in French.
-    //   locale: 'fr'
-    // });
+    provider.setCustomParameters({
+      //Localize the Apple authentication screen in French.
+      locale: formatLocaleToUnderscore(Quasar.lang.getLocale()),
+    });
 
     // console.log("In signInWith, process.env.MODE:", process.env.MODE);
     if (process.env.MODE !== "capacitor") {
@@ -74,8 +97,8 @@ export const signInWithApple = async () => {
       });
       await signInWithCredential(auth, credential);
     }
-
-    console.log("In sighInWith, authorizationCode:", authorizationCode);
+    logEvent("login", { method: "apple" });
+    // console.log("In sighInWith, authorizationCode:", authorizationCode);
     return authorizationCode;
   } catch (error) {
     console.error(error);

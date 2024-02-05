@@ -1,34 +1,17 @@
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
-    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">Delete your account</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">{{ t('deleteYourAccount') }}</div>
 
     <div v-if="deletingAccountDialogOpened === false">
-
       <q-item-label header>
-        We're sorry, but we couldn't delete your account as your last sign-in session has expired.
-        For your security, please log out, sign back in, and try deleting your account again.
+        {{ t('error.accountDeletionFailed') }}
       </q-item-label>
-
-      <!-- <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with email"
-        @click="() => router.push('/login/email')" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
-        icon="mail" />
-      <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
-        class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps>
-        <template v-slot:default>
-          <img style="width: 24px; height: 24px; margin-right: 12px;" src="~assets/sign_in_icon_google_light_normal.svg"
-            alt="Google">
-          Continue with Google
-        </template>
-      </q-btn>
-      <q-btn rounded unelevated color="on-primary" text-color="scrim" label="Continue with Apple"
-        @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
-        icon="fa-brands fa-apple" /> -->
     </div>
 
     <q-separator class="q-my-md" />
 
     <div class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
-        style="text-decoration: none">Contact us</a>
+        style="text-decoration: none">{{ t('contactUs') }}</a>
     </div>
 
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
@@ -43,11 +26,10 @@
       <q-card class="bg-background q-py-sm">
         <!-- <q-card> -->
         <q-card-section>
-          <div class="text-h6 text-weight-medium">Account deletion in progress</div>
+          <div class="text-h6 text-weight-medium">{{ t('accountDeletionInProgress') }}</div>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          Deleting your account, please don't quit the app...
-        </q-card-section>
+          {{ t('deletingYourAccount') }} </q-card-section>
         <div class="text-center q-px-auto q-mx-auto">
           <q-spinner color="primary" size="3em" />
         </div>
@@ -58,13 +40,13 @@
       <q-card class="bg-background q-py-sm">
         <!-- <q-card> -->
         <q-card-section>
-          <div class="text-h6 text-weight-medium">Account deleted</div>
+          <div class="text-h6 text-weight-medium"> {{ t('accountDeleted') }} </div>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          Your account has been deleted. All your moments, insights, and associated data have been permanently erased.
+          {{ t('accountDeletedText') }}
         </q-card-section>
         <q-card-actions align="center">
-          <q-btn rounded label="Got it" color="primary" class="full-width" padding="md" no-caps
+          <q-btn rounded :label="t('gotIt')" color="primary" class="full-width" padding="md" no-caps
             @click="() => router.push('/welcome')" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -164,7 +146,7 @@ onMounted(async () => {
   if (navigator.onLine) {
     handleOnline();
   } else {
-    errorDialogText.value = `You are offline. Please connect to the internet to delete your account.`
+    errorDialogText.value = t('error.accountDeletionOffline')
     errorDialogOpened.value = true
     // Set up the online event listener
     window.addEventListener('online', handleOnline);
