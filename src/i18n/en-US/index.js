@@ -8,7 +8,7 @@ export default {
   loginToKifKaf: "Log in to KifKaf",
   continueWithGoogle: "Continue with Google",
   continueWithApple: "Continue with Apple",
-  continueWithEmail: "Continue with Email",
+  continueWithEmail: "Continue with email",
   continue: "Continue",
   byContinuingText: "By continuing, you are indicating that you accept our",
   whatShouldWeCallYou: "What should we call you?",
@@ -87,9 +87,9 @@ export default {
   },
   today: "Today",
   yesterday: "Yesterday",
-  weeksAgo: "{count} week ago... | {count} weeks ago...",
-  monthsAgo: "{count} month ago... | {count} months ago...",
-  yearsAgo: "{count} year ago... | {count} years ago...",
+  weeksAgo: "One week ago... | {count} weeks ago...",
+  monthsAgo: "One month ago... | {count} months ago...",
+  yearsAgo: "One year ago... | {count} years ago...",
   goodAfternoon: "Good Afternoon",
   goodMorning: "Good Morning",
   goodEvening: "Good Evening",
@@ -103,28 +103,29 @@ export default {
     dummyMoment: "Feeling excited to get to know me better with KifKaf!",
     step1DoneTitle: "First moment logged",
     step1DoneText:
-      "Emotions are your body's language. Embrace the habit of noting them down and you're halfway there!",
+      "Emotions are your body's language. Taking the time to listen and noting them down is a big step towards a better understanding of yourself.", //Embrace the habit of noting them down and you're halfway there!",
     step2:
-      "For each moment, KifKaf surfaces the related needs and how well they're being met.",
+      "For each moment, KifKaf surfaces the related needs and how well they're being met.", //journal entry
     step2Action: "View needs",
     step2DoneTitle: "Needs revealed",
     step2DoneText:
-      "Understanding the deeper needs behind your feelings paves the way to fulfillment.",
+      "Behind every emotion lies an essential need. KifKaf is designed to help you decipher and understand these valuable connections.",
+    // Feelings indicate what you need at the moment and whether those needs are being met.
+    // "Understanding the deeper needs behind your feelings paves the way to fulfillment.",
     step3Empty:
-      "Your emotions tell a story. After 3 Moments, patterns start emerging.",
+      "Your emotions tell a story. After 3 moments, patterns start emerging.",
     step3EmptyCountdown:
-      "Preparing your Insights...| Your emotions tell a story. Add {count} more Moment to see patterns emerge. | Your emotions tell a story. Add {count} more Moments to see patterns emerge.",
-    step3Ready: "👇 Your Insights are ready! 👇",
-    step3Action: "Explore Insights",
+      "Preparing your insights... This takes approximately 2 min.| Your emotions tell a story. Add one more moment to see patterns emerge. | Your emotions tell a story. Add {count} more moments to see patterns emerge.",
+    step3Ready: "👇 Your insights are ready! 👇",
+    step3Action: "Explore",
     step3DoneTitle: "You’re all set!",
     step3DoneText:
-      "Keep logging Moments to fine-tune KifKaf and get the most out of it.",
+      "Keep logging moments to fine-tune KifKaf and get the most out of it.",
     complete: "complete | complete",
   },
   momentTitle: "Moment", //TODO:6 change for "Feeling"?
   moment: "1 moment | {count} moments",
-  momentInYourJournal:
-    "1 moment in your journal | {count} moments in your journal",
+  momentInYourJournal: "1 moment | {count} moments",
   needs: "Needs",
   relatedNeeds: "Related needs",
   learnMore: "Learn more",
@@ -135,17 +136,17 @@ export default {
   dissatisfiedNeed: "Dissatisfied need",
   momentSaved: "Moment saved",
   momentSavedOffline:
-    "Moment saved. Needs analysis will complete next time you’re online.",
+    "Moment saved. Needs analysis will be completed next time you’re online.",
   deleteMoment: "Delete moment",
-  deleteMomentText: "We will automatically recalculate your Insights.",
+  deleteMomentText: "This will automatically recalculate your insights.",
   delete: "Delete",
   momentDeleted: "Moment deleted",
   momentDeletedOffline:
-    "Moment deleted. Insights recalculation will complete next time you’re online.",
+    "Moment deleted. Your need-o-meter will be updated next time you’re online.",
   cancel: "Cancel",
   momentNeedsLearnMore: {
     title: "Needs list",
-    html: "KifKaf analyzes your Moment and uncover the underlying needs, whether they are satisfied, dissatisfied, or neutral (related to your feelings but neither satisfied nor frustrated).<br><br>Our analysis is based on 33 essential needs, organized into 5 distinct categories:",
+    html: "KifKaf analyzes your moment and reveals the underlying needs, whether they are satisfied, dissatisfied, or neutral (related to your feelings but neither satisfied nor frustrated).<br><br>Our analysis is based on 33 essential needs, organized into 5 distinct categories:",
   },
   needsCategories: {
     physiologicalAndSafety: "Physiological & Safety needs",
@@ -190,28 +191,28 @@ export default {
   gotIt: "Got it",
   save: "Save",
   fresh: "Fresh",
-  summaryTitle: "{date}'s summary",
-  summaryTitleThisMonth: "This month's summary",
-  summaryTitleThisYear: "This year's summary",
-  summarySubtitle: "A quick peek at someone amazing",
-  summaryEmpty: "👉 3 Moments a month will bring your summary to life.",
+  summaryTitle: "{date}'s synthesis", //summary /
+  summaryTitleThisMonth: "This month's synthesis",
+  summaryTitleThisYear: "This year's synthesis",
+  summarySubtitle: "Based on recurring patterns in your moments", //From /Derived from
+  summaryEmpty: "👉 3 moments a month will bring your synthesis to life.",
   summaryEmptyCountdown:
-    "Preparing your summary... | 👉 {count} more Moment to go this month to bring your summary to life. | 👉 {count} more Moments to go this month to bring your summary to life.",
-  quoteSubtitle: "Daily inspiration drawn from your Moments",
+    "Preparing your synthesis... This takes approximately 2 min. | 👉 One more moment to go this month to bring your synthesis to life. | 👉 {count} more moments to go this month to bring your synthesis to life.",
+  quoteSubtitle: "Daily inspiration drawn from your moments",
   quoteWhyTitle: "Why this quote?",
   needsStats: {
-    title: "{date}'s needs", //Need-O-Meter -  Needs fingerprint/Signature - NeedPrint
-    titleThisMonth: "This month's needs",
-    titleThisYear: "This year's needs",
-    subtitle: "Your needs weather report",
+    title: "{date}'s need-o-meter", //Need-O-Meter -  Needs fingerprint/Signature - NeedPrint
+    titleThisMonth: "This month's need-o-meter",
+    titleThisYear: "This year's need-o-meter",
+    subtitle: "Based on the needs revealed in your feelings",
     learnMoreHtml:
-      "KifKaf analyzes each Moments you log to update your needs weather snapshot.<br><br>Our analysis is based on 33 essential needs, organized into 5 distinct categories:",
+      "KifKaf analyzes the emotions in your moments to update your need-o-meter.<br><br>Our method is based on 33 essential needs, organized into 5 distinct categories:",
     emptyInitSat:
-      "Log Moments to discover the needs from which you get the most satisfaction!",
+      "Log a first positive feeling to discover the needs from which you get the most satisfaction.",
     emptyInitDissat:
-      "Log Moments to discover the needs that cause you the most dissatisfaction.",
+      "Log a first negative feeling to discover the needs that cause you the most dissatisfaction.",
     emptyInitAll:
-      "Log Moments to discover what needs bear the most importance to you!",
+      "Log a first feeling to discover what needs bear the most importance to you!",
     emptyPeriodSat:
       "No satisfied needs yet for this period. | No satisfied needs for this period.",
     emptyPeriodDissat:
@@ -234,33 +235,33 @@ export default {
     "No top loser yet for this period. | No top loser for this period.",
   ofAllSat: "of all satisfaction",
   ofAllDissat: "of all dissatisfaction",
-  ofTotalImp: "of total importance",
-  satVsLastMonth: "satisfaction vs previous month",
-  satVsLastYear: "satisfaction vs previous year",
+  ofTotalImp: "importance",
+  satVsLastMonth: "vs. previous month",
+  satVsLastYear: "vs. previous year",
   satisfiers: "Satisfiers",
   dissatisfiers: "Dissatisfiers",
   all: "All",
   showMore: "Show more",
-  bookSubtitle: "The Right Book for Right Now?",
+  bookSubtitle: "The right book for right now?",
   bookWhyTitle: "Why this book recommendation?",
   by: "by",
   bookEmpty:
-    "👉 Log 3 Moments to start getting reading recommendations curated for your growth.",
+    "👉 Log 3 moments to start getting reading recommendations curated for your growth.",
   bookEmptyCountdown:
-    "Preparing your reading recommendations... | 👉 {count} more Moment to go this month to start getting reading recommendations curated for your growth. | 👉 {count} more Moments to go this month to start getting reading recommendations curated for your growth.",
+    "👉 Preparing your reading recommendations... This takes approximately 2 min. | 👉 One more moment to go this month to start getting reading recommendations curated for your growth. | 👉 {count} more moments to go this month to start getting reading recommendations curated for your growth.",
   suggestionsTitle: "{date}'s suggestions",
   suggestionsTitleThisMonth: "This month's suggestions",
   suggestionsTitleThisYear: "This year's suggestions",
-  suggestionsSubtitle: "Take it or leave it: custom tweaks for life’s peaks",
+  suggestionsSubtitle: "Based on your ups and downs",
   toContinue: "Continue",
   toStop: "Stop",
   toStart: "Start?",
-  suggestionsEmpty: "👉 3 Moments a month will bring your suggestions to life.",
+  suggestionsEmpty: "👉 3 moments a month will bring your suggestions to life.",
   suggestionsEmptyCountdown:
-    "Preparing your suggestions... | 👉 {count} more Moment to go this month to bring your suggestions to life. | 👉 {count} more Moments to go this month to bring your suggestions to life.",
+    "👉 Preparing your suggestions... This takes approximately 2 min. | 👉 One more moment to go this month to bring your suggestions to life. | 👉 {count} more moments to go this month to bring your suggestions to life.",
   filterPeriod: "Filter period",
   filterPeriodText:
-    "Filtering the period will take into account only the moments that happened during the selected period.",
+    "Only the moments that happened during the selected period will be taken into account.",
   done: "Done",
   monthly: "Monthly",
   yearly: "Yearly",
@@ -300,11 +301,11 @@ export default {
   logoutText: "You will be returned to the login screen.",
   deleteAccountText:
     "Deleting your account is permanent. All your moments, insights, and associated data will be permanently erased.",
-  pleaseTypeName: "Please type your name",
-  pleaseTypeEmail: "Please type your email address",
+  pleaseTypeName: "Please enter your name",
+  pleaseTypeEmail: "Please enter your email address",
   pleaseTypeSmthg: "Please type something",
   emailMustBeValid: "Email must be valid",
-  pwdMustBeValid: "Password should be at least 6 characters long",
+  pwdMustBeValid: "Password must be at least 6 characters long",
   nameUpdated: "Name updated",
   emailUpdated: "Email updated",
   pwdUpdated: "Password updated",
@@ -370,5 +371,5 @@ export default {
     },
   ],
   randomQuoteCountdown:
-    "Preparing your quote... | 👉 This quote is not personalized, {count} more Moment to go this month to see a quote inspired by your journal. | 👉 This quote is not personalized, {count} more Moments to go this month to see a quote inspired by your journal. ",
+    "👉 Preparing your quote... This takes approximately 2 min. | 👉 This quote is not personalized. One more moment to go this month to see a quote inspired by your moments. | 👉 This quote is not personalized. {count} more moments to go this month to see a quote inspired by your moments. ",
 };

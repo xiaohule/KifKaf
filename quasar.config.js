@@ -96,6 +96,14 @@ module.exports = configure(function (ctx) {
       extendViteConf(viteConf, { isServer, isClient }) {
         viteConf.build.sourcemap = true;
 
+        //attempt to hide logs in prod
+        viteConf.esbuild = {
+          drop: ["console", "debugger"],
+        };
+
+        //make log silent in prod
+        viteConf.logLevel = "silent";
+
         viteConf.plugins.push(
           sentryVitePlugin({
             authToken: process.env.SENTRY_AUTH_TOKEN,

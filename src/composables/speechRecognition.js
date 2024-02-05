@@ -108,14 +108,14 @@ export const useSpeechRecognition = async (
       console.log("In useSpeechRecognition, speech recognition for Capacitor");
       const isAvailable = (await SpeechRecognition.available()).available;
       console.log(
-        "In useSpeechRecognition,  SpeechRecognition.available():",
+        "In useSpeechRecognition for Capacitor,  SpeechRecognition.available():",
         isAvailable,
       );
       if (isAvailable) showSpeechRecognitionButton.value = true;
       let hasPermissions = (await SpeechRecognition.checkPermissions())
         .speechRecognition;
       console.log(
-        "In useSpeechRecognition,  SpeechRecognition.checkPermissions():",
+        "In useSpeechRecognition for Capacitor,  SpeechRecognition.checkPermissions returns:",
         hasPermissions,
       );
 
@@ -128,7 +128,7 @@ export const useSpeechRecognition = async (
       toggleSpeechRecognition = async () => {
         let previousMatch = "";
         console.log(
-          "In useSpeechRecognition, toggleSpeechRecognition for Capacitor called",
+          "In useSpeechRecognition for Capacitor, toggleSpeechRecognition called",
         );
 
         if (hasPermissions === "denied") {

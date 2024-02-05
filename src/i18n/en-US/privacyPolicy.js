@@ -10,10 +10,10 @@ export default {
 
 <p>Upon creating a KifKaf Account, you supply personal information such as:</p>
 <ul>
-  <li>Email address</li>
-  <li>Password (encrypted and not directly accessible)</li>
-  <li>Name (optional)</li>
-  <li>"Moments" you add to your KifKaf journal</li>
+  <li>Your email address</li>
+  <li>Your Password (encrypted and not directly accessible)</li>
+  <li>A name (optional)</li>
+  <li>Your journal entries</li>
 </ul>
 
 <p>Even without signing in to a KifKaf Account, you might opt to share information with us — for instance, an email
@@ -49,7 +49,7 @@ export default {
     Firebase's privacy policy <a href="https://firebase.google.com/support/privacy" target="_blank">here</a>.</li>
   <li>Sentry: We use Sentry for error and performance monitoring. You can read
     Sentry's privacy policy <a href="https://sentry.io/privacy/" target="_blank">here</a>.</li>
-  <li>OpenAI: "Moments's" text entered into KifKaf are analyzed by OpenAI's GPT family models to infer
+  <li>OpenAI: The entries of your journal are analyzed by OpenAI's GPT family models to infer
     insights. You can read OpenAI's privacy policy <a href="https://openai.com/policies/privacy-policy"
       target="_blank">here</a>.</li>
 </ul>

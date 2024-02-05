@@ -247,7 +247,7 @@ export default {
   ofAllDissat: "de vos frustrations",
   ofTotalImp: "d'importance",
   satVsLastMonth: "vs. mois précédent",
-  satVsLastYear: "satisfaction vs année précédente",
+  satVsLastYear: "vs. année précédente",
   satisfiers: "Satisfacteurs",
   dissatisfiers: "Frustrateurs",
   all: "Tous",

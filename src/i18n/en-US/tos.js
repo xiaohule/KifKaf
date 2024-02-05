@@ -14,8 +14,7 @@ export default {
         personal, non-commercial purposes.</p>
 
       <h5>Your Content</h5>
-      <p>"Your Content" refers to the content you provide or generate while using the Service, such as the "Moments" you
-        input. You retain all rights to Your Content, and KifKaf does not claim any ownership rights to it. However, you
+      <p>"Your Content" refers to the content you provide or generate while using the Service, such as the your journal entries. You retain all rights to Your Content, and KifKaf does not claim any ownership rights to it. However, you
         grant KifKaf a limited license to use, store, and process Your Content to provide the Service and as described in
         our Privacy Policy. Your Content must not infringe on any third party's rights. KifKaf reserves the right to
         remove any of Your Content from the Service at any time if deemed to be in violation of these Terms.</p>
