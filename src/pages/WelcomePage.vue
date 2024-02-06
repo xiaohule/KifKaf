@@ -14,11 +14,12 @@
     <!-- pagination-clickable="true"  class="mySwiper" navigation="true" space-between="30"-->
     <swiper-container :pagination="true" :centered-slides="true" autoplay-delay="5000"
       :autoplay-pause-on-mouse-enter="true" :grab-cursor="true" :autoplay-disable-on-interaction="false">
-      <swiper-slide> <img src="/screenshot1.png"
+      <!-- /screenshot1.png -->
+      <swiper-slide> <img :src="t('filepaths.screenshot1')"
           style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
-      <swiper-slide> <img src="/screenshot2.png"
+      <swiper-slide> <img :src="t('filepaths.screenshot2')"
           style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
-      <swiper-slide> <img src="/screenshot3.png"
+      <swiper-slide> <img :src="t('filepaths.screenshot3')"
           style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
       <!-- <swiper-slide> <img src="https://swiperjs.com/demos/images/nature-3.jpg" /></swiper-slide> -->
     </swiper-container>

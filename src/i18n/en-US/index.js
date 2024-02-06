@@ -4,6 +4,11 @@ import tosPage from "./tos";
 export default {
   privacyPolicyPage,
   tosPage,
+  filepaths: {
+    screenshot1: "/screenshot1_app_en.webp",
+    screenshot2: "/screenshot2_app_en.webp",
+    screenshot3: "/screenshot3_app_en.webp",
+  },
   login: "Log in",
   loginToKifKaf: "Log in to KifKaf",
   continueWithGoogle: "Continue with Google",
@@ -125,7 +130,6 @@ export default {
   },
   momentTitle: "Moment", //TODO:6 change for "Feeling"?
   moment: "1 moment | {count} moments",
-  momentInYourJournal: "1 moment | {count} moments",
   needs: "Needs",
   relatedNeeds: "Related needs",
   learnMore: "Learn more",

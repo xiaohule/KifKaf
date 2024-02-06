@@ -14,7 +14,7 @@
       <q-item class="q-pa-none q-mb-md" dense style="min-height: 0px;">
         <span class="q-pa-none text-body2">
           {{
-            t('momentInYourJournal', ms.aggDataNeeds[dateRange].importance.find(item => item.needName ==
+            t('moment', ms.aggDataNeeds[dateRange].importance.find(item => item.needName ==
               needName).occurrenceCount)
           }}&nbsp;</span>
         <span class="q-pa-auto" style="font-size:0.4em;line-height:4;">●</span>
