@@ -228,7 +228,7 @@
 
     <!-- MEMORY -->
     <div v-if="revisitMoment">
-      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date, t) }}...
+      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ formatRevisitDay(revisitMoment.date, t) }}
       </div>
 
       <q-card flat class="bg-surface q-px-md rounded-borders-14 q-py-md">

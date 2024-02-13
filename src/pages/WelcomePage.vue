@@ -21,6 +21,10 @@
           style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
       <swiper-slide> <img :src="t('filepaths.screenshot3')"
           style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
+      <swiper-slide> <img :src="t('filepaths.screenshot4')"
+          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
+      <swiper-slide> <img :src="t('filepaths.screenshot5')"
+          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
       <!-- <swiper-slide> <img src="https://swiperjs.com/demos/images/nature-3.jpg" /></swiper-slide> -->
     </swiper-container>
 

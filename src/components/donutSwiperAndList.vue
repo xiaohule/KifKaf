@@ -20,14 +20,15 @@
   </div>
 
   <!-- because messes with siwper when in NeedsPageLayout -->
-  <q-card class="bg-surface q-px-sm q-py-sm rounded-borders-14" flat v-touch-swipe.mouse.right="(event) => { goBack() }">
+  <q-card class="bg-surface q-px-sm q-py-none rounded-borders-14" flat
+    v-touch-swipe.mouse.right="(event) => { goBack() }">
     <div
       v-if="ms.aggDataNeeds && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]?.length > 0">
       <q-list class="q-mt-xs">
         <transition-group appear enter-active-class="meala" leave-active-class="meala la" move-class="meala"
           enter-from-class="eflt" leave-to-class="eflt">
 
-          <q-item v-for="item in itemsToDisplay" :key="item.needName" class="q-pt-sm q-pb-sm q-px-xs" clickable
+          <q-item v-for="item in itemsToDisplay" :key="item.needName" class="q-pt-md q-pb-md q-px-xs" clickable
             @click="ms.donutSegmentClicked = donutChartClickedSegmentIndex; router.push({ path: `/insights/needs/${needsMap[item.needName][2]}`, query: { dateRange: ms.activeDateRange } });">
 
             <q-item-section avatar class="q-pr-none" style="min-width: 52px;">

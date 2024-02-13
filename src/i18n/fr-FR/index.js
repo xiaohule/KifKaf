@@ -5,9 +5,11 @@ export default {
   privacyPolicyPage,
   tosPage,
   filepaths: {
-    screenshot1: "/screenshot1_app_fr.webp",
-    screenshot2: "/screenshot2_app_fr.webp",
-    screenshot3: "/screenshot3_app_fr.webp",
+    screenshot1: "/screenshot1_fr.webp",
+    screenshot2: "/screenshot2_fr.webp",
+    screenshot3: "/screenshot3_fr.webp",
+    screenshot4: "/screenshot4_fr.webp",
+    screenshot5: "/screenshot5_fr.webp",
   },
   login: "Se connecter",
   loginToKifKaf: "Se connecter à KifKaf",
@@ -16,7 +18,7 @@ export default {
   continueWithEmail: "Continuer avec un email",
   continue: "Continuer",
   byContinuingText: "En continuant, vous acceptez nos",
-  whatShouldWeCallYou: "Comment souhaitez-vous qu'on vous nomme ?",
+  whatShouldWeCallYou: "Comment souhaitez-vous qu'on vous nomme ? (optionnel)",
   enterYourPwd: "Entrez votre mot de passe",
   signin: "Se connecter",
   troubleSigningIn: "Problème de connexion ?",
@@ -80,15 +82,15 @@ export default {
     11: "Novembre",
     12: "Décembre",
   },
-  daysList: {
-    0: "Dimanche",
-    1: "Lundi",
-    2: "Mardi",
-    3: "Mercredi",
-    4: "Jeudi",
-    5: "Vendredi",
-    6: "Samedi",
-  },
+  // daysList: {
+  //   0: "Dimanche",
+  //   1: "Lundi",
+  //   2: "Mardi",
+  //   3: "Mercredi",
+  //   4: "Jeudi",
+  //   5: "Vendredi",
+  //   6: "Samedi",
+  // },
   today: "Aujourd'hui",
   yesterday: "Hier",
   weeksAgo:
@@ -103,7 +105,7 @@ export default {
   welcomeTutorial: {
     title: "Bienvenue sur KifKaf",
     step1:
-      "Capturez les bons et les mauvais moments dans votre journal intime KifKaf, accessible uniquement à vous.", //TODO:6 ajouter un slide ou mettre double dose sur confidentialité
+      "Capturez vos émotions quand elles surgissent. Votre journal est privé et sécurisé, accessible uniquement à vous.", //TODO:6 ajouter un slide ou mettre double dose sur confidentialité
     step1Action: "Capturer une émotion", //capturez/saisissez/enregistrez/notez Captez/Consignez//immortalisez///documentez/collectez
     dummyMoment:
       "Super enthousiaste à l'idée de mieux me connaître avec KifKaf !", //Hâte de mieux me comprendre en utilisant KifKaf !"
@@ -333,7 +335,7 @@ export default {
     ////keep this list's length to 11 or change getPlaceholderQuoteOfTheDayId argument
     {
       author: "Socrates",
-      quote: "La vie non examinée ne vaut pas la peine d'être vécue.",
+      quote: "La vie qui n'est pas examinée ne vaut pas la peine d'être vécue.",
     },
     {
       author: "Lao Tzu",

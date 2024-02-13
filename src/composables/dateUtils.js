@@ -97,22 +97,13 @@ export function useDateUtils() {
     day,
     showHour = false /*forDisplay = true*/,
     t,
+    d,
   ) => {
     if (!day) {
       return;
     }
     // console.log("in formatDayForMomList");
     const dayDate = dayToDate(day);
-
-    const dayOfWeek = dayDate.getDay(); // Returns day of week (0 for Sunday, 1 for Monday, etc.)
-    const dayOfMonth = String(dayDate.getDate());
-    const month = String(dayDate.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-based
-    const year = dayDate.getFullYear();
-
-    // Translate days and months using your lists
-    const translatedDayOfWeek = t(`daysList.${dayOfWeek}`);
-    const translatedMonth = t(`monthsList.${month}`).toLowerCase();
-
     let displayDay;
 
     if (isSameDate(dayDate, currentDate.value, "day")) {
@@ -126,10 +117,11 @@ export function useDateUtils() {
     ) {
       displayDay = t("yesterday");
     } else if (isSameDate(dayDate, currentDate.value, "year")) {
-      displayDay = `${translatedDayOfWeek} ${dayOfMonth} ${translatedMonth}`;
+      displayDay = d(dayDate, "longCurrentYear");
     } else {
-      displayDay = `${translatedDayOfWeek} ${dayOfMonth} ${translatedMonth} ${year}`;
+      displayDay = d(dayDate, "longPreviousYears");
     }
+    displayDay = displayDay.charAt(0).toUpperCase() + displayDay.slice(1);
 
     // console.log("In dateUtils.js > formatDayForMomList, displayDay:", displayDay);
     if (showHour) return displayDay + ", " + formatDate(dayDate, "HH:mm");

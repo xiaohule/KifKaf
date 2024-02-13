@@ -214,6 +214,8 @@ try {
         user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3"
       ) {
         setUserProperty("isTestAccount", "true");
+      } else {
+        setUserProperty("isTestAccount", "false");
       }
     }
     isLoadingAuth.value = false;

@@ -76,7 +76,7 @@
             'q-mb-sm',
             (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'negative-margin-first-item' : (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
             (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
-          ]">{{ formatDayForMomList(day, false, t) }}</div>
+          ]">{{ formatDayForMomList(day, false, t, d) }}</div>
           <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
             <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
               class="q-px-none q-py-sm" style="min-height: 0px;"
@@ -137,7 +137,7 @@ import { addDeleteMomentRetry } from 'src/boot/firebaseBoot';
 
 //STORE INITIALIZATION
 const ms = useMomentsStore()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const { getGreetingLabel, formatDayForMomList } = useDateUtils()
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
@@ -173,7 +173,7 @@ const userFirstName = computed(() => {
   if (ms?.user?.displayName) {
     const firstName = ms.user.displayName.trim().split(' ')[0];
     let capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-    return ", " + capitalizedFirstName;
+    return " " + capitalizedFirstName;
   }
   return ''
 })

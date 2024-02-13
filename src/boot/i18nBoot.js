@@ -18,6 +18,37 @@ const normalizeLocale = (locale) => {
   return `${parts[0]}-${parts[1].toUpperCase()}`;
 };
 
+const datetimeFormats = {
+  "en-US": {
+    longCurrentYear: {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    },
+    longPreviousYears: {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    },
+    // long: {
+    //   year: 'numeric', month: 'short', day: 'numeric',
+    //   weekday: 'short', hour: 'numeric', minute: 'numeric'
+    // }
+  },
+  "fr-FR": {
+    longCurrentYear: {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    },
+    longPreviousYears: {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    },
+  },
+};
+
 // Create I18n instance
 export const i18n = createI18n({
   legacy: false, // you must set `false`, to use Composition API
@@ -25,6 +56,7 @@ export const i18n = createI18n({
   fallbackLocale: "en-US",
   globalInjection: true,
   messages,
+  datetimeFormats,
   missingWarn: false,
   fallbackWarn: false,
 });

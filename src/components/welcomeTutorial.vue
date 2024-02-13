@@ -35,14 +35,17 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
                   </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
-                  <img v-cloak src="~assets/tuto1.svg"
+                  <!-- <q-avatar size="xl" style="max-height: 100%; width: auto; object-fit: contain; margin-right:16px;">
+                    🔐
+                  </q-avatar> -->
+                  <img v-cloak src="~assets/tuto1_2.svg"
                     style="max-height: 100%; width: auto; object-fit: contain; margin-right:16px;" />
                 </q-item-section>
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  :label="t('welcomeTutorial.step1Action')" @click="tutoLogMoment" :disable="newMomText.length !== 0"
-                  style="width: 100%; " no-caps />
+                  :label="t('welcomeTutorial.step1Action')" @click="tutoLogMoment"
+                  :disable="newMomText.length !== 0" style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
@@ -74,8 +77,8 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  :label="t('welcomeTutorial.step2Action')" @click="tutoViewNeeds" :disable="!ms.getLatestMomWithNeedsId"
-                  style="width: 100%; " no-caps />
+                  :label="t('welcomeTutorial.step2Action')" @click="tutoViewNeeds"
+                  :disable="!ms.getLatestMomWithNeedsId" style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
@@ -97,7 +100,8 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
-                  <q-item-section v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0" class="text-body1">
+                  <q-item-section v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
+                    class="text-body1">
                     {{ t('welcomeTutorial.step3Ready') }}
                   </q-item-section>
                   <q-item-section v-else-if="!ms.userDoc?.hasNeeds" class="text-body2"> {{

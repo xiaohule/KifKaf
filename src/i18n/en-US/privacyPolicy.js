@@ -3,6 +3,12 @@ export default {
   contentHtml: `
   <p>At KifKaf, your privacy is paramount. This policy refers to the KifKaf mobile application, web platform, and
   associated services. It describes the data we collect, why we collect it, and how we manage it.</p>
+  <p>But before diving in further please note that:
+    <ul>
+      <li>Your data is encrypted in transit and stored in an encrypted format on server, safeguarding it against unauthorized access.</li>
+      <li>We do not and we will not ever sell your data to anyone.</li>
+    </ul>
+  </p>
 
 <h5>Information Collection</h5>
 
@@ -42,10 +48,9 @@ export default {
 </ul>
 
 <h5>Third-party Processors</h5>
-<p>To provide the best experience and functionality, KifKaf collaborates with third-party processors for data
-  processing. The third-party services we employ include:</p>
+<p>To provide the best experience and functionality, KifKaf collaborates with third-party processors. For privacy reasons, we keep reliance on third-party services at a minimum and currently only use:</p>
 <ul>
-  <li>Firebase: We use Firebase for authentication, data storage, and other backend services. You can read
+  <li>Firebase: We use Firebase for authentication, data storage, and usage analytics. You can read
     Firebase's privacy policy <a href="https://firebase.google.com/support/privacy" target="_blank">here</a>.</li>
   <li>Sentry: We use Sentry for error and performance monitoring. You can read
     Sentry's privacy policy <a href="https://sentry.io/privacy/" target="_blank">here</a>.</li>
@@ -54,7 +59,7 @@ export default {
       target="_blank">here</a>.</li>
 </ul>
 
-<p>Note:While we've taken steps to protect user privacy, please be aware that user content might be analyzed by
+<p>Note: While we've taken steps to protect user privacy, please be aware that user content might be analyzed by
   third-party services. We encourage users to exercise caution and avoid sharing personally identifiable
   information through the platform.</p>
 
@@ -78,6 +83,6 @@ export default {
 <p>For any queries related to this Privacy Policy, kindly email us at hello{'@'}kifkaf.app.</p>
 <br />
 <p>Effective Date: January 1, 2023</p>
-<p>Last Updated: October 26, 2023</p>
+<p>Last Updated: February 6, 2024</p>
   `,
 };
