@@ -14,7 +14,7 @@
       <q-item class="q-pa-none q-mb-md" dense style="min-height: 0px;">
         <span class="q-pa-none text-body2">
           {{
-            t('momentInYourJournal', ms.aggDataNeeds[dateRange].importance.find(item => item.needName ==
+            t('moment', ms.aggDataNeeds[dateRange].importance.find(item => item.needName ==
               needName).occurrenceCount)
           }}&nbsp;</span>
         <span class="q-pa-auto" style="font-size:0.4em;line-height:4;">●</span>
@@ -53,7 +53,7 @@
           'q-mb-sm',
           (index === 0 ? 'q-mt-none' : 'q-mt-lg'),
           'text-on-background'
-        ]">{{ formatDayForMomList(day, false, t) }}</div>
+        ]">{{ formatDayForMomList(day, false, t, d) }}</div>
         <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
           <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day, needName) " :key="moment.id" clickable v-ripple
             class="q-px-none q-py-sm" style="min-height: 0px;"
@@ -100,7 +100,7 @@ import { needsMap, needToColor, needSlugToStr } from "./../utils/needsUtils";
 
 // INITIALIZATION
 const ms = useMomentsStore()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const route = useRoute()
 const { currentYYYYdMM, getDatePickerLabel, formatDayForMomList } = useDateUtils()
 // ChartJS.register(ArcElement, DoughnutController);

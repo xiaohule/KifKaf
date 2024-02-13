@@ -11,7 +11,7 @@
       <div class="q-px-md">
         <q-item class="q-px-none">
           <q-item-section class="text-h6 text-weight-medium">{{
-            formatDayForMomList(moment.date?.seconds, true, t) }}</q-item-section>
+            formatDayForMomList(moment.date?.seconds, true, t, d) }}</q-item-section>
           <q-item-section avatar class="q-px-none" style="min-width: 20px;">
             <moment-sync-icon :moment-id="momentId" />
           </q-item-section>
@@ -113,7 +113,7 @@ import { useDateUtils } from '../composables/dateUtils.js'
 import learnMoreModal from 'src/components/learnMoreModal.vue'
 
 const ms = useMomentsStore()
-const { t } = useI18n()
+const { t, d } = useI18n()
 const { formatDayForMomList } = useDateUtils()
 
 const moment = ref(null)
