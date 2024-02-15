@@ -32,8 +32,7 @@
   /* overflow: hidden; Hide B when the container is too small */     -->
           <div style="width: 100%;  margin-top: 100px; height: 60vh; position: relative; z-index: 20;">
             <div class="hidden-if-height-sm text-h5 text-weight-medium text-on-primary q-pa-md text-center">{{
-              t(getGreetingLabel) }}{{
-    userFirstName }} 👋</div>
+              t(getGreetingLabel, { comma: userFirstName ? ',' : '', name: userFirstName }) }} 👋</div>
             <div class="pushed-up-if-height-xs q-py-md">
               <div class="hidden-if-height-xs text-body1 text-weight-medium text-on-primary q-px-md">{{
                 t('momentInputPrompt') }}
@@ -173,9 +172,9 @@ const userFirstName = computed(() => {
   if (ms?.user?.displayName) {
     const firstName = ms.user.displayName.trim().split(' ')[0];
     let capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-    return " " + capitalizedFirstName;
+    return ' ' + capitalizedFirstName;
   }
-  return ''
+  return '';
 })
 
 watch([errorDialogOpened, momentModalOpened], ([newVal1, newVal2], [oldVal1, oldVal2]) => {

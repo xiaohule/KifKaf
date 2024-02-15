@@ -38,6 +38,7 @@ export default {
     accountDeletionOffline:
       "Vous devez être connecté à Internet pour supprimer votre compte.",
     incorrectPwdOrEmail: "Mot de passe ou email {email} incorrect",
+    incorrectPwd: "Mot de passe incorrect",
     noUserWithEmail: "Aucun utilisateur trouvé avec l'email {email}",
     invalidEmail: "Email {email} invalide",
     userDisabled: "L'utilisateur avec l'email {email} a été désactivé",
@@ -97,9 +98,9 @@ export default {
     "souvenir de la semaine dernière | Souvenir d'il y a {count} semaines",
   monthsAgo: "Souvenir du mois dernier | Souvenir d'il y a {count} mois",
   yearsAgo: "Souvenir de l'année dernière | Souvenir d'il y a {count} ans",
-  goodAfternoon: "Bonjour",
-  goodMorning: "Bonjour",
-  goodEvening: "Bonsoir",
+  goodAfternoon: "Bonjour{name}",
+  goodMorning: "Bonjour{name}",
+  goodEvening: "Bonsoir{name}",
   momentInputPrompt: "Une nouvelle émotion ?",
   momentInputPlaceholder: "Je me sens … parce que …",
   welcomeTutorial: {
@@ -296,7 +297,7 @@ export default {
   logout: "Se déconnecter",
   dangerZone: "Zone de danger",
   deleteAccount: "Supprimer mon compte",
-  deleteYourAccount: "Suppresion de votre compte",
+  deleteYourAccount: "Suppression de votre compte",
   accountDeletionInProgress: "Suppression de votre compte en cours",
   deletingYourAccount:
     "Suppression de votre compte en cours, veuillez rester sur cette page…",
@@ -304,7 +305,9 @@ export default {
   accountDeletedText:
     "Votre compte a été supprimé. L'intégralité des données associées a été supprimée.",
   changeName: "Changer de nom",
-  changeEmail: "Changer d'email",
+  changeEmail: "Changer d'adresse email",
+  changeEmailSubtitle:
+    "Vous serez déconnecté et recevrez un email de vérification lors de votre première connexion avec la nouvelle adresse email.",
   enterYourEmail: "Entrez votre adresse email",
   enterYourPwdToConfirm: "Entrez votre mot de passe pour confirmer",
   changePwd: "Changer de mot de passe",

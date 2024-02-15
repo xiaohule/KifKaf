@@ -406,7 +406,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const updateUser = async (changes) => {
     try {
-      if (changes.displayName) {
+      if (changes.hasOwnProperty("displayName")) {
         await updateProfile(user.value, {
           displayName: changes.displayName,
         });
@@ -428,7 +428,8 @@ export const useMomentsStore = defineStore("moments", () => {
         }
       }
     } catch (error) {
-      console.log("Error in updateUser: ", error);
+      console.log("moments.js > error in updateUser: ", error);
+      throw error;
     }
   };
 
