@@ -168,38 +168,6 @@ onUnmounted(() => {
   window.removeEventListener('online', handleOnline);
 });
 
-
-// onMounted(async () => {
-// try {
-//   signInMethods.value = await fetchSignInMethodsForEmail(auth, ms.user.email);
-// } catch (error) {
-//   console.error('Error fetching sign-in methods:', error);
-// }
-// console.log("signInMethods.value:", signInMethods.value);
-// console.log("signInMethods.value[0]:", signInMethods.value[0]); //"apple.com", "google.com", "password"
-// //if signInMethods.value contains "password" set showPassword.value to true
-// if (!signInMethods.value.includes("password")) showPassword.value = false;
-// }
-// )
-
-// const continueWithGoogle = async () => {
-//   if (isOffline()) return
-//   try {
-//     await signInWithGoogle();
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-// const continueWithApple = async () => {
-//   if (isOffline()) return
-//   try {
-//     await signInWithApple();
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
 </script>
 
 <style lang="scss">

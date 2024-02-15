@@ -8,6 +8,7 @@ import {
   getDocs,
   onSnapshot,
   query,
+  increment,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed, watch } from "vue";
@@ -368,6 +369,9 @@ export const useMomentsStore = defineStore("moments", () => {
             welcomeTutorialStep: 0,
             showWelcomeTutorial: true,
             showInsightsBadge: false,
+            momentsCount: 0,
+            momentsWithNeedsCount: 0,
+            momentsDeletedCount: 0,
           };
           await setDoc(userDocRef.value, defaultUserDocValues, {
             merge: true,
@@ -482,43 +486,74 @@ export const useMomentsStore = defineStore("moments", () => {
     return momentsColl.value.filter((moment) => !moment.deleted).length;
   });
 
+  const hasNeeds = (momentDocData) => {
+    return !(
+      !momentDocData.needs ||
+      Object.keys(momentDocData.needs).length === 0 ||
+      momentDocData.needs.Oops ||
+      momentDocData.needs.error
+    );
+  };
+
   const deleteMoment = async (momentId) => {
     try {
       console.log("In moment.js > deleteMoment for momentId:", momentId);
-      const momentDoc = doc(momentsCollRef.value, momentId);
-      const momentArchive = (await getDoc(momentDoc)).data();
-      const otherMomHasNeeds = momentsColl.value.some((moment) => {
+      const momentDocRef = doc(momentsCollRef.value, momentId);
+      const momentDocSnapshot = await getDoc(momentDocRef);
+      console.log(
+        "momentDocSnapshot",
+        momentDocSnapshot,
+        "momentDocSnapshot.data()",
+        momentDocSnapshot.data(),
+      );
+      const otherMomsHaveNeeds = momentsColl.value.some((momentDoc) => {
+        console.log(
+          "In moments.js > deleteMoment >otherMomsHaveNeeds, momentDoc:",
+          momentDoc,
+          "momentDoc.id",
+          momentDoc.id,
+          "momentDoc.deleted",
+          momentDoc.deleted,
+        );
         return (
-          !moment.deleted &&
-          moment.id !== momentId &&
-          moment.needs &&
-          Object.keys(moment.needs).length > 0
+          momentDoc.id !== momentId && !momentDoc.deleted && hasNeeds(momentDoc)
         );
       });
 
       console.log(
-        "momentDoc:",
-        momentDoc,
-        "momentArchive:",
-        momentArchive,
+        "In moments.js > deleteMoment, momentDocRef:",
+        momentDocRef,
+        "momentDocSnapshot.data():",
+        momentDocSnapshot.data(),
         "momentsCollLength:",
         momentsCollLength.value,
-        "otherMomHaveNeeds:",
-        otherMomHasNeeds,
+        "otherMomsHaveNeeds:",
+        otherMomsHaveNeeds,
       );
 
       const batch = writeBatch(db);
 
-      // batch.delete(momentDoc);
       //instead of deleting just set the flag deleted to true
-      batch.update(momentDoc, { deleted: true });
+      batch.update(momentDocRef, { deleted: true });
 
-      if (!otherMomHasNeeds) {
-        batch.update(userDocRef.value, {
-          welcomeTutorialStep: momentsCollLength.value < 2 ? 0 : 1,
-          hasNeeds: false,
-        });
+      // Prepare the updates for userDocRef
+      const userDocUpdates = {
+        momentsCount: increment(-1),
+        momentsDeletedCount: increment(1),
+      };
+      // If the moment has needs, decrement momentsWithNeedsCount
+      if (hasNeeds(momentDocSnapshot.data())) {
+        userDocUpdates.momentsWithNeedsCount = increment(-1);
       }
+      if (!otherMomsHaveNeeds) {
+        userDocUpdates.welcomeTutorialStep =
+          momentsCollLength.value < 2 ? 0 : 1;
+        userDocUpdates.hasNeeds = false;
+      }
+
+      batch.update(userDocRef.value, userDocUpdates);
+
+      logEvent("moment_deleted");
 
       await batch.commit();
 
@@ -563,9 +598,19 @@ export const useMomentsStore = defineStore("moments", () => {
       moment.deleted = false;
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
+      const batch = writeBatch(db);
+
       const newMomDocRef = doc(momentsCollRef.value);
-      await setDoc(newMomDocRef, moment);
-      logEvent("moment_added", { value: newMomDocRef.id });
+      batch.set(newMomDocRef, moment);
+
+      batch.update(userDocRef.value, {
+        momentsCount: increment(1),
+      });
+
+      await batch.commit();
+
+      logEvent("moment_added");
+
       if (navigator.onLine) {
         Notify.create(i18n.global.t("momentSaved"));
       } else {
@@ -596,7 +641,10 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       );
 
-      console.log("In addMoment llm response:", response.data);
+      console.log(
+        "In addMoment /api/learn/add-moment/ response:",
+        response.data,
+      );
       //if response doesn't contain message field throw an error
       if (!response.data.message) {
         throw new Error(
@@ -604,7 +652,7 @@ export const useMomentsStore = defineStore("moments", () => {
           response.data,
         );
       }
-      logEvent("moment_needs_analyzed", { value: newMomDocRef.id });
+      logEvent("moment_needs_analyzed");
 
       // Notify.create("Needs analysis complete.");
     } catch (error) {
@@ -870,6 +918,7 @@ export const useMomentsStore = defineStore("moments", () => {
       await setDoc(userDocRef.value, { ...value }, { merge: true });
       for (const [key, val] of Object.entries(value)) {
         setUserProperty(key, val);
+        logEvent("user_property_set", { [key]: val });
       }
     } catch (error) {
       console.log(

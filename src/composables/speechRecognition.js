@@ -16,6 +16,7 @@
 import { ref } from "vue";
 import { SpeechRecognition } from "@capacitor-community/speech-recognition";
 import { useMomentsStore } from "./../stores/moments.js";
+
 const ms = useMomentsStore();
 
 export const showSpeechRecognitionButton = ref(false);

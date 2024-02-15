@@ -170,6 +170,12 @@ const isKnownEmail = async (email) => {
   }
 };
 
+const handleSuccessfulEmailLogin = () => {
+  logEvent("login", { method: "email" });
+  ms.setUserDocValue({ lastLoginMethod: "email" });
+  router.push(to);
+};
+
 const onSubmit = async (event) => {
 
   if (isOffline()) return
@@ -195,10 +201,9 @@ const onSubmit = async (event) => {
         console.log("In EmailLogin, Signing in");
         // console.log("Signed in:", userCredential);
         if (userCredential.user.emailVerified) {
-          logEvent("login", { method: "email" });
           // User's email is already verified. Redirect to expected page.
           console.log("In EmailLogin>onSubmit User's email is already verified. Redirecting to", to);
-          router.push(to);
+          handleSuccessfulEmailLogin()
         }
         else {
           await sendEmailVerification(auth.currentUser)
@@ -278,7 +283,7 @@ watch(currentUser, (newVal, oldVal) => {
     if (newVal.emailVerified) {
       // User's email is already verified. Redirect to expected page.
       console.log("In EmailLogin > watch (currentUser), User's email is already verified. Redirecting to", to);
-      router.push(to);
+      handleSuccessfulEmailLogin()
     }
     else {
       checkEmailVerifiedInterval = setInterval(async () => {
@@ -286,7 +291,7 @@ watch(currentUser, (newVal, oldVal) => {
         if (newVal.emailVerified) {
           console.log("User's email is now verified. Redirecting to", to);
           clearInterval(checkEmailVerifiedInterval); // Clear the interval
-          router.push(to);
+          handleSuccessfulEmailLogin()
         }
       }
         , 300)

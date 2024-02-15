@@ -269,7 +269,7 @@
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
-import { getFirebaseAuth } from "../boot/firebaseBoot.js";
+import { getFirebaseAuth, logEvent } from "../boot/firebaseBoot.js";
 import { signOut, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
@@ -477,10 +477,11 @@ const logOut = async () => {
       await FirebaseAuthentication.signOut();
     }
 
-    console.log("In SettingsPage, signing out for web");
     // Sign out on the web layer
+    console.log("In SettingsPage, signing out for web");
     await signOut(auth)
 
+    logEvent("logout");
     setTimeout(() => {
       ms.$reset()
       router.push('/welcome')

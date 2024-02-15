@@ -106,10 +106,22 @@ export const setUserId = async (userId) => {
 
 export const setUserProperty = async (propertyKey, propertyValue) => {
   if (process.env.MODE !== "capacitor") {
+    console.log(
+      "In firebaseBoot > setUserProperty, web mode, propertyKey:",
+      propertyKey,
+      "propertyValue:",
+      propertyValue,
+    );
     webSetUserProperties(firebaseAnalytics, {
       [propertyKey]: propertyValue,
     });
   } else {
+    console.log(
+      "In firebaseBoot > setUserProperty, capacitor mode, propertyKey:",
+      propertyKey,
+      "propertyValue:",
+      propertyValue,
+    );
     await firebaseAnalytics.setUserProperty({
       key: propertyKey,
       value: propertyValue,
@@ -121,7 +133,7 @@ export const setUserProperty = async (propertyKey, propertyValue) => {
 export const logEvent = async (eventName, eventParams) => {
   if (process.env.MODE !== "capacitor") {
     console.log(
-      "In firebaseBoot > logEvent, web mode eventName:",
+      "In firebaseBoot > logEvent, web mode, eventName:",
       eventName,
       "eventParams:",
       eventParams,
@@ -129,7 +141,7 @@ export const logEvent = async (eventName, eventParams) => {
     webLogEvent(firebaseAnalytics, eventName, eventParams);
   } else {
     console.log(
-      "In firebaseBoot > logEvent, capacitor mode eventName:",
+      "In firebaseBoot > logEvent, capacitor mode, eventName:",
       eventName,
       "eventParams:",
       eventParams,
@@ -396,13 +408,21 @@ export const addDeleteMomentRetry = async (force = false) => {
           },
         );
         console.log(
-          "In firebaseBoot > in addDeleteMomentRetry > addMomentPromises, add-moment response:",
+          "In firebaseBoot > in addDeleteMomentRetry > addMomentPromises, /api/learn/add-moment/ response:",
           response.data,
         );
-
         await updateDoc(doc.ref, {
           retries: increment(1),
         });
+
+        //if response doesn't contain message field throw an error
+        if (!response.data.message) {
+          throw new Error(
+            "In addMoment > Error in response from llm, response.data:",
+            response.data,
+          );
+        }
+        logEvent("moment_needs_analyzed");
       } catch (error) {
         console.error(
           "In firebaseBoot.js > addDeleteMomentRetry > addMomentPromises error:",
