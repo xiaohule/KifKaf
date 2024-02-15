@@ -130,13 +130,13 @@
           <q-card-section class="text-h6 text-weight-medium">{{ t('changeName') }}</q-card-section>
           <q-card-section>
             <q-input ref="mainInputRef" class="q-mx-sm q-mb-md" color="transparent" clearable rounded outlined
-              v-model="newSettingValue" type="text" bg-color="surface-variant" :placeholder="t('whatShouldWeCallYou')"
-              lazy-rules :rules="displayNameRules" />
+              v-model="newSettingValue" type="text" bg-color="surface-variant" :placeholder="t('whatShouldWeCallYou')" />
           </q-card-section>
         </div>
 
         <div v-else-if="currentSetting === 'email'">
           <q-card-section class="text-h6 text-weight-medium">{{ t('changeEmail') }}</q-card-section>
+          <q-card-section class="text-outline q-pt-none">{{ t('changeEmailSubtitle') }}</q-card-section>
           <q-card-section>
             {{ t('enterYourEmail') }} </q-card-section>
           <q-input ref="mainInputRef" class="q-mx-md q-mb-md" color="transparent" clearable rounded outlined
@@ -368,9 +368,9 @@ watch(() => ms.getSpeechRecoLanguage, (newVal, oldVal) => {
   }
 }, { immediate: true })
 
-const displayNameRules = [
-  val => (val && val.length > 0) || t('pleaseTypeName')
-]
+// const displayNameRules = [
+//   val => (val && val.length > 0) || t('pleaseTypeName')
+// ]
 const emailRules = [
   val => (val && val.length > 0) || t('pleaseTypeEmail'),
   val => /.+@.+\..+/.test(val) || t('emailMustBeValid'),
@@ -419,21 +419,22 @@ const updateSetting = async () => {
       return
     }
     await ms.updateUser({ [currentSetting.value]: newSettingValue.value, oldPassword: oldPassword.value })
-    editDialogOpened.value = false
     $q.notify({
       icon: 'done',
       message: currentSetting.value === 'displayName' ? t('nameUpdated') : currentSetting.value === 'email' ? t('emailUpdated') : t('pwdUpdated')
     })
+    if (currentSetting.value === 'email') await logOut()
+    editDialogOpened.value = false
   } catch (error) {
     // Handle authentication error
-    console.log(error)
+    console.log("SettingsPage > error in updateSetting: ", error)
     if (error.code === 'auth/wrong-password') {
       isPwdOld.value = false
       oldPwdInputRef.value.$el.querySelector('input').focus();
       $q.notify({
         icon: 'error',
         color: 'negative',
-        message: t('incorrectPwd')
+        message: t('error.incorrectPwd')
       })
     } else if (error.code === 'auth/weak-password') {
       isPwd.value = false

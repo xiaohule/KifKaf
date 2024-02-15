@@ -219,7 +219,6 @@ try {
       }
     }
     isLoadingAuth.value = false;
-    // else router.push("/login");
   });
 } catch (error) {
   console.error("Error with onAuthStateChanged:", error);

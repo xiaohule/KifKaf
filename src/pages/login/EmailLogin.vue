@@ -192,7 +192,7 @@ const onSubmit = async (event) => {
     if (!isSignUp.value) {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, userEmail.value, userPassword.value)
-        console.log("In EmailLogin, Signed in");
+        console.log("In EmailLogin, Signing in");
         // console.log("Signed in:", userCredential);
         if (userCredential.user.emailVerified) {
           logEvent("login", { method: "email" });
@@ -201,6 +201,8 @@ const onSubmit = async (event) => {
           router.push(to);
         }
         else {
+          await sendEmailVerification(auth.currentUser)
+          console.log("Signing in with updated email for", userCredential, "verification email sent.");
           showWaitingForEmailVerif.value = true
         }
       }

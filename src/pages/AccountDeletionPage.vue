@@ -62,6 +62,7 @@ import { deleteUser, fetchSignInMethodsForEmail } from "firebase/auth";
 // import {  reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, OAuthProvider, } from "firebase/auth";
 import { useRouter } from 'vue-router'
 import { useMomentsStore } from './../stores/moments.js'
+import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import axiosRetry from "axios-retry";
 
@@ -83,6 +84,7 @@ axiosRetry(axios, {
 });
 
 const ms = useMomentsStore()
+const { t } = useI18n();
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
 const deletingAccountDialogOpened = ref(false)
@@ -125,10 +127,18 @@ const handleOnline = async () => {
     }
     accountDeletedDialogOpened.value = true;
   } catch (error) {
-    console.log("in AccountDeletionPage, direct account deletion failed with error:", error);
-    deletingAccountDialogOpened.value = false;
-    accountDeletedDialogOpened.value = false;
-    return
+    console.log("in AccountDeletionPage, direct account deletion failed with error:", error, "code:", error.code);
+    //if error is "auth/requires-recent-login" then reauthenticate and try again
+    if (error.code === "auth/requires-recent-login") {
+      console.log("in AccountDeletionPage, requires-recent-login, re-authenticating");
+      deletingAccountDialogOpened.value = false;
+      accountDeletedDialogOpened.value = false;
+      return
+    }
+    else {
+      //if other error then it's very likely user is already deleted but page was refreshed, so move to welcome page
+      router.push('/welcome');
+    }
     //TODO:1 reauthentication needed to get ms.userCredentials
     // console.log("in handleOnline, currentUser.value:", currentUser.value);
     // console.log("in handleOnline, ms.userCredentials:", ms.userCredentials);

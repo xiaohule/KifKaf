@@ -3,9 +3,10 @@
     <div class="text-h4 text-weight-bold q-mx-none q-mb-sm"> {{ t('loginToKifKaf') }}</div>
 
     <div>
-      <q-btn data-cy="continue-email-button" rounded unelevated color="on-primary" text-color="scrim"
-        :label="t('continueWithEmail')" @click="() => router.push('/login/email')"
-        class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps icon="r_mail" />
+      <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
+        @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
+        icon="fa-brands fa-apple" />
+
       <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
         class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps>
         <template v-slot:default>
@@ -13,6 +14,11 @@
             alt="Google">
           {{ t('continueWithGoogle') }} </template>
       </q-btn>
+
+      <q-btn data-cy="continue-email-button" rounded unelevated color="on-primary" text-color="scrim"
+        :label="t('continueWithEmail')" @click="() => router.push('/login/email')"
+        class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps icon="r_mail" />
+
       <!-- <q-btn rounded unelevated color="on-primary" text-color="scrim" padding="none" @click="continueWithApple()"
         class="text-subtitle2 full-width q-ma-sm" style="height: 40px;" no-caps>
         <template v-slot:default>
@@ -21,9 +27,6 @@
           Continue with Apple
         </template>
       </q-btn> -->
-      <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
-        @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
-        icon="fa-brands fa-apple" />
     </div>
 
 
