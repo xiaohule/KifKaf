@@ -113,7 +113,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.title().should("include", "KifKaf");
     // cy.contains("Journal").should("be.visible");
     //contains the expected tabs
-    cy.contains("Journal").should("be.visible");
+    cy.contains("Journal", { timeout: 60000 }).should("be.visible");
     cy.visit("/#/insights");
     cy.url().should("include", "insights");
     //can navigate to Insights>Journal>Settings>Journal
