@@ -21,8 +21,8 @@
     </div>
 
     <div class="fixed-button pill-shape">
-      <q-btn data-cy="next-button" :disable="group.length === 0" rounded color="scrim" padding="md xl" :label="t('next')"
-        @click="clickedNext" class="text-subtitle1 text-weight-medium" no-caps />
+      <q-btn data-cy="next-button-3" :disable="group.length === 0" rounded color="scrim" padding="md xl"
+        :label="t('next')" @click="clickedNext" class="text-subtitle1 text-weight-medium" no-caps />
     </div>
 
     <q-dialog v-model="somethingElseDialogOpened" position="bottom" style="max-width: 600px">

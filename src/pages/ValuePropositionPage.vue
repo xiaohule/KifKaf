@@ -11,7 +11,7 @@
     </div>
 
     <div class="fixed-button pill-shape">
-      <q-btn data-cy="next-button" rounded color="scrim" padding="md xl" :label="t('next')"
+      <q-btn data-cy="next-button-1" rounded color="scrim" padding="md xl" :label="t('next')"
         @click="() => router.push('/onboarding/2')" class="text-subtitle1 text-weight-medium" no-caps />
     </div>
   </q-page>

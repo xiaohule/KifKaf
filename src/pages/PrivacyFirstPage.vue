@@ -23,7 +23,7 @@
     </div>
 
     <div class="fixed-button pill-shape">
-      <q-btn data-cy="next-button" :disable="!ms.privacyCheckboxState" rounded color="scrim" padding="md xl"
+      <q-btn data-cy="next-button-2" :disable="!ms.privacyCheckboxState" rounded color="scrim" padding="md xl"
         :label="t('next')" @click="clickedNext" class="text-subtitle1 text-weight-medium" no-caps />
     </div>
   </q-page>

@@ -15,40 +15,40 @@ describe("Workaround GH actions", () => {
   });
 });
 
-describe.skip("Signing in and out", () => {
-  before(() => {
-    cy.toggleFirebasePersistence();
-  });
-  it("should let the user sign in with email & log out", () => {
-    cy.visit("/");
+// describe.skip("Signing in and out", () => {
+//   before(() => {
+//     cy.toggleFirebasePersistence();
+//   });
+//   it("should let the user sign in with email & log out", () => {
+//     cy.visit("/");
 
-    cy.dataCy("next-button").should("be.visible").click();
-    cy.dataCy("privacy-checkbox").should("be.visible").click();
-    cy.dataCy("next-button").should("be.visible").click();
-    cy.dataCy("user-intention-item").should("be.visible").click();
-    cy.dataCy("next-button").should("be.visible").click();
+//     cy.dataCy("next-button").should("be.visible").click();
+//     cy.dataCy("privacy-checkbox").should("be.visible").click();
+//     cy.dataCy("next-button").should("be.visible").click();
+//     cy.dataCy("user-intention-item").should("be.visible").click();
+//     cy.dataCy("next-button").should("be.visible").click();
 
-    cy.dataCy("log-in-button").should("be.visible").click();
-    cy.contains("email").click();
+//     cy.dataCy("log-in-button").should("be.visible").click();
+//     cy.contains("email").click();
 
-    cy.signIn("a@yopmail.com", "badpassword");
-    cy.contains("Incorrect").should("be.visible");
-    cy.contains("KifKaf").click();
-    cy.dataCy("go-back-button").click();
-    cy.contains("email").click();
+//     cy.signIn("a@yopmail.com", "badpassword");
+//     cy.contains("Incorrect").should("be.visible");
+//     cy.contains("KifKaf").click();
+//     cy.dataCy("go-back-button").click();
+//     cy.contains("email").click();
 
-    cy.signIn("a@yopmail.com", "yopyopyop2");
-    cy.contains("account_circle").click();
-    cy.contains("Log out").click();
-    cy.contains("Cancel").click();
+//     cy.signIn("a@yopmail.com", "yopyopyop2");
+//     cy.contains("account_circle").click();
+//     cy.contains("Log out").click();
+//     cy.contains("Cancel").click();
 
-    cy.contains("Log out").click();
-    cy.withinDialog((el) => {
-      cy.wrap(el).should("contain", "screen");
-      cy.dataCy("logout-button").click();
-    });
-  });
-});
+//     cy.contains("Log out").click();
+//     cy.withinDialog((el) => {
+//       cy.wrap(el).should("contain", "screen");
+//       cy.dataCy("logout-button").click();
+//     });
+//   });
+// });
 
 describe("Navigating sign in screens & Signing up > out > in", () => {
   before(() => {
@@ -68,13 +68,13 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.visit("/", { timeout: 60000 });
 
     //should have working onboarding screens
-    cy.dataCy("next-button").should("be.visible").click();
+    cy.dataCy("next-button-1").should("be.visible").click();
     // cy.dataCy("privacy-checkbox").should("be.visible").check();
     cy.get(".q-checkbox__inner").should("be.visible").click();
-    cy.dataCy("next-button").should("be.visible").click();
+    cy.dataCy("next-button-2").should("be.visible").click();
     cy.dataCy("user-intention-item").first().should("be.visible").click();
     cy.contains("relationships").should("be.visible").click();
-    cy.dataCy("next-button").should("be.visible").click();
+    cy.dataCy("next-button-3").should("be.visible").click();
 
     //should have sign in options, ToS and Contact us
     cy.dataCy("log-in-button").should("be.visible").click();
