@@ -40,7 +40,9 @@
         <q-route-tab name="home" icon="r_edit" :label="t('home')" to="/" class="q-pt-xs q-pb-lg"
           data-cy="insights-home-tab" :ripple="false" />
         <q-route-tab name="insights" icon="r_insights" :label="t('insights')" to="/insights" class="q-pt-xs q-pb-lg"
-          @click="handleInsightsClick" data-cy="insights-insights-tab" :ripple="false" />
+          @click="handleInsightsClick" data-cy="insights-insights-tab" :ripple="false">
+          <q-badge v-show="ms?.userDoc?.showInsightsBadge" color="red" rounded floating />
+        </q-route-tab>
       </q-tabs>
     </q-footer>
 
@@ -60,11 +62,13 @@ import { useMomentsStore } from './../stores/moments.js'
 import { useI18n } from "vue-i18n"
 import datePickerModal from "./../components/datePickerModal.vue";
 import { useDateUtils } from '../composables/dateUtils.js'
+import { date } from 'quasar'
 
 const router = useRouter()
 const ms = useMomentsStore()
 const { t } = useI18n()
-const { getDatePickerLabel } = useDateUtils()
+const { getDatePickerLabel, currentDate } = useDateUtils()
+const { getDateDiff } = date;
 
 const tab = ref('insights')
 const filterDialogOpened = ref(false)
@@ -73,6 +77,15 @@ const filterDialogOpened = ref(false)
 const handleInsightsClick = () => {
   if (router.currentRoute.value.path === '/insights') {
     ms.shouldResetSwiper = true
+    //reset segDateId to Monthly and curent month
+    ms.segDateId = 'Monthly'
+    ms.activeIndex = getDateDiff(currentDate.value, ms.getOldestMomentDate, 'months');
+    //wait few seconds and hide badge with ms.setUserDocValue({ showInsightsBadge: false })
+    if (ms?.userDoc?.showInsightsBadge) {
+      setTimeout(() => {
+        ms.setUserDocValue({ showInsightsBadge: false })
+      }, 3000)
+    }
   }
 }
 </script>

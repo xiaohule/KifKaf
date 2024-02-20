@@ -1,7 +1,7 @@
 import { boot } from "quasar/wrappers";
 import * as SentryVue from "@sentry/vue";
 
-//TODO:3 tree shake sentry https://docs.sentry.io/platforms/javascript/guides/vue/configuration/tree-shaking/?
+//TODO:5 tree shake sentry https://docs.sentry.io/platforms/javascript/guides/vue/configuration/tree-shaking/?
 export default boot(({ app, router }) => {
   if (process.env.MODE !== "capacitor") {
     // console.log("In firebaseBoot, will init Sentry for web");

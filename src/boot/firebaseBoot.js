@@ -209,7 +209,7 @@ const userDocRef = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 try {
   onAuthStateChanged(getFirebaseAuth(), (user) => {
-    // console.log("onAuthStateChanged", user);
+    console.log("onAuthStateChanged, user is:", user);
     currentUser.value = user;
     if (user?.uid) {
       Sentry.setUser({ id: user.uid });
@@ -493,36 +493,43 @@ document.addEventListener("visibilitychange", () => {
 export default boot(({ router }) => {
   //if targeting a route that needs sign in without being signed in, redirect to login
   router.beforeEach((to, from, next) => {
-    // console.log(
-    //   "In router.beforeEach, window.history:",
-    //   window.history,
-    //   "isLoadingAuth.value:",
-    //   isLoadingAuth.value,
-    // );
     if (isLoadingAuth.value) {
       watch(isLoadingAuth, (newValue) => {
         console.log(
           "In router.beforeEach, isLoadingAuth watcher, newValue:",
           newValue,
         );
-        if (!newValue) {
-          // Once loading completes, call this guard recursively.
-          next(to.path);
-        }
+        // Once onAuthStateChanged has completed, call this guard recursively.
+        if (!newValue) next(to.path);
       });
     } else {
-      if (to.meta.requiresAuth && !currentUser.value?.emailVerified) {
+      console.log(
+        "In router.beforeEach, to.fullPath:",
+        to.fullPath,
+        "to.meta.requiresAuth: ",
+        to.meta.requiresAuth,
+        "currentUser.value:",
+        currentUser.value,
+        "!currentUser.value?.emailVerified:",
+        !currentUser.value?.emailVerified,
+        "to.meta.requiresAuth && !currentUser.value?.emailVerified:",
+        to.meta.requiresAuth && !currentUser.value?.emailVerified,
+      );
+      if (
+        !to.meta.requiresAuth ||
+        (currentUser.value && currentUser.value.emailVerified)
+      ) {
         console.log(
-          "In router.beforeEach, NO user yet or email NOT verified, redirected to /welcome?redirect=",
-          to.fullPath,
-        );
-        next({ path: "/welcome", query: { redirect: to.fullPath } });
-      } else {
-        console.log(
-          "In router.beforeEach, no redirection, going to",
+          "In router.beforeEach, !to.meta.requiresAuth OR currentUser exist and has emailVerified, so no redirection needed, going to",
           to.fullPath,
         );
         next();
+      } else {
+        console.log(
+          "In router.beforeEach, to.meta.requiresAuth AND (NO user yet OR email NOT verified), redirecting to /onboarding/1?redirect=",
+          to.fullPath,
+        );
+        next({ path: "/onboarding/1", query: { redirect: to.fullPath } });
       }
     }
   });
@@ -537,7 +544,8 @@ export default boot(({ router }) => {
     if (
       tabRoutes.includes(from.path) &&
       !tabRoutes.includes(to.path) &&
-      to.path !== "/welcome"
+      to.path !== "/welcome" &&
+      to.path !== "/onboarding/1"
     ) {
       // If coming from a tab route and not going to one, slide new comp in
       to.meta.transition = "slide-in";
@@ -570,12 +578,30 @@ export default boot(({ router }) => {
       // If going to settings, slide old comp out
       to.meta.transition = "slide-out";
       // console.log("In router.afterEach6");
+    } else if (
+      (from.path === "/welcome" && to.path === "/login") ||
+      (from.path === "/onboarding/3" && to.path === "/welcome")
+    ) {
+      // If going onboarding/3>welcome>login, slide old comp out
+      to.meta.transition = "slide-in";
+    } else if (from.path === "/login" && to.path === "/welcome") {
+      // If coming from welcome, slide new comp in
+      to.meta.transition = "slide-out";
+    } else if (to.path === "/onboarding/1") {
+      to.meta.transition = "";
     } else {
       const toDepth = to.path.split("/").length;
       const fromDepth = from.path.split("/").length;
       // if going to children route, slide new comp in, if going to parent route, slide old comp out
       if (toDepth > fromDepth) to.meta.transition = "slide-in";
       else if (toDepth < fromDepth) to.meta.transition = "slide-out";
+      else {
+        //get the last part of the path and compare (it will be numbers like in onboarding/1, onboarding/2, etc...) if number is higher, slide in, if lower, slide out
+        const toLastPart = to.path.split("/").pop();
+        const fromLastPart = from.path.split("/").pop();
+        if (toLastPart > fromLastPart) to.meta.transition = "slide-in";
+        else if (toLastPart < fromLastPart) to.meta.transition = "slide-out";
+      }
       // console.log("In router.afterEach7");
     }
 
@@ -583,6 +609,9 @@ export default boot(({ router }) => {
       "In router.afterEach, to.meta.transition set to",
       to.meta.transition,
     );
+
+    // Set current screen for Firebase analytics
+    setCurrentScreen(to.path);
   });
 
   // Call httpRetryHandler during app initialization

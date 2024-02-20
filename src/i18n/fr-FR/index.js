@@ -5,12 +5,33 @@ export default {
   privacyPolicyPage,
   tosPage,
   filepaths: {
-    screenshot1: "/screenshot1_fr.webp",
-    screenshot2: "/screenshot2_fr.webp",
-    screenshot3: "/screenshot3_fr.webp",
-    screenshot4: "/screenshot4_fr.webp",
-    screenshot5: "/screenshot5_fr.webp",
+    screenshot1: "/screenshot1_6.5_fr.webp",
+    screenshot2: "/screenshot2_6.5_fr.webp",
+    screenshot3: "/screenshot3_6.5_fr.webp",
+    screenshot4: "/screenshot4_6.5_fr.webp",
+    screenshot5: "/screenshot5_6.5_fr.webp",
   },
+  kifkaf: "KifKaf",
+  valuePropHtml:
+    "Comprenez ce dont <b><i>vous</i></b> avez besoin pour une vie plus épanouie.",
+  next: "Suivant",
+  privacyFirst: "La confidentialité avant tout",
+  privacyFirstText:
+    "KifKaf est uniquement pour vous et votre épanouissement personnel.<br>Votre journal est privé et sécurisé.<br>Nous ne vendrons jamais vos données à quiconque.",
+  iAgreeToThe: "J'accepte la",
+  andThe: "et les",
+  whatsOnYourMind: "Qu'avez-vous en tête ?",
+  iWantTo: "Je veux...",
+  yourChoicesWont:
+    "Vos choix ne limiteront aucunement votre expérience sur l'app.",
+  whatDoYouHope: "Qu'espérez-vous améliorer avec KifKaf ?",
+  beMoreFulFilled: "Être plus épanoui·e",
+  understandMyNeeds: "Connaître et prendre soin de mes besoins",
+  improveRelationships: "Améliorer mes relations aux autres",
+  manageEmotions: "Mieux gérer mes émotions",
+  keepTrackEmotions: "Garder une trace de mes émotions",
+  makeWiserLifeDecisions: "Faire des choix de vie plus avisés", //éclairés
+  somethingElse: "Autre chose",
   login: "Se connecter",
   loginToKifKaf: "Se connecter à KifKaf",
   continueWithGoogle: "Continuer avec Google",
@@ -106,13 +127,13 @@ export default {
   welcomeTutorial: {
     title: "Bienvenue sur KifKaf",
     step1:
-      "Capturez vos émotions quand elles surgissent. Votre journal est privé et sécurisé, accessible uniquement à vous.", //TODO:6 ajouter un slide ou mettre double dose sur confidentialité
+      "Capturez vos émotions quand elles surgissent. Votre journal est privé et sécurisé, accessible uniquement à vous.", //TODO:3 ajouter un slide ou mettre double dose sur confidentialité
     step1Action: "Capturer une émotion", //capturez/saisissez/enregistrez/notez Captez/Consignez//immortalisez///documentez/collectez
     dummyMoment:
       "Super enthousiaste à l'idée de mieux me connaître avec KifKaf !", //Hâte de mieux me comprendre en utilisant KifKaf !"
     step1DoneTitle: "Première émotion capturée",
     step1DoneText:
-      "Les émotions sont le langage de votre corps. Prendre le temps de les entendre et les noter est un grand pas vers une meilleure compréhension de vous-même." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie !"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:6 clarifier et différencier de step2DoneText
+      "Les émotions sont le langage de votre corps. Prendre le temps de les entendre et les noter est un grand pas vers une meilleure compréhension de vous-même." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie !"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:3 clarifier et différencier de step2DoneText
     step2:
       "Pour chaque moment de votre journal, KifKaf identifie les besoins associés et leur degré de satisfaction.",
     step2Action: "Voir les besoins",
@@ -128,7 +149,7 @@ export default {
       "Préparation de vos éclairages en cours. Cela prend environ 2 min. | Dès 3 moments dans votre journal, KifKaf vous propose de premiers éclairages. Plus qu'un moment pour les générer. | Dès 3 moments dans votre journal, KifKaf vous propose de premiers éclairages. Plus que {count} moments pour les générer.",
     step3Ready: "👇 Vos éclairages sont prêts ! 👇",
     step3Action: "Explorer",
-    step3DoneTitle: "Tout est prêt !", //TODO:6 s'assurer que tt est dégenré, et avoir des CTA clair et vendre les bénéfices du produit et non le produit lui-même
+    step3DoneTitle: "Tout est prêt !", //TODO:4 avoir des CTA clair et vendre les bénéfices du produit et non le produit lui-même
     step3DoneText:
       "Capturez régulièrement vos émotions pour affiner les éclairages apportés par KifKaf. Bientôt, vous n'aurez plus de secrets pour vous-même.",
     complete: "terminé | terminés",

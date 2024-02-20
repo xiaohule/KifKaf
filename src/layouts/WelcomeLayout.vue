@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpr fFf" class="bg-primary">
+  <q-layout view="hHh lpr fFf" class="bg-background">
 
     <q-page-container>
       <router-view v-slot="{ Component }">
@@ -14,9 +14,9 @@
 </script>
 
 <style scoped lang="scss">
-.q-page-container {
-  padding-top: 0px !important;
-}
+// .q-page-container {
+//   padding-top: 0px !important;
+// }
 </style>
 
 

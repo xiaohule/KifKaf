@@ -1,34 +1,17 @@
 <template>
-  <q-page class="q-mx-auto" style="max-width: 600px; position: relative;">
+  <q-page>
 
-    <!-- <q-header class="bg-transparent overlay-header">
-      <q-toolbar>
-        <q-avatar size="sm" square>
-          <img src="icon-kifkaf-no-background.svg" />
-        </q-avatar>
-        <q-toolbar-title class="text-on-surface text-subtitle1 text-weight-medium
-">Welcome to KifKaf</q-toolbar-title>
-      </q-toolbar>
-    </q-header> -->
+    <StoriesSlider :swiper="Swiper" :enabled="true" :autoplay-duration="5000" @slidesIndexesChange="onSlidesIndexesChange"
+      @storiesSlider="onStoriesSlider" @end="onEnd">
+      <Stories v-for="(userStories, userStoriesIndex) in storiesData" :key="userStoriesIndex">
+        <Story v-for="(story, storyIndex) in userStories.stories" :key="storyIndex" user-link="#"
+          :name="'Welcome to KifKaf'" close-button @closeButtonClick="onCloseButtonClick">
+          <img :src="story.image" />
+        </Story>
+      </Stories>
+    </StoriesSlider>
 
-    <!-- pagination-clickable="true"  class="mySwiper" navigation="true" space-between="30"-->
-    <swiper-container :pagination="true" :centered-slides="true" autoplay-delay="5000"
-      :autoplay-pause-on-mouse-enter="true" :grab-cursor="true" :autoplay-disable-on-interaction="false">
-      <!-- /screenshot1.png -->
-      <swiper-slide> <img :src="t('filepaths.screenshot1')"
-          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
-      <swiper-slide> <img :src="t('filepaths.screenshot2')"
-          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
-      <swiper-slide> <img :src="t('filepaths.screenshot3')"
-          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
-      <swiper-slide> <img :src="t('filepaths.screenshot4')"
-          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
-      <swiper-slide> <img :src="t('filepaths.screenshot5')"
-          style="width: auto; height: 80%; border-radius: 18px; margin-top:-68px" /></swiper-slide>
-      <!-- <swiper-slide> <img src="https://swiperjs.com/demos/images/nature-3.jpg" /></swiper-slide> -->
-    </swiper-container>
-
-    <div class="fixed-buttons">
+    <div class="fixed-login-button">
       <!-- max-width: 300px; -->
       <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" :label="t('login')"
         @click="() => router.push('/login')" class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
@@ -37,105 +20,97 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, watch } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { currentUser } from "../boot/firebaseBoot.js";
+import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
+import Swiper from 'swiper';
+import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
+import 'src/assets/stories-slider/stories-slider.scss';
+import 'src/assets/stories-slider/main.scss';
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const to =
-  route.query.redirect && typeof route.query.redirect === 'string'
-    ? route.query.redirect
-    : '/'
-let checkEmailVerifiedInterval; // Declare variable to store the interval ID
+const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 onMounted(() => {
-  watch(currentUser, (newVal, oldVal) => {
-    console.log('In Welcome page, watch currentUser');
-    // console.log('In Welcome page, watch currentUser:', newVal, ", replaced:", oldVal);
-
-    if (newVal) {
-      // User is signed in.
-      if (newVal.emailVerified) {
-        // User's email is already verified. Redirect to expected page.
-        console.log("In welcomePage, User's email is already verified. Redirecting to", to);
-        router.push(to);
+  openUserStories(0);
+  if (storiesSlider) {
+    // when slider became hidden we need to remove "in" and "out" class to return it initial state
+    storiesSlider.el.addEventListener('animationend', () => {
+      if (storiesSlider.el.classList.contains('stories-slider-out')) {
+        storiesSlider.el.classList.remove('stories-slider-in');
+        storiesSlider.el.classList.remove('stories-slider-out');
       }
-      else {
-        checkEmailVerifiedInterval = setInterval(async () => {
-          await newVal.reload();
-          console.log("user reload completed.");
-          if (newVal.emailVerified) {
-            console.log("User's email is now verified. Redirecting to", to);
-            clearInterval(checkEmailVerifiedInterval); // Clear the interval
-            router.push(to);
-          }
-        }
-          , 300)
-      }
-    }
-  }, { immediate: true });
+    });
+  }
 })
 
 onUnmounted(() => {
-  console.log("Unmounting Login page...");
-  if (checkEmailVerifiedInterval) {
-    clearInterval(checkEmailVerifiedInterval);
-  }
+  stopUserVerificationCheck();
 });
+
+let storiesSlider = null;
+
+const openUserStories = (userIndex) => {
+  // add "in" class (used in demo for animated appearance)
+  storiesSlider.el.classList.add('stories-slider-in');
+  // enable slider (as we passed enabled: false initially)
+  storiesSlider.enable();
+  // slide to specific user's stories
+  storiesSlider.slideTo(userIndex, 0);
+};
+
+const onCloseButtonClick = () => {
+  // disable slider as we don't need it autoplay stories while it is hidden
+  storiesSlider.disable();
+  // add "out" class (used in demo for animated disappearance)
+  storiesSlider.el.classList.add('stories-slider-out');
+  router.push('/login');
+};
+
+// stories data
+const storiesData = [
+  {
+    stories: [
+      {
+        image: t('filepaths.screenshot1'),
+      },
+      {
+        image: t('filepaths.screenshot2'),
+      },
+      {
+        image: t('filepaths.screenshot3'),
+      },
+      {
+        image: t('filepaths.screenshot4'),
+      },
+      {
+        image: t('filepaths.screenshot5'),
+      },
+    ],
+  },
+];
+
+const onStoriesSlider = (instance) => {
+  storiesSlider = instance;
+};
+
+const onSlidesIndexesChange = (mainIndex, subIndex) => {
+  console.log({ mainIndex, subIndex });
+};
+
+const onEnd = () => {
+  // slide to the first story when the last story ended
+  storiesSlider.slideTo(0, 0);
+};
+
 </script>
 
 <style scoped lang="scss">
-swiper-container {
-  width: 100%;
-  // height: 100%;
-  height: 100vh; // This will make the container fill the entire height of the screen
-  --swiper-pagination-color: #000;
-  // --swiper-pagination-left: auto;
-  // --swiper-pagination-right: 8px;
-  --swiper-pagination-bottom: 15px;
-  // --swiper-pagination-top: auto;
-  // --swiper-pagination-fraction-color: inherit;
-  // --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
-  // --swiper-pagination-progressbar-size: 4px;
-  --swiper-pagination-bullet-size: 12px;
-  // --swiper-pagination-bullet-width: 8px;
-  // --swiper-pagination-bullet-height: 8px;
-  // --swiper-pagination-bullet-inactive-color: #000;
-  // --swiper-pagination-bullet-inactive-opacity: 0.2;
-  // --swiper-pagination-bullet-opacity: 1;
-  // --swiper-pagination-bullet-horizontal-gap: 4px;
-  // --swiper-pagination-bullet-vertical-gap: 6px;
-}
-
-swiper-slide {
-  text-align: center;
-  font-size: 18px;
-  // background: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%; // This will make the slide fill the container's height
-}
-
-swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.overlay-header {
-  position: absolute; // Set the header to an absolute position
-  top: 0; // Position it at the top
-  left: 0; // Position it on the left
-  right: 0; // Stretch it to the right, making it full width
-  z-index: 2; // Optional: make sure the header overlays the swiper content
-}
-
-.fixed-buttons {
+.fixed-login-button {
   position: fixed;
   bottom: 5%;
   left: 50%;
@@ -143,10 +118,7 @@ swiper-slide img {
   width: 100%;
   max-width: 600px;
   display: flex;
-  z-index: 2; // to ensure it's above other content if needed
-  // justify-content: space-around; // evenly space the buttons
-  // bottom: 0; // position at the bottom of the page
-  // padding: 6vh 0;
+  z-index: 1500; // to ensure it's above other content if needed
 }
 </style>
 

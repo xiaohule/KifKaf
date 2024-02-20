@@ -60,7 +60,6 @@
             v-html="ms.aggDataInsights[ms.activeDateRange].quote.author"></span>
         </q-item-section>
         <q-item-section class="selectable-text" v-else><span>{{ placeholderQuote }}</span>
-          <!-- TODO:6 i18n -->
           <span class="text-caption text-outline">{{
             placeholderQuoteAuthor }}</span></q-item-section>
         <q-item-section side>
@@ -121,7 +120,6 @@
                 { label: t('all'), value: 'importance' }
               ]" />
             <div v-if="ms.needsToggleModel === 'top'">
-              <!-- TODO:6 i18n -->
               <top-item top-type="satisfier" />
               <top-item top-type="dissatisfier" />
               <top-item v-if="ms.prevDateRange" top-type="gainer" />
@@ -279,6 +277,7 @@ import momentModal from 'src/components/momentModal.vue'
 import whyModal from 'src/components/whyModal.vue'
 import learnMoreModal from 'src/components/learnMoreModal.vue'
 import { useDateUtils } from '../composables/dateUtils.js'
+import { logEvent } from 'src/boot/firebaseBoot';
 
 const ms = useMomentsStore()
 const { t } = useI18n()
@@ -386,6 +385,7 @@ const onIntersection = (section, YYYYdMM) => {
       // Add a slight delay for smoother transition
       setTimeout(async () => {
         await ms.setAggDataInsightsValue(YYYYdMM, { isNew: { [section]: false } });
+        logEvent('insights_' + section + '_seen');
         if (YYYYdMM !== currentYYYYdMM) {
           await ms.fetchAggDataInsights(true);
         }

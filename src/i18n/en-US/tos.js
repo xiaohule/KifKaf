@@ -83,14 +83,11 @@ export default {
       <p>The Service includes content sourced from various creators and platforms. We would like to extend our
         gratitude to the following contributors for their valuable additions:</p>
       <ul>
-        <li><a href="https://www.freepik.com/free-vector/water-bubbles-background-design_1171662.htm">Image by
-            pinnacleanimates</a> on Freepik
-        </li>
-        <li>Image by <a href="https://www.freepik.com/free-vector/notebook-mockup_726387.htm">Freepik</a>
-        </li>
-        <li><a
-            href="https://www.freepik.com/free-vector/abstract-vector-colorful-mesh-dark-background-futuristic-style-card-elegant-background-business-presentations-corrupted-point-sphere-chaos-aesthetics_22421018.htm#&position=4&from_view=author&uuid=63844ca8-19c6-4994-b873-c9e3a865dbf8">Image
-            by GarryKillian</a> on Freepik</li>
+        <li><a href="https://www.freepik.com/free-vector/water-bubbles-background-design_1171662.htm">Image by pinnacleanimates</a> on Freepik</li>
+        <li>Image by <a href="https://www.freepik.com/free-vector/notebook-mockup_726387.htm">Freepik</a></li>
+        <li><a href="https://www.freepik.com/free-vector/abstract-vector-colorful-mesh-dark-background-futuristic-style-card-elegant-background-business-presentations-corrupted-point-sphere-chaos-aesthetics_22421018.htm#&position=4&from_view=author&uuid=63844ca8-19c6-4994-b873-c9e3a865dbf8">Image by GarryKillian</a> on Freepik</li>
+        <li>Image by <a href="https://www.freepik.com/free-vector/pack-shields-silhouettes-with-natural-ornaments_1070605.htm#query=shield&position=15&from_view=search&track=sph&uuid=9725b65a-d77b-44b8-b6b9-fa467b108119">Freepik</a></li>
+        <li><a href="https://www.freepik.com/free-vector/padlock-set_5894629.htm#query=lock&position=9&from_view=search&track=sph&uuid=949fa5a6-3883-4e8f-9daa-0bdb03fc2bed">Image by studiogstock</a> on Freepik</li>
       </ul>
 
       <br />

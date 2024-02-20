@@ -243,9 +243,10 @@
         </q-card-section>
         <q-separator />
         <q-card-actions align="right">
-          <q-btn flat rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup no-caps />
-          <q-btn flat rounded data-cy="logout-button" :label="t('logout')" color="primary" v-close-popup @click="logOut"
-            no-caps />
+          <q-btn rounded unelevated :label="t('cancel')" text-color="primary" color="primary-container" padding="sm xl"
+            v-close-popup no-caps />
+          <q-btn rounded unelevated data-cy="logout-button" :label="t('logout')" text-color="surface" color="primary"
+            padding="sm xl" v-close-popup @click="logOut" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -259,8 +260,10 @@
           {{ t('deleteAccountText') }}
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup no-caps />
-          <q-btn flat rounded :label="t('deleteAccount')" color="primary" v-close-popup @click="deleteAccount" no-caps />
+          <q-btn rounded unelevated="" :label="t('cancel')" text-color="surface" color="primary" padding="sm xl"
+            v-close-popup no-caps />
+          <q-btn rounded unelevated :label="t('deleteAccount')" text-color="primary" color="primary-container"
+            padding="sm xl" v-close-popup @click="deleteAccount" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>

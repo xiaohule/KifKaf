@@ -34,7 +34,9 @@
         <q-route-tab name="home" icon="r_edit" :label="t('home')" to="/" class="q-pt-xs q-pb-lg" @click="handleHomeClick"
           data-cy="home-home-tab" :ripple="false" />
         <q-route-tab name="insights" icon="r_insights" :label="t('insights')" to="/insights" class="q-pt-xs q-pb-lg"
-          data-cy="home-insights-tab" @click="ms.setUserDocValue({ showInsightsBadge: false })" :ripple="false">
+          data-cy="home-insights-tab" @click="() => {
+            if (ms?.userDoc?.showInsightsBadge) ms.setUserDocValue({ showInsightsBadge: false })
+          }" :ripple="false">
           <q-badge v-show="ms?.userDoc?.showInsightsBadge" color="red" rounded floating />
         </q-route-tab>
       </q-tabs>

@@ -91,10 +91,10 @@
         <q-card-section class="q-pt-none text-outline">
           {{ t('deleteMomentText') }} </q-card-section>
         <q-card-actions align="around">
-          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" rounded :label="t('cancel')" color="primary"
-            padding="sm xl" v-close-popup no-caps />
-          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" flat rounded :label="t('delete')" color="primary"
-            padding="sm xl" v-close-popup no-caps @click="deleteMoment" />
+          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" rounded unelevated :label="t('cancel')"
+            text-color="primary" color="primary-container" padding="sm xl" v-close-popup no-caps />
+          <q-btn class="text-body1 text-weight-medium q-ma-sm q-mb-lg" rounded :label="t('delete')" text-color="surface"
+            color="primary" padding="sm xl" v-close-popup no-caps @click="deleteMoment" />
         </q-card-actions>
       </q-card>
     </q-dialog>

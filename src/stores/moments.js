@@ -4,11 +4,13 @@ import {
   doc,
   writeBatch,
   setDoc,
+  addDoc,
   getDoc,
   getDocs,
   onSnapshot,
   query,
   increment,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed, watch } from "vue";
@@ -72,6 +74,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
+  const fetchUserLock = ref(false);
   const userFetched = ref(false);
   const momentsCollRef = ref(null);
   const momentsColl = ref([]);
@@ -88,6 +91,11 @@ export const useMomentsStore = defineStore("moments", () => {
   const needsToggleModel = ref("top");
   const activeIndex = ref(null);
   const segDateId = ref("Monthly");
+  const privacyCheckboxState = ref(false);
+  const privacyPolicyConsent = ref(null);
+  const termsOfServiceConsent = ref(null);
+  const consentsCollRef = ref(null);
+  const userIntentions = ref(null);
 
   const activeDateRange = computed(() => {
     console.log(
@@ -333,19 +341,27 @@ export const useMomentsStore = defineStore("moments", () => {
   });
 
   const fetchUser = async () => {
+    console.log("In moments.js, In fetchUser");
+
+    if (
+      userFetched.value ||
+      fetchUserLock.value ||
+      !user.value ||
+      !user.value.uid
+    ) {
+      console.log(
+        "In moments.js > fetchUser, returning as userFetched:",
+        userFetched.value,
+        "fetchUserLock:",
+        fetchUserLock.value,
+        "user:",
+        user.value,
+      );
+      return;
+    }
+    fetchUserLock.value = true; // Set the lock
+
     try {
-      console.log("In moments.js, In fetchUser");
-      if (userFetched.value) {
-        console.log("In moments.js, In fetchUser, already userFetched");
-        return;
-      }
-
-      // Check if user exists and has a uid property
-      if (!user.value || !user.value.uid) {
-        console.log("In moments.js, failed to fetch user or user.uid");
-        return;
-      }
-
       // Check if user doc exists, if not create & initialize it, BEWARE this way of doing means that if we add new field to the user doc data model a script/manual update should be run to add it to existing users (but it's better than the alternative of transactional write for offline)
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       momentsCollRef.value = collection(userDocRef.value, "moments");
@@ -354,41 +370,79 @@ export const useMomentsStore = defineStore("moments", () => {
         "aggregateMonthly",
       );
       aggYearlyCollRef.value = collection(userDocRef.value, "aggregateYearly");
+      consentsCollRef.value = collection(userDocRef.value, "consents");
 
-      try {
-        const userDocCheck = await getDoc(userDocRef.value);
-        if (
-          !userDocCheck.exists() ||
-          !userDocCheck.data().hasOwnProperty("showWelcomeTutorial")
-        ) {
-          console.log(
-            "In moments.js > fetchUser, User doc not initialized, initializing it",
-          );
-          const defaultUserDocValues = {
-            hasNeeds: false,
-            welcomeTutorialStep: 0,
-            showWelcomeTutorial: true,
-            showInsightsBadge: false,
-            momentsCount: 0,
-            momentsWithNeedsCount: 0,
-            momentsDeletedCount: 0,
-          };
-          await setDoc(userDocRef.value, defaultUserDocValues, {
-            merge: true,
-          });
-        }
-      } catch (error) {
-        console.log("In moments.js > fetchUser, getDoc failed: ", error);
+      const userDocCheck = await getDoc(userDocRef.value);
+      if (
+        !userDocCheck.exists() ||
+        !userDocCheck.data().hasOwnProperty("showWelcomeTutorial")
+      ) {
+        console.log(
+          "In moments.js > fetchUser, User doc not initialized, initializing it",
+        );
+        // TODO:8 it seems that some values are reset although they should not be, e.g. showWelcomeTutorial, showInsightsBadge -> only set if not already set OR make this secure
+        const defaultUserDocValues = {
+          hasNeeds: false,
+          welcomeTutorialStep: 0,
+          showWelcomeTutorial: true,
+          showInsightsBadge: false,
+          momentsCount: 0,
+          momentsWithNeedsCount: 0,
+          momentsDeletedCount: 0,
+        };
+        await setDoc(userDocRef.value, defaultUserDocValues, {
+          merge: true,
+        });
       }
 
       onSnapshot(userDocRef.value, (snapshot) => {
         userDoc.value = snapshot.data();
       });
-
       userFetched.value = true;
       console.log("In moments.js, userFetched true");
+
+      //anonymous onboarding data saving
+      if (privacyPolicyConsent.value) {
+        privacyPolicyConsent.value.acceptedAt = serverTimestamp();
+        await addDoc(consentsCollRef.value, privacyPolicyConsent.value);
+        console.log(
+          "In moments.js > fetchUser, privacyPolicyConsent saved:",
+          privacyPolicyConsent.value,
+        );
+        privacyPolicyConsent.value = null;
+      }
+      if (termsOfServiceConsent.value) {
+        termsOfServiceConsent.value.acceptedAt = serverTimestamp();
+        await addDoc(consentsCollRef.value, termsOfServiceConsent.value);
+        console.log(
+          "In moments.js > fetchUser, termsOfServiceConsent saved:",
+          termsOfServiceConsent.value,
+        );
+        termsOfServiceConsent.value = null;
+      }
+      if (userIntentions.value.length > 0) {
+        await setDoc(
+          userDocRef.value,
+          { userIntentions: userIntentions.value },
+          { merge: true },
+        );
+        userIntentions.value.forEach((userIntention) => {
+          if (userIntention.startsWith("somethingElse:")) {
+            setUserProperty(
+              `userIntention_somethingElse`,
+              userIntention.slice(14),
+            );
+          } else {
+            setUserProperty(`userIntention_${userIntention}`, true);
+          }
+        });
+        logEvent("user_property_set", { userIntentions: userIntentions.value });
+        userIntentions.value = null;
+      }
     } catch (error) {
       console.log("Error in fetchUser", error);
+    } finally {
+      fetchUserLock.value = false; // Release the lock
     }
   };
 
@@ -582,7 +636,7 @@ export const useMomentsStore = defineStore("moments", () => {
       );
       console.log("In deleteMoment", response.data);
       await fetchAggDataNeeds(true /*force*/); //to get the aggDataNeeds update if older period
-      // TODO:4 this is a bit overkill, we could just update the relevant aggregate docs
+      // TODO:2 this is a bit overkill, we could just update the relevant aggregate docs
       // Notify.create("Insights recalculation complete.");
     } catch (error) {
       console.log("Error in deleteMoment", error);
@@ -851,6 +905,7 @@ export const useMomentsStore = defineStore("moments", () => {
             await setUserDocValue({
               showInsightsBadge: router.currentRoute.value.path !== "/insights",
             });
+            logEvent("insights_updated");
           }
         },
       );
@@ -1038,6 +1093,7 @@ export const useMomentsStore = defineStore("moments", () => {
     user.value = null;
     userDocRef.value = null;
     userDoc.value = null;
+    fetchUserLock.value = false;
     userFetched.value = false;
     momentsCollRef.value = null;
     momentsColl.value = [];
@@ -1054,10 +1110,18 @@ export const useMomentsStore = defineStore("moments", () => {
     activeIndex.value = null;
     segDateId.value = "Monthly";
     pickedDateYYYYsMMsDD.value = formatDate(currentDate.value, "YYYY/MM/DD");
+    consentsCollRef.value = null;
+    privacyPolicyConsent.value = null;
+    termsOfServiceConsent.value = null;
+    userIntentions.value = null;
   }
 
   return {
     user,
+    privacyCheckboxState,
+    privacyPolicyConsent,
+    termsOfServiceConsent,
+    userIntentions,
     userDoc,
     userFetched,
     momentsFetched,

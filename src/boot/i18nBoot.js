@@ -59,6 +59,7 @@ export const i18n = createI18n({
   datetimeFormats,
   missingWarn: false,
   fallbackWarn: false,
+  warnHtmlMessage: false,
 });
 
 export default boot(({ app }) => {

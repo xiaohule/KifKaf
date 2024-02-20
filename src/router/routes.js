@@ -58,6 +58,26 @@ const routes = [
     children: [{ path: "", component: () => import("pages/WelcomePage.vue") }],
   },
   {
+    path: "/onboarding",
+    component: () => import("layouts/WelcomeLayout.vue"),
+    children: [
+      { path: "1", component: () => import("pages/ValuePropositionPage.vue") },
+    ],
+  },
+  {
+    path: "/onboarding",
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    children: [
+      {
+        name: "PrivacyFirstPage",
+        path: "2",
+        component: () => import("pages/PrivacyFirstPage.vue"),
+      },
+      { path: "3", component: () => import("pages/UserIntentionsPage.vue") }, //TODO:6 add skip button
+      // { path: "4", component: () => import("pages/ReminderSettingPage.vue") },
+    ],
+  },
+  {
     path: "/login",
     // component: () => import("layouts/GoBackTitleLayout.vue"),
     component: () => import("layouts/GoBackTitleLayout.vue"),

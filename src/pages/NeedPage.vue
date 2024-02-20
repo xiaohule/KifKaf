@@ -153,11 +153,11 @@ watch(
 // }
 // )
 
-// //TODO:4 define elsewhere, outside of your component's setup function. This ensures the plugin is defined once and not re-created on each component re-render.
+// //TODO:0 define elsewhere, outside of your component's setup function. This ensures the plugin is defined once and not re-created on each component re-render.
 // const plugin = {
 //   id: 'doughnut_chart_background',
 //   beforeDraw: (chart) => {
-//     // TODO:2 understand why this plugin is called multiple times on opening of need page does it has a performance impact?
+//     // TODO:0 understand why this plugin is called multiple times on opening of need page does it has a performance impact?
 //     // console.log('In NeedPage donutChart > plugin beforeDraw chart:', chart);
 //     const { ctx, width, height } = chart
 //     const { innerRadius } = chart.getDatasetMeta(chart.data.datasets.length - 1).controller

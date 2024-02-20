@@ -77,7 +77,7 @@
             (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
           ]">{{ formatDayForMomList(day, false, t, d) }}</div>
           <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
-            <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
+            <div v-for="moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
               class="q-px-none q-py-sm" style="min-height: 0px;"
               @click="momentModalId = moment.id; momentModalOpened = true">
 

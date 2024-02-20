@@ -47,7 +47,7 @@
         </q-card-section>
         <q-card-actions align="center">
           <q-btn rounded :label="t('gotIt')" color="primary" class="full-width" padding="md" no-caps
-            @click="() => router.push('/welcome')" v-close-popup />
+            @click="() => router.push('/onboarding/1')" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -137,7 +137,7 @@ const handleOnline = async () => {
     }
     else {
       //if other error then it's very likely user is already deleted but page was refreshed, so move to welcome page
-      router.push('/welcome');
+      router.push('/onboarding/1');
     }
     //TODO:1 reauthentication needed to get ms.userCredentials
     // console.log("in handleOnline, currentUser.value:", currentUser.value);
