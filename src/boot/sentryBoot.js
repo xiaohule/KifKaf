@@ -23,8 +23,8 @@ export default boot(({ app, router }) => {
       // Performance Monitoring
       tracesSampleRate: 0.5, // Capture x% of the transactions
       // Session Replay
-      replaysSessionSampleRate: 0.2, // This sets the sample rate at x%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-      replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+      replaysSessionSampleRate: 0.1, // This sets the sample rate at x%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+      replaysOnErrorSampleRate: 0.7, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
       tracePropagationTargets: [
         // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
         "localhost",
@@ -63,8 +63,8 @@ export default boot(({ app, router }) => {
             // Performance Monitoring
             tracesSampleRate: 0.5, // Capture x% of the transactions
             // Session Replay
-            replaysSessionSampleRate: 0.2, // This sets the sample rate at x%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-            replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+            replaysSessionSampleRate: 0.1, // This sets the sample rate at x%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+            replaysOnErrorSampleRate: 0.7, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
             tracePropagationTargets: [
               // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
               "localhost",
