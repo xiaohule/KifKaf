@@ -71,9 +71,11 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.dataCy("next-button-1").should("be.visible").click();
     // cy.dataCy("privacy-checkbox").should("be.visible").check();
     cy.get(".q-checkbox__inner").should("be.visible").click();
+    cy.wait(1000);
     cy.dataCy("next-button-2").should("be.visible").click();
     cy.dataCy("user-intention-item").first().should("be.visible").click();
     cy.contains("relationships").should("be.visible").click();
+    cy.wait(1000);
     cy.dataCy("next-button-3").should("be.visible").click();
 
     //should have sign in options, ToS and Contact us
