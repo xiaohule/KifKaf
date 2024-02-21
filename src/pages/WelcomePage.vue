@@ -1,8 +1,8 @@
 <template>
   <q-page>
 
-    <StoriesSlider :swiper="Swiper" :enabled="true" :autoplay-duration="5000" @slidesIndexesChange="onSlidesIndexesChange"
-      @storiesSlider="onStoriesSlider" @end="onEnd">
+    <StoriesSlider :swiper="Swiper" :enabled="false" :autoplay-duration="5000"
+      @slidesIndexesChange="onSlidesIndexesChange" @storiesSlider="onStoriesSlider" @end="onEnd">
       <Stories v-for="(userStories, userStoriesIndex) in storiesData" :key="userStoriesIndex">
         <Story v-for="(story, storyIndex) in userStories.stories" :key="storyIndex" user-link="#"
           :name="'Welcome to KifKaf'" close-button @closeButtonClick="onCloseButtonClick">
