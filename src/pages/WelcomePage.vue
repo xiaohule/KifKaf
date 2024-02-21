@@ -26,9 +26,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { currentUser } from "../boot/firebaseBoot.js";
 import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
 // import Swiper from 'swiper';
-// import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
-import 'src/assets/stories-slider/stories-slider.scss';
-import 'src/assets/stories-slider/main.scss';
+import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
+// import 'src/assets/stories-slider/stories-slider.scss';
+// import 'src/assets/stories-slider/main.scss';
 
 const { t } = useI18n();
 const route = useRoute();
