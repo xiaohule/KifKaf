@@ -48,6 +48,7 @@ jobs:
           # build: npm run build
           start: npm run api, npm start
           browser:
+            firefox
             # comment for electron mode or try firefox/chrome
             # headed: true
           wait-on: "http://localhost:3000, http://localhost:9200"
