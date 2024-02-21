@@ -25,8 +25,8 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { currentUser } from "../boot/firebaseBoot.js";
 import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
-// import Swiper from 'swiper';
-import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
+import Swiper from 'swiper';
+// import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
 // import 'src/assets/stories-slider/stories-slider.scss';
 // import 'src/assets/stories-slider/main.scss';
 
