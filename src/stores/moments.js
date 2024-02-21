@@ -420,7 +420,7 @@ export const useMomentsStore = defineStore("moments", () => {
         );
         termsOfServiceConsent.value = null;
       }
-      if (userIntentions.value.length > 0) {
+      if (userIntentions.value?.length > 0) {
         await setDoc(
           userDocRef.value,
           { userIntentions: userIntentions.value },

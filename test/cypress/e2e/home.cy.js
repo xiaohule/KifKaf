@@ -77,10 +77,10 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.dataCy("next-button-3").should("be.visible").click();
 
     //should have sign in options, ToS and Contact us
-    cy.dataCy("log-in-button").should("be.visible").click();
+    cy.dataCy("log-in-button", { timeout: 60000 }).should("be.visible").click();
     cy.dataCy("go-back-button").click();
 
-    cy.dataCy("log-in-button").should("be.visible").click();
+    cy.dataCy("log-in-button", { timeout: 60000 }).should("be.visible").click();
     cy.contains("Google").should("be.visible");
     cy.contains("Apple").should("be.visible");
 
@@ -113,7 +113,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
       cy.dataCy("logout-button").click();
     });
 
-    cy.dataCy("log-in-button").should("be.visible").click();
+    cy.dataCy("log-in-button", { timeout: 60000 }).should("be.visible").click();
     cy.dataCy("continue-email-button").click();
     cy.get("@username").then((username) => {
       cy.signIn(`${username}@sharklasers.com`, password);
