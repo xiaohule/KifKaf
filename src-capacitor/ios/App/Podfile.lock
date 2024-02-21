@@ -14,26 +14,26 @@ PODS:
   - CapacitorCordova (5.7.0)
   - CapacitorDevice (5.0.7):
     - Capacitor
-  - CapacitorFirebaseAnalytics (5.4.0):
+  - CapacitorFirebaseAnalytics (5.4.1):
     - Capacitor
-    - CapacitorFirebaseAnalytics/Lite (= 5.4.0)
-  - CapacitorFirebaseAnalytics/Analytics (5.4.0):
+    - CapacitorFirebaseAnalytics/Lite (= 5.4.1)
+  - CapacitorFirebaseAnalytics/Analytics (5.4.1):
     - Capacitor
     - FirebaseAnalytics (~> 10.8)
-  - CapacitorFirebaseAnalytics/Lite (5.4.0):
+  - CapacitorFirebaseAnalytics/Lite (5.4.1):
     - Capacitor
-  - CapacitorFirebaseAppCheck (5.4.0):
+  - CapacitorFirebaseAppCheck (5.4.1):
     - Capacitor
     - FirebaseAppCheck (~> 10.8)
-  - CapacitorFirebaseAuthentication (5.4.0):
+  - CapacitorFirebaseAuthentication (5.4.1):
     - Capacitor
-    - CapacitorFirebaseAuthentication/Lite (= 5.4.0)
+    - CapacitorFirebaseAuthentication/Lite (= 5.4.1)
     - FirebaseAuth (~> 10.8)
-  - CapacitorFirebaseAuthentication/Google (5.4.0):
+  - CapacitorFirebaseAuthentication/Google (5.4.1):
     - Capacitor
     - FirebaseAuth (~> 10.8)
     - GoogleSignIn (= 7.0.0)
-  - CapacitorFirebaseAuthentication/Lite (5.4.0):
+  - CapacitorFirebaseAuthentication/Lite (5.4.1):
     - Capacitor
     - FirebaseAuth (~> 10.8)
   - FirebaseAnalytics (10.8.0):
@@ -196,9 +196,9 @@ SPEC CHECKSUMS:
   CapacitorCommunitySpeechRecognition: b404ef82fa846dd48f6417eb0c47955645ca0996
   CapacitorCordova: e825fce1a2e14e4b5730641c7e098dccf74397b7
   CapacitorDevice: fc91bdb484dc0e70755e9b621cd557afe642613a
-  CapacitorFirebaseAnalytics: 7f6190fba37be5997caedaac402f76be2f740e39
-  CapacitorFirebaseAppCheck: 33df3ec806a230b40b34e27ab9dcd81052edb6b1
-  CapacitorFirebaseAuthentication: 64eaf9727b8f29f84069595ddc239c8e5365f49a
+  CapacitorFirebaseAnalytics: dfccb704820bb7db82debbc05fded24b096bed71
+  CapacitorFirebaseAppCheck: ce24ffecbe5725e20325b7294c7a35f6f0555b86
+  CapacitorFirebaseAuthentication: 4b5146252052345d7c0cd8147dd4f1372a65e99b
   FirebaseAnalytics: e1fc758bd5d71823bba970c076abee4b2450a5f4
   FirebaseAppCheck: 8bde2c5f393518ab98290151188bf196b4bab91e
   FirebaseAppCheckInterop: 82358cff9f33452dd44259e88eea5e562500b1cb

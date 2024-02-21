@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { onUnmounted, ref } from 'vue';
+import { onUnmounted } from 'vue';
 import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';

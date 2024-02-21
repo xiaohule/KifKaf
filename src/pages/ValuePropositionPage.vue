@@ -3,7 +3,7 @@
 
     <div class="column justify-between" style="padding-top: 15vh; min-height: 50vh; ">
       <div class="col self-center q-pb-md">
-        <img src="/icon-logotype.png" style="width: 150px;">
+        <img src="~assets/icon-logotype.webp" style="width: 150px;">
       </div>
       <!-- style="padding-left: 15vw;" -->
       <div class="col self-start q-pt-xl q-px-md text-h4 text-outline-dark text-weight-regular"

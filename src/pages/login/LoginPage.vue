@@ -2,7 +2,7 @@
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="column justify-around q-pt-md q-pb-xl" style="min-height: 30vh; ">
       <div class="col self-center q-pb-xl">
-        <img src="/icon-logotype.png" style="width: 150px;">
+        <img src="~assets/icon-logotype.webp" style="width: 150px;">
       </div>
       <!-- style="padding-left: 15vw;" -->
       <div class="col self-center q-px-md text-h5 text-outline-dark text-weight-regular text-center"

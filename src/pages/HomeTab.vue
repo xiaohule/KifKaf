@@ -4,25 +4,7 @@
 
       <q-parallax style="height: 60vh; max-height:600px; margin-top: -100px;" :speed="0.5">
         <template v-slot:media>
-          <img src="~assets/home-background-1-tinified.png">
-          <!-- trop dark mais pas mal-->
-          <!-- <img src="~assets/ink.png"> -->
-          <!-- pas mal -->
-          <!-- <img src="~assets/pexels-brakou-abdelghani-1723637.png"> -->
-          <!-- pas mal -->
-          <!-- <img src="~assets/pexels-brakou-abdelghani-11723637.png"> -->
-
-          <!-- trop froid -->
-          <!-- <img src="~assets/luke-chesser-3rWagdKBF7U-unsplash.png"> -->
-          <!-- pas mal à réorienter -->
-          <!-- <img src="~assets/luke-chesser-eICUFSeirc0-unsplash.png"> -->
-
-          <!-- <img src="~assets/home2.png"> -->
-          <!-- <img src="~assets/basicGradient.png"> -->
-          <!-- pas mal -->
-          <!-- <img src="~assets/Rectangle29.png"> -->
-          <!-- <img src="~assets/Rectangle31.png"> -->
-          <!-- <img src="~assets/Rectangle32.png"> -->
+          <img src="~assets/home-background-1-cropped.webp">
         </template>
         <template v-slot:content>
 

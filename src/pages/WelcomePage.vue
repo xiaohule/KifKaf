@@ -76,19 +76,19 @@ const storiesData = [
   {
     stories: [
       {
-        image: t('filepaths.screenshot1'),
+        image: "src/assets" + t('filepaths.screenshot1'),
       },
       {
-        image: t('filepaths.screenshot2'),
+        image: "src/assets" + t('filepaths.screenshot2'),
       },
       {
-        image: t('filepaths.screenshot3'),
+        image: "src/assets" + t('filepaths.screenshot3'),
       },
       {
-        image: t('filepaths.screenshot4'),
+        image: "src/assets" + t('filepaths.screenshot4'),
       },
       {
-        image: t('filepaths.screenshot5'),
+        image: "src/assets" + t('filepaths.screenshot5'),
       },
     ],
   },
