@@ -1,6 +1,6 @@
 <template>
   <q-page>
-
+    <!--
     <StoriesSlider :swiper="Swiper" :enabled="false" :autoplay-duration="5000"
       @slidesIndexesChange="onSlidesIndexesChange" @storiesSlider="onStoriesSlider" @end="onEnd">
       <Stories v-for="(userStories, userStoriesIndex) in storiesData" :key="userStoriesIndex">
@@ -9,7 +9,7 @@
           <img :src="story.image" />
         </Story>
       </Stories>
-    </StoriesSlider>
+    </StoriesSlider> -->
 
     <div class="fixed-login-button">
       <!-- max-width: 300px; -->
@@ -25,8 +25,8 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { currentUser } from "../boot/firebaseBoot.js";
 import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
-import Swiper from 'swiper';
-import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
+// import Swiper from 'swiper';
+// import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
 import 'src/assets/stories-slider/stories-slider.scss';
 import 'src/assets/stories-slider/main.scss';
 
