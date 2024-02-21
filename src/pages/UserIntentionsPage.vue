@@ -113,7 +113,7 @@ const clickedNext = () => {
   logEvent("tutorial_complete", { tutorial_type: "onboarding" });
 
   if (group.value.length > 0) ms.userIntentions = group.value;
-  router.push('/welcome')
+  router.push('/login') //TODO:7 put back to welcome page
 }
 
 onUnmounted(() => {
