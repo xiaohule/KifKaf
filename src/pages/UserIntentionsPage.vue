@@ -56,7 +56,7 @@ import { onUnmounted, ref } from 'vue';
 import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { currentUser } from "../boot/firebaseBoot.js";
+import { currentUser, logEvent } from "../boot/firebaseBoot.js";
 import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
 
 const ms = useMomentsStore();

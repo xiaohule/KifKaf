@@ -372,27 +372,31 @@ export const useMomentsStore = defineStore("moments", () => {
       aggYearlyCollRef.value = collection(userDocRef.value, "aggregateYearly");
       consentsCollRef.value = collection(userDocRef.value, "consents");
 
-      const userDocCheck = await getDoc(userDocRef.value);
-      if (
-        !userDocCheck.exists() ||
-        !userDocCheck.data().hasOwnProperty("showWelcomeTutorial")
-      ) {
+      const userDocValuesInit = {
+        hasNeeds: false,
+        welcomeTutorialStep: 0,
+        showWelcomeTutorial: true,
+        showInsightsBadge: false,
+        momentsCount: 0,
+        momentsWithNeedsCount: 0,
+        momentsDeletedCount: 0,
+      };
+      const userDocSnapshot = await getDoc(userDocRef.value);
+      const existingData = userDocSnapshot.data();
+
+      const userDocValuesToSet = {};
+      for (const [key, value] of Object.entries(userDocValuesInit)) {
+        if (!existingData.hasOwnProperty(key)) {
+          userDocValuesToSet[key] = value;
+        }
+      }
+
+      if (Object.keys(userDocValuesToSet).length > 0) {
         console.log(
-          "In moments.js > fetchUser, User doc not initialized, initializing it",
+          "In moments.js > fetchUser, setting userDoc values to:",
+          userDocValuesToSet,
         );
-        // TODO:8 it seems that some values are reset although they should not be, e.g. showWelcomeTutorial, showInsightsBadge -> only set if not already set OR make this secure
-        const defaultUserDocValues = {
-          hasNeeds: false,
-          welcomeTutorialStep: 0,
-          showWelcomeTutorial: true,
-          showInsightsBadge: false,
-          momentsCount: 0,
-          momentsWithNeedsCount: 0,
-          momentsDeletedCount: 0,
-        };
-        await setDoc(userDocRef.value, defaultUserDocValues, {
-          merge: true,
-        });
+        await setDoc(userDocRef.value, userDocValuesToSet, { merge: true });
       }
 
       onSnapshot(userDocRef.value, (snapshot) => {
@@ -440,7 +444,7 @@ export const useMomentsStore = defineStore("moments", () => {
         userIntentions.value = null;
       }
     } catch (error) {
-      console.log("Error in fetchUser", error);
+      console.log("Error in fetchUser", error); //TODO:8 show message asking to connect to internet when offline?
     } finally {
       fetchUserLock.value = false; // Release the lock
     }
