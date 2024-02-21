@@ -95,7 +95,7 @@ const toggleSelection = (value) => {
 };
 
 const updateSomethingElse = () => {
-  console.log('updateSomethingElse', somethingElseValue.value);
+  console.log('In UserIntentionsPage > updateSomethingElse:', somethingElseValue.value);
   //if (somethingElseValue.value), remove any element in group.value that startsWith somethingElse and push 'somethingElse:'+somethingElseValue.value
   if (somethingElseValue.value) {
     group.value = group.value.filter(item => !item.startsWith('somethingElse'));
@@ -113,7 +113,7 @@ const clickedNext = () => {
   logEvent("tutorial_complete", { tutorial_type: "onboarding" });
 
   if (group.value.length > 0) ms.userIntentions = group.value;
-  router.push('/login') //TODO:7 put back to welcome page
+  router.push('/welcome')
 }
 
 onUnmounted(() => {
