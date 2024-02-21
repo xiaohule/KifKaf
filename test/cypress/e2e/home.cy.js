@@ -119,9 +119,9 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
       cy.dataCy("logout-button").click();
     });
 
-    cy.dataCy("log-in-button", { timeout: 120000 })
-      .should("be.visible")
-      .click();
+    // cy.dataCy("log-in-button", { timeout: 120000 })
+    //   .should("be.visible")
+    //   .click();
     cy.dataCy("continue-email-button").click();
     cy.get("@username").then((username) => {
       cy.signIn(`${username}@sharklasers.com`, password);

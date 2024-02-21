@@ -487,7 +487,7 @@ const logOut = async () => {
     logEvent("logout");
     setTimeout(() => {
       ms.$reset()
-      router.push('/welcome')
+      router.push('/login') //TODO:7 fix it
       console.log('logged out')
     }, 10)
     logoutDialogOpened.value = false
