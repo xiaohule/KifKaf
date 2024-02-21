@@ -13,25 +13,27 @@ export default boot(({ app, router }) => {
       environment: process.env.NODE_ENV,
       // debug: process.env.NODE_ENV === "development", //To remove before prod
       integrations: [
-        new SentryVue.BrowserTracing({
-          // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-          tracePropagationTargets: [
-            "localhost",
-            /^\//,
-            // "https://kifkaf.app/api",
-            /^https:\/\/kifkaf\.app\/api/,
-          ],
-          routingInstrumentation: SentryVue.vueRouterInstrumentation(router),
+        SentryVue.browserTracingIntegration({ router }),
+        SentryVue.replayIntegration({
+          // Additional SDK configuration goes in here, for example:
+          maskAllText: false,
+          blockAllMedia: false,
         }),
-        new SentryVue.Replay(),
       ],
       // Performance Monitoring
-      tracesSampleRate: 0.5, // Capture 100% of the transactions
+      tracesSampleRate: 0.5, // Capture x% of the transactions
       // Session Replay
-      replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+      replaysSessionSampleRate: 0.2, // This sets the sample rate at x%. You may want to change it to 100% while in development and then sample at a lower rate in production.
       replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+      tracePropagationTargets: [
+        // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+        "localhost",
+        /^\//,
+        // "https://kifkaf.app/api",
+        /^https:\/\/kifkaf\.app\/api/,
+      ],
     });
-    console.log("In firebaseBoot, Sentry initialized for web");
+    console.log("In sentryBoot, Sentry initialized for web");
   } else {
     import("@sentry/capacitor")
       .then((module) => {
@@ -51,31 +53,33 @@ export default boot(({ app, router }) => {
               // Registers and configures the Tracing integration,
               // which automatically instruments your application to monitor its
               // performance, including custom Angular routing instrumentation
-              new SentryVue.BrowserTracing({
-                tracePropagationTargets: [
-                  "localhost",
-                  /^\//,
-                  // "https://kifkaf.app/api",
-                  /^https:\/\/kifkaf\.app\/api/,
-                ],
-                routingInstrumentation:
-                  SentryVue.vueRouterInstrumentation(router),
+              SentryVue.browserTracingIntegration({ router }),
+              SentryVue.replayIntegration({
+                // Additional SDK configuration goes in here, for example:
+                maskAllText: false,
+                blockAllMedia: false,
               }),
-              new SentryVue.Replay(),
             ],
             // Performance Monitoring
-            tracesSampleRate: 0.5, // Capture 100% of the transactions
+            tracesSampleRate: 0.5, // Capture x% of the transactions
             // Session Replay
-            replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+            replaysSessionSampleRate: 0.2, // This sets the sample rate at x%. You may want to change it to 100% while in development and then sample at a lower rate in production.
             replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+            tracePropagationTargets: [
+              // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+              "localhost",
+              /^\//,
+              // "https://kifkaf.app/api",
+              /^https:\/\/kifkaf\.app\/api/,
+            ],
           },
           SentryVue.init,
         );
-        console.log("In firebaseBoot, Sentry initialized for capacitor");
+        console.log("In sentryBoot, Sentry initialized for capacitor");
       })
       .catch((error) => {
         console.error(
-          "In firebaseBoot, Failed to initialize Sentry for Capacitor, error:",
+          "In sentryBoot, Failed to initialize Sentry for Capacitor, error:",
           error,
         );
       });
