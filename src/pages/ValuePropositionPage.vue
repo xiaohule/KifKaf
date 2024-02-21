@@ -30,7 +30,7 @@ const router = useRouter();
 const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 onMounted(() => {
-  logEvent("tutorial_begin");
+  logEvent("tutorial_begin", { tutorial_type: "onboarding" });
 })
 
 onUnmounted(() => {

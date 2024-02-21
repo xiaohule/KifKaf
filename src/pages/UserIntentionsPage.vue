@@ -110,6 +110,8 @@ const updateSomethingElse = () => {
 
 const clickedNext = () => {
   console.log("In userIntentionPage, clickedNext");
+  logEvent("tutorial_complete", { tutorial_type: "onboarding" });
+
   if (group.value.length > 0) ms.userIntentions = group.value;
   router.push('/welcome')
 }
