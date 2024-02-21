@@ -354,8 +354,8 @@ export const useMomentsStore = defineStore("moments", () => {
         userFetched.value,
         "fetchUserLock:",
         fetchUserLock.value,
-        "user:",
-        user.value,
+        "user.value.uid:",
+        user?.value?.uid,
       );
       return;
     }
@@ -386,7 +386,7 @@ export const useMomentsStore = defineStore("moments", () => {
 
       const userDocValuesToSet = {};
       for (const [key, value] of Object.entries(userDocValuesInit)) {
-        if (!existingData.hasOwnProperty(key)) {
+        if (!existingData?.hasOwnProperty(key)) {
           userDocValuesToSet[key] = value;
         }
       }

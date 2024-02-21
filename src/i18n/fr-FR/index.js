@@ -5,11 +5,11 @@ export default {
   privacyPolicyPage,
   tosPage,
   filepaths: {
-    screenshot1: "/screenshot1_6.5_fr.webp",
-    screenshot2: "/screenshot2_6.5_fr.webp",
-    screenshot3: "/screenshot3_6.5_fr.webp",
-    screenshot4: "/screenshot4_6.5_fr.webp",
-    screenshot5: "/screenshot5_6.5_fr.webp",
+    screenshot1: "/screenshot1_fr.webp",
+    screenshot2: "/screenshot2_fr.webp",
+    screenshot3: "/screenshot3_fr.webp",
+    screenshot4: "/screenshot4_fr.webp",
+    screenshot5: "/screenshot5_fr.webp",
   },
   kifkaf: "KifKaf",
   valuePropHtml:
