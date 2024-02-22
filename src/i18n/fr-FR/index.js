@@ -11,6 +11,7 @@ export default {
     screenshot4: "/screenshot4_fr.webp",
     screenshot5: "/screenshot5_fr.webp",
   },
+  welcomeToKifkaf: "Bienvenue sur KifKaf",
   kifkaf: "KifKaf",
   valuePropHtml:
     "Comprenez ce dont <b><i>vous</i></b> avez besoin pour une vie plus épanouie.",

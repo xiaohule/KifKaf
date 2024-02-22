@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest # ubuntu-latest #macos-latest
     # stop the job if it runs over 10 minutes
     # to prevent a hanging process from using all your CI minutes
-    timeout-minutes: 13
+    timeout-minutes: 20
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel

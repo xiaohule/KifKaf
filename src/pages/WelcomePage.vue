@@ -5,7 +5,7 @@
       @slidesIndexesChange="onSlidesIndexesChange" @storiesSlider="onStoriesSlider" @end="onEnd">
       <Stories v-for="(userStories, userStoriesIndex) in storiesData" :key="userStoriesIndex">
         <Story v-for="(story, storyIndex) in userStories.stories" :key="storyIndex" user-link="#"
-          :name="'Welcome to KifKaf'" close-button @closeButtonClick="onCloseButtonClick">
+          :name="t('welcomeToKifkaf')" close-button @closeButtonClick="onCloseButtonClick">
           <img :src="story.image" />
         </Story>
       </Stories>
@@ -13,8 +13,8 @@
 
     <div class="fixed-login-button">
       <!-- max-width: 300px; -->
-      <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" :label="t('login')"
-        @click="() => router.push('/login')" class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
+      <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" :label="t('login')" @click="onCloseButtonClick"
+        class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
     </div>
   </q-page>
 </template>
@@ -34,50 +34,50 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
-let storiesData = [
+const storiesData = [
   {
     stories: [
       {
-        image: "src/assets/screenshot1_en.webp"
+        image: "src/assets" + t('filepaths.screenshot1'),
       },
       {
-        image: "src/assets/screenshot2_en.webp"
+        image: "src/assets" + t('filepaths.screenshot2'),
       },
       {
-        image: "src/assets/screenshot3_en.webp"
+        image: "src/assets" + t('filepaths.screenshot3'),
       },
       {
-        image: "src/assets/screenshot4_en.webp"
+        image: "src/assets" + t('filepaths.screenshot4'),
       },
       {
-        image: "src/assets/screenshot5_en.webp"
+        image: "src/assets" + t('filepaths.screenshot5'),
       },
     ],
   },
-]
+];
+// [
+//   {
+//     stories: [
+//       {
+//         image: "src/assets/screenshot1_en.webp"
+//       },
+//       {
+//         image: "src/assets/screenshot2_en.webp"
+//       },
+//       {
+//         image: "src/assets/screenshot3_en.webp"
+//       },
+//       {
+//         image: "src/assets/screenshot4_en.webp"
+//       },
+//       {
+//         image: "src/assets/screenshot5_en.webp"
+//       },
+//     ],
+//   },
+// ];
 
 onMounted(() => {
-  storiesData = [
-    {
-      stories: [
-        {
-          image: "src/assets" + t('filepaths.screenshot1'),
-        },
-        {
-          image: "src/assets" + t('filepaths.screenshot2'),
-        },
-        {
-          image: "src/assets" + t('filepaths.screenshot3'),
-        },
-        {
-          image: "src/assets" + t('filepaths.screenshot4'),
-        },
-        {
-          image: "src/assets" + t('filepaths.screenshot5'),
-        },
-      ],
-    },
-  ];
   openUserStories(0);
   if (storiesSlider) {
     // when slider became hidden we need to remove "in" and "out" class to return it initial state

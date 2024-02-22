@@ -124,7 +124,8 @@ module.exports = configure(function (ctx) {
         //     "@capacitor",
         //     "@capacitor-firebase",
         //     "@capacitor-community",
-        //   ],
+        //   ],exclude: ["swiper/vue", "swiper/types"],
+
         // };
       },
       viteVuePluginOptions: {
