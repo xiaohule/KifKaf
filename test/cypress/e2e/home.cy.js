@@ -77,6 +77,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.contains("relationships").should("be.visible").click();
     cy.wait(1000);
     cy.dataCy("next-button-3").should("be.visible").click();
+    cy.wait(5000);
 
     // should have sign in options, ToS and Contact us
     cy.dataCy("log-in-button", { timeout: 120000 })
