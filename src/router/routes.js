@@ -1,3 +1,6 @@
+import WelcomeLayout from "src/layouts/WelcomeLayout.vue";
+import WelcomePage from "src/pages/WelcomePage.vue";
+
 const routes = [
   {
     path: "/",
@@ -54,8 +57,8 @@ const routes = [
   },
   {
     path: "/welcome",
-    component: () => import("layouts/WelcomeLayout.vue"),
-    children: [{ path: "", component: "pages/WelcomePage.vue" }],
+    component: WelcomeLayout,
+    children: [{ path: "", component: WelcomePage }],
   },
   {
     path: "/onboarding",

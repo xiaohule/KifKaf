@@ -2,9 +2,9 @@
 import { watch } from "vue";
 import { useRouter } from "vue-router";
 import { logEvent } from "src/boot/firebaseBoot";
-import { useMomentsStore } from "../stores/moments.js";
+// import { useMomentsStore } from "../stores/moments.js";
 
-const ms = useMomentsStore();
+// const ms = useMomentsStore();
 
 export function useVerifiedUserRedirectUtils(currentUser, redirectPath = "/") {
   const router = useRouter();
@@ -19,7 +19,7 @@ export function useVerifiedUserRedirectUtils(currentUser, redirectPath = "/") {
           if (newVal.emailVerified) {
             clearInterval(checkEmailVerifiedInterval);
             logEvent("login", { method: "email" });
-            ms.setUserDocValue({ lastLoginMethod: "email" });
+            // ms.setUserDocValue({ lastLoginMethod: "email" }); //TODO:8 was removed bec. of failing with static import of welcome page
             console.log(
               "User's email is now verified. Redirecting to",
               redirectPath,
