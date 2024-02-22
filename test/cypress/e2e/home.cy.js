@@ -147,7 +147,7 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
     // cy.url().should("not.include", "insights");
     // cy.wait(5000);
-    cy.dataCy("home-insights-tab").click({ force: true });
+    cy.dataCy("home-insights-tab").click(); //{ force: true }
     cy.url().should("include", "insights");
 
     cy.contains("Satisfiers").should("be.visible");
