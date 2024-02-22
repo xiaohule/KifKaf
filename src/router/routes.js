@@ -55,7 +55,7 @@ const routes = [
   {
     path: "/welcome",
     component: () => import("layouts/WelcomeLayout.vue"),
-    children: [{ path: "", component: () => import("pages/WelcomePage.vue") }],
+    children: [{ path: "", component: "pages/WelcomePage.vue" }],
   },
   {
     path: "/onboarding",
