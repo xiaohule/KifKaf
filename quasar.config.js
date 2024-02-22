@@ -112,20 +112,20 @@ module.exports = configure(function (ctx) {
           }),
         );
 
-        viteConf.optimizeDeps = {
-          entries: [
-            // "tests/cypress/**/*.js",
-            "test/cypress/**/*.{js,jsx,ts,tsx}",
-            "**/*.cy.{js,jsx,ts,tsx}",
-            "src/**/*.{js,jsx,ts,tsx,vue}",
-            "index.html",
-          ],
-          // include: [
-          //   "@capacitor",
-          //   "@capacitor-firebase",
-          //   "@capacitor-community",
-          // ],
-        };
+        // viteConf.optimizeDeps = {
+        //   // entries: [
+        //   //   // "tests/cypress/**/*.js",
+        //   //   "test/cypress/**/*.{js,jsx,ts,tsx}",
+        //   //   "**/*.cy.{js,jsx,ts,tsx}",
+        //   //   "src/**/*.{js,jsx,ts,tsx,vue}",
+        //   //   "index.html",
+        //   // ],
+        //   include: [
+        //     "@capacitor",
+        //     "@capacitor-firebase",
+        //     "@capacitor-community",
+        //   ],
+        // };
       },
       viteVuePluginOptions: {
         template: {
