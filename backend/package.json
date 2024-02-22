@@ -7,8 +7,8 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "@sentry/node": "^7.102.0",
-    "@sentry/profiling-node": "^7.102.0",
+    "@sentry/node": "^7.102.1",
+    "@sentry/profiling-node": "^7.102.1",
     "axios": "^1.6.7",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",

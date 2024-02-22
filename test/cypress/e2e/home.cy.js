@@ -77,7 +77,7 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     cy.contains("relationships").should("be.visible").click();
     cy.wait(1000);
     cy.dataCy("next-button-3").should("be.visible").click();
-    cy.wait(5000);
+    cy.wait(1000);
 
     // should have sign in options, ToS and Contact us
     cy.dataCy("log-in-button", { timeout: 120000 })
@@ -139,14 +139,14 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.contains("Journal").should("be.visible");
     //contains the expected tabs
     cy.contains("Journal", { timeout: 60000 }).should("be.visible");
-    // cy.wait(5000);
-    // cy.visit("/#/insights");
-    // cy.url().should("include", "insights");
-    // //can navigate to Insights>Journal>Settings>Journal
-    // cy.wait(5000);
-    // cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
-    // cy.url().should("not.include", "insights");
-    // cy.wait(5000);
+    // cy.wait(1000);
+    cy.visit("/#/insights");
+    cy.url().should("include", "insights");
+    //can navigate to Insights>Journal>Settings>Journal
+    cy.wait(1500);
+    cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
+    cy.url().should("not.include", "insights");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click(); //{ force: true }
     cy.url().should("include", "insights");
 
