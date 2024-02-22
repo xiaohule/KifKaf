@@ -34,8 +34,50 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
+let storiesData = [
+  {
+    stories: [
+      {
+        image: "src/assets/screenshot1_en.webp"
+      },
+      {
+        image: "src/assets/screenshot2_en.webp"
+      },
+      {
+        image: "src/assets/screenshot3_en.webp"
+      },
+      {
+        image: "src/assets/screenshot4_en.webp"
+      },
+      {
+        image: "src/assets/screenshot5_en.webp"
+      },
+    ],
+  },
+]
 
 onMounted(() => {
+  storiesData = [
+    {
+      stories: [
+        {
+          image: "src/assets" + t('filepaths.screenshot1'),
+        },
+        {
+          image: "src/assets" + t('filepaths.screenshot2'),
+        },
+        {
+          image: "src/assets" + t('filepaths.screenshot3'),
+        },
+        {
+          image: "src/assets" + t('filepaths.screenshot4'),
+        },
+        {
+          image: "src/assets" + t('filepaths.screenshot5'),
+        },
+      ],
+    },
+  ];
   openUserStories(0);
   if (storiesSlider) {
     // when slider became hidden we need to remove "in" and "out" class to return it initial state
@@ -55,6 +97,7 @@ onUnmounted(() => {
 let storiesSlider = null;
 
 const openUserStories = (userIndex) => {
+  // console.log("In WelcomePage.vue openUserStorie, userIndex: ", userIndex, "storiesSlider: ", storiesSlider);
   // add "in" class (used in demo for animated appearance)
   storiesSlider.el.classList.add('stories-slider-in');
   // enable slider (as we passed enabled: false initially)
@@ -70,29 +113,6 @@ const onCloseButtonClick = () => {
   storiesSlider.el.classList.add('stories-slider-out');
   router.push('/login');
 };
-
-// stories data
-const storiesData = [
-  {
-    stories: [
-      {
-        image: "src/assets" + t('filepaths.screenshot1'),
-      },
-      {
-        image: "src/assets" + t('filepaths.screenshot2'),
-      },
-      {
-        image: "src/assets" + t('filepaths.screenshot3'),
-      },
-      {
-        image: "src/assets" + t('filepaths.screenshot4'),
-      },
-      {
-        image: "src/assets" + t('filepaths.screenshot5'),
-      },
-    ],
-  },
-];
 
 const onStoriesSlider = (instance) => {
   storiesSlider = instance;

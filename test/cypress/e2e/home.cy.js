@@ -142,9 +142,10 @@ describe("Checking main screens & Moments inputting", () => {
     cy.visit("/#/insights");
     cy.url().should("include", "insights");
     //can navigate to Insights>Journal>Settings>Journal
-    // cy.wait(1000);
+    cy.wait(1500);
     cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
     cy.url().should("not.include", "insights");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click({ force: true });
     cy.url().should("include", "insights");
 
@@ -190,6 +191,7 @@ describe("Insights Stats validation", () => {
   it("has correct stats in Insights tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Insights tab for 2023
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.reload();
@@ -275,6 +277,7 @@ describe("Insights Stats validation", () => {
 
     //should have a working monthly picker and correct stats in Insights tab for 2022
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.contains("This month").should("be.visible").click();
@@ -315,6 +318,7 @@ describe("Insights Stats validation", () => {
 
     //should have the expected placeholder in Insights tab for 2021
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.contains("This month").click();
@@ -331,6 +335,7 @@ describe("Need page validation", () => {
   it("has working Physical need page", () => {
     //should have correct stats in Insights tab for 2023
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.reload();
