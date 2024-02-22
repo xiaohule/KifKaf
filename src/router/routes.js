@@ -127,6 +127,7 @@ const routes = [
   },
   {
     path: "/account-deletion",
+    meta: { requiresAuth: true },
     component: () => import("layouts/GoBackTitleLayout.vue"),
     children: [
       {

@@ -541,7 +541,9 @@ export default boot(({ router }) => {
     const tabRoutes = ["/", "/insights"];
     const slideInRoutes = ["/privacy-policy", "/terms", "/contact"];
 
-    if (
+    if (tabRoutes.includes(from.path) && tabRoutes.includes(to.path)) {
+      to.meta.transition = "";
+    } else if (
       tabRoutes.includes(from.path) &&
       !tabRoutes.includes(to.path) &&
       to.path !== "/welcome" &&
