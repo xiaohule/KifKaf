@@ -14,16 +14,16 @@
         </q-avatar>
         <div class="text-body2 text-center q-mt-md q-mb-sm">
           {{ t('needsList.' + chartData.datasets[0].labels[clickedIndex])
-          }}</div>
+                    }}</div>
         <div class="text-h3 text-on-surface text-weight-bolder text-center">{{
-          parseFloat((chartData.datasets[0].data[clickedIndex] *
-            100).toFixed(0)) + "%" }}
+                  parseFloat((chartData.datasets[0].data[clickedIndex] *
+                  100).toFixed(0)) + "%" }}
         </div>
       </div>
 
       <div class="text-body2 text-center q-my-sm" v-else>{{ ms.needsToggleModel == 'satisfaction' ? t('satisfiers') :
-        (ms.needsToggleModel == 'unsatisfaction' ?
-          t('dissatisfiers') : t('all')) }}</div>
+              (ms.needsToggleModel == 'unsatisfaction' ?
+              t('dissatisfiers') : t('all')) }}</div>
     </div>
   </div>
 </template>
@@ -79,7 +79,7 @@ const props = defineProps({
 const emits = defineEmits(['click:segment', 'update:chartData'])
 
 const handleClick = (evt, item, chart) => {
-  console.log('In donutChart props.embedded', props.embedded, " for ", ms.activeDateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
+  console.log('In donutChart props.embedded', props.embedded, " for ", ms.getActiveDateRange, ' > handleClick evt:', evt, "item:", item, "chart:", chart);
 
   if (props.embedded) {
     router.push('/insights/needs')
@@ -91,7 +91,7 @@ const handleClick = (evt, item, chart) => {
       isSegmentClicked.value = true;
       clickedIndex.value = item[0].index;
 
-      console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with', { needName: chartData.value.datasets[0].labels[clickedIndex.value] });
+      console.log('In donutChart ', ms.getActiveDateRange, ' > handleClick emits click:segment with', { needName: chartData.value.datasets[0].labels[clickedIndex.value] });
 
       emits('click:segment', { needName: chartData.value.datasets[0].labels[clickedIndex.value], clickedSegmentIndex: clickedIndex.value })
       chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
@@ -104,7 +104,7 @@ const handleClick = (evt, item, chart) => {
       isSegmentClicked.value = false;
       clickedIndex.value = null;
 
-      console.log('In donutChart ', ms.activeDateRange, ' > handleClick emits click:segment with null');
+      console.log('In donutChart ', ms.getActiveDateRange, ' > handleClick emits click:segment with null');
 
       emits('click:segment', { needName: null, clickedSegmentIndex: null })
       chartData.value.datasets[0].backgroundColor.forEach((color, index, colors) => {
@@ -132,14 +132,14 @@ const chartOptions = ref({
 })
 
 watchEffect(() => {
-  if (props.isActive && ms.activeDateRange && ms.needsToggleModel) {
-    console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watchEffect called');
+  if (props.isActive && ms.getActiveDateRange && ms.needsToggleModel) {
+    console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.getActiveDateRange, 'with props.isActive ', props.isActive, ' > watchEffect called');
     if (ms.aggDataNeeds) {
       if (
-        ms.aggDataNeeds[ms.activeDateRange] &&
-        ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]) {
+        ms.aggDataNeeds[ms.getActiveDateRange] &&
+        ms.aggDataNeeds[ms.getActiveDateRange][ms.needsToggleModel]) {
         loaded.value = false
-        const needsData = ms?.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]
+        const needsData = ms?.aggDataNeeds[ms.getActiveDateRange][ms.needsToggleModel]
           .filter(item => item[ms.needsToggleModel == 'satisfaction' ? 'satisfactionImpactLabelValue' : (ms.needsToggleModel == 'unsatisfaction' ? 'unsatisfactionImpactLabelValue' : 'importanceValue')] > props.percentageThreshold)
           .map(item => {
             return {
@@ -166,20 +166,20 @@ watchEffect(() => {
 
         nextTick(() => {
           loaded.value = true
-          console.log('In donutChart ', ms.needsToggleModel, ' ', ms.activeDateRange, ' > watchEffect, chartData updated, chartRef', chartRef.value);
+          console.log('In donutChart ', ms.needsToggleModel, ' ', ms.getActiveDateRange, ' > watchEffect, chartData updated, chartRef', chartRef.value);
         })
 
       } else {
         //if no data ready but legit activeDateRange and needsToggleModel generate an empty chart
         loaded.value = false
         nextTick(() => {
-          console.log('In donutChart ', ms.needsToggleModel, ' ', ms.activeDateRange, ' > watchEffect, data not ready for this activeDateRange and needsToggleModel');
+          console.log('In donutChart ', ms.needsToggleModel, ' ', ms.getActiveDateRange, ' > watchEffect, data not ready for this activeDateRange and needsToggleModel');
           loaded.value = true
         })
       }
     }
     else {
-      console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watchEffect ,ms.aggDataNeeds not ready');
+      console.log('In donutChart for ', ms.needsToggleModel, ' ', ms.getActiveDateRange, 'with props.isActive ', props.isActive, ' > watchEffect ,ms.aggDataNeeds not ready');
     }
   } else {
     //reset clicked segment to null when chart is not active
@@ -189,9 +189,9 @@ watchEffect(() => {
 })
 
 watch(loaded, (newValue, oldValue) => {
-  console.log('In donutChart > watch loaded newValue:', newValue, "oldValue:", oldValue, 'chartRef', chartRef.value, 'ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value, 'props.isActive:', props.isActive, 'ms.activeDateRange:', ms.activeDateRange, 'ms.needsToggleModel:', ms.needsToggleModel, 'props.clickedOutside:', props.clickedOutside);
+  console.log('In donutChart > watch loaded newValue:', newValue, "oldValue:", oldValue, 'chartRef', chartRef.value, 'ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value, 'props.isActive:', props.isActive, 'ms.getActiveDateRange:', ms.getActiveDateRange, 'ms.needsToggleModel:', ms.needsToggleModel, 'props.clickedOutside:', props.clickedOutside);
 
-  if (newValue && ms.donutSegmentClicked !== null && props.isActive && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]
+  if (newValue && ms.donutSegmentClicked !== null && props.isActive && ms.aggDataNeeds[ms.getActiveDateRange] && ms.aggDataNeeds[ms.getActiveDateRange][ms.needsToggleModel]
   ) {
     console.log('In donutChart > watch loaded Before, ms.donutSegmentClicked:', ms.donutSegmentClicked, 'clickedIndex.value:', clickedIndex.value, 'isSegmentClicked.value:', isSegmentClicked.value);
 
@@ -206,7 +206,7 @@ watch(loaded, (newValue, oldValue) => {
 
 watch(() => props.clickedOutside, (newValue, oldValue) => {
   if (props.isActive && newValue && chartRef.value) {
-    console.log('In donutChart ', ms.needsToggleModel, ' ', ms.activeDateRange, 'with props.isActive ', props.isActive, ' > watch clickedOutside, newValue:', newValue, "oldValue:", oldValue);
+    console.log('In donutChart ', ms.needsToggleModel, ' ', ms.getActiveDateRange, 'with props.isActive ', props.isActive, ' > watch clickedOutside, newValue:', newValue, "oldValue:", oldValue);
     handleClick(null, [], chartRef.value.chart)
   }
 })

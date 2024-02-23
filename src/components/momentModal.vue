@@ -17,7 +17,7 @@
           </q-item-section>
         </q-item>
 
-        <q-card class="bg-surface q-mb-md q-px-md q-py-md" style="border-radius: 14px" flat>
+        <q-card class="bg-surface q-mb-md q-px-md q-py-md rounded-borders-14" flat>
           <q-card-section horizontal class="q-px-none">
             <div class="text-weight-medium text-outline col">{{ t('momentTitle') }}</div>
             <!-- <q-card-actions vertical class="col-auto q-pa-none">
@@ -30,7 +30,7 @@
           </q-card-section>
         </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-md q-py-md" style="border-radius: 14px" flat>
+        <q-card class="bg-surface q-mb-md q-px-md q-py-md rounded-borders-14" flat>
           <!-- <q-card-section horizontal class="q-px-none">
             <div class="text-weight-medium text-outline col">Needs<q-btn flat color="primary" icon="o_info" dense
                 size="10px" @click="learnMoreModalSection = 'momentNeeds'; learnMoreModalOpened = true" /></div>

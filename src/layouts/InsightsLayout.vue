@@ -16,12 +16,12 @@
         </router-link>
 
       </q-toolbar>
-      <q-toolbar v-if="getDatePickerLabel(ms.activeDateRange, t)" class="q-mx-auto q-pb-sm"
+      <q-toolbar v-if="getDatePickerLabel(ms.getActiveDateRange, t)" class="q-mx-auto q-pb-sm"
         style="max-width: 600px; min-height:0px;">
 
         <q-btn unelevated rounded no-caps class="q-py-none text-subtitle2 bg-surface text-on-surface"
-          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ getDatePickerLabel(ms.activeDateRange, t)
-          }}</q-btn>
+          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ getDatePickerLabel(ms.getActiveDateRange, t)
+                    }}</q-btn>
       </q-toolbar>
     </q-header>
 

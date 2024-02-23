@@ -4,30 +4,31 @@
 
     <!-- SUMMARY -->
     <div v-if="ms.segDateId !== 'Yearly'" class="q-mt-xs q-mb-md">
-      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ isDatePickerLabelCurrent(ms.activeDateRange)
+      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{
+        isDatePickerLabelCurrent(ms.getActiveDateRange)
         ?
         t('summaryTitleThisMonth') : t('summaryTitle',
-          { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() }) }}</div>
+          { date: getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() }) }}</div>
 
-      <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperSummaryEl" :init="true"
+      <swiper-container v-if="swipersLoaded && ms.getDateRanges.length > 0" ref="swiperSummaryEl" :init="true"
         :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
         :observe-slide-children="true" :grab-cursor="true" :pagination="{ dynamicBullets: true }"
         @swiperactiveindexchange="onActiveIndexChangeBySwiper" @swiperafterinit="swiperAfterInit(event, 'summary')"
         @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
-        <swiper-slide v-for="range in ms.dateRanges" :key="range">
-          <q-card v-intersection="intersectionOptions('summary', ms.activeDateRange)" flat :class="[
+        <swiper-slide v-for="range in ms.getDateRanges" :key="range">
+          <q-card v-intersection="intersectionOptions('summary', ms.getActiveDateRange)" flat :class="[
             'bg-surface',
             'q-px-md',
             'rounded-borders-14',
             'q-py-md',
-            ms.dateRanges.length < 2 ? '' : 'marginBottom32px',
+            ms.getDateRanges.length < 2 ? '' : 'marginBottom32px',
           ]">
             <q-item class="q-px-none q-pt-none q-pb-md" style="min-height: 0px;">
               <q-item-section class="text-subtitle2
  text-outline text-weight-regular">{{ t('summarySubtitle') }}</q-item-section>
               <q-item-section side>
-                <q-badge v-show="ms.aggDataInsights[ms.activeDateRange]?.isNew?.summary"
-                  :class="{ 'fade-transition': true, 'fade-out': !ms.aggDataInsights[ms.activeDateRange]?.isNew?.summary }"
+                <q-badge v-show="ms.aggDataInsights[ms.getActiveDateRange]?.isNew?.summary"
+                  :class="{ 'fade-transition': true, 'fade-out': !ms.aggDataInsights[ms.getActiveDateRange]?.isNew?.summary }"
                   class="text-subtitle2 text-weight-medium q-px-sm q-py-none" rounded color="primary-container"
                   text-color="primary" :label="t('fresh')" />
               </q-item-section>
@@ -35,13 +36,13 @@
 
             <div class="selectable-text">
               <!-- getDateRangeOkNeedsCounts prevents display to occur if user has deleted all moms -->
-              <div v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0" style="min-height: 0px;"
-                v-html="ms.aggDataInsights[ms.activeDateRange].summary">
+              <div v-if="ms.aggDataInsights?.[ms.getActiveDateRange]?.summary?.length > 0" style="min-height: 0px;"
+                v-html="ms.aggDataInsights[ms.getActiveDateRange].summary">
               </div>
               <div v-else-if="!ms.userDoc?.hasNeeds" style="min-height: 0px;">{{ t('summaryEmpty') }}
               </div>
               <div v-else style="min-height: 0px;">
-                {{ t('summaryEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
+                {{ t('summaryEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange])) }}
               </div>
             </div>
           </q-card>
@@ -55,9 +56,9 @@
  text-outline text-weight-regular text-center">{{ t('quoteSubtitle') }}</div>
       <q-item class="q-pl-xs q-pr-none">
         <q-item-section class="selectable-text"
-          v-if="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] > 0 && ms.aggDataInsights?.[ms.activeDateRange]?.quote?.text?.length > 0"><span
-            v-html="ms.aggDataInsights[ms.activeDateRange].quote.text"></span><span class="text-caption text-outline"
-            v-html="ms.aggDataInsights[ms.activeDateRange].quote.author"></span>
+          v-if="ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange] > 0 && ms.aggDataInsights?.[ms.getActiveDateRange]?.quote?.text?.length > 0"><span
+            v-html="ms.aggDataInsights[ms.getActiveDateRange].quote.text"></span><span class="text-caption text-outline"
+            v-html="ms.aggDataInsights[ms.getActiveDateRange].quote.author"></span>
         </q-item-section>
         <q-item-section class="selectable-text" v-else><span>{{ placeholderQuote }}</span>
           <span class="text-caption text-outline">{{
@@ -78,12 +79,13 @@
     <div class="q-my-md">
       <q-item class="q-px-none q-mb-xs">
         <q-item-section class="text-h6 text-weight-medium text-on-background">{{
-          (isDatePickerLabelCurrent(ms.activeDateRange) &&
+          (isDatePickerLabelCurrent(ms.getActiveDateRange) &&
             ms.segDateId === 'Yearly') ?
-          t('needsStats.titleThisYear') : (isDatePickerLabelCurrent(ms.activeDateRange) ? t('needsStats.titleThisMonth')
+          t('needsStats.titleThisYear') : (isDatePickerLabelCurrent(ms.getActiveDateRange) ?
+            t('needsStats.titleThisMonth')
             :
             t('needsStats.title',
-              { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() })) }}</q-item-section>
+              { date: getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() })) }}</q-item-section>
         <q-btn side class="text-subtitle2 text-weight-medium text-primary"
           @click="learnMoreModalSection = 'needs'; learnMoreModalOpened = true" no-caps flat :ripple="false"
           padding="xs none xs sm">{{
@@ -91,19 +93,19 @@
         </q-btn>
       </q-item>
 
-      <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperNeedsEl" :init="true"
+      <swiper-container v-if="swipersLoaded && ms.getDateRanges.length > 0" ref="swiperNeedsEl" :init="true"
         :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
         :observe-slide-children="true" :grab-cursor="true" :pagination="{ dynamicBullets: true }"
         @swiperactiveindexchange="onActiveIndexChangeBySwiper" @swiperafterinit="swiperAfterInit(event, 'needs')"
         @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
-        <swiper-slide v-for="range in ms.dateRanges" :key="range">
+        <swiper-slide v-for="range in ms.getDateRanges" :key="range">
           <q-card flat :class="[
             'bg-surface',
             'q-px-md',
             'rounded-borders-14',
             'q-pt-md',
             ms.needsToggleModel === 'top' ? 'q-pb-md' : '',
-            ms.dateRanges.length < 2 ? '' : 'marginBottom32px',
+            ms.getDateRanges.length < 2 ? '' : 'marginBottom32px',
           ]">
 
             <q-item class="q-px-none q-pt-none q-pb-md" style="min-height: 0px;">
@@ -122,8 +124,8 @@
             <div v-if="ms.needsToggleModel === 'top'">
               <top-item top-type="satisfier" />
               <top-item top-type="dissatisfier" />
-              <top-item v-if="ms.prevDateRange" top-type="gainer" />
-              <top-item v-if="ms.prevDateRange" top-type="loser" />
+              <top-item v-if="ms.getPrevDateRange" top-type="gainer" />
+              <top-item v-if="ms.getPrevDateRange" top-type="loser" />
             </div>
             <div v-else>
               <donut-swiper-and-list v-if="ms.activeIndex !== undefined" :embedded="true" />
@@ -138,19 +140,21 @@
       <div class="text-subtitle1
  text-outline text-weight-regular text-center">{{ t('bookSubtitle') }}</div>
       <q-item class="q-pl-xs q-pr-none">
-        <q-item-section class="selectable-text" v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book?.title?.length > 0">
-          <span v-html="ms.aggDataInsights[ms.activeDateRange].book.title"></span>
+        <q-item-section class="selectable-text"
+          v-if="ms.aggDataInsights?.[ms.getActiveDateRange]?.book?.title?.length > 0">
+          <span v-html="ms.aggDataInsights[ms.getActiveDateRange].book.title"></span>
           <span class="text-caption text-outline"
-            v-html="t('by') + ' ' + ms.aggDataInsights[ms.activeDateRange].book.author"></span>
+            v-html="t('by') + ' ' + ms.aggDataInsights[ms.getActiveDateRange].book.author"></span>
         </q-item-section>
         <q-item-section class="selectable-text" v-else-if="!ms.userDoc?.hasNeeds">
           <span>{{ t('bookEmpty') }}</span>
         </q-item-section>
         <q-item-section class="selectable-text" v-else>
-          <span>{{ t('bookEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}</span>
+          <span>{{ t('bookEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange]))
+          }}</span>
         </q-item-section>
         <q-item-section side>
-          <q-btn v-if="ms.aggDataInsights?.[ms.activeDateRange]?.book.title"
+          <q-btn v-if="ms.aggDataInsights?.[ms.getActiveDateRange]?.book.title"
             class="text-primary text-weight-medium text-subtitle2"
             @click="whyModalSection = 'book'; whyModalOpened = true" no-caps flat :ripple="false"
             padding="xs none xs sm">{{ t('why')
@@ -162,53 +166,54 @@
 
     <!-- SUGGESTIONS -->
     <div v-if="ms.segDateId !== 'Yearly'" class="q-my-md">
-      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{ isDatePickerLabelCurrent(ms.activeDateRange)
+      <div class="q-mb-xs text-h6 text-weight-medium text-on-background"> {{
+        isDatePickerLabelCurrent(ms.getActiveDateRange)
         ?
         t('suggestionsTitleThisMonth') : t('suggestionsTitle',
-          { date: getDatePickerLabel(ms.activeDateRange, t).toLowerCase() }) }}</div>
+          { date: getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() }) }}</div>
 
-      <swiper-container v-if="swipersLoaded && ms.dateRanges.length > 0" ref="swiperSuggestionsEl" :init="true"
+      <swiper-container v-if="swipersLoaded && ms.getDateRanges.length > 0" ref="swiperSuggestionsEl" :init="true"
         :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
         :observe-slide-children="true" :grab-cursor="true" :pagination="{ dynamicBullets: true }"
         @swiperactiveindexchange="onActiveIndexChangeBySwiper" @swiperafterinit="swiperAfterInit(event, 'suggestions')"
         @swiperupdate="console.log('In InsightsTab > swiper update event fired')">
-        <swiper-slide v-for="range in ms.dateRanges" :key="range">
-          <q-card v-intersection="intersectionOptions('suggestions', ms.activeDateRange)" flat :class="[
+        <swiper-slide v-for="range in ms.getDateRanges" :key="range">
+          <q-card v-intersection="intersectionOptions('suggestions', ms.getActiveDateRange)" flat :class="[
             'bg-surface',
             'q-px-md',
             'rounded-borders-14',
             'q-py-md',
-            ms.dateRanges.length < 2 ? '' : 'marginBottom32px',
+            ms.getDateRanges.length < 2 ? '' : 'marginBottom32px',
           ]">
             <q-item class="q-px-none q-pt-none q-pb-md" style="min-height: 0px;">
               <q-item-section class="text-subtitle2
  text-outline text-weight-regular">{{ t('suggestionsSubtitle') }}</q-item-section>
               <q-item-section side top class="q-px-none" style="padding-left: 0px;">
-                <q-badge v-show="ms.aggDataInsights[ms.activeDateRange]?.isNew?.suggestions"
-                  :class="{ 'fade-transition': true, 'fade-out': !ms.aggDataInsights[ms.activeDateRange]?.isNew?.suggestions }"
+                <q-badge v-show="ms.aggDataInsights[ms.getActiveDateRange]?.isNew?.suggestions"
+                  :class="{ 'fade-transition': true, 'fade-out': !ms.aggDataInsights[ms.getActiveDateRange]?.isNew?.suggestions }"
                   class="text-subtitle2 text-weight-medium q-px-sm q-py-none" rounded color="primary-container"
                   text-color="primary" :label="t('fresh')" />
               </q-item-section>
             </q-item>
 
             <q-list class="selectable-text"
-              v-if="(ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue?.length > 0 || ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.start?.length > 0 || ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.stop?.length > 0)">
+              v-if="(ms.aggDataInsights?.[ms.getActiveDateRange]?.suggestions?.continue?.length > 0 || ms.aggDataInsights?.[ms.getActiveDateRange]?.suggestions?.start?.length > 0 || ms.aggDataInsights?.[ms.getActiveDateRange]?.suggestions?.stop?.length > 0)">
               <q-item-label class="text-subtitle2 text-weight-medium text-outline">{{ t('toContinue') }}</q-item-label>
-              <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.continue"
+              <q-item v-for="suggestion in ms.aggDataInsights?.[ms.getActiveDateRange]?.suggestions?.continue"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
                 <div v-html="suggestion"></div>
               </q-item>
 
               <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{ t('toStop')
               }}</q-item-label>
-              <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.stop"
+              <q-item v-for="suggestion in ms.aggDataInsights?.[ms.getActiveDateRange]?.suggestions?.stop"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
                 <div v-html="suggestion"></div>
               </q-item>
 
               <q-item-label class="text-subtitle2 text-weight-medium text-outline q-pt-lg">{{
                 t('toStart') }}</q-item-label>
-              <q-item v-for="suggestion in ms.aggDataInsights?.[ms.activeDateRange]?.suggestions?.start"
+              <q-item v-for="suggestion in ms.aggDataInsights?.[ms.getActiveDateRange]?.suggestions?.start"
                 :key="suggestion.id" class="q-py-sm" style="min-height: 0px;">
                 <div v-html="suggestion"></div>
               </q-item>
@@ -217,7 +222,7 @@
               {{ t('suggestionsEmpty') }}
             </div>
             <div v-else style="min-height: 0px;">
-              {{ t('suggestionsEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
+              {{ t('suggestionsEmptyCountdown', Math.max(0, 3 - ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange])) }}
             </div>
           </q-card>
         </swiper-slide>
@@ -361,15 +366,15 @@ watch(() => ms.activeIndex, (newVal, oldVal) => {
 }, { immediate: true })
 
 const onActiveIndexChangeBySwiper = (event) => {
-  console.log('In InsightsTab > onActiveIndexChangeBySwiper fired with ms.activeIndex', ms.activeIndex, 'ms.activeDateRange', ms.activeDateRange, 'ms.dateRanges', ms.dateRanges, 'swipersLoaded', swipersLoaded.value, 'swiperSummaryEl', swiperSummaryEl.value)
+  console.log('In InsightsTab > onActiveIndexChangeBySwiper fired with ms.activeIndex', ms.activeIndex, 'ms.getActiveDateRange', ms.getActiveDateRange, 'ms.getDateRanges', ms.getDateRanges, 'swipersLoaded', swipersLoaded.value, 'swiperSummaryEl', swiperSummaryEl.value)
   console.log('In InsightsTab  > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
 
   ms.activeIndex = event.detail[0].activeIndex
 }
 
 //kill-restart swiper when dateRanges change
-watch(() => ms.dateRanges, (newVal, oldVal) => {
-  console.log('In InsightsTab > ms.dateRanges watcher, dateRanges changed from', oldVal, 'to', newVal, 'reloading swiper container')
+watch(() => ms.getDateRanges, (newVal, oldVal) => {
+  console.log('In InsightsTab > ms.getDateRanges watcher, dateRanges changed from', oldVal, 'to', newVal, 'reloading swiper container')
   swipersLoaded.value = false
   nextTick(() => {
     swipersLoaded.value = true

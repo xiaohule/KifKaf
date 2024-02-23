@@ -6,6 +6,7 @@ import {
   setDoc,
   addDoc,
   getDoc,
+  getDocFromServer,
   getDocs,
   onSnapshot,
   query,
@@ -97,23 +98,24 @@ export const useMomentsStore = defineStore("moments", () => {
   const consentsCollRef = ref(null);
   const userIntentions = ref(null);
 
-  const activeDateRange = computed(() => {
+  const getActiveDateRange = computed(() => {
     console.log(
-      "In moment.js > computed activeDateRange, activeIndex",
+      "In moment.js > computed getActiveDateRange, activeIndex",
       activeIndex.value,
       "segDateId",
       segDateId.value,
     );
     return (
-      dateRanges.value[activeIndex.value] ??
+      getDateRanges.value[activeIndex.value] ??
       formatDate(currentDate.value, "YYYY-MM")
     );
   });
-  const prevDateRange = computed(() => {
+  const getPrevDateRange = computed(() => {
     const prevIndex = activeIndex.value - 1;
     if (prevIndex >= 0) {
       return (
-        dateRanges.value[prevIndex] ?? formatDate(currentDate.value, "YYYY-MM")
+        getDateRanges.value[prevIndex] ??
+        formatDate(currentDate.value, "YYYY-MM")
       );
     }
     return null;
@@ -288,9 +290,9 @@ export const useMomentsStore = defineStore("moments", () => {
     { immediate: true },
   );
 
-  const dateRanges = computed(() => {
+  const getDateRanges = computed(() => {
     console.log(
-      "In moments.js > computed dateRanges, segDateId",
+      "In moments.js > computed getDateRanges, segDateId",
       segDateId.value,
       "returning:",
       segDateId.value === "Monthly"
@@ -306,7 +308,7 @@ export const useMomentsStore = defineStore("moments", () => {
   watch(shouldResetSwiper, (newVal) => {
     console.log("In moments.js > watch shouldResetSwiper, newVal", newVal);
     if (newVal) {
-      activeIndex.value = dateRanges.value.length - 1;
+      activeIndex.value = getDateRanges.value.length - 1;
       shouldResetSwiper.value = false;
     }
   });
@@ -317,27 +319,15 @@ export const useMomentsStore = defineStore("moments", () => {
     console.log("In moments.js > watch activeIndex, newVal", newVal);
     if (segDateId.value === "Monthly") {
       pickedDateYYYYsMMsDD.value = formatDate(
-        monthDateRangeToDate(activeDateRange.value),
+        monthDateRangeToDate(getActiveDateRange.value),
         "YYYY/MM/DD",
       );
     } else if (segDateId.value === "Yearly") {
       pickedDateYYYYsMMsDD.value = formatDate(
-        activeDateRange.value,
+        getActiveDateRange.value,
         "YYYY/MM/DD",
       );
     }
-  });
-
-  const suggestions = computed(() => {
-    const suggestions = {
-      continue: ["Engaging Regularly in Physical Activities"],
-      stop: ["Seeing Max", "Working without pause", "Calling your mum"],
-      start: [
-        "Mindfulness and Relaxation Practices",
-        "Engaging in a creative hobby like painting, writing, or playing a musical instrument",
-      ],
-    };
-    return suggestions;
   });
 
   const fetchUser = async () => {
@@ -380,8 +370,16 @@ export const useMomentsStore = defineStore("moments", () => {
         momentsCount: 0,
         momentsWithNeedsCount: 0,
         momentsDeletedCount: 0,
-      };
-      const userDocSnapshot = await getDoc(userDocRef.value);
+      }; //TODO:9 fix the issue of resetting those values too often by settings them only on user creation and not on every fetchUser
+      const userDocSnapshot = await getDoc(userDocRef.value); //TODO:9 To specify this behavior, invoke getDocFromCache or getDocFromServer.
+      console.log(
+        "In moments.js > fetchUser, userDocSnapshot:",
+        userDocSnapshot,
+        "userDocSnapshot.data():",
+        userDocSnapshot.data(),
+        "userDocSnapshot.exists():",
+        userDocSnapshot.exists(),
+      );
       const existingData = userDocSnapshot.data();
 
       const userDocValuesToSet = {};
@@ -432,12 +430,9 @@ export const useMomentsStore = defineStore("moments", () => {
         );
         userIntentions.value.forEach((userIntention) => {
           if (userIntention.startsWith("somethingElse:")) {
-            setUserProperty(
-              `userIntention_somethingElse`,
-              userIntention.slice(14),
-            );
+            setUserProperty(`ui_se`, userIntention.slice(14));
           } else {
-            setUserProperty(`userIntention_${userIntention}`, true);
+            setUserProperty(`ui_${userIntention}`, true);
           }
         });
         logEvent("user_property_set", { userIntentions: userIntentions.value });
@@ -1134,11 +1129,10 @@ export const useMomentsStore = defineStore("moments", () => {
     needsToggleModel,
     activeIndex,
     segDateId,
-    activeDateRange,
-    prevDateRange,
-    dateRanges,
+    getActiveDateRange,
+    getPrevDateRange,
+    getDateRanges,
     pickedDateYYYYsMMsDD,
-    suggestions,
     getUniqueDaysTs,
     getOldestMomentDate,
     getOldestMomentDateYYYYsMM,

@@ -194,7 +194,7 @@
           <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>
         <q-card-section class="text-h6 text-weight-medium">{{ t('changeAppLanguage') }}</q-card-section>
-        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none" style="border-radius: 14px;">
+        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none rounded-borders-14">
 
           <q-item tag="label" v-ripple v-for="(value, key) in localeOptions" :key="key" class="">
             <q-item-section>
@@ -215,7 +215,7 @@
           <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>
         <q-card-section class="text-h6 text-weight-medium">{{ t('changeSpeechRecoLanguage') }}</q-card-section>
-        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none" style="border-radius: 14px;">
+        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none rounded-borders-14">
 
           <q-item tag="label" v-ripple v-for="(value, key) in speechLanguageOptions" :key="key" class="">
             <q-item-section>
