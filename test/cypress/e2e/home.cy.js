@@ -143,7 +143,7 @@ describe("Checking main screens & Moments inputting", () => {
     cy.visit("/#/insights");
     cy.url().should("include", "insights");
     //can navigate to Insights>Journal>Settings>Journal
-    cy.wait(1500);
+    cy.wait(5000);
     cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
     cy.url().should("not.include", "insights");
     cy.wait(1500);
