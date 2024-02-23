@@ -4,10 +4,10 @@
 
       <q-item class="q-px-xs q-py-none margin-top-if-height-sm">
         <q-item-section class="text-body1 text-weight-medium text-on-primary">{{
-                  t('welcomeTutorial.title') }}</q-item-section>
+          t('welcomeTutorial.title') }}</q-item-section>
         <q-item-section side>
-          <q-btn flat dense icon="r_close" color="background" size="10px"
-            @click="ms.setUserDocValue({ showWelcomeTutorial: false })" padding="none" />
+          <q-btn flat icon="r_close" color="background" size="10px"
+            @click="ms.setUserDocValue({ showWelcomeTutorial: false })" padding="xs none" />
         </q-item-section>
       </q-item>
 
@@ -18,7 +18,7 @@
         </q-item-section>
         <q-item-section side class="text-caption
 text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
-          "/3 " + t('welcomeTutorial.complete', ms.userDoc?.welcomeTutorialStep) }}
+  "/3 " + t('welcomeTutorial.complete', ms.userDoc?.welcomeTutorialStep) }}
         </q-item-section>
       </q-item>
 
@@ -105,11 +105,11 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
                     {{ t('welcomeTutorial.step3Ready') }}
                   </q-item-section>
                   <q-item-section v-else-if="!ms.userDoc?.hasNeeds" class="text-body2"> {{
-                                      t('welcomeTutorial.step3Empty') }}
+                    t('welcomeTutorial.step3Empty') }}
                   </q-item-section>
                   <q-item-section v-else class="text-body2">
                     {{ t('welcomeTutorial.step3EmptyCountdown', Math.max(0, 3 -
-                                        ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange])) }}
+                      ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange])) }}
                   </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>

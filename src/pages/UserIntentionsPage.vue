@@ -9,8 +9,8 @@
       <!-- style="border: .5px solid #757780" -->
       <q-item data-cy="user-intention-item" clickable v-ripple
         class="q-my-sm q-py-md text-body1 text-weight-medium bg-surface pill-shape text-center" :class="{
-          'bg-scrim': group.some(item => item.startsWith(option.value))
-          , 'text-surface': group.some(item => item.startsWith(option.value))
+          'bg-scrim': ms.userIntentionsGroup.some(item => item.startsWith(option.value))
+          , 'text-surface': ms.userIntentionsGroup.some(item => item.startsWith(option.value))
         }" @click="toggleSelection(option.value)">
         <q-item-section>{{ option.label }}</q-item-section>
       </q-item>
@@ -21,7 +21,7 @@
     </div>
 
     <div class="fixed-button pill-shape">
-      <q-btn data-cy="next-button-3" :disable="group.length === 0" rounded color="scrim" padding="md xl"
+      <q-btn data-cy="next-button-3" :disable="ms.userIntentionsGroup.length === 0" rounded color="scrim" padding="md xl"
         :label="t('next')" @click="clickedNext" class="text-subtitle1 text-weight-medium" no-caps />
     </div>
 
@@ -65,7 +65,6 @@ const route = useRoute();
 const router = useRouter();
 const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
-const group = ref([])
 const options = [//TODO:3 //make it fully depenendent on i18n files?
   { label: t('beMoreFulFilled'), value: 'beMoreFulFilled' },
   { label: t('understandMyNeeds'), value: 'understandMyNeeds' },
@@ -81,11 +80,11 @@ const somethingElseValue = ref('');
 const toggleSelection = (value) => {
   if (value !== 'somethingElse') {
 
-    const index = group.value.indexOf(value);
+    const index = ms.userIntentionsGroup.indexOf(value);
     if (index === -1) {
-      group.value.push(value); // Add value if not present
+      ms.userIntentionsGroup.push(value); // Add value if not present
     } else {
-      group.value.splice(index, 1); // Remove value if present
+      ms.userIntentionsGroup.splice(index, 1); // Remove value if present
     }
   }
   else {
@@ -96,14 +95,14 @@ const toggleSelection = (value) => {
 
 const updateSomethingElse = () => {
   console.log('In UserIntentionsPage > updateSomethingElse:', somethingElseValue.value);
-  //if (somethingElseValue.value), remove any element in group.value that startsWith somethingElse and push 'somethingElse:'+somethingElseValue.value
+  //if (somethingElseValue.value), remove any element in ms.userIntentionsGroup that startsWith somethingElse and push 'somethingElse:'+somethingElseValue.value
   if (somethingElseValue.value) {
-    group.value = group.value.filter(item => !item.startsWith('somethingElse'));
-    group.value.push('somethingElse:' + somethingElseValue.value);
+    ms.userIntentionsGroup = ms.userIntentionsGroup.filter(item => !item.startsWith('somethingElse'));
+    ms.userIntentionsGroup.push('somethingElse:' + somethingElseValue.value);
   }
-  //else,  remove any element in group.value that startsWith somethingElse
+  //else,  remove any element in ms.userIntentionsGroup that startsWith somethingElse
   else {
-    group.value = group.value.filter(item => !item.startsWith('somethingElse'));
+    ms.userIntentionsGroup = ms.userIntentionsGroup.filter(item => !item.startsWith('somethingElse'));
   }
   somethingElseDialogOpened.value = false;
 };
@@ -112,7 +111,6 @@ const clickedNext = () => {
   console.log("In userIntentionPage, clickedNext");
   logEvent("tutorial_complete", { tutorial_type: "onboarding" });
 
-  if (group.value.length > 0) ms.userIntentions = group.value;
   router.push('/welcome')
 }
 

@@ -8,6 +8,8 @@ import {
   collection,
   where,
   getDoc,
+  setDoc,
+  serverTimestamp,
   getDocs,
   updateDoc,
   increment,
@@ -208,27 +210,50 @@ export const currentUser = ref(null);
 const userDocRef = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 try {
-  onAuthStateChanged(getFirebaseAuth(), (user) => {
+  onAuthStateChanged(getFirebaseAuth(), async (user) => {
     console.log("onAuthStateChanged, user is:", user);
-    currentUser.value = user;
+    currentUser.value = user; //TODO:6 mettre a la fin
+
     if (user?.uid) {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+      if (!userDocSnapshot.exists()) {
+        const isTestAccount =
+          user.email.endsWith("@yopmail.com") ||
+          user.email.endsWith("@sharklasers.com") ||
+          user.email.endsWith("@ethereal.email") ||
+          user.email === "jules.douet@gmail.com" ||
+          user.email === "xyzdelatour@gmail.com" ||
+          user.email === "xyzdelatour2@gmail.com" ||
+          user.uid === "UtCgVuTY2XUvYmnqqYULj4r5jaI3" ||
+          user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3";
+
+        // User document does not exist, so it's likely the first sign-in
+        console.log("Initializing user doc for first-time sign-in...");
+        await setDoc(
+          userDocRef,
+          {
+            hasNeeds: false,
+            welcomeTutorialStep: 0,
+            showWelcomeTutorial: true,
+            showInsightsBadge: false,
+            momentsCount: 0,
+            momentsWithNeedsCount: 0,
+            momentsDeletedCount: 0,
+            createdAt: serverTimestamp(),
+            isTestAccount: isTestAccount,
+          },
+          { merge: true },
+        );
+        console.log("User doc initialized.");
+
+        //To not mess with Firebase analytics identify test accounts
+        if (isTestAccount) setUserProperty("isTestAccount", "true");
+        else setUserProperty("isTestAccount", "false");
+      } else console.log("User doc already exists.");
+
       Sentry.setUser({ id: user.uid });
       setUserId(user.uid);
-      //To not mess with Firebase analytics identify test accounts
-      if (
-        user.email.endsWith("@yopmail.com") ||
-        user.email.endsWith("@sharklasers.com") ||
-        user.email.endsWith("@ethereal.email") ||
-        user.email === "jules.douet@gmail.com" ||
-        user.email === "xyzdelatour@gmail.com" ||
-        user.email === "xyzdelatour2@gmail.com" ||
-        user.uid === "UtCgVuTY2XUvYmnqqYULj4r5jaI3" ||
-        user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3"
-      ) {
-        setUserProperty("isTestAccount", "true");
-      } else {
-        setUserProperty("isTestAccount", "false");
-      }
     }
     isLoadingAuth.value = false;
   });

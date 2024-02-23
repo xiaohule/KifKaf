@@ -4,8 +4,9 @@
     <StoriesSlider :swiper="Swiper" :enabled="false" :autoplay-duration="5000"
       @slidesIndexesChange="onSlidesIndexesChange" @storiesSlider="onStoriesSlider" @end="onEnd">
       <Stories v-for="(userStories, userStoriesIndex) in storiesData" :key="userStoriesIndex">
+        <!-- close-button @closeButtonClick="onCloseButtonClick" -->
         <Story v-for="(story, storyIndex) in userStories.stories" :key="storyIndex" user-link="#"
-          :name="t('welcomeToKifkaf')" close-button @closeButtonClick="onCloseButtonClick">
+          :name="t('welcomeToKifkaf')">
           <img :src="story.image" />
         </Story>
       </Stories>
@@ -107,11 +108,11 @@ const openUserStories = (userIndex) => {
 };
 
 const onCloseButtonClick = () => {
+  router.push('/login');
   // disable slider as we don't need it autoplay stories while it is hidden
   storiesSlider.disable();
   // add "out" class (used in demo for animated disappearance)
-  storiesSlider.el.classList.add('stories-slider-out');
-  router.push('/login');
+  // storiesSlider.el.classList.add('stories-slider-out');
 };
 
 const onStoriesSlider = (instance) => {

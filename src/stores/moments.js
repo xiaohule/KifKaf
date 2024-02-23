@@ -96,7 +96,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const privacyPolicyConsent = ref(null);
   const termsOfServiceConsent = ref(null);
   const consentsCollRef = ref(null);
-  const userIntentions = ref(null);
+  const userIntentionsGroup = ref([]);
 
   const getActiveDateRange = computed(() => {
     console.log(
@@ -333,22 +333,19 @@ export const useMomentsStore = defineStore("moments", () => {
   const fetchUser = async () => {
     console.log("In moments.js, In fetchUser");
 
-    if (
-      userFetched.value ||
-      fetchUserLock.value ||
-      !user.value ||
-      !user.value.uid
-    ) {
-      console.log(
-        "In moments.js > fetchUser, returning as userFetched:",
-        userFetched.value,
-        "fetchUserLock:",
-        fetchUserLock.value,
-        "user.value.uid:",
-        user?.value?.uid,
-      );
+    if (userFetched.value) {
+      console.log("In moments.js > fetchUser, userFetched true, returning");
       return;
     }
+    if (fetchUserLock.value) {
+      console.log("In moments.js > fetchUser, fetchUserLock true, returning");
+      return;
+    }
+    if (!user.value || !user.value.uid) {
+      console.log("In moments.js > fetchUser, user not yet fetched, returning");
+      return;
+    }
+
     fetchUserLock.value = true; // Set the lock
 
     try {
@@ -362,43 +359,12 @@ export const useMomentsStore = defineStore("moments", () => {
       aggYearlyCollRef.value = collection(userDocRef.value, "aggregateYearly");
       consentsCollRef.value = collection(userDocRef.value, "consents");
 
-      const userDocValuesInit = {
-        hasNeeds: false,
-        welcomeTutorialStep: 0,
-        showWelcomeTutorial: true,
-        showInsightsBadge: false,
-        momentsCount: 0,
-        momentsWithNeedsCount: 0,
-        momentsDeletedCount: 0,
-      }; //TODO:9 fix the issue of resetting those values too often by settings them only on user creation and not on every fetchUser
-      const userDocSnapshot = await getDoc(userDocRef.value); //TODO:9 To specify this behavior, invoke getDocFromCache or getDocFromServer.
-      console.log(
-        "In moments.js > fetchUser, userDocSnapshot:",
-        userDocSnapshot,
-        "userDocSnapshot.data():",
-        userDocSnapshot.data(),
-        "userDocSnapshot.exists():",
-        userDocSnapshot.exists(),
-      );
-      const existingData = userDocSnapshot.data();
-
-      const userDocValuesToSet = {};
-      for (const [key, value] of Object.entries(userDocValuesInit)) {
-        if (!existingData?.hasOwnProperty(key)) {
-          userDocValuesToSet[key] = value;
-        }
-      }
-
-      if (Object.keys(userDocValuesToSet).length > 0) {
-        console.log(
-          "In moments.js > fetchUser, setting userDoc values to:",
-          userDocValuesToSet,
-        );
-        await setDoc(userDocRef.value, userDocValuesToSet, { merge: true });
-      }
-
       onSnapshot(userDocRef.value, (snapshot) => {
         userDoc.value = snapshot.data();
+        console.log(
+          "In moments.js > fetchUser > onSnapshot userDocRef, userDoc.value updated to:",
+          userDoc.value,
+        );
       });
       userFetched.value = true;
       console.log("In moments.js, userFetched true");
@@ -422,21 +388,22 @@ export const useMomentsStore = defineStore("moments", () => {
         );
         termsOfServiceConsent.value = null;
       }
-      if (userIntentions.value?.length > 0) {
-        await setDoc(
-          userDocRef.value,
-          { userIntentions: userIntentions.value },
-          { merge: true },
+      if (userIntentionsGroup.value?.length > 0) {
+        await setUserDocValue(
+          { userIntentions: userIntentionsGroup.value },
+          false,
         );
-        userIntentions.value.forEach((userIntention) => {
+        userIntentionsGroup.value.forEach((userIntention) => {
           if (userIntention.startsWith("somethingElse:")) {
             setUserProperty(`ui_se`, userIntention.slice(14));
           } else {
             setUserProperty(`ui_${userIntention}`, true);
           }
         });
-        logEvent("user_property_set", { userIntentions: userIntentions.value });
-        userIntentions.value = null;
+        logEvent("user_property_set", {
+          userIntentions: userIntentionsGroup.value,
+        });
+        userIntentionsGroup.value = null;
       }
     } catch (error) {
       console.log("Error in fetchUser", error); //TODO:8 show message asking to connect to internet when offline?
@@ -963,16 +930,18 @@ export const useMomentsStore = defineStore("moments", () => {
     return moms?.sort((a, b) => b.date.seconds - a.date.seconds);
   };
 
-  const setUserDocValue = async (value) => {
+  const setUserDocValue = async (value, setAnalytics = true) => {
     console.log("In moment.js > setUserDocValue for value", value);
     try {
       if (!userFetched.value) {
         await fetchUser();
       }
       await setDoc(userDocRef.value, { ...value }, { merge: true });
-      for (const [key, val] of Object.entries(value)) {
-        setUserProperty(key, val);
-        logEvent("user_property_set", { [key]: val });
+      if (setAnalytics) {
+        for (const [key, val] of Object.entries(value)) {
+          setUserProperty(key, val);
+          logEvent("user_property_set", { [key]: val });
+        }
       }
     } catch (error) {
       console.log(
@@ -1090,6 +1059,11 @@ export const useMomentsStore = defineStore("moments", () => {
 
   function $reset() {
     user.value = null;
+    privacyCheckboxState.value = false;
+    privacyPolicyConsent.value = null;
+    termsOfServiceConsent.value = null;
+    consentsCollRef.value = null;
+    userIntentionsGroup.value = null;
     userDocRef.value = null;
     userDoc.value = null;
     fetchUserLock.value = false;
@@ -1109,18 +1083,14 @@ export const useMomentsStore = defineStore("moments", () => {
     activeIndex.value = null;
     segDateId.value = "Monthly";
     pickedDateYYYYsMMsDD.value = formatDate(currentDate.value, "YYYY/MM/DD");
-    consentsCollRef.value = null;
-    privacyPolicyConsent.value = null;
-    termsOfServiceConsent.value = null;
-    userIntentions.value = null;
   }
 
   return {
     user,
     privacyCheckboxState,
     privacyPolicyConsent,
+    userIntentionsGroup,
     termsOfServiceConsent,
-    userIntentions,
     userDoc,
     userFetched,
     momentsFetched,

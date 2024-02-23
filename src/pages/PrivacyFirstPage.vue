@@ -3,7 +3,7 @@
 
     <div class="column justify-between" style="padding-top: 6vh; min-height: 50vh; ">
       <div class="col self-center q-pb-md">
-        <img src="~assets/kifkaf_shield.svg" style="width: 150px;">
+        <img src="~assets/kifkaf_shield.svg" style="height: 130px;">
       </div>
       <div class="col self-start q-pt-lg q-px-md">
         <div class="text-h4 text-weight-bold q-py-sm"> {{ t('privacyFirst') }}</div>

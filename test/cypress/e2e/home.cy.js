@@ -139,7 +139,7 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.contains("Journal").should("be.visible");
     //contains the expected tabs
     cy.contains("Journal", { timeout: 60000 }).should("be.visible");
-    // cy.wait(1000);
+    cy.wait(1500);
     cy.visit("/#/insights");
     cy.url().should("include", "insights");
     //can navigate to Insights>Journal>Settings>Journal

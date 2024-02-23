@@ -2,7 +2,7 @@
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="column justify-around q-pt-md q-pb-xl" style="min-height: 30vh; ">
       <div class="col self-center q-pb-xl">
-        <img src="~assets/icon-logotype.webp" style="width: 150px;">
+        <img src="~assets/icon-logotype.webp" style="height: 150px;">
       </div>
       <!-- style="padding-left: 15vw;" -->
       <div class="col self-center q-px-md text-h5 text-outline-dark text-weight-regular text-center"
@@ -16,46 +16,42 @@
         t('privacyPolicy') }}</a>.
     </div> -->
 
-    <q-footer class="q-mx-auto bg-transparent q-px-md q-pb-xl" style="max-width: 600px">
-      <div class="col self-center q-pt-xl">
-        <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
-          @click="continueWithApple()" class="text-subtitle1 text-weight-medium full-width q-ma-sm" style="height: 56px;"
-          no-caps icon="fa-brands fa-apple" />
+    <!-- TODO:6 fix flickering of footer -->
+    <q-footer class="q-mx-auto q-px-md bg-transparent" style="max-width: 600px">
+      <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
+        @click="continueWithApple()" class="text-subtitle1 text-weight-medium full-width q-ma-sm" style="height: 56px;"
+        no-caps icon="fa-brands fa-apple" />
 
-        <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
-          class="text-subtitle1 text-weight-medium full-width q-ma-sm" style="height: 56px;" no-caps>
-          <template v-slot:default>
-            <img style="width: 24px; height: 24px; margin-right: 12px;" src="~assets/sign_in_icon_google_light_normal.svg"
-              alt="Google">
-            {{ t('continueWithGoogle') }} </template>
-        </q-btn>
+      <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
+        class="text-subtitle1 text-weight-medium full-width q-ma-sm" style="height: 56px;" no-caps>
+        <template v-slot:default>
+          <img style="width: 24px; height: 24px; margin-right: 12px;" src="~assets/sign_in_icon_google_light_normal.svg"
+            alt="Google">
+          {{ t('continueWithGoogle') }} </template>
+      </q-btn>
 
-        <q-btn data-cy="continue-email-button" rounded unelevated color="on-primary" text-color="scrim"
-          :label="t('continueWithEmail')" @click="() => router.push('/login/email')"
-          class="text-subtitle1 text-weight-medium full-width q-ma-sm" style="height: 56px;" no-caps icon="r_mail" />
+      <q-btn data-cy="continue-email-button" rounded unelevated color="on-primary" text-color="scrim"
+        :label="t('continueWithEmail')" @click="() => router.push('/login/email')"
+        class="text-subtitle1 text-weight-medium full-width q-ma-sm" style="height: 56px;" no-caps icon="r_mail" />
 
-        <div class="text-caption text-outline q-mx-sm q-my-md">{{ t('byContinuingText') }}
-          <a data-cy="terms-link" href="/#/terms" class="text-primary" style="text-decoration: none">{{ t('tos') }}</a> {{
-            " "
-            + t('and') + " " }}
-          <a data-cy="privacy-policy-link" href="/#/privacy-policy" class="text-primary" style="text-decoration: none;">{{
-            t('privacyPolicy') }}</a>.
-        </div>
-
-        <div class="or-separator q-my-md">
-          <div class="line"></div>
-          <div class="or-text text-subtitle2 text-outline q-px-sm">{{ t('or') }}</div>
-          <div class="line"></div>
-        </div>
-
-        <div data-cy="contact-link" class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
-            style="text-decoration: none">{{ t('contactUs') }}</a>
-        </div>
-
+      <div class="text-caption text-outline q-mx-sm q-my-md">{{ t('byContinuingText') }}
+        <a data-cy="terms-link" href="/#/terms" class="text-primary" style="text-decoration: none">{{ t('tos') }}</a> {{
+          " "
+          + t('and') + " " }}
+        <a data-cy="privacy-policy-link" href="/#/privacy-policy" class="text-primary" style="text-decoration: none;">{{
+          t('privacyPolicy') }}</a>.
       </div>
 
-    </q-footer>
+      <div class="or-separator q-my-md">
+        <div class="line"></div>
+        <div class="or-text text-subtitle2 text-outline q-px-sm">{{ t('or') }}</div>
+        <div class="line"></div>
+      </div>
 
+      <div data-cy="contact-link" class="q-mx-sm text-center q-mb-xl"><a class="text-subtitle2 text-outline"
+          href="/#/contact" style="text-decoration: none">{{ t('contactUs') }}</a>
+      </div>
+    </q-footer>
 
     <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
       <q-card class="bg-background q-pa-lg text-center" flat

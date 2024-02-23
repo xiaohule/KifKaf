@@ -3,11 +3,11 @@
 
     <div class="column justify-between" style="padding-top: 15vh; min-height: 50vh; ">
       <div class="col self-center q-pb-md">
-        <img src="~assets/icon-logotype.webp" style="width: 150px;">
+        <img src="~assets/icon-logotype.webp" style="height: 150px;">
       </div>
-      <!-- style="padding-left: 15vw;" -->
       <div class="col self-start q-pt-xl q-px-md text-h4 text-outline-dark text-weight-regular"
-        v-html="t('valuePropHtml')" style="line-height: 1.3; letter-spacing: 0.01em;"></div>
+        style="line-height: 1.3; letter-spacing: 0.01em;" v-html="t('valuePropHtml')">
+      </div>
     </div>
 
     <div class="fixed-button pill-shape">
