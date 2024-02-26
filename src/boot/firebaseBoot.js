@@ -211,8 +211,8 @@ const userDocRef = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 try {
   onAuthStateChanged(getFirebaseAuth(), async (user) => {
-    console.log("onAuthStateChanged, user is:", user);
-    currentUser.value = user; //TODO:6 mettre a la fin
+    console.log("In firebaseBoot > onAuthStateChanged, user is:", user);
+    currentUser.value = user; //TODO:6 mettre a la fin?
 
     if (user?.uid) {
       const userDocRef = doc(db, "users", user.uid);
@@ -229,7 +229,9 @@ try {
           user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3";
 
         // User document does not exist, so it's likely the first sign-in
-        console.log("Initializing user doc for first-time sign-in...");
+        console.log(
+          "In firebaseBoot > Initializing user doc for first-time sign-in...",
+        );
         await setDoc(
           userDocRef,
           {
@@ -245,7 +247,7 @@ try {
           },
           { merge: true },
         );
-        console.log("User doc initialized.");
+        console.log("In firebaseBoot > User doc initialized.");
 
         //To not mess with Firebase analytics identify test accounts
         if (isTestAccount) setUserProperty("isTestAccount", "true");
@@ -258,7 +260,7 @@ try {
     isLoadingAuth.value = false;
   });
 } catch (error) {
-  console.error("Error with onAuthStateChanged:", error);
+  console.error("In firebaseBoot > Error with onAuthStateChanged:", error);
 }
 
 //APP CHECK

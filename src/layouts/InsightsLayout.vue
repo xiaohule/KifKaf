@@ -21,7 +21,7 @@
 
         <q-btn unelevated rounded no-caps class="q-py-none text-subtitle2 bg-surface text-on-surface"
           icon-right="r_expand_more" @click="filterDialogOpened = true">{{ getDatePickerLabel(ms.getActiveDateRange, t)
-                    }}</q-btn>
+          }}</q-btn>
       </q-toolbar>
     </q-header>
 
@@ -62,13 +62,11 @@ import { useMomentsStore } from './../stores/moments.js'
 import { useI18n } from "vue-i18n"
 import datePickerModal from "./../components/datePickerModal.vue";
 import { useDateUtils } from '../composables/dateUtils.js'
-import { date } from 'quasar'
 
 const router = useRouter()
 const ms = useMomentsStore()
 const { t } = useI18n()
-const { getDatePickerLabel, currentDate } = useDateUtils()
-const { getDateDiff } = date;
+const { getDatePickerLabel } = useDateUtils()
 
 const tab = ref('insights')
 const filterDialogOpened = ref(false)
@@ -76,15 +74,12 @@ const filterDialogOpened = ref(false)
 //reset swiper position to latest month/year when clicking on insights tab
 const handleInsightsClick = () => {
   if (router.currentRoute.value.path === '/insights') {
-    ms.shouldResetSwiper = true
-    //reset segDateId to Monthly and curent month
-    ms.segDateId = 'Monthly'
-    ms.activeIndex = getDateDiff(currentDate.value, ms.getOldestMomentDate, 'months');
-    //wait few seconds and hide badge with ms.setUserDocValue({ showInsightsBadge: false })
-    if (ms?.userDoc?.showInsightsBadge) {
+    ms.resetToCurrentMonth()
+    if (ms.userDoc?.showInsightsBadge) {
+      //wait few seconds and hide badge
       setTimeout(() => {
         ms.setUserDocValue({ showInsightsBadge: false })
-      }, 3000)
+      }, 1500)
     }
   }
 }

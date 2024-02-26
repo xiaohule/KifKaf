@@ -6,7 +6,6 @@ import {
   setDoc,
   addDoc,
   getDoc,
-  getDocFromServer,
   getDocs,
   onSnapshot,
   query,
@@ -41,7 +40,7 @@ const {
   formatDate,
 } = date;
 import { useDateUtils } from "../composables/dateUtils.js";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 import { i18n } from "./../boot/i18nBoot.js";
 
 axios.defaults.baseURL = process.env.API_URL;
@@ -71,7 +70,7 @@ const {
 } = useDateUtils();
 
 export const useMomentsStore = defineStore("moments", () => {
-  const router = useRouter();
+  // const router = useRouter();
   const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
@@ -86,7 +85,6 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggDataInsights = ref({});
   const aggDataNeedsFetched = ref(false);
   const aggDataInsightsFetched = ref(false);
-  const shouldResetSwiper = ref(false);
   const donutSegmentClicked = ref(null);
   const firstOnSnapshotDone = ref(false);
   const needsToggleModel = ref("top");
@@ -97,6 +95,7 @@ export const useMomentsStore = defineStore("moments", () => {
   const termsOfServiceConsent = ref(null);
   const consentsCollRef = ref(null);
   const userIntentionsGroup = ref([]);
+  const newMomText = ref("");
 
   const getActiveDateRange = computed(() => {
     console.log(
@@ -304,14 +303,10 @@ export const useMomentsStore = defineStore("moments", () => {
       : dateRangesYears.value;
   });
 
-  //when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
-  watch(shouldResetSwiper, (newVal) => {
-    console.log("In moments.js > watch shouldResetSwiper, newVal", newVal);
-    if (newVal) {
-      activeIndex.value = getDateRanges.value.length - 1;
-      shouldResetSwiper.value = false;
-    }
-  });
+  const resetToCurrentMonth = () => {
+    segDateId.value = "Monthly";
+    activeIndex.value = getDateRanges.value.length - 1;
+  };
 
   const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"));
 
@@ -865,11 +860,11 @@ export const useMomentsStore = defineStore("moments", () => {
           if (!firstOnSnapshotDone.value) firstOnSnapshotDone.value = true;
           //add condition that user is not on Insights tab to avoid triggering the badge when user is already on Insights tab
           else if (
-            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.summary ||
-            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.suggestions
+            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.summary
           ) {
+            //TODO: 4 ensure the following can run at most once every 4 seconds (debounce)
             await setUserDocValue({
-              showInsightsBadge: router.currentRoute.value.path !== "/insights",
+              showInsightsBadge: true,
             });
             logEvent("insights_updated");
           }
@@ -1077,11 +1072,12 @@ export const useMomentsStore = defineStore("moments", () => {
     aggDataInsights.value = {};
     aggDataNeedsFetched.value = false;
     aggDataInsightsFetched.value = false;
-    shouldResetSwiper.value = false;
     donutSegmentClicked.value = null;
+    firstOnSnapshotDone.value = false;
     needsToggleModel.value = "top";
     activeIndex.value = null;
     segDateId.value = "Monthly";
+    newMomText.value = "";
     pickedDateYYYYsMMsDD.value = formatDate(currentDate.value, "YYYY/MM/DD");
   }
 
@@ -1094,11 +1090,11 @@ export const useMomentsStore = defineStore("moments", () => {
     userDoc,
     userFetched,
     momentsFetched,
-    shouldResetSwiper,
     donutSegmentClicked,
     needsToggleModel,
     activeIndex,
     segDateId,
+    newMomText,
     getActiveDateRange,
     getPrevDateRange,
     getDateRanges,
@@ -1127,6 +1123,7 @@ export const useMomentsStore = defineStore("moments", () => {
     getRandomMomentIdOfTheDay,
     getPlaceholderQuoteOfTheDayId,
     setAggDataInsightsValue,
+    resetToCurrentMonth,
     $reset,
   };
 });

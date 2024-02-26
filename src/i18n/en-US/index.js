@@ -171,7 +171,7 @@ export default {
   delete: "Delete",
   momentDeleted: "Moment deleted",
   momentDeletedOffline:
-    "Moment deleted. Your need-o-meter will be updated next time you’re online.",
+    "Moment deleted. Your needs stats will be updated next time you’re online.",
   cancel: "Cancel",
   momentNeedsLearnMore: {
     title: "Needs list",
@@ -230,12 +230,12 @@ export default {
   quoteSubtitle: "Daily inspiration drawn from your moments",
   quoteWhyTitle: "Why this quote?",
   needsStats: {
-    title: "{date}'s need-o-meter", //Need-O-Meter -  Needs fingerprint/Signature - NeedPrint
-    titleThisMonth: "This month's need-o-meter",
-    titleThisYear: "This year's need-o-meter",
+    title: "{date}'s needs", //Need-O-Meter -  Needs fingerprint/Signature - NeedPrint
+    titleThisMonth: "This month's needs",
+    titleThisYear: "This year's needs",
     subtitle: "Based on the needs revealed in your feelings",
     learnMoreHtml:
-      "KifKaf analyzes the emotions in your moments to update your need-o-meter.<br><br>Our method is based on 33 essential needs, organized into 5 distinct categories:",
+      "KifKaf analyzes the emotions in your moments to update your needs stats.<br><br>Our method is based on 33 essential needs, organized into 5 distinct categories:",
     emptyInitSat:
       "Log a first positive feeling to discover the needs from which you get the most satisfaction.",
     emptyInitDissat:
@@ -307,6 +307,7 @@ export default {
   privacyPolicy: "Privacy policy",
   tos: "Terms of service",
   contactUs: "Contact us",
+  kifkafEmail: "hello@kifkaf.app",
   logout: "Log out",
   dangerZone: "Danger zone",
   deleteAccount: "Delete account",
@@ -341,7 +342,8 @@ export default {
   emailUpdated: "Email updated",
   pwdUpdated: "Password updated",
   contactUsHtml:
-    "<p>It's our #1 priority to provide you with the smoothest possible experience. <br />Feedback, feature requests, and bug reports are always very welcome.</p><p>Whatever you need, just write us in the form below or email us at:</p>",
+    "<p>It's our #1 priority to provide you with the smoothest possible experience. <br />Feedback, feature requests, and bug reports are always very welcome.</p><p>Whatever you need, just write us in the form below or email us at <a href='mailto:hello@kifkaf.app' class='text-primary' style='text-decoration: none'>hello@kifkaf.app</a>.",
+  weUsuallyReply: "We'll reply within 24 hours.",
   yourEmail: "Your email address",
   yourMessage: "Your message",
   pleaseTypeYourMessage: "Please type your message",

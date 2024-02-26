@@ -129,19 +129,23 @@ const newMomDate = ref(null)
 const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 const momentModalOpened = ref(false);
 const momentModalId = ref("");
-
-// const content = ref(t('mykey4'))
+let toggleSpeech, stopSpeech
 
 const emits = defineEmits(['update:isDialogOpened'])
 
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
+  console.log('In HomeTab > onMounted');
+  newMomText.value = ms.newMomText;
   try {
+    const result = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
+    toggleSpeech = result.toggleSpeechRecognition;
+    stopSpeech = result.stopSpeechRecognition;
+    // Delay focusing the input to give priority to speech recognition initialization
+    if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
     if (!ms.momentsFetched) {
       await ms.fetchMoments();
     }
-    if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-    momsWithScrolledNeeds.value = {};
     if (!ms.aggDataInsightsFetched) {
       await ms.fetchAggDataInsights();
     }
@@ -190,29 +194,16 @@ const newMomRules = [
 ]
 
 //SPEECH RECOGNITION
-let toggleSpeech, stopSpeech
-onMounted(async () => {
-  const result = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
-  toggleSpeech = result.toggleSpeechRecognition;
-  stopSpeech = result.stopSpeechRecognition;
-});
-
-
-//focus on textarea when speech recognition is turned off
+//highlight text when speech recognition is turned off
 watch(isRecognizing, (val) => {
   if (!val) newMomInputRef.value.$el.querySelector('textarea').select();
 })
 
-// onDeactivated(async () => {
-//   console.log('HomeTab > onDeactivate fired');
-//   if (isRecognizing.value) {
-//     await stopSpeech();
-//   }
-// })
-onBeforeUnmount(async () => {
+onBeforeUnmount(() => {
   console.log('HomeTab > onBeforeUnmount fired');
+  ms.newMomText = newMomText.value;
   if (isRecognizing.value) {
-    await stopSpeech();
+    stopSpeech();
   }
 })
 

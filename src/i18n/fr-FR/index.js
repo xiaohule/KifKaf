@@ -316,6 +316,7 @@ export default {
   privacyPolicy: "Politique de confidentialité",
   tos: "Conditions de service",
   contactUs: "Contactez-nous",
+  kifkafEmail: "hello@kifkaf.app",
   logout: "Se déconnecter",
   dangerZone: "Zone de danger",
   deleteAccount: "Supprimer mon compte",
@@ -351,7 +352,8 @@ export default {
   emailUpdated: "Email mis à jour",
   pwdUpdated: "Mot de passe mis à jour",
   contactUsHtml:
-    "<p>Chez KifKaf c'est notre priorité numéro 1 que de vous offrir la meilleure expérience possible.<br/> Vos retours seront toujours les bienvenus.</p><p>Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à :</p>",
+    "<p>Notre priorité numéro 1 est de vous offrir la meilleure expérience possible.</p><p>Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à <a href='mailto:hello@kifkaf.app' class='text-primary' style='text-decoration: none'>hello@kifkaf.app</a>.</p>",
+  weUsuallyReply: "Nous vous répondrons dans les 24 heures.",
   yourEmail: "Votre adresse email",
   yourMessage: "Votre message",
   pleaseTypeYourMessage: "Veuillez saisir votre message",

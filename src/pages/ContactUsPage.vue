@@ -1,33 +1,29 @@
-<!-- src/pages/PrivacyPolicy.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">{{ t('contactUs') }}</div>
 
-    <q-card class="bg-surface q-pa-md rounded-borders-14" flat>
-      <q-card-section class="q-py-xs">
+    <q-card class="bg-transparent q-pt-sm" flat>
+      <q-card-section class="q-px-sm q-py-sm">
         <div v-html="t('contactUsHtml')"></div>
-        <div class="bg-surface-variant rounded-borders-14 q-pa-sm q-mb-md text-center text-subtitle1">
-          <a href="mailto:hello@kifkaf.app" target="_top">hello@kifkaf.app</a>
-        </div>
+
       </q-card-section>
 
-      <q-separator />
-
-      <!-- TODO:2 add name and email and possibility to edit them -->
-      <q-card-section class="q-pb-none">
-        <q-input v-if="!(ms?.user?.email)" v-model="emailAddress" class="q-mx-sm" color="transparent" rounded outlined
+      <!-- TODO:2 add name and email and possibility to edit them even in signed up case -->
+      <q-card-section class="q-px-sm q-pt-xs q-pb-none">
+        <q-input v-if="!(ms?.user?.email)" ref="emailInputRef" v-model="emailAddress" color="transparent" rounded outlined
           type="text" bg-color="surface-variant" :placeholder="t('yourEmail')" lazy-rules :rules="emailRules" />
-        <q-input v-model="contactUsMessage" class="q-mx-sm" color="transparent" rounded outlined type="textarea" rows="5"
+        <q-input v-model="contactUsMessage" color="transparent" rounded outlined type="textarea" rows="10"
           bg-color="surface-variant" :placeholder="t('yourMessage')" lazy-rules :rules="messageRules" />
       </q-card-section>
       <q-card-actions align="right">
-        <!-- <q-btn flat rounded :label="t('cancel')" @click="contactUsMessage = ''" /> -->
-        <q-btn rounded :label="t('send')" color="primary" @click="sendContactUsMessage" padding="5px 25px"
+        <q-btn rounded :label="t('send')" color="primary" @click="sendContactUsMessage" class="full-width" padding="md"
           :loading="loading"
           :disable="!((ms?.user?.email || (emailAddress && emailAddress.length > 0)) && contactUsMessage && contactUsMessage.length > 0)"
           no-caps />
       </q-card-actions>
 
+      <q-card-section class="q-px-sm q-py-none text-caption text-outline text-center">{{ t('weUsuallyReply') }}
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
@@ -73,6 +69,7 @@ onMounted(async () => {
   }
 })
 
+const emailInputRef = ref(null)
 const emailAddress = ref('')
 const contactUsMessage = ref('')
 const loading = ref(false)
@@ -86,7 +83,16 @@ const messageRules = [
   val => (val && val.length > 0) || t('pleaseTypeYourMessage')
 ]
 
-const sendContactUsMessage = async () => {
+const sendContactUsMessage = async (event) => {
+  event.preventDefault()
+  if (!ms?.user?.email) {
+    emailInputRef.value.validate()
+    if (emailInputRef.value.hasError) {
+      emailInputRef.value.focus()
+      return
+    }
+  }
+
   // Here you can send the message to your backend
   loading.value = true
   const senderEmail = ms?.user?.email ? ms.user.email : emailAddress.value

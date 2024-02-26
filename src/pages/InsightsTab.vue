@@ -8,7 +8,10 @@
         isDatePickerLabelCurrent(ms.getActiveDateRange)
         ?
         t('summaryTitleThisMonth') : t('summaryTitle',
-          { date: getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() }) }}</div>
+          {
+            date: (i18n.global.locale.value === 'fr-FR') ? getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() :
+              getDatePickerLabel(ms.getActiveDateRange, t)
+          }) }}</div>
 
       <swiper-container v-if="swipersLoaded && ms.getDateRanges.length > 0" ref="swiperSummaryEl" :init="true"
         :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
@@ -85,7 +88,10 @@
             t('needsStats.titleThisMonth')
             :
             t('needsStats.title',
-              { date: getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() })) }}</q-item-section>
+              {
+                date: (i18n.global.locale.value === 'fr-FR') ? getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() :
+                  getDatePickerLabel(ms.getActiveDateRange, t)
+              })) }}</q-item-section>
         <q-btn side class="text-subtitle2 text-weight-medium text-primary"
           @click="learnMoreModalSection = 'needs'; learnMoreModalOpened = true" no-caps flat :ripple="false"
           padding="xs none xs sm">{{
@@ -170,7 +176,10 @@
         isDatePickerLabelCurrent(ms.getActiveDateRange)
         ?
         t('suggestionsTitleThisMonth') : t('suggestionsTitle',
-          { date: getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() }) }}</div>
+          {
+            date: (i18n.global.locale.value === 'fr-FR') ? getDatePickerLabel(ms.getActiveDateRange, t).toLowerCase() :
+              getDatePickerLabel(ms.getActiveDateRange, t)
+          }) }}</div>
 
       <swiper-container v-if="swipersLoaded && ms.getDateRanges.length > 0" ref="swiperSuggestionsEl" :init="true"
         :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true"
@@ -274,6 +283,7 @@
 import { onMounted, ref, watch, nextTick, computed } from 'vue'
 import { useMomentsStore } from './../stores/moments.js'
 import { useI18n } from "vue-i18n"
+import { i18n } from "src/boot/i18nBoot.js";
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
 import topItem from 'src/components/topItem.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
@@ -304,10 +314,18 @@ const learnMoreModalOpened = ref(false)
 const learnMoreModalSection = ref("")
 
 onMounted(async () => {
+  console.log('In InsightsTab onMounted')
   try {
-    console.log('In InsightsTab onMounted')
     if (!ms.momentsFetched) {
       await ms.fetchMoments();
+    }
+    if (ms.userDoc?.showInsightsBadge) {
+      //wait few seconds and hide badge
+      setTimeout(() => {
+        console.log('In InsightsTab > onMounted > hiding insights badge')
+        ms.resetToCurrentMonth()
+        ms.setUserDocValue({ showInsightsBadge: false })
+      }, 1500)
     }
     if (!ms.aggDataInsightsFetched) {
       await ms.fetchAggDataInsights();
