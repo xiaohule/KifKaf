@@ -313,8 +313,17 @@ const whyModalSection = ref("")
 const learnMoreModalOpened = ref(false)
 const learnMoreModalSection = ref("")
 
+async function clearAppBadge() {
+  try {
+    const { Badge } = await import('@capawesome/capacitor-badge');
+    await Badge.clear();
+  } catch (error) {
+    console.error('Error clearing badge:', error);
+  }
+}
+
 onMounted(async () => {
-  console.log('In InsightsTab onMounted')
+  console.log('In InsightsTab > onMounted')
   try {
     if (!ms.momentsFetched) {
       await ms.fetchMoments();
@@ -325,6 +334,9 @@ onMounted(async () => {
         console.log('In InsightsTab > onMounted > hiding insights badge')
         ms.resetToCurrentMonth()
         ms.setUserDocValue({ showInsightsBadge: false })
+        if (process.env.MODE === "capacitor") {
+          clearAppBadge();
+        }
       }, 1500)
     }
     if (!ms.aggDataInsightsFetched) {

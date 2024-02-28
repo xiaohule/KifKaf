@@ -16,7 +16,11 @@
       "providers": ["google.com", "apple.com"]
     },
     "PushNotifications": {
-      "presentationOptions": ["alert"]
+      "presentationOptions": ["alert", "sound"]
+    },
+    "Badge": {
+      "persist": true,
+      "autoClear": false
     }
   }
 }

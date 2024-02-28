@@ -4,6 +4,7 @@ import {
   doc,
   writeBatch,
   setDoc,
+  updateDoc,
   addDoc,
   getDoc,
   getDocs,
@@ -91,15 +92,15 @@ export const useMomentsStore = defineStore("moments", () => {
   const needsToggleModel = ref("top");
   const activeIndex = ref(null);
   const segDateId = ref("Monthly");
+  const newMomText = ref("");
+  const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"));
   const privacyCheckboxState = ref(false);
   const privacyPolicyConsent = ref(null);
   const termsOfServiceConsent = ref(null);
   const consentsCollRef = ref(null);
   const userIntentionsGroup = ref([]);
   const UIsomethingElse = ref("");
-  const timeZone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone);
   const notifs = ref({});
-  const newMomText = ref("");
 
   const getActiveDateRange = computed(() => {
     console.log(
@@ -196,8 +197,9 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const getUniqueDaysTs = computed(() => {
     console.log(
-      "In moments.js > getUniqueDaysTs, momentsColl.value:",
-      momentsColl.value,
+      "In moments.js > getUniqueDaysTs,",
+      // " momentsColl.value:",
+      // momentsColl.value,
       "returning:",
       getUniqueDaysDateFromDateRangeAndNeed(),
     );
@@ -312,8 +314,6 @@ export const useMomentsStore = defineStore("moments", () => {
     activeIndex.value = getDateRanges.value.length - 1;
   };
 
-  const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"));
-
   watch(activeIndex, (newVal) => {
     console.log("In moments.js > watch activeIndex, newVal", newVal);
     if (segDateId.value === "Monthly") {
@@ -368,46 +368,7 @@ export const useMomentsStore = defineStore("moments", () => {
       userFetched.value = true;
       console.log("In moments.js, userFetched true");
 
-      //save latest timezone
-      setUserDocValue({ timeZone: timeZone.value }, false);
-
-      //ANONYMOUS ONBOARDING DATA SAVING IF ANY
-      if (privacyPolicyConsent.value) {
-        privacyPolicyConsent.value.acceptedAt = serverTimestamp();
-        await addDoc(consentsCollRef.value, privacyPolicyConsent.value);
-        console.log(
-          "In moments.js > fetchUser, privacyPolicyConsent saved:",
-          privacyPolicyConsent.value,
-        );
-        privacyPolicyConsent.value = null;
-      }
-      if (termsOfServiceConsent.value) {
-        termsOfServiceConsent.value.acceptedAt = serverTimestamp();
-        await addDoc(consentsCollRef.value, termsOfServiceConsent.value);
-        console.log(
-          "In moments.js > fetchUser, termsOfServiceConsent saved:",
-          termsOfServiceConsent.value,
-        );
-        termsOfServiceConsent.value = null;
-      }
-      if (userIntentionsGroup.value?.length > 0) {
-        await setUserDocValue(
-          { userIntentions: userIntentionsGroup.value },
-          false,
-        );
-        userIntentionsGroup.value.forEach((userIntention) => {
-          if (userIntention.startsWith("somethingElse:")) {
-            setUserProperty(`ui_se`, userIntention.slice(14).slice(0, 36)); //to avoid "User property value is too long. The maximum supported length is 36"
-          } else {
-            setUserProperty(`ui_${userIntention}`, true);
-          }
-        });
-        logEvent("user_property_set", {
-          userIntentions: userIntentionsGroup.value,
-        });
-        userIntentionsGroup.value = null;
-      }
-
+      //NOTIFS
       if (notifs.value.journalNotifs || notifs.value.insightsNotifs) {
         await setUserDocValue(notifs.value);
         notifs.value = {};
@@ -422,6 +383,47 @@ export const useMomentsStore = defineStore("moments", () => {
           },
           false,
         );
+      }
+
+      //save latest timezone
+      updateDoc(userDocRef.value, {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+
+      //ANONYMOUS ONBOARDING DATA SAVING IF ANY
+      if (privacyPolicyConsent.value) {
+        privacyPolicyConsent.value.acceptedAt = serverTimestamp();
+        addDoc(consentsCollRef.value, privacyPolicyConsent.value);
+        console.log(
+          "In moments.js > fetchUser, privacyPolicyConsent saved:",
+          privacyPolicyConsent.value,
+        );
+        privacyPolicyConsent.value = null;
+      }
+
+      if (termsOfServiceConsent.value) {
+        termsOfServiceConsent.value.acceptedAt = serverTimestamp();
+        addDoc(consentsCollRef.value, termsOfServiceConsent.value);
+        console.log(
+          "In moments.js > fetchUser, termsOfServiceConsent saved:",
+          termsOfServiceConsent.value,
+        );
+        termsOfServiceConsent.value = null;
+      }
+
+      if (userIntentionsGroup.value?.length > 0) {
+        setUserDocValue({ userIntentions: userIntentionsGroup.value }, false);
+        userIntentionsGroup.value.forEach((userIntention) => {
+          if (userIntention.startsWith("somethingElse:")) {
+            setUserProperty(`ui_se`, userIntention.slice(14).slice(0, 36)); //to avoid "User property value is too long. The maximum supported length is 36"
+          } else {
+            setUserProperty(`ui_${userIntention}`, true);
+          }
+        });
+        logEvent("user_property_set", {
+          userIntentions: userIntentionsGroup.value,
+        });
+        userIntentionsGroup.value = null;
       }
     } catch (error) {
       console.log("Error in fetchUser", error); //TODO:8 show message asking to connect to internet when offline?
@@ -872,25 +874,6 @@ export const useMomentsStore = defineStore("moments", () => {
         doc(aggMonthlyCollRef.value, `${currentYYYYdMM.value}-insights`),
         async (snapshot) => {
           aggDataInsights.value[currentYYYYdMM.value] = snapshot.data();
-          console.log(
-            "In moments.js onSnapshot aggDataInsights.value[currentYYYYdMM.value]just ran:",
-            aggDataInsights.value[currentYYYYdMM.value],
-            "with firstOnSnapshotDone.value:",
-            firstOnSnapshotDone.value,
-            "and showInsightsBadge:",
-            userDoc.value?.showInsightsBadge,
-          );
-          if (!firstOnSnapshotDone.value) firstOnSnapshotDone.value = true;
-          //add condition that user is not on Insights tab to avoid triggering the badge when user is already on Insights tab
-          else if (
-            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.summary
-          ) {
-            //TODO: 4 ensure the following can run at most once every 4 seconds (debounce)
-            await setUserDocValue({
-              showInsightsBadge: true,
-            });
-            logEvent("insights_updated");
-          }
         },
       );
 
@@ -1078,13 +1061,6 @@ export const useMomentsStore = defineStore("moments", () => {
 
   function $reset() {
     user.value = null;
-    privacyCheckboxState.value = false;
-    privacyPolicyConsent.value = null;
-    termsOfServiceConsent.value = null;
-    consentsCollRef.value = null;
-    userIntentionsGroup.value = null;
-    UIsomethingElse.value = "";
-    notifs.value = {};
     userDocRef.value = null;
     userDoc.value = null;
     fetchUserLock.value = false;
@@ -1105,6 +1081,13 @@ export const useMomentsStore = defineStore("moments", () => {
     segDateId.value = "Monthly";
     newMomText.value = "";
     pickedDateYYYYsMMsDD.value = formatDate(currentDate.value, "YYYY/MM/DD");
+    privacyCheckboxState.value = false;
+    privacyPolicyConsent.value = null;
+    termsOfServiceConsent.value = null;
+    consentsCollRef.value = null;
+    userIntentionsGroup.value = [];
+    UIsomethingElse.value = "";
+    notifs.value = {};
   }
 
   return {

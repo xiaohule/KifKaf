@@ -1,6 +1,9 @@
 import { boot } from "quasar/wrappers";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter(); // Assuming you're using Vue Router
 
 export const pushNotifRegistrationToken = ref("");
 
@@ -24,6 +27,13 @@ const addListeners = async () => {
         "In pushNotificationsBoot > Push notification received: ",
         notification,
       );
+      if (notification?.data?.targetPage) {
+        console.log(
+          "In pushNotificationsBoot > Push notification targetPage: ",
+          notification.data.targetPage,
+        );
+        router.push(notification.data.targetPage);
+      }
     },
   );
 

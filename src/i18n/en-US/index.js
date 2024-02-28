@@ -310,6 +310,7 @@ export default {
   janeDoeDomain: "email.com",
   janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Password",
+  notificationSettings: "Notification settings",
   appLanguage: "App language",
   speechRecoLanguage: "Speech recognition language",
   privacyPolicy: "Privacy policy",

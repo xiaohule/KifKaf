@@ -38,6 +38,8 @@ PODS:
     - FirebaseAuth (~> 10.8)
   - CapacitorPushNotifications (5.1.1):
     - Capacitor
+  - CapawesomeCapacitorBadge (5.0.0):
+    - Capacitor
   - Firebase/CoreOnly (10.15.0):
     - FirebaseCore (= 10.15.0)
   - Firebase/Messaging (10.15.0):
@@ -168,6 +170,7 @@ DEPENDENCIES:
   - "CapacitorFirebaseAuthentication (from `../../node_modules/@capacitor-firebase/authentication`)"
   - "CapacitorFirebaseAuthentication/Google (from `../../node_modules/@capacitor-firebase/authentication`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapawesomeCapacitorBadge (from `../../node_modules/@capawesome/capacitor-badge`)"
   - Firebase/Messaging
   - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
@@ -213,6 +216,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor-firebase/authentication"
   CapacitorPushNotifications:
     :path: "../../node_modules/@capacitor/push-notifications"
+  CapawesomeCapacitorBadge:
+    :path: "../../node_modules/@capawesome/capacitor-badge"
   SentryCapacitor:
     :path: "../../node_modules/@sentry/capacitor"
 
@@ -227,6 +232,7 @@ SPEC CHECKSUMS:
   CapacitorFirebaseAppCheck: ce24ffecbe5725e20325b7294c7a35f6f0555b86
   CapacitorFirebaseAuthentication: 4b5146252052345d7c0cd8147dd4f1372a65e99b
   CapacitorPushNotifications: 2327900bc002f5ff49ee6d2231796d0635b4a1b0
+  CapawesomeCapacitorBadge: 2b9919ea79b85bdc5455143cf6607c9e25bec9ae
   Firebase: 66043bd4579e5b73811f96829c694c7af8d67435
   FirebaseAnalytics: e1fc758bd5d71823bba970c076abee4b2450a5f4
   FirebaseAppCheck: 8bde2c5f393518ab98290151188bf196b4bab91e
@@ -248,6 +254,6 @@ SPEC CHECKSUMS:
   SentryCapacitor: 5c27da09956d89b0ba715071f6a37c137d9aea50
   SentryPrivate: 2f0c9ba4c3fc993f70eab6ca95673509561e0085
 
-PODFILE CHECKSUM: 2489c0d17d10d88c5d56be4f5f9068ba903a3a9d
+PODFILE CHECKSUM: a27ca12b6d916e3bb0fc91d6735615d2d23bb567
 
 COCOAPODS: 1.12.1

@@ -389,8 +389,10 @@ router.post("/compute-insights/", async (req, res) => {
           }
 
           //PERSIST INSIGHTS IF SUCCESS PATH
+          const batch = db.batch();
+
           //persist insights data in firestore in aggregateMonthlyInsightsDoc.insights
-          await aggregateMonthlyInsightsDocRef.update({
+          batch.update(aggregateMonthlyInsightsDocRef, {
             nSuccessRun: FieldValue.increment(1),
             isNew: {
               summary: true,
@@ -402,6 +404,12 @@ router.post("/compute-insights/", async (req, res) => {
             lastUpdate: FieldValue.serverTimestamp(),
           });
 
+          //set userDoc showInsightsBadge to true
+          batch.update(userDocRef, { showInsightsBadge: true });
+
+          // Commit the batch
+          await batch.commit();
+
           console.log(
             "In computeInsights for uid",
             req.uid,
@@ -409,6 +417,7 @@ router.post("/compute-insights/", async (req, res) => {
             `${key}-insights`,
           );
 
+          //send insights notif
           const userDoc = (await userDocRef.get()).data();
           if (userDoc.fcmToken && userDoc.insightsNotifs) {
             console.log(

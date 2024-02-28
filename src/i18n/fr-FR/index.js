@@ -319,6 +319,7 @@ export default {
   janeDoeDomain: "email.com",
   janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Mot de passe",
+  notificationSettings: "Notifications",
   appLanguage: "Langue de l'application",
   speechRecoLanguage: "Langue de reconnaissance vocale",
   privacyPolicy: "Politique de confidentialité",

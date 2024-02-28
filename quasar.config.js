@@ -153,6 +153,10 @@ module.exports = configure(function (ctx) {
           __dirname,
           "src-capacitor/node_modules/@sentry/capacitor",
         ),
+        "@capawesome": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capawesome",
+        ),
       },
     },
 

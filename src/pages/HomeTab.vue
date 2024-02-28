@@ -202,9 +202,8 @@ watch(isRecognizing, (val) => {
 onBeforeUnmount(() => {
   console.log('HomeTab > onBeforeUnmount fired');
   ms.newMomText = newMomText.value;
-  if (isRecognizing.value) {
-    stopSpeech();
-  }
+  stopSpeech();
+
 })
 
 // ADD MOMENT

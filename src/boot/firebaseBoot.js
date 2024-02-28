@@ -212,7 +212,6 @@ const userDocRef = ref(null);
 try {
   onAuthStateChanged(getFirebaseAuth(), async (user) => {
     console.log("In firebaseBoot > onAuthStateChanged, user is:", user);
-    currentUser.value = user; //TODO:6 mettre a la fin?
 
     if (user?.uid) {
       userDocRef.value = doc(db, "users", user.uid);
@@ -232,7 +231,7 @@ try {
 
         // User document does not exist, so it's likely the first sign-in
         console.log(
-          "In firebaseBoot > Initializing user doc for first-time sign-in...",
+          "In firebaseBoot > onAuthStateChanged > Initializing user doc for first-time sign-in...",
         );
         await setDoc(
           userDocRef.value,
@@ -250,7 +249,9 @@ try {
           },
           { merge: true },
         );
-        console.log("In firebaseBoot > User doc initialized.");
+        console.log(
+          "In firebaseBoot > onAuthStateChanged > User doc initialized.",
+        );
 
         //To not mess with Firebase analytics identify test accounts
         if (isTestAccount) setUserProperty("isTestAccount", "true");
@@ -262,17 +263,17 @@ try {
       //AT ALL SIGN-INS
       const userPickedLocale = userDocSnapshot.data().locale;
       console.log(
-        "In firebaseBoot > userPickedLocale:",
+        "In firebaseBoot > onAuthStateChanged > userPickedLocale:",
         userPickedLocale,
-        "userDocSnapshot.data():",
-        userDocSnapshot.data(),
+        // "userDocSnapshot.data():",
+        // userDocSnapshot.data(),
       );
       if (userPickedLocale) {
         //user has a picked locale set, use it in the app (overwrite Quasar.lang.getLocale() from i18nBoot)
         i18n.global.locale.value = userPickedLocale;
         await setQuasarLangPack(userPickedLocale);
         console.log(
-          "In firebaseBoot > just set app locale to userPickedLocale: ",
+          "In firebaseBoot > onAuthStateChanged > just set app locale to userPickedLocale: ",
           userPickedLocale,
         );
       } else {
@@ -281,6 +282,7 @@ try {
           deviceLocale: i18n.global.locale.value,
         });
       }
+      currentUser.value = user; //We can allow fetchUser to proceed now
       httpRetryHandler();
       Sentry.setUser({ id: user.uid });
       setUserId(user.uid);
@@ -288,7 +290,10 @@ try {
     isLoadingAuth.value = false;
   });
 } catch (error) {
-  console.error("In firebaseBoot > Error with onAuthStateChanged:", error);
+  console.error(
+    "In firebaseBoot > onAuthStateChanged > Error with onAuthStateChanged:",
+    error,
+  );
 }
 
 //APP CHECK
