@@ -4,7 +4,6 @@ import * as SentryVue from "@sentry/vue";
 //TODO:5 tree shake sentry https://docs.sentry.io/platforms/javascript/guides/vue/configuration/tree-shaking/?
 export default boot(({ app, router }) => {
   if (process.env.MODE !== "capacitor") {
-    // console.log("In firebaseBoot, will init Sentry for web");
     SentryVue.init({
       app,
       dsn: "https://14d302e6de1ed16a581dea3f4d90aec6@o4506138007961600.ingest.sentry.io/4506138013204480",

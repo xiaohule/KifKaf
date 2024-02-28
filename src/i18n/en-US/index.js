@@ -5,11 +5,11 @@ export default {
   privacyPolicyPage,
   tosPage,
   filepaths: {
-    screenshot1: "/screenshot1_en.webp",
-    screenshot2: "/screenshot2_en.webp",
-    screenshot3: "/screenshot3_en.webp",
-    screenshot4: "/screenshot4_en.webp",
-    screenshot5: "/screenshot5_en.webp",
+    screenshot1: "screenshot1_en.webp",
+    screenshot2: "screenshot2_en.webp",
+    screenshot3: "screenshot3_en.webp",
+    screenshot4: "screenshot4_en.webp",
+    screenshot5: "screenshot5_en.webp",
   },
   welcomeToKifkaf: "Welcome to KifKaf",
   kifkaf: "KifKaf",
@@ -23,6 +23,7 @@ export default {
   iAgreeToThe: "I agree to the",
   andThe: "and the",
   whatsOnYourMind: "What's on your mind?",
+  maybeLater: "Maybe later",
   iWantTo: "I want to...",
   yourChoicesWont:
     "Your choices won't limit access to any features of the app.",
@@ -34,6 +35,13 @@ export default {
   keepTrackEmotions: "Keep track of my emotions",
   makeWiserLifeDecisions: "Make wiser life decisions",
   somethingElse: "Something else",
+  getRemindersToMake: "Get reminders to make the most out of KifKaf",
+  journalingNotif: "Journaling",
+  journalingNotifText:
+    "When will you make time for jotting down the day's ups and downs?",
+  insightsNotif: "Insights",
+  insightsNotifText:
+    "Receive a notification when new insights about your journal are ready.",
   login: "Log in",
   loginToKifKaf: "Log in to KifKaf",
   continueWithGoogle: "Continue with Google",
@@ -307,7 +315,6 @@ export default {
   privacyPolicy: "Privacy policy",
   tos: "Terms of service",
   contactUs: "Contact us",
-  kifkafEmail: "hello@kifkaf.app",
   logout: "Log out",
   dangerZone: "Danger zone",
   deleteAccount: "Delete account",
@@ -341,8 +348,10 @@ export default {
   nameUpdated: "Name updated",
   emailUpdated: "Email updated",
   pwdUpdated: "Password updated",
-  contactUsHtml:
-    "<p>It's our #1 priority to provide you with the smoothest possible experience. <br />Feedback, feature requests, and bug reports are always very welcome.</p><p>Whatever you need, just write us in the form below or email us at <a href='mailto:hello@kifkaf.app' class='text-primary' style='text-decoration: none'>hello@kifkaf.app</a>.",
+  contactUsHtml1:
+    "<p>It's our #1 priority to provide you with the smoothest possible experience. <br>Feedback, feature requests, and bug reports are always very welcome.</p>",
+  contactUs2:
+    "Whatever you need, just write us in the form below or email us at",
   weUsuallyReply: "We'll reply within 24 hours.",
   yourEmail: "Your email address",
   yourMessage: "Your message",

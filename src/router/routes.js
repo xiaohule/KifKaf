@@ -77,7 +77,10 @@ const routes = [
         component: () => import("pages/PrivacyFirstPage.vue"),
       },
       { path: "3", component: () => import("pages/UserIntentionsPage.vue") }, //TODO:6 add skip button
-      // { path: "4", component: () => import("pages/ReminderSettingPage.vue") },
+      {
+        path: "4",
+        component: () => import("pages/NotificationsSettingPage.vue"),
+      },
     ],
   },
   {

@@ -101,7 +101,7 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               <q-item>
                 <q-item-section>
                   <q-item-section v-if="ms.aggDataInsights?.[ms.getActiveDateRange]?.summary?.length > 0"
-                    class="text-body1">
+                    class="text-body1 text-center">
                     {{ t('welcomeTutorial.step3Ready') }}
                   </q-item-section>
                   <q-item-section v-else-if="!ms.userDoc?.hasNeeds" class="text-body2"> {{

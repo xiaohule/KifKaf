@@ -287,7 +287,7 @@ import { i18n } from "src/boot/i18nBoot.js";
 import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
 import topItem from 'src/components/topItem.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
-// import lottie1 from './../assets/lottie1.json'
+// import lottie1 from '~assets/lottie1.json'
 import momentModal from 'src/components/momentModal.vue'
 import whyModal from 'src/components/whyModal.vue'
 import learnMoreModal from 'src/components/learnMoreModal.vue'

@@ -4,8 +4,9 @@
 
     <q-card class="bg-transparent q-pt-sm" flat>
       <q-card-section class="q-px-sm q-py-sm">
-        <div v-html="t('contactUsHtml')"></div>
-
+        <div v-html="t('contactUsHtml1')"></div>
+        <div> {{ t('contactUs2') }} <a href='mailto:hello@kifkaf.app' class='text-primary'
+            style='text-decoration: none'>hello@kifkaf.app</a>.</div>
       </q-card-section>
 
       <!-- TODO:2 add name and email and possibility to edit them even in signed up case -->

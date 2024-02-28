@@ -215,8 +215,10 @@ try {
     currentUser.value = user; //TODO:6 mettre a la fin?
 
     if (user?.uid) {
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
+      userDocRef.value = doc(db, "users", user.uid);
+      let userDocSnapshot = await getDoc(userDocRef.value);
+
+      //AT FIRST SIGN-IN
       if (!userDocSnapshot.exists()) {
         const isTestAccount =
           user.email.endsWith("@yopmail.com") ||
@@ -233,7 +235,7 @@ try {
           "In firebaseBoot > Initializing user doc for first-time sign-in...",
         );
         await setDoc(
-          userDocRef,
+          userDocRef.value,
           {
             hasNeeds: false,
             welcomeTutorialStep: 0,
@@ -244,6 +246,7 @@ try {
             momentsDeletedCount: 0,
             createdAt: serverTimestamp(),
             isTestAccount: isTestAccount,
+            deviceLocale: i18n.global.locale.value,
           },
           { merge: true },
         );
@@ -252,8 +255,33 @@ try {
         //To not mess with Firebase analytics identify test accounts
         if (isTestAccount) setUserProperty("isTestAccount", "true");
         else setUserProperty("isTestAccount", "false");
-      } else console.log("User doc already exists.");
 
+        userDocSnapshot = await getDoc(userDocRef.value); //refresh userDocSnapshot
+      }
+
+      //AT ALL SIGN-INS
+      const userPickedLocale = userDocSnapshot.data().locale;
+      console.log(
+        "In firebaseBoot > userPickedLocale:",
+        userPickedLocale,
+        "userDocSnapshot.data():",
+        userDocSnapshot.data(),
+      );
+      if (userPickedLocale) {
+        //user has a picked locale set, use it in the app (overwrite Quasar.lang.getLocale() from i18nBoot)
+        i18n.global.locale.value = userPickedLocale;
+        await setQuasarLangPack(userPickedLocale);
+        console.log(
+          "In firebaseBoot > just set app locale to userPickedLocale: ",
+          userPickedLocale,
+        );
+      } else {
+        //at default, ensure userDoc's deviceLocale is up-to-date as it will be used for notifs since no userPickedLocale is set
+        await updateDoc(userDocRef.value, {
+          deviceLocale: i18n.global.locale.value,
+        });
+      }
+      httpRetryHandler();
       Sentry.setUser({ id: user.uid });
       setUserId(user.uid);
     }
@@ -343,32 +371,6 @@ if (
       );
     });
 }
-
-const setAppLocaleToUserPreference = async (userDocRef) => {
-  const userDocSnap = await getDoc(userDocRef.value);
-  if (userDocSnap.exists()) {
-    const userLocale = userDocSnap.data().locale;
-    if (userLocale) {
-      i18n.global.locale.value = userLocale;
-
-      //quasar lang pack
-      await setQuasarLangPack(userLocale);
-
-      console.log(
-        "In firebaseBoot > in setLocaleToUserPreference, just set app locale to user's picked locale: ",
-        userLocale,
-      );
-    } else
-      console.log(
-        "In firebaseBoot > in setLocaleToUserPreference, userDocSnap.data() is",
-        userDocSnap.data(),
-        "not containing locale",
-      );
-  } else
-    console.log(
-      "In firebaseBoot > in setLocaleToUserPreference, not able to get userDocSnap",
-    );
-};
 
 //ADD MOMENT RETRY: at each start of the app, look for moments with empty needs and retry the LLM call
 export const addDeleteMomentRetry = async (force = false) => {
@@ -535,8 +537,8 @@ export default boot(({ router }) => {
         to.fullPath,
         "to.meta.requiresAuth: ",
         to.meta.requiresAuth,
-        "currentUser.value:",
-        currentUser.value,
+        "currentUser.value.uid:",
+        currentUser.value?.uid,
         "!currentUser.value?.emailVerified:",
         !currentUser.value?.emailVerified,
         "to.meta.requiresAuth && !currentUser.value?.emailVerified:",
@@ -642,19 +644,6 @@ export default boot(({ router }) => {
     // Set current screen for Firebase analytics
     setCurrentScreen(to.path);
   });
-
-  // Call httpRetryHandler during app initialization
-  watch(
-    currentUser,
-    (newVal) => {
-      if (newVal) {
-        userDocRef.value = doc(db, "users", currentUser.value.uid);
-        setAppLocaleToUserPreference(userDocRef);
-        httpRetryHandler();
-      }
-    },
-    { immediate: true },
-  );
 
   //   window.addEventListener('offline', () => {
   //   console.log("App is offline");

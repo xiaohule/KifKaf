@@ -21,8 +21,9 @@
     </div>
 
     <div class="fixed-button pill-shape">
-      <q-btn data-cy="next-button-3" :disable="ms.userIntentionsGroup.length === 0" rounded color="scrim" padding="md xl"
-        :label="t('next')" @click="clickedNext" class="text-subtitle1 text-weight-medium" no-caps />
+      <q-btn data-cy="next-button-3" :disable="(!ms.userIntentionsGroup) || (ms.userIntentionsGroup.length === 0)" rounded
+        color="scrim" padding="md xl" :label="t('next')" @click="clickedNext" class="text-subtitle1 text-weight-medium"
+        no-caps />
     </div>
 
     <q-dialog v-model="somethingElseDialogOpened" position="bottom" style="max-width: 600px">
@@ -35,7 +36,7 @@
           </q-card-section>
           <q-card-section>
             <q-input ref="somethingElseInputRef" class="" color="transparent" clearable rounded outlined
-              v-model="somethingElseValue" type="text" autogrow bg-color="surface-variant"
+              v-model="ms.UIsomethingElse" type="text" autogrow bg-color="surface-variant"
               :placeholder="t('whatDoYouHope')" />
           </q-card-section>
         </div>
@@ -75,7 +76,6 @@ const options = [//TODO:3 //make it fully depenendent on i18n files?
 ];
 const somethingElseDialogOpened = ref(false);
 const somethingElseInputRef = ref(null);
-const somethingElseValue = ref('');
 
 const toggleSelection = (value) => {
   if (value !== 'somethingElse') {
@@ -94,11 +94,10 @@ const toggleSelection = (value) => {
 };
 
 const updateSomethingElse = () => {
-  console.log('In UserIntentionsPage > updateSomethingElse:', somethingElseValue.value);
-  //if (somethingElseValue.value), remove any element in ms.userIntentionsGroup that startsWith somethingElse and push 'somethingElse:'+somethingElseValue.value
-  if (somethingElseValue.value) {
+  console.log('In UserIntentionsPage > updateSomethingElse:', ms.UIsomethingElse);
+  if (ms.UIsomethingElse) {
     ms.userIntentionsGroup = ms.userIntentionsGroup.filter(item => !item.startsWith('somethingElse'));
-    ms.userIntentionsGroup.push('somethingElse:' + somethingElseValue.value);
+    ms.userIntentionsGroup.push('somethingElse:' + ms.UIsomethingElse);
   }
   //else,  remove any element in ms.userIntentionsGroup that startsWith somethingElse
   else {
@@ -109,9 +108,15 @@ const updateSomethingElse = () => {
 
 const clickedNext = () => {
   console.log("In userIntentionPage, clickedNext");
-  logEvent("tutorial_complete", { tutorial_type: "onboarding" });
+  if (process.env.MODE === "capacitor") {
+    router.push('/onboarding/4')
+  }
+  else {
+    logEvent("tutorial_complete", { tutorial_type: "onboarding" });
+    // router.push('/onboarding/4')
+    router.push('/welcome')
+  }
 
-  router.push('/welcome')
 }
 
 onUnmounted(() => {

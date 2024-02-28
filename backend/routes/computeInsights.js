@@ -10,6 +10,7 @@ const {
 const { createOpenaiRequestOptions } = require("../utils/openaiPromptsUtils");
 const { FieldValue } = require("firebase-admin/firestore");
 const { db, openai } = require("../utils/servicesConfig");
+const { sendInsightsNotif } = require("../utils/insightsNotifsUtils");
 
 const promptVersion = "gpt4_7_2_1";
 
@@ -407,6 +408,19 @@ router.post("/compute-insights/", async (req, res) => {
             "added insights to aggregateMonthly.",
             `${key}-insights`,
           );
+
+          const userDoc = (await userDocRef.get()).data();
+          if (userDoc.fcmToken && userDoc.insightsNotifs) {
+            console.log(
+              "In computeInsights for uid",
+              req.uid,
+              "sending insights notif",
+            );
+            sendInsightsNotif(
+              userDoc.fcmToken,
+              userDoc.locale || userDoc.deviceLocale,
+            );
+          }
         }
       } catch (error) {
         console.log(

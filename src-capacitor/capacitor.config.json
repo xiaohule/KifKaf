@@ -4,7 +4,7 @@
   "webDir": "www",
   "server": {
     "androidScheme": "https",
-    "url": "http://192.168.1.52:9500"
+    "url": "http://192.168.1.51:9500"
   },
   "backgroundColor": "#f7f7f7",
   "ios": {
@@ -13,10 +13,10 @@
   "plugins": {
     "FirebaseAuthentication": {
       "skipNativeAuth": true,
-      "providers": [
-        "google.com",
-        "apple.com"
-      ]
+      "providers": ["google.com", "apple.com"]
+    },
+    "PushNotifications": {
+      "presentationOptions": ["alert"]
     }
   }
 }

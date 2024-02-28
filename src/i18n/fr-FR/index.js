@@ -5,11 +5,11 @@ export default {
   privacyPolicyPage,
   tosPage,
   filepaths: {
-    screenshot1: "/screenshot1_fr.webp",
-    screenshot2: "/screenshot2_fr.webp",
-    screenshot3: "/screenshot3_fr.webp",
-    screenshot4: "/screenshot4_fr.webp",
-    screenshot5: "/screenshot5_fr.webp",
+    screenshot1: "screenshot1_fr.webp",
+    screenshot2: "screenshot2_fr.webp",
+    screenshot3: "screenshot3_fr.webp",
+    screenshot4: "screenshot4_fr.webp",
+    screenshot5: "screenshot5_fr.webp",
   },
   welcomeToKifkaf: "Bienvenue sur KifKaf",
   kifkaf: "KifKaf",
@@ -22,6 +22,7 @@ export default {
   iAgreeToThe: "J'accepte la",
   andThe: "et les",
   whatsOnYourMind: "Qu'avez-vous en tête ?",
+  maybeLater: "Peut-être plus tard",
   iWantTo: "Je veux...",
   yourChoicesWont:
     "Vos choix ne limiteront aucunement votre expérience sur l'app.",
@@ -33,6 +34,13 @@ export default {
   keepTrackEmotions: "Garder une trace de mes émotions",
   makeWiserLifeDecisions: "Faire des choix de vie plus avisés", //éclairés
   somethingElse: "Autre chose",
+  getRemindersToMake: "Recevez des rappels pour atteindre vos objectifs.",
+  journalingNotif: "Journal",
+  journalingNotifText:
+    "Quand souhaitez-vous prendre un moment pour noter vos émotions du jour ?",
+  insightsNotif: "Éclairages", //Analyse Eclairages Tendances Perspectives Besoins Besoins & +
+  insightsNotifText:
+    "Recevez une notification quand de nouveaux éclairages sur votre journal sont prêts.",
   login: "Se connecter",
   loginToKifKaf: "Se connecter à KifKaf",
   continueWithGoogle: "Continuer avec Google",
@@ -316,7 +324,6 @@ export default {
   privacyPolicy: "Politique de confidentialité",
   tos: "Conditions de service",
   contactUs: "Contactez-nous",
-  kifkafEmail: "hello@kifkaf.app",
   logout: "Se déconnecter",
   dangerZone: "Zone de danger",
   deleteAccount: "Supprimer mon compte",
@@ -351,8 +358,10 @@ export default {
   nameUpdated: "Nom mis à jour",
   emailUpdated: "Email mis à jour",
   pwdUpdated: "Mot de passe mis à jour",
-  contactUsHtml:
-    "<p>Notre priorité numéro 1 est de vous offrir la meilleure expérience possible.</p><p>Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à <a href='mailto:hello@kifkaf.app' class='text-primary' style='text-decoration: none'>hello@kifkaf.app</a>.</p>",
+  contactUsHtml1:
+    "<p>Notre priorité numéro 1 est de vous offrir la meilleure expérience possible.</p>",
+  contactUs2:
+    "Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à",
   weUsuallyReply: "Nous vous répondrons dans les 24 heures.",
   yourEmail: "Votre adresse email",
   yourMessage: "Votre message",

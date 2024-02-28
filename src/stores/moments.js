@@ -29,6 +29,7 @@ import {
   logEvent,
   setUserProperty,
 } from "../boot/firebaseBoot.js";
+import { pushNotifRegistrationToken } from "../boot/pushNotificationsBoot.js";
 import { date } from "quasar";
 const {
   getDateDiff,
@@ -95,6 +96,9 @@ export const useMomentsStore = defineStore("moments", () => {
   const termsOfServiceConsent = ref(null);
   const consentsCollRef = ref(null);
   const userIntentionsGroup = ref([]);
+  const UIsomethingElse = ref("");
+  const timeZone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const notifs = ref({});
   const newMomText = ref("");
 
   const getActiveDateRange = computed(() => {
@@ -356,15 +360,18 @@ export const useMomentsStore = defineStore("moments", () => {
 
       onSnapshot(userDocRef.value, (snapshot) => {
         userDoc.value = snapshot.data();
-        console.log(
-          "In moments.js > fetchUser > onSnapshot userDocRef, userDoc.value updated to:",
-          userDoc.value,
-        );
+        // console.log(
+        //   "In moments.js > fetchUser > onSnapshot userDocRef, userDoc.value updated to:",
+        //   userDoc.value,
+        // );
       });
       userFetched.value = true;
       console.log("In moments.js, userFetched true");
 
-      //anonymous onboarding data saving
+      //save latest timezone
+      setUserDocValue({ timeZone: timeZone.value }, false);
+
+      //ANONYMOUS ONBOARDING DATA SAVING IF ANY
       if (privacyPolicyConsent.value) {
         privacyPolicyConsent.value.acceptedAt = serverTimestamp();
         await addDoc(consentsCollRef.value, privacyPolicyConsent.value);
@@ -390,7 +397,7 @@ export const useMomentsStore = defineStore("moments", () => {
         );
         userIntentionsGroup.value.forEach((userIntention) => {
           if (userIntention.startsWith("somethingElse:")) {
-            setUserProperty(`ui_se`, userIntention.slice(14));
+            setUserProperty(`ui_se`, userIntention.slice(14).slice(0, 36)); //to avoid "User property value is too long. The maximum supported length is 36"
           } else {
             setUserProperty(`ui_${userIntention}`, true);
           }
@@ -399,6 +406,22 @@ export const useMomentsStore = defineStore("moments", () => {
           userIntentions: userIntentionsGroup.value,
         });
         userIntentionsGroup.value = null;
+      }
+
+      if (notifs.value.journalNotifs || notifs.value.insightsNotifs) {
+        await setUserDocValue(notifs.value);
+        notifs.value = {};
+      }
+
+      if (pushNotifRegistrationToken.value) {
+        //TODO:8 position at better place when understood when this occurs
+        await setUserDocValue(
+          {
+            fcmToken: pushNotifRegistrationToken.value,
+            fcmTokenUpdatedAt: serverTimestamp(),
+          },
+          false,
+        );
       }
     } catch (error) {
       console.log("Error in fetchUser", error); //TODO:8 show message asking to connect to internet when offline?
@@ -932,6 +955,7 @@ export const useMomentsStore = defineStore("moments", () => {
         await fetchUser();
       }
       await setDoc(userDocRef.value, { ...value }, { merge: true });
+
       if (setAnalytics) {
         for (const [key, val] of Object.entries(value)) {
           setUserProperty(key, val);
@@ -1059,6 +1083,8 @@ export const useMomentsStore = defineStore("moments", () => {
     termsOfServiceConsent.value = null;
     consentsCollRef.value = null;
     userIntentionsGroup.value = null;
+    UIsomethingElse.value = "";
+    notifs.value = {};
     userDocRef.value = null;
     userDoc.value = null;
     fetchUserLock.value = false;
@@ -1086,6 +1112,8 @@ export const useMomentsStore = defineStore("moments", () => {
     privacyCheckboxState,
     privacyPolicyConsent,
     userIntentionsGroup,
+    UIsomethingElse,
+    notifs,
     termsOfServiceConsent,
     userDoc,
     userFetched,

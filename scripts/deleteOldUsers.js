@@ -8,22 +8,26 @@ admin.initializeApp({
 
 //TODO:1 the below doesn't delete the user doc's subcollections if any
 const deleteOldUsers = async () => {
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  const xTimesAgo = new Date();
+  // xTimesAgo.setMonth(xTimesAgo.getMonth() - 1); //1 month ago
+  xTimesAgo.setDate(xTimesAgo.getDate() - 7); //1 week ago
 
   // Fetch recently active users
   const listUsersResult = await admin.auth().listUsers(1000); // you can adjust the number
-  console.log("listUsersResult", listUsersResult);
+  // console.log("listUsersResult", listUsersResult);
   const oldUsers = listUsersResult.users.filter((user) => {
     // console.log("user", user);
     return (
-      new Date(user.metadata.lastSignInTime) < oneMonthAgo &&
+      new Date(user.metadata.lastSignInTime) < xTimesAgo &&
       (user.email?.endsWith("@yopmail.com") ||
         user.email?.endsWith("@sharklasers.com") ||
         user.email?.endsWith("@ethereal.email"))
     );
   });
-  console.log("oldUsers", oldUsers);
+  console.log(
+    "oldUsers considered for deletion",
+    oldUsers.map((user) => user.email),
+  );
 
   const noDeleteUIDList = [
     "g1cRqRF9qiQ6Tmp60euu1NFmYYl1", //googleplayreviewkifkaf@yopmail.com

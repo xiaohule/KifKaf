@@ -6,7 +6,7 @@
       <Stories v-for="(userStories, userStoriesIndex) in storiesData" :key="userStoriesIndex">
         <!-- close-button @closeButtonClick="onCloseButtonClick" -->
         <Story v-for="(story, storyIndex) in userStories.stories" :key="storyIndex" user-link="#"
-          :name="t('welcomeToKifkaf')">
+          :name="t('welcomeToKifkaf')" close-button @closeButtonClick="onCloseButtonClick">
           <img :src="story.image" />
         </Story>
       </Stories>
@@ -14,7 +14,7 @@
 
     <div class="fixed-login-button">
       <!-- max-width: 300px; -->
-      <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" :label="t('login')" @click="onCloseButtonClick"
+      <q-btn data-cy="log-in-button" rounded color="scrim" padding="md" :label="t('login')" @click="onClickedNext"
         class="text-body1 q-ml-md q-mr-sm" style="width: 100%; " no-caps />
     </div>
   </q-page>
@@ -39,44 +39,33 @@ const storiesData = [
   {
     stories: [
       {
-        image: "src/assets" + t('filepaths.screenshot1'),
+        //   image: '~assets/screenshot1_en.webp',
+        // image: '~assets/' + t('filepaths.screenshot1')
+        image: new URL(`../assets/${t('filepaths.screenshot1')}`, import.meta.url).href,
+
       },
       {
-        image: "src/assets" + t('filepaths.screenshot2'),
+        // image: '~assets' + t('filepaths.screenshot2'),
+        image: new URL(`../assets/${t('filepaths.screenshot2')}`, import.meta.url).href,
+        // image: `../assets/${t('filepaths.screenshot2')}`
+
       },
       {
-        image: "src/assets" + t('filepaths.screenshot3'),
+        image: new URL(`../assets/${t('filepaths.screenshot3')}`, import.meta.url).href,
       },
       {
-        image: "src/assets" + t('filepaths.screenshot4'),
+        // image: '../assets/screenshot4_en.webp',
+        image: new URL(`../assets/${t('filepaths.screenshot4')}`, import.meta.url).href,
+
       },
       {
-        image: "src/assets" + t('filepaths.screenshot5'),
+        // image: './../assets/screenshot5_en.webp',
+        image: new URL(`../assets/${t('filepaths.screenshot5')}`, import.meta.url).href,
+
       },
     ],
   },
 ];
-// [
-//   {
-//     stories: [
-//       {
-//         image: "src/assets/screenshot1_en.webp"
-//       },
-//       {
-//         image: "src/assets/screenshot2_en.webp"
-//       },
-//       {
-//         image: "src/assets/screenshot3_en.webp"
-//       },
-//       {
-//         image: "src/assets/screenshot4_en.webp"
-//       },
-//       {
-//         image: "src/assets/screenshot5_en.webp"
-//       },
-//     ],
-//   },
-// ];
 
 onMounted(() => {
   openUserStories(0);
@@ -107,13 +96,24 @@ const openUserStories = (userIndex) => {
   storiesSlider.slideTo(userIndex, 0);
 };
 
-const onCloseButtonClick = () => {
+const onClickedNext = () => {
   router.push('/login');
   // disable slider as we don't need it autoplay stories while it is hidden
   storiesSlider.disable();
   // add "out" class (used in demo for animated disappearance)
   // storiesSlider.el.classList.add('stories-slider-out');
 };
+
+const onCloseButtonClick = () => {
+  if (window.history.length > 1) {
+    // console.log('In goBack, history.length:', window.history.length)
+    router.go(-1) // Go back to the previous page if there's a history
+  } else {
+    // console.log('In goBack, history.length:', window.history.length, "going to home")
+    router.push({ path: '/' }) // Redirect to root if there's no history
+  }
+  storiesSlider.disable();
+}
 
 const onStoriesSlider = (instance) => {
   storiesSlider = instance;
