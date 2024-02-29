@@ -1,3 +1,4 @@
+<!-- src/pages/onboarding/PrivacyFirstPage.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px;">
 
@@ -8,7 +9,7 @@
       <div class="col self-start q-pt-lg q-px-md">
         <div class="text-h4 text-weight-bold q-py-sm"> {{ t('privacyFirst') }}</div>
         <div class="text-body1 text-outline q-py-sm" v-html="t('privacyFirstText')"></div>
-        <q-checkbox data-cy="privacy-checkbox" v-model="ms.privacyCheckboxState" color="primary" class="q-py-md">
+        <q-checkbox data-cy="privacy-checkbox" v-model="ms.tmpPrivacyCheckboxState" color="primary" class="q-py-md">
           <div class="q-pl-sm" @click.stop style="cursor:default;"> {{
             t('iAgreeToThe') }}
             <a data-cy="privacy-policy-link" href="/#/privacy-policy" class="text-primary"
@@ -23,7 +24,7 @@
     </div>
 
     <div class="fixed-button pill-shape">
-      <q-btn data-cy="next-button-2" :disable="!ms.privacyCheckboxState" rounded color="scrim" padding="md xl"
+      <q-btn data-cy="next-button-2" :disable="!ms.tmpPrivacyCheckboxState" rounded color="scrim" padding="md xl"
         :label="t('next')" @click="clickedNext" class="text-subtitle1 text-weight-medium" no-caps />
     </div>
   </q-page>
@@ -34,7 +35,7 @@ import { onUnmounted } from 'vue';
 import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { currentUser } from "../boot/firebaseBoot.js";
+import { currentUser } from "src/boot/firebaseBoot.js";
 import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
 
 const ms = useMomentsStore();
@@ -46,18 +47,18 @@ const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, 
 const clickedNext = () => {
   console.log("clickedNext");
   // Define consent details for privacy policy and terms of service
-  const privacyPolicyConsent = {
+  const tmpPrivacyPolicyConsent = {
     type: "privacyPolicy",
     version: process.env.__APP_VERSION__,
     method: "checkboxInOnboarding",
   };
-  const termsOfServiceConsent = {
+  const tmpTermsOfServiceConsent = {
     type: "termsOfService",
     version: process.env.__APP_VERSION__,
     method: "checkboxInOnboarding",
   };
-  ms.privacyPolicyConsent = privacyPolicyConsent;
-  ms.termsOfServiceConsent = termsOfServiceConsent;
+  ms.tmpPrivacyPolicyConsent = tmpPrivacyPolicyConsent;
+  ms.tmpTermsOfServiceConsent = tmpTermsOfServiceConsent;
 
   router.push('/onboarding/3')
 }

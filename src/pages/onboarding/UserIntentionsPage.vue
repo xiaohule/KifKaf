@@ -1,3 +1,4 @@
+<!-- src/pages/onboarding/UserIntentionsPage.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px;">
 
@@ -9,8 +10,8 @@
       <!-- style="border: .5px solid #757780" -->
       <q-item data-cy="user-intention-item" clickable v-ripple
         class="q-my-sm q-py-md text-body1 text-weight-medium bg-surface pill-shape text-center" :class="{
-          'bg-scrim': ms.userIntentionsGroup.some(item => item.startsWith(option.value))
-          , 'text-surface': ms.userIntentionsGroup.some(item => item.startsWith(option.value))
+          'bg-scrim': ms.tmpUserIntentionsGroup.some(item => item.startsWith(option.value))
+          , 'text-surface': ms.tmpUserIntentionsGroup.some(item => item.startsWith(option.value))
         }" @click="toggleSelection(option.value)">
         <q-item-section>{{ option.label }}</q-item-section>
       </q-item>
@@ -21,9 +22,9 @@
     </div>
 
     <div class="fixed-button pill-shape">
-      <q-btn data-cy="next-button-3" :disable="(!ms.userIntentionsGroup) || (ms.userIntentionsGroup.length === 0)" rounded
-        color="scrim" padding="md xl" :label="t('next')" @click="clickedNext" class="text-subtitle1 text-weight-medium"
-        no-caps />
+      <q-btn data-cy="next-button-3" :disable="(!ms.tmpUserIntentionsGroup) || (ms.tmpUserIntentionsGroup.length === 0)"
+        rounded color="scrim" padding="md xl" :label="t('next')" @click="clickedNext"
+        class="text-subtitle1 text-weight-medium" no-caps />
     </div>
 
     <q-dialog v-model="somethingElseDialogOpened" position="bottom" style="max-width: 600px">
@@ -36,7 +37,7 @@
           </q-card-section>
           <q-card-section>
             <q-input ref="somethingElseInputRef" class="" color="transparent" clearable rounded outlined
-              v-model="ms.UIsomethingElse" type="text" autogrow bg-color="surface-variant"
+              v-model="ms.tmpUIsomethingElse" type="text" autogrow bg-color="surface-variant"
               :placeholder="t('whatDoYouHope')" />
           </q-card-section>
         </div>
@@ -57,7 +58,7 @@ import { onUnmounted, ref } from 'vue';
 import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { currentUser, logEvent } from "../boot/firebaseBoot.js";
+import { currentUser, logEvent } from "src/boot/firebaseBoot.js";
 import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
 
 const ms = useMomentsStore();
@@ -80,11 +81,11 @@ const somethingElseInputRef = ref(null);
 const toggleSelection = (value) => {
   if (value !== 'somethingElse') {
 
-    const index = ms.userIntentionsGroup.indexOf(value);
+    const index = ms.tmpUserIntentionsGroup.indexOf(value);
     if (index === -1) {
-      ms.userIntentionsGroup.push(value); // Add value if not present
+      ms.tmpUserIntentionsGroup.push(value); // Add value if not present
     } else {
-      ms.userIntentionsGroup.splice(index, 1); // Remove value if present
+      ms.tmpUserIntentionsGroup.splice(index, 1); // Remove value if present
     }
   }
   else {
@@ -94,14 +95,14 @@ const toggleSelection = (value) => {
 };
 
 const updateSomethingElse = () => {
-  console.log('In UserIntentionsPage > updateSomethingElse:', ms.UIsomethingElse);
-  if (ms.UIsomethingElse) {
-    ms.userIntentionsGroup = ms.userIntentionsGroup.filter(item => !item.startsWith('somethingElse'));
-    ms.userIntentionsGroup.push('somethingElse:' + ms.UIsomethingElse);
+  console.log('In UserIntentionsPage > updateSomethingElse:', ms.tmpUIsomethingElse);
+  if (ms.tmpUIsomethingElse) {
+    ms.tmpUserIntentionsGroup = ms.tmpUserIntentionsGroup.filter(item => !item.startsWith('somethingElse'));
+    ms.tmpUserIntentionsGroup.push('somethingElse:' + ms.tmpUIsomethingElse);
   }
-  //else,  remove any element in ms.userIntentionsGroup that startsWith somethingElse
+  //else,  remove any element in ms.tmpUserIntentionsGroup that startsWith somethingElse
   else {
-    ms.userIntentionsGroup = ms.userIntentionsGroup.filter(item => !item.startsWith('somethingElse'));
+    ms.tmpUserIntentionsGroup = ms.tmpUserIntentionsGroup.filter(item => !item.startsWith('somethingElse'));
   }
   somethingElseDialogOpened.value = false;
 };

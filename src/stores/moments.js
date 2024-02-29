@@ -1,3 +1,4 @@
+//src/store/moments.js
 import { defineStore } from "pinia";
 import {
   collection,
@@ -67,6 +68,7 @@ const {
   currentDate,
   currentYear,
   currentYYYYdMM,
+  currentHHmmRoundedTo15,
   dayToDate,
   monthDateRangeToDate,
 } = useDateUtils();
@@ -94,13 +96,18 @@ export const useMomentsStore = defineStore("moments", () => {
   const segDateId = ref("Monthly");
   const newMomText = ref("");
   const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"));
-  const privacyCheckboxState = ref(false);
-  const privacyPolicyConsent = ref(null);
-  const termsOfServiceConsent = ref(null);
+  const tmpPrivacyCheckboxState = ref(false);
+  const tmpPrivacyPolicyConsent = ref(null);
+  const tmpTermsOfServiceConsent = ref(null);
   const consentsCollRef = ref(null);
-  const userIntentionsGroup = ref([]);
-  const UIsomethingElse = ref("");
-  const notifs = ref({});
+  const tmpUserIntentionsGroup = ref([]);
+  const tmpUIsomethingElse = ref("");
+  const tmpNotifs = ref({
+    journalNotifs: true,
+    insightsNotifs: true,
+    journalNotifsTime: currentHHmmRoundedTo15.value,
+  });
+  const tmpNotifsUpdated = ref(false);
 
   const getActiveDateRange = computed(() => {
     console.log(
@@ -256,7 +263,7 @@ export const useMomentsStore = defineStore("moments", () => {
         activeIndex.value = newValue.length - 1;
       }
     },
-    { immediate: true },
+    { immediate: true }, //TODO:9 this is not needed on many pages
   );
 
   const yearsSinceOldestMoment = computed(() =>
@@ -358,6 +365,9 @@ export const useMomentsStore = defineStore("moments", () => {
       aggYearlyCollRef.value = collection(userDocRef.value, "aggregateYearly");
       consentsCollRef.value = collection(userDocRef.value, "consents");
 
+      userFetched.value = true;
+      console.log("In moments.js, userFetched true");
+
       onSnapshot(userDocRef.value, (snapshot) => {
         userDoc.value = snapshot.data();
         // console.log(
@@ -365,13 +375,14 @@ export const useMomentsStore = defineStore("moments", () => {
         //   userDoc.value,
         // );
       });
-      userFetched.value = true;
-      console.log("In moments.js, userFetched true");
 
       //NOTIFS
-      if (notifs.value.journalNotifs || notifs.value.insightsNotifs) {
-        await setUserDocValue(notifs.value);
-        notifs.value = {};
+      if (
+        tmpNotifsUpdated.value &&
+        (tmpNotifs.value.journalNotifs || tmpNotifs.value?.insightsNotifs)
+      ) {
+        await setUserDocValue(tmpNotifs.value);
+        tmpNotifsUpdated.value = false;
       }
 
       if (pushNotifRegistrationToken.value) {
@@ -391,29 +402,30 @@ export const useMomentsStore = defineStore("moments", () => {
       });
 
       //ANONYMOUS ONBOARDING DATA SAVING IF ANY
-      if (privacyPolicyConsent.value) {
-        privacyPolicyConsent.value.acceptedAt = serverTimestamp();
-        addDoc(consentsCollRef.value, privacyPolicyConsent.value);
+      if (tmpPrivacyPolicyConsent.value) {
+        tmpPrivacyPolicyConsent.value.acceptedAt = serverTimestamp();
+        addDoc(consentsCollRef.value, tmpPrivacyPolicyConsent.value);
         console.log(
-          "In moments.js > fetchUser, privacyPolicyConsent saved:",
-          privacyPolicyConsent.value,
+          "In moments.js > fetchUser, tmpPrivacyPolicyConsent saved:",
+          tmpPrivacyPolicyConsent.value,
         );
-        privacyPolicyConsent.value = null;
       }
 
-      if (termsOfServiceConsent.value) {
-        termsOfServiceConsent.value.acceptedAt = serverTimestamp();
-        addDoc(consentsCollRef.value, termsOfServiceConsent.value);
+      if (tmpTermsOfServiceConsent.value) {
+        tmpTermsOfServiceConsent.value.acceptedAt = serverTimestamp();
+        addDoc(consentsCollRef.value, tmpTermsOfServiceConsent.value);
         console.log(
-          "In moments.js > fetchUser, termsOfServiceConsent saved:",
-          termsOfServiceConsent.value,
+          "In moments.js > fetchUser, tmpTermsOfServiceConsent saved:",
+          tmpTermsOfServiceConsent.value,
         );
-        termsOfServiceConsent.value = null;
       }
 
-      if (userIntentionsGroup.value?.length > 0) {
-        setUserDocValue({ userIntentions: userIntentionsGroup.value }, false);
-        userIntentionsGroup.value.forEach((userIntention) => {
+      if (tmpUserIntentionsGroup.value?.length > 0) {
+        setUserDocValue(
+          { userIntentions: tmpUserIntentionsGroup.value },
+          false,
+        );
+        tmpUserIntentionsGroup.value.forEach((userIntention) => {
           if (userIntention.startsWith("somethingElse:")) {
             setUserProperty(`ui_se`, userIntention.slice(14).slice(0, 36)); //to avoid "User property value is too long. The maximum supported length is 36"
           } else {
@@ -421,9 +433,8 @@ export const useMomentsStore = defineStore("moments", () => {
           }
         });
         logEvent("user_property_set", {
-          userIntentions: userIntentionsGroup.value,
+          userIntentions: tmpUserIntentionsGroup.value,
         });
-        userIntentionsGroup.value = null;
       }
     } catch (error) {
       console.log("Error in fetchUser", error); //TODO:8 show message asking to connect to internet when offline?
@@ -1081,23 +1092,29 @@ export const useMomentsStore = defineStore("moments", () => {
     segDateId.value = "Monthly";
     newMomText.value = "";
     pickedDateYYYYsMMsDD.value = formatDate(currentDate.value, "YYYY/MM/DD");
-    privacyCheckboxState.value = false;
-    privacyPolicyConsent.value = null;
-    termsOfServiceConsent.value = null;
+    tmpPrivacyCheckboxState.value = false;
+    tmpPrivacyPolicyConsent.value = null;
+    tmpTermsOfServiceConsent.value = null;
     consentsCollRef.value = null;
-    userIntentionsGroup.value = [];
-    UIsomethingElse.value = "";
-    notifs.value = {};
+    tmpUserIntentionsGroup.value = [];
+    tmpUIsomethingElse.value = "";
+    tmpNotifs.value = {
+      journalNotifs: true,
+      insightsNotifs: true,
+      journalNotifsTime: currentHHmmRoundedTo15.value,
+    };
+    tmpNotifsUpdated.value = false;
   }
 
   return {
     user,
-    privacyCheckboxState,
-    privacyPolicyConsent,
-    userIntentionsGroup,
-    UIsomethingElse,
-    notifs,
-    termsOfServiceConsent,
+    tmpPrivacyCheckboxState,
+    tmpPrivacyPolicyConsent,
+    tmpUserIntentionsGroup,
+    tmpUIsomethingElse,
+    tmpNotifs,
+    tmpNotifsUpdated,
+    tmpTermsOfServiceConsent,
     userDoc,
     userFetched,
     momentsFetched,

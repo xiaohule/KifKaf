@@ -1,3 +1,4 @@
+<!-- src/pages/SettingsPage.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">{{ t('settings') }}</div>
@@ -39,9 +40,18 @@
           </q-item>
         </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
-          @click="localeDialogOpened = true">
+        <!-- v-if="isCapacitor" -->
+        <q-card v-if="isCapacitor" class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
+          @click="router.push('/settings/notifications')">
           <q-item>
+            <q-item-section>
+              <q-item-label>{{ t('notificationSettings') }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
+
+        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat>
+          <q-item clickable v-ripple @click="localeDialogOpened = true">
             <q-item-section>
               <q-item-label>{{ t('appLanguage') }}</q-item-label>
               <q-item-label caption>
@@ -49,11 +59,8 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-        </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
-          @click="speechLanguageDialogOpened = true">
-          <q-item>
+          <q-item clickable v-ripple @click="speechLanguageDialogOpened = true">
             <q-item-section>
               <q-item-label>{{ t('speechRecoLanguage') }}</q-item-label>
               <q-item-label caption>
@@ -62,6 +69,7 @@
             </q-item-section>
           </q-item>
         </q-card>
+
 
         <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat>
           <!-- TODO:2 later do About us/manual section -->
@@ -288,6 +296,7 @@ const { t } = useI18n()
 const auth = getFirebaseAuth();
 
 const version = process.env.__APP_VERSION__
+const isCapacitor = process.env.MODE === "capacitor"
 const signInMethods = ref(null);
 const signInMethodsIncludePassword = ref(true)
 

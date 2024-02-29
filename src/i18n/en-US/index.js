@@ -1,3 +1,4 @@
+//src/i18n/en-US/index.js
 import privacyPolicyPage from "./privacyPolicy";
 import tosPage from "./tos";
 
@@ -36,11 +37,11 @@ export default {
   makeWiserLifeDecisions: "Make wiser life decisions",
   somethingElse: "Something else",
   getRemindersToMake: "Get reminders to make the most out of KifKaf",
-  journalingNotif: "Journaling",
-  journalingNotifText:
+  journalNotifs: "Journaling",
+  journalNotifsText:
     "When will you make time for jotting down the day's ups and downs?",
-  insightsNotif: "Insights",
-  insightsNotifText:
+  insightsNotifs: "Insights",
+  insightsNotifsText:
     "Receive a notification when new insights about your journal are ready.",
   login: "Log in",
   loginToKifKaf: "Log in to KifKaf",
@@ -76,7 +77,7 @@ export default {
     emailInUse: "Email {email} is already in use",
     signingIn: "Error signing in with email {email}",
     speechRecognitionPermissionDeniedHtml: `
-    <strong>KifKaf needs the Speech Recognition permission for this.</strong><br>
+    <strong>KifKaf needs the Speech Recognition permission for this.</strong><br><br>
     To grant it:<br>
     1. Go to your phone's <strong>Settings</strong>.<br>
     2. Scroll and tap on <strong>KifKaf</strong>.<br>
@@ -84,11 +85,19 @@ export default {
     You have full control and can change your choices at any time.
     `,
     micAccessPermissionDeniedHtml: `
-      <strong>KifKaf needs the Microphone permission for this.</strong><br>
+      <strong>KifKaf needs the Microphone permission for this.</strong><br><br>
       To grant it:<br>
       1. Go to your device's <strong>Settings</strong>.<br>
       2. Scroll and tap on <strong>KifKaf</strong>.<br>
       3. Allow access to the <strong>Microphone</strong>.<br><br>
+      You have full control and can change your choices at any time.
+    `,
+    notificationsPermissionDeniedHtml: `
+      <strong>KifKaf needs the Notifications permission for this.</strong><br><br>
+      To grant it:<br>
+      1. Go to your device's <strong>Settings</strong>.<br>
+      2. Scroll and tap on <strong>KifKaf</strong>.<br>
+      3. Allow access to the <strong>Notifications</strong>.<br><br>
       You have full control and can change your choices at any time.
     `,
     accountDeletionFailed:
@@ -310,7 +319,7 @@ export default {
   janeDoeDomain: "email.com",
   janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Password",
-  notificationSettings: "Notification settings",
+  notificationSettings: "Notifications",
   appLanguage: "App language",
   speechRecoLanguage: "Speech recognition language",
   privacyPolicy: "Privacy policy",

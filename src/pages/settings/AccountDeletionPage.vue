@@ -57,11 +57,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { currentUser, getFirebaseAuth } from "../boot/firebaseBoot.js";
+import { currentUser, getFirebaseAuth } from "src/boot/firebaseBoot.js";
 import { deleteUser, fetchSignInMethodsForEmail } from "firebase/auth";
 // import {  reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, OAuthProvider, } from "firebase/auth";
 import { useRouter } from 'vue-router'
-import { useMomentsStore } from './../stores/moments.js'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import axiosRetry from "axios-retry";

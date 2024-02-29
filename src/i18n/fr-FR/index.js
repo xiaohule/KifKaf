@@ -1,3 +1,4 @@
+//src/i18n/fr-FR/index.js
 import privacyPolicyPage from "./privacyPolicy";
 import tosPage from "./tos";
 
@@ -35,11 +36,11 @@ export default {
   makeWiserLifeDecisions: "Faire des choix de vie plus avisés", //éclairés
   somethingElse: "Autre chose",
   getRemindersToMake: "Recevez des rappels pour atteindre vos objectifs.",
-  journalingNotif: "Journal",
-  journalingNotifText:
+  journalNotifs: "Journal",
+  journalNotifsText:
     "Quand souhaitez-vous prendre un moment pour noter vos émotions du jour ?",
-  insightsNotif: "Éclairages", //Analyse Eclairages Tendances Perspectives Besoins Besoins & +
-  insightsNotifText:
+  insightsNotifs: "Éclairages", //Analyse Eclairages Tendances Perspectives Besoins Besoins & +
+  insightsNotifsText:
     "Recevez une notification quand de nouveaux éclairages sur votre journal sont prêts.",
   login: "Se connecter",
   loginToKifKaf: "Se connecter à KifKaf",
@@ -75,7 +76,7 @@ export default {
     emailInUse: "L'email {email} est déjà utilisé",
     signingIn: "Erreur de connexion avec l'email {email}",
     speechRecognitionPermissionDeniedHtml: `
-      <strong>KifKaf a besoin de la permission Reconnaissance vocale pour cela.</strong><br>
+      <strong>KifKaf a besoin de la permission Reconnaissance vocale pour cela.</strong><br><br>
       Pour l'accorder :<br>
       1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
       2. Sélectionner <strong>KifKaf</strong>.<br>
@@ -83,11 +84,19 @@ export default {
       Vous gardez le contrôle et pouvez changer vos choix à tout moment.
     `,
     micAccessPermissionDeniedHtml: `
-      <strong>KifKaf a besoin de la permission Micro pour cela.</strong><br>
+      <strong>KifKaf a besoin de la permission Micro pour cela.</strong><br><br>
       Pour l'accorder :<br>
       1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
       2. Sélectionner <strong>KifKaf</strong>.<br>
       3. Autorisez l'accès au <strong>Micro</strong>.<br><br>
+      Vous gardez le contrôle et pouvez changer vos choix à tout moment.
+  `,
+    notificationsPermissionDeniedHtml: `
+      <strong>KifKaf a besoin de la permission Notifications pour cela.</strong><br><br>
+      Pour l'accorder :<br>
+      1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
+      2. Sélectionner <strong>KifKaf</strong>.<br>
+      3. Autorisez l'accès aux <strong>Notifications</strong>.<br><br>
       Vous gardez le contrôle et pouvez changer vos choix à tout moment.
   `,
     accountDeletionFailed:

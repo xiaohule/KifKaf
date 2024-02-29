@@ -3,8 +3,7 @@
   "appName": "KifKaf",
   "webDir": "www",
   "server": {
-    "androidScheme": "https",
-    "url": "http://192.168.1.51:9500"
+    "androidScheme": "https"
   },
   "backgroundColor": "#f7f7f7",
   "ios": {
@@ -13,10 +12,16 @@
   "plugins": {
     "FirebaseAuthentication": {
       "skipNativeAuth": true,
-      "providers": ["google.com", "apple.com"]
+      "providers": [
+        "google.com",
+        "apple.com"
+      ]
     },
     "PushNotifications": {
-      "presentationOptions": ["alert", "sound"]
+      "presentationOptions": [
+        "alert",
+        "sound"
+      ]
     },
     "Badge": {
       "persist": true,

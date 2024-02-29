@@ -7,8 +7,8 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "@sentry/node": "^7.102.1",
-    "@sentry/profiling-node": "^7.102.1",
+    "@sentry/node": "^7.103.0",
+    "@sentry/profiling-node": "^7.103.0",
     "axios": "^1.6.7",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
@@ -20,6 +20,6 @@
     "moment-timezone": "^0.5.45",
     "morgan": "~1.10.0",
     "node-cron": "^3.0.3",
-    "openai": "^4.28.0"
+    "openai": "^4.28.4"
   }
 }

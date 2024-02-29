@@ -1,13 +1,10 @@
 import { boot } from "quasar/wrappers";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter(); // Assuming you're using Vue Router
 
 export const pushNotifRegistrationToken = ref("");
 
-const addListeners = async () => {
+const addListeners = async (router) => {
   await PushNotifications.addListener("registration", (token) => {
     pushNotifRegistrationToken.value = token.value;
     console.info(
@@ -27,13 +24,6 @@ const addListeners = async () => {
         "In pushNotificationsBoot > Push notification received: ",
         notification,
       );
-      if (notification?.data?.targetPage) {
-        console.log(
-          "In pushNotificationsBoot > Push notification targetPage: ",
-          notification.data.targetPage,
-        );
-        router.push(notification.data.targetPage);
-      }
     },
   );
 
@@ -44,7 +34,15 @@ const addListeners = async () => {
         "In pushNotificationsBoot > Push notification action performed",
         notification.actionId,
         notification.inputValue,
+        notification,
       );
+      if (notification?.notification?.data?.targetPage) {
+        console.log(
+          "In pushNotificationsBoot > Push notification targetPage: ",
+          notification.notification.data.targetPage,
+        );
+        router.push(notification.notification.data.targetPage);
+      }
     },
   );
 };
@@ -61,25 +59,10 @@ export default boot(async ({ app, router }) => {
   if (process.env.MODE === "capacitor") {
     console.log("In pushNotifBoot, adding listeners");
     try {
-      await addListeners();
+      await addListeners(router);
       console.log("In pushNotifBoot, listeners added");
     } catch (error) {
       console.error("In pushNotifBoot, error adding listeners:", error);
     }
   }
-  // } else { //TODO:7 make this dynamic import?
-  //   import("@sentry/capacitor")
-  //     .then((module) => {
-  //       console.log("pushNotifCapacitor module:", module);
-  //       const SentryCapacitor = module;
-  //       SentryCapacitor.init();
-  //       console.log("In pushNotifBoot, pushNotif initialized for capacitor");
-  //     })
-  //     .catch((error) => {
-  //       console.error(
-  //         "In pushNotifBoot, Failed to initialize pushNotif for Capacitor, error:",
-  //         error,
-  //       );
-  //     });
-  // }
 });

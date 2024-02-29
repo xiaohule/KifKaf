@@ -133,6 +133,7 @@ router.post("/compute-insights/", async (req, res) => {
         console.log(
           `In computeInsights for uid ${req.uid}, lock not released after retries.`,
         );
+        unlockId(req.uid, "computeInsights"); // prevent deadlock
         return res.status(409).json({
           message:
             "Error: In computeInsights > Lock not released after retries",

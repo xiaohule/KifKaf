@@ -21,7 +21,7 @@
 import { onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { currentUser, logEvent } from "../boot/firebaseBoot.js";
+import { currentUser, logEvent } from "src/boot/firebaseBoot.js";
 import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
 
 const { t } = useI18n();

@@ -1,3 +1,4 @@
+//src/router/routes.js
 import WelcomeLayout from "src/layouts/WelcomeLayout.vue";
 import WelcomePage from "src/pages/WelcomePage.vue";
 
@@ -53,6 +54,10 @@ const routes = [
         path: "",
         component: () => import("pages/SettingsPage.vue"),
       },
+      {
+        path: "notifications",
+        component: () => import("pages/settings/NotificationsPage.vue"),
+      },
     ],
   },
   {
@@ -64,7 +69,10 @@ const routes = [
     path: "/onboarding",
     component: () => import("layouts/WelcomeLayout.vue"),
     children: [
-      { path: "1", component: () => import("pages/ValuePropositionPage.vue") },
+      {
+        path: "1",
+        component: () => import("pages/onboarding/ValuePropositionPage.vue"),
+      },
     ],
   },
   {
@@ -74,12 +82,16 @@ const routes = [
       {
         name: "PrivacyFirstPage",
         path: "2",
-        component: () => import("pages/PrivacyFirstPage.vue"),
+        component: () => import("pages/onboarding/PrivacyFirstPage.vue"),
       },
-      { path: "3", component: () => import("pages/UserIntentionsPage.vue") }, //TODO:6 add skip button
+      {
+        path: "3",
+        component: () => import("pages/onboarding/UserIntentionsPage.vue"),
+      }, //TODO:6 add skip button
       {
         path: "4",
-        component: () => import("pages/NotificationsSettingPage.vue"),
+        component: () =>
+          import("pages/onboarding/OnboardingNotificationsPage.vue"),
       },
     ],
   },
@@ -102,7 +114,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/PrivacyPolicyPage.vue"),
+        component: () => import("pages/settings/PrivacyPolicyPage.vue"),
       },
     ],
   },
@@ -113,7 +125,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/TermsConditionsPage.vue"),
+        component: () => import("pages/settings/TermsConditionsPage.vue"),
       },
     ],
   },
@@ -124,7 +136,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/ContactUsPage.vue"),
+        component: () => import("pages/settings/ContactUsPage.vue"),
       },
     ],
   },
@@ -135,7 +147,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/AccountDeletionPage.vue"),
+        component: () => import("pages/settings/AccountDeletionPage.vue"),
       },
     ],
   },

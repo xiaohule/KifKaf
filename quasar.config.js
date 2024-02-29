@@ -1,3 +1,4 @@
+//./quasar.config.js
 /* eslint-env node */
 
 /*

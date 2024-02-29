@@ -1,3 +1,4 @@
+//src/boot/firebaseBoot.js
 import { boot } from "quasar/wrappers";
 import { initializeApp, getApp } from "firebase/app";
 import {
@@ -39,7 +40,7 @@ import { markRaw, ref, watch } from "vue";
 import { debounce } from "lodash";
 import axios from "axios";
 import axiosRetry from "axios-retry";
-import * as Sentry from "@sentry/vue";
+import * as SentryVue from "@sentry/vue";
 import { i18n } from "./i18nBoot";
 import { setQuasarLangPack } from "./quasarLangPackBoot";
 
@@ -284,7 +285,7 @@ try {
       }
       currentUser.value = user; //We can allow fetchUser to proceed now
       httpRetryHandler();
-      Sentry.setUser({ id: user.uid });
+      SentryVue.setUser({ id: user.uid });
       setUserId(user.uid);
     }
     isLoadingAuth.value = false;
@@ -625,6 +626,16 @@ export default boot(({ router }) => {
       to.meta.transition = "slide-out";
     } else if (to.path === "/onboarding/1") {
       to.meta.transition = "";
+    } else if (
+      from.path.includes("onboarding") &&
+      !to.path.includes("onboarding")
+    ) {
+      to.meta.transition = "slide-in";
+    } else if (
+      to.path.includes("onboarding") &&
+      !from.path.includes("onboarding")
+    ) {
+      to.meta.transition = "slide-out";
     } else {
       const toDepth = to.path.split("/").length;
       const fromDepth = from.path.split("/").length;

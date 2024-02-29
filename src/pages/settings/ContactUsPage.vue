@@ -1,3 +1,4 @@
+<!-- src/pages/settings/ContactUsPage.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">{{ t('contactUs') }}</div>
@@ -32,7 +33,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { useMomentsStore } from './../stores/moments.js'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import axios from "axios";

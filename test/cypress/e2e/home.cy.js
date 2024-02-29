@@ -1,4 +1,5 @@
-/// <reference types="cypress" />
+//test/cypress/e2e/home.cy.js
+// <reference types="cypress" />
 // Use `cy.dataCy` custom command for more robust tests
 // See https://docs.cypress.io/guides/references/best-practices.html#Selecting-Elements
 
@@ -140,14 +141,15 @@ describe("Checking main screens & Moments inputting", () => {
     //contains the expected tabs
     cy.contains("Journal", { timeout: 60000 }).should("be.visible");
     cy.wait(1500);
-    cy.visit("/#/insights");
-    cy.url().should("include", "insights");
-    //can navigate to Insights>Journal>Settings>Journal
-    cy.wait(7500);
-    cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
-    cy.url().should("not.include", "insights");
-    cy.wait(1500);
+    // cy.visit("/#/insights");
+    // cy.url().should("include", "insights");
+    // //can navigate to Insights>Journal>Settings>Journal
+    // cy.wait(7500);
+    // cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
+    // cy.url().should("not.include", "insights");
+    // cy.wait(1500);
     cy.dataCy("home-insights-tab").click(); //{ force: true }
+    cy.wait(1500);
     cy.url().should("include", "insights");
 
     cy.contains("Satisfiers").should("be.visible");

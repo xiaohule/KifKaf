@@ -1,4 +1,5 @@
 import { Quasar } from "quasar";
+import { boot } from "quasar/wrappers";
 
 export const setQuasarLangPack = async (langIso) => {
   const langList = import.meta.glob('../../node_modules/quasar/lang/(en-US|fr).mjs'); //import.meta.glob('../../node_modules/quasar/lang/(en-US|fr).mjs') will fail if prettier enabled
@@ -31,7 +32,7 @@ export const setQuasarLangPack = async (langIso) => {
   }
 };
 
-export default async () => {
+export default boot(async () => {
   const langIso = Quasar.lang.getLocale() ?? "en-US";
   await setQuasarLangPack(langIso);
-};
+});
