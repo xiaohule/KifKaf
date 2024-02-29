@@ -19,7 +19,7 @@ export function useVerifiedUserRedirectUtils(currentUser, redirectPath = "/") {
           if (newVal.emailVerified) {
             clearInterval(checkEmailVerifiedInterval);
             logEvent("login", { method: "email" });
-            // ms.setUserDocValue({ lastLoginMethod: "email" }); //TODO:8 was removed bec. of failing with static import of welcome page. Consider deferring that logic until the component is mounted or until it's safe to assume the Vue app has been fully initialized.
+            // ms.setUserDocValue({ lastLoginMethod: "email" }); //TODO:5 was removed bec. of failing with static import of welcome page. Consider deferring that logic until the component is mounted or until it's safe to assume the Vue app has been fully initialized.
             console.log(
               "User's email is now verified. Redirecting to",
               redirectPath,

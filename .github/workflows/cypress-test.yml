@@ -2,8 +2,8 @@ name: Cypress Tests
 on: [push]
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest # ubuntu-latest #macos-latest
-    # stop the job if it runs over 10 minutes
+    runs-on: macos-latest # ubuntu-latest #macos-latest
+    # stop the job if it runs over x minutes
     # to prevent a hanging process from using all your CI minutes
     timeout-minutes: 20
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
