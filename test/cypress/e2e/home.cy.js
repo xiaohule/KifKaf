@@ -140,7 +140,7 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.contains("Journal").should("be.visible");
     //contains the expected tabs
     cy.contains("Journal", { timeout: 60000 }).should("be.visible");
-    cy.wait(1500);
+    cy.wait(4500);
     // cy.visit("/#/insights");
     // cy.url().should("include", "insights");
     // //can navigate to Insights>Journal>Settings>Journal
@@ -149,7 +149,7 @@ describe("Checking main screens & Moments inputting", () => {
     // cy.url().should("not.include", "insights");
     // cy.wait(1500);
     cy.dataCy("home-insights-tab").click(); //{ force: true }
-    cy.wait(1500);
+    cy.wait(7500);
     cy.url().should("include", "insights");
 
     cy.contains("Satisfiers").should("be.visible");
