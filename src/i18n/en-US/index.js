@@ -150,7 +150,7 @@ export default {
     dummyMoment: "Feeling excited to get to know me better with KifKaf!",
     step1DoneTitle: "First moment logged",
     step1DoneText:
-      "Emotions are your body's language. Taking the time to listen and noting them down is a big step towards a better understanding of yourself.", //Embrace the habit of noting them down and you're halfway there!",
+      "Emotions are your body's language. Taking the time to listen to them is already a big step towards a better understanding of yourself.", //Embrace the habit of noting them down and you're halfway there!",
     step2:
       "For each moment, KifKaf surfaces the related needs and how well they're being met.", //journal entry
     step2Action: "View needs",

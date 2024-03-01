@@ -75,6 +75,7 @@ module.exports = configure(function (ctx) {
             ? "http://192.168.1.51:3000"
             : "http://localhost:3000"
           : "https://www.kifkaf.app", // "https://lemon-bay-09625be03.3.azurestaticapps.net",
+        SERVER_NODE_ENV: ctx.dev ? "development" : "production",
       },
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],

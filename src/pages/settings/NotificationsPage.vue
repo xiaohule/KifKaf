@@ -2,7 +2,7 @@
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px;">
 
-    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm"> {{ t('getRemindersToMake') }}</div>
+    <div class="text-h4 text-weight-bold q-mx-none q-mb-sm"> {{ t('notificationSettings') }}</div>
 
     <q-list>
       <q-item tag="label" class="q-px-none q-pt-xl q-pb-lg" v-ripple="false">
@@ -46,12 +46,16 @@ import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { onBeforeRouteLeave } from 'vue-router';
+import { useDateUtils } from "src/composables/dateUtils.js";
 
 const ms = useMomentsStore();
 const { t } = useI18n();
+const {
+  currentHHmmRoundedTo15,
+} = useDateUtils();
 
 const journalNotifs = ref(false);
-const journalNotifsTime = ref('21:00');
+const journalNotifsTime = ref(currentHHmmRoundedTo15.value);
 const insightsNotifs = ref(false);
 const refsInitialized = ref(false);
 const errorDialogOpened = ref(false)
@@ -65,9 +69,15 @@ onMounted(async () => {
 
 watch(() => ms.userDoc, async (newVal) => {
   if (newVal) {
-    journalNotifs.value = ms.userDoc?.journalNotifs || false;
-    journalNotifsTime.value = ms.userDoc?.journalNotifsTime || '21:00';
-    insightsNotifs.value = ms.userDoc?.insightsNotifs || false;
+    if (ms.userDoc?.journalNotifs) {
+      journalNotifs.value = ms.userDoc.journalNotifs;
+    }
+    if (ms.userDoc?.insightsNotifs) {
+      insightsNotifs.value = ms.userDoc.insightsNotifs;
+    }
+    if (ms.userDoc?.journalNotifsTime) {
+      journalNotifsTime.value = ms.userDoc.journalNotifsTime;
+    }
     refsInitialized.value = true;
   }
 }, { immediate: true })

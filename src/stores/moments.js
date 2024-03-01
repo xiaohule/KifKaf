@@ -14,7 +14,6 @@ import {
   increment,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../boot/firebaseBoot.js";
 import { ref, computed, watch } from "vue";
 import {
   updateProfile,
@@ -30,8 +29,9 @@ import {
   currentUser,
   logEvent,
   setUserProperty,
-} from "../boot/firebaseBoot.js";
-import { pushNotifRegistrationToken } from "../boot/pushNotificationsBoot.js";
+  db,
+} from "src/boot/firebaseBoot.js";
+import { pushNotifRegistrationToken } from "src/boot/pushNotificationsBoot.js";
 import { date } from "quasar";
 const {
   getDateDiff,
@@ -42,9 +42,9 @@ const {
   addToDate,
   formatDate,
 } = date;
-import { useDateUtils } from "../composables/dateUtils.js";
+import { useDateUtils } from "src/composables/dateUtils.js";
 // import { useRouter } from "vue-router";
-import { i18n } from "./../boot/i18nBoot.js";
+import { i18n } from "src/boot/i18nBoot.js";
 
 axios.defaults.baseURL = process.env.API_URL;
 axiosRetry(axios, {
@@ -108,6 +108,7 @@ export const useMomentsStore = defineStore("moments", () => {
     journalNotifsTime: currentHHmmRoundedTo15.value,
   });
   const tmpNotifsUpdated = ref(false);
+  const tmpLastLoginMethod = ref("");
 
   const getActiveDateRange = computed(() => {
     console.log(
@@ -348,7 +349,7 @@ export const useMomentsStore = defineStore("moments", () => {
       return;
     }
     if (!user.value || !user.value.uid) {
-      console.log("In moments.js > fetchUser, user not yet fetched, returning");
+      console.log("In moments.js > fetchUser, user not yet known, returning");
       return;
     }
 
@@ -386,7 +387,6 @@ export const useMomentsStore = defineStore("moments", () => {
       }
 
       if (pushNotifRegistrationToken.value) {
-        //TODO:8 position at better place when understood when this occurs
         await setUserDocValue(
           {
             fcmToken: pushNotifRegistrationToken.value,
@@ -433,8 +433,12 @@ export const useMomentsStore = defineStore("moments", () => {
           }
         });
         logEvent("user_property_set", {
-          userIntentions: tmpUserIntentionsGroup.value,
+          userIntentions: JSON.stringify(tmpUserIntentionsGroup.value),
         });
+      }
+
+      if (tmpLastLoginMethod.value) {
+        setUserDocValue({ lastLoginMethod: tmpLastLoginMethod.value });
       }
     } catch (error) {
       console.log("Error in fetchUser", error); //TODO:8 show message asking to connect to internet when offline?
@@ -442,6 +446,24 @@ export const useMomentsStore = defineStore("moments", () => {
       fetchUserLock.value = false; // Release the lock
     }
   };
+
+  watch(pushNotifRegistrationToken, async (newVal) => {
+    console.log(
+      "In moments.js > watch pushNotifRegistrationToken, newVal",
+      newVal,
+      "userDoc.value",
+      userDoc.value,
+    );
+    if (newVal && userDoc.value) {
+      await setUserDocValue(
+        {
+          fcmToken: newVal,
+          fcmTokenUpdatedAt: serverTimestamp(),
+        },
+        false,
+      );
+    }
+  });
 
   const getSpeechRecoLanguage = computed(() => {
     console.log(
@@ -1104,6 +1126,7 @@ export const useMomentsStore = defineStore("moments", () => {
       journalNotifsTime: currentHHmmRoundedTo15.value,
     };
     tmpNotifsUpdated.value = false;
+    tmpLastLoginMethod.value = "";
   }
 
   return {
@@ -1115,6 +1138,7 @@ export const useMomentsStore = defineStore("moments", () => {
     tmpNotifs,
     tmpNotifsUpdated,
     tmpTermsOfServiceConsent,
+    tmpLastLoginMethod,
     userDoc,
     userFetched,
     momentsFetched,

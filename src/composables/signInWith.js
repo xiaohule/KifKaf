@@ -38,8 +38,8 @@ export const signInWithGoogle = async () => {
       );
       await signInWithCredential(auth, credential);
     }
+    ms.tmpLastLoginMethod = "google";
     logEvent("login", { method: "google" });
-    ms.setUserDocValue({ lastLoginMethod: "google" });
   } catch (error) {
     console.error(error);
   }
@@ -100,8 +100,8 @@ export const signInWithApple = async () => {
       });
       await signInWithCredential(auth, credential);
     }
+    ms.tmpLastLoginMethod = "apple";
     logEvent("login", { method: "apple" });
-    ms.setUserDocValue({ lastLoginMethod: "apple" });
     // console.log("In sighInWith, authorizationCode:", authorizationCode);
     return authorizationCode;
   } catch (error) {

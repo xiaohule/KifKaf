@@ -88,12 +88,23 @@ nodeCron.schedule("* * * * *", async () => {
   try {
     const now = new Date();
 
-    // Fetch users with journal notifications enabled and notification time non-empty and fcmToken present
-    const usersSnapshot = await db
-      .collection("users")
-      .where("journalNotifs", "==", true)
-      .where("fcmToken", "!=", "")
-      .get();
+    let usersSnapshot;
+
+    if (process.env.SERVER_NODE_ENV === "development") {
+      usersSnapshot = await db
+        .collection("users")
+        .where("isTestAccount", "==", true)
+        .where("journalNotifs", "==", true)
+        .where("fcmToken", "!=", "")
+        .get();
+    } else {
+      // Fetch users with journal notifications enabled and notification time non-empty and fcmToken present
+      usersSnapshot = await db
+        .collection("users")
+        .where("journalNotifs", "==", true)
+        .where("fcmToken", "!=", "")
+        .get();
+    }
 
     const currentTimeUTC = `${now
       .getUTCHours()
@@ -101,7 +112,9 @@ nodeCron.schedule("* * * * *", async () => {
       .padStart(2, "0")}:${now.getUTCMinutes().toString().padStart(2, "0")}`; // Convert current time to UTC for comparison
 
     console.log(
-      `journalNotifsScheduler ${currentTimeUTC} > ${usersSnapshot.size} users with journal notifications enabled and FCM token present.`,
+      `journalNotifsScheduler ${currentTimeUTC} > ${usersSnapshot.size}  ${
+        process.env.SERVER_NODE_ENV === "development" ? "TEST user" : "user"
+      } w/ journalNotifs and fcmToken.`,
     );
 
     usersSnapshot.forEach((doc) => {
@@ -113,7 +126,7 @@ nodeCron.schedule("* * * * *", async () => {
         .format("HH:mm");
 
       console.log(
-        `journalNotifsScheduler > user ID: ${doc.id} | Journal Notification Time (UTC): ${journalNotifsTimeUTC} | Current Time (UTC): ${currentTimeUTC}`,
+        `journalNotifsScheduler > uid: ${doc.id} | journalNotifsTimeUTC: ${journalNotifsTimeUTC} | currentTimeUTC: ${currentTimeUTC}`,
       );
 
       if (journalNotifsTimeUTC === currentTimeUTC) {

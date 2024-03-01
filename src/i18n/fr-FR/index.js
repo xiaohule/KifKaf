@@ -35,7 +35,7 @@ export default {
   keepTrackEmotions: "Garder une trace de mes émotions",
   makeWiserLifeDecisions: "Faire des choix de vie plus avisés", //éclairés
   somethingElse: "Autre chose",
-  getRemindersToMake: "Recevez des rappels pour atteindre vos objectifs.",
+  getRemindersToMake: "Recevez des notifications pour atteindre vos objectifs.",
   journalNotifs: "Journal",
   journalNotifsText:
     "Quand souhaitez-vous prendre un moment pour noter vos émotions du jour ?",
@@ -151,7 +151,7 @@ export default {
       "Super enthousiaste à l'idée de mieux me connaître avec KifKaf !", //Hâte de mieux me comprendre en utilisant KifKaf !"
     step1DoneTitle: "Première émotion capturée",
     step1DoneText:
-      "Les émotions sont le langage de votre corps. Prendre le temps de les entendre et les noter est un grand pas vers une meilleure compréhension de vous-même." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie !"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:3 clarifier et différencier de step2DoneText
+      "Les émotions sont le langage de votre corps. Prendre le temps de les entendre est déjà un grand pas vers une meilleure compréhension de vous-même." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie !"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:3 clarifier et différencier de step2DoneText
     step2:
       "Pour chaque moment de votre journal, KifKaf identifie les besoins associés et leur degré de satisfaction.",
     step2Action: "Voir les besoins",

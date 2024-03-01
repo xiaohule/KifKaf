@@ -28,10 +28,34 @@ function unlockId(id, type = "addMoment") {
 
 function isIdLocked(id, type = "addMoment") {
   if (type === "computeInsights") {
+    // console.log(
+    //   "in isIdLocked > id:",
+    //   id,
+    //   "type:",
+    //   type,
+    //   "lockedComputeInsightsUid:",
+    //   lockedComputeInsightsUid,
+    // );
     return lockedComputeInsightsUid.has(id);
   } else if (type === "deleteMoment") {
+    // console.log(
+    //   "in isIdLocked > id:",
+    //   id,
+    //   "type:",
+    //   type,
+    //   "lockedDeleteMomentIds:",
+    //   lockedDeleteMomentIds,
+    // );
     return lockedDeleteMomentIds.has(id);
   } else {
+    // console.log(
+    //   "in isIdLocked > id:",
+    //   id,
+    //   "type:",
+    //   type,
+    //   "lockedAddMomentIds:",
+    //   lockedAddMomentIds,
+    // );
     return lockedAddMomentIds.has(id);
   }
 }
