@@ -7,6 +7,15 @@ const { formatDate, isSameDate, getDateDiff } = date;
 export function useDateUtils() {
   const currentDate = computed(() => new Date());
 
+  const currentHHmmRoundedTo15 = computed(() => {
+    const currentMinutes = currentDate.value.getMinutes();
+    const currentHours = currentDate.value.getHours();
+    const minutesRoundedTo15 = Math.round(currentMinutes / 15) * 15;
+    const hours = minutesRoundedTo15 === 60 ? currentHours + 1 : currentHours;
+    const minutes = minutesRoundedTo15 === 60 ? "00" : minutesRoundedTo15;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+  });
+
   const currentMonth = computed(() =>
     (currentDate.value.getMonth() + 1).toString().padStart(2, "0"),
   );
@@ -165,6 +174,7 @@ export function useDateUtils() {
 
   return {
     currentDate,
+    currentHHmmRoundedTo15,
     currentMonth,
     currentYear,
     currentYYYYdMM,

@@ -3,8 +3,7 @@
   "appName": "KifKaf",
   "webDir": "www",
   "server": {
-    "androidScheme": "https",
-    "url": "http://192.168.1.52:9500"
+    "androidScheme": "https"
   },
   "backgroundColor": "#f7f7f7",
   "ios": {
@@ -17,6 +16,16 @@
         "google.com",
         "apple.com"
       ]
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "alert",
+        "sound"
+      ]
+    },
+    "Badge": {
+      "persist": true,
+      "autoClear": false
     }
   }
 }

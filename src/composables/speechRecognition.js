@@ -16,6 +16,7 @@
 import { ref } from "vue";
 import { SpeechRecognition } from "@capacitor-community/speech-recognition";
 import { useMomentsStore } from "./../stores/moments.js";
+
 const ms = useMomentsStore();
 
 export const showSpeechRecognitionButton = ref(false);
@@ -167,9 +168,9 @@ export const useSpeechRecognition = async (
               .then(() => {
                 isRecognizing.value = true;
               })
-              .catch((error) => {
+              .catch(async (error) => {
                 console.error("Error starting speech recognition:", error);
-                isRecognizing.value = false;
+                await stopSpeechRecognition();
 
                 if (error.message === "User denied access to microphone") {
                   errorDialogText.value = "error.micAccessPermissionDeniedHtml";
@@ -187,8 +188,8 @@ export const useSpeechRecognition = async (
           showSpeechRecognitionButton.value === false ||
           hasPermissions !== "granted"
         ) {
-          return; // return early if the API is not available
-        } else if (isRecognizing.value) {
+          isRecognizing.value = false;
+        } else {
           SpeechRecognition.removeAllListeners();
           SpeechRecognition.stop();
           isRecognizing.value = false;

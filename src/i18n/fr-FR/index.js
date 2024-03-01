@@ -1,3 +1,4 @@
+//src/i18n/fr-FR/index.js
 import privacyPolicyPage from "./privacyPolicy";
 import tosPage from "./tos";
 
@@ -5,12 +6,42 @@ export default {
   privacyPolicyPage,
   tosPage,
   filepaths: {
-    screenshot1: "/screenshot1_fr.webp",
-    screenshot2: "/screenshot2_fr.webp",
-    screenshot3: "/screenshot3_fr.webp",
-    screenshot4: "/screenshot4_fr.webp",
-    screenshot5: "/screenshot5_fr.webp",
+    screenshot1: "screenshot1_fr.webp",
+    screenshot2: "screenshot2_fr.webp",
+    screenshot3: "screenshot3_fr.webp",
+    screenshot4: "screenshot4_fr.webp",
+    screenshot5: "screenshot5_fr.webp",
   },
+  welcomeToKifkaf: "Bienvenue sur KifKaf",
+  kifkaf: "KifKaf",
+  valuePropHtml:
+    "Comprenez ce dont <b><i>vous</i></b> avez besoin pour une vie plus épanouie.",
+  next: "Suivant",
+  privacyFirst: "La confidentialité avant tout",
+  privacyFirstText:
+    "KifKaf est uniquement pour vous et votre épanouissement personnel.<br>Votre journal est privé et sécurisé.<br>Nous ne vendrons jamais vos données à quiconque.",
+  iAgreeToThe: "J'accepte la",
+  andThe: "et les",
+  whatsOnYourMind: "Qu'avez-vous en tête ?",
+  maybeLater: "Peut-être plus tard",
+  iWantTo: "Je veux...",
+  yourChoicesWont:
+    "Vos choix ne limiteront aucunement votre expérience sur l'app.",
+  whatDoYouHope: "Qu'espérez-vous améliorer avec KifKaf ?",
+  beMoreFulFilled: "Être plus épanoui·e",
+  understandMyNeeds: "Connaître et prendre soin de mes besoins",
+  improveRelationships: "Améliorer mes relations aux autres",
+  manageEmotions: "Mieux gérer mes émotions",
+  keepTrackEmotions: "Garder une trace de mes émotions",
+  makeWiserLifeDecisions: "Faire des choix de vie plus avisés", //éclairés
+  somethingElse: "Autre chose",
+  getRemindersToMake: "Recevez des rappels pour atteindre vos objectifs.",
+  journalNotifs: "Journal",
+  journalNotifsText:
+    "Quand souhaitez-vous prendre un moment pour noter vos émotions du jour ?",
+  insightsNotifs: "Éclairages", //Analyse Eclairages Tendances Perspectives Besoins Besoins & +
+  insightsNotifsText:
+    "Recevez une notification quand de nouveaux éclairages sur votre journal sont prêts.",
   login: "Se connecter",
   loginToKifKaf: "Se connecter à KifKaf",
   continueWithGoogle: "Continuer avec Google",
@@ -45,7 +76,7 @@ export default {
     emailInUse: "L'email {email} est déjà utilisé",
     signingIn: "Erreur de connexion avec l'email {email}",
     speechRecognitionPermissionDeniedHtml: `
-      <strong>KifKaf a besoin de la permission Reconnaissance vocale pour cela.</strong><br>
+      <strong>KifKaf a besoin de la permission Reconnaissance vocale pour cela.</strong><br><br>
       Pour l'accorder :<br>
       1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
       2. Sélectionner <strong>KifKaf</strong>.<br>
@@ -53,11 +84,19 @@ export default {
       Vous gardez le contrôle et pouvez changer vos choix à tout moment.
     `,
     micAccessPermissionDeniedHtml: `
-      <strong>KifKaf a besoin de la permission Micro pour cela.</strong><br>
+      <strong>KifKaf a besoin de la permission Micro pour cela.</strong><br><br>
       Pour l'accorder :<br>
       1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
       2. Sélectionner <strong>KifKaf</strong>.<br>
       3. Autorisez l'accès au <strong>Micro</strong>.<br><br>
+      Vous gardez le contrôle et pouvez changer vos choix à tout moment.
+  `,
+    notificationsPermissionDeniedHtml: `
+      <strong>KifKaf a besoin de la permission Notifications pour cela.</strong><br><br>
+      Pour l'accorder :<br>
+      1. Aller dans les <strong>Réglages</strong> de votre appareil.<br>
+      2. Sélectionner <strong>KifKaf</strong>.<br>
+      3. Autorisez l'accès aux <strong>Notifications</strong>.<br><br>
       Vous gardez le contrôle et pouvez changer vos choix à tout moment.
   `,
     accountDeletionFailed:
@@ -106,13 +145,13 @@ export default {
   welcomeTutorial: {
     title: "Bienvenue sur KifKaf",
     step1:
-      "Capturez vos émotions quand elles surgissent. Votre journal est privé et sécurisé, accessible uniquement à vous.", //TODO:6 ajouter un slide ou mettre double dose sur confidentialité
+      "Capturez vos émotions quand elles surgissent. Votre journal est privé et sécurisé, accessible uniquement à vous.", //TODO:3 ajouter un slide ou mettre double dose sur confidentialité
     step1Action: "Capturer une émotion", //capturez/saisissez/enregistrez/notez Captez/Consignez//immortalisez///documentez/collectez
     dummyMoment:
       "Super enthousiaste à l'idée de mieux me connaître avec KifKaf !", //Hâte de mieux me comprendre en utilisant KifKaf !"
     step1DoneTitle: "Première émotion capturée",
     step1DoneText:
-      "Les émotions sont le langage de votre corps. Prendre le temps de les entendre et les noter est un grand pas vers une meilleure compréhension de vous-même." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie !"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:6 clarifier et différencier de step2DoneText
+      "Les émotions sont le langage de votre corps. Prendre le temps de les entendre et les noter est un grand pas vers une meilleure compréhension de vous-même." /*Tenir un journal de celles-ci est déjà un grand pas vers une vie plus épanouie !"*/ /*Avoir l'habitude de les écouter et de les noter*/, //TODO:3 clarifier et différencier de step2DoneText
     step2:
       "Pour chaque moment de votre journal, KifKaf identifie les besoins associés et leur degré de satisfaction.",
     step2Action: "Voir les besoins",
@@ -128,7 +167,7 @@ export default {
       "Préparation de vos éclairages en cours. Cela prend environ 2 min. | Dès 3 moments dans votre journal, KifKaf vous propose de premiers éclairages. Plus qu'un moment pour les générer. | Dès 3 moments dans votre journal, KifKaf vous propose de premiers éclairages. Plus que {count} moments pour les générer.",
     step3Ready: "👇 Vos éclairages sont prêts ! 👇",
     step3Action: "Explorer",
-    step3DoneTitle: "Tout est prêt !", //TODO:6 s'assurer que tt est dégenré, et avoir des CTA clair et vendre les bénéfices du produit et non le produit lui-même
+    step3DoneTitle: "Tout est prêt !", //TODO:4 avoir des CTA clair et vendre les bénéfices du produit et non le produit lui-même
     step3DoneText:
       "Capturez régulièrement vos émotions pour affiner les éclairages apportés par KifKaf. Bientôt, vous n'aurez plus de secrets pour vous-même.",
     complete: "terminé | terminés",
@@ -289,6 +328,7 @@ export default {
   janeDoeDomain: "email.com",
   janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Mot de passe",
+  notificationSettings: "Notifications",
   appLanguage: "Langue de l'application",
   speechRecoLanguage: "Langue de reconnaissance vocale",
   privacyPolicy: "Politique de confidentialité",
@@ -328,8 +368,11 @@ export default {
   nameUpdated: "Nom mis à jour",
   emailUpdated: "Email mis à jour",
   pwdUpdated: "Mot de passe mis à jour",
-  contactUsHtml:
-    "<p>Chez KifKaf c'est notre priorité numéro 1 que de vous offrir la meilleure expérience possible.<br/> Vos retours seront toujours les bienvenus.</p><p>Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à :</p>",
+  contactUsHtml1:
+    "<p>Notre priorité numéro 1 est de vous offrir la meilleure expérience possible.</p>",
+  contactUs2:
+    "Quelque soit votre demande, écrivez-nous dans le formulaire ci-dessous ou envoyez-nous un email à",
+  weUsuallyReply: "Nous vous répondrons dans les 24 heures.",
   yourEmail: "Votre adresse email",
   yourMessage: "Votre message",
   pleaseTypeYourMessage: "Veuillez saisir votre message",

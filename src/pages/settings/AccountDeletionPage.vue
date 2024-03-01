@@ -47,7 +47,7 @@
         </q-card-section>
         <q-card-actions align="center">
           <q-btn rounded :label="t('gotIt')" color="primary" class="full-width" padding="md" no-caps
-            @click="() => router.push('/welcome')" v-close-popup />
+            @click="() => router.push('/onboarding/1')" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -57,11 +57,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { currentUser, getFirebaseAuth } from "../boot/firebaseBoot.js";
+import { currentUser, getFirebaseAuth } from "src/boot/firebaseBoot.js";
 import { deleteUser, fetchSignInMethodsForEmail } from "firebase/auth";
 // import {  reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, OAuthProvider, } from "firebase/auth";
 import { useRouter } from 'vue-router'
-import { useMomentsStore } from './../stores/moments.js'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import axiosRetry from "axios-retry";
@@ -137,7 +137,7 @@ const handleOnline = async () => {
     }
     else {
       //if other error then it's very likely user is already deleted but page was refreshed, so move to welcome page
-      router.push('/welcome');
+      router.push('/onboarding/1');
     }
     //TODO:1 reauthentication needed to get ms.userCredentials
     // console.log("in handleOnline, currentUser.value:", currentUser.value);
@@ -167,38 +167,6 @@ onUnmounted(() => {
   // Clean up the online event listener
   window.removeEventListener('online', handleOnline);
 });
-
-
-// onMounted(async () => {
-// try {
-//   signInMethods.value = await fetchSignInMethodsForEmail(auth, ms.user.email);
-// } catch (error) {
-//   console.error('Error fetching sign-in methods:', error);
-// }
-// console.log("signInMethods.value:", signInMethods.value);
-// console.log("signInMethods.value[0]:", signInMethods.value[0]); //"apple.com", "google.com", "password"
-// //if signInMethods.value contains "password" set showPassword.value to true
-// if (!signInMethods.value.includes("password")) showPassword.value = false;
-// }
-// )
-
-// const continueWithGoogle = async () => {
-//   if (isOffline()) return
-//   try {
-//     await signInWithGoogle();
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-// const continueWithApple = async () => {
-//   if (isOffline()) return
-//   try {
-//     await signInWithApple();
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
 
 </script>
 

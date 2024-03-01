@@ -17,6 +17,8 @@ def capacitor_pods
   pod 'CapacitorFirebaseAuthentication', :path => '../../node_modules/@capacitor-firebase/authentication'
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
   pod 'CapacitorDevice', :path => '../../node_modules/@capacitor/device'
+  pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
+  pod 'CapawesomeCapacitorBadge', :path => '../../node_modules/@capawesome/capacitor-badge'
   pod 'SentryCapacitor', :path => '../../node_modules/@sentry/capacitor'
 end
 
@@ -27,6 +29,7 @@ target 'KifKaf' do
   # pod 'FirebaseAppCheck'
   pod 'CapacitorFirebaseAuthentication/Google', :path => '../../node_modules/@capacitor-firebase/authentication'
   pod 'CapacitorFirebaseAnalytics/Analytics', :path => '../../node_modules/@capacitor-firebase/analytics'
+  pod 'Firebase/Messaging'
 end
 
 post_install do |installer|

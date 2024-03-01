@@ -42,6 +42,9 @@
       </div>
 
       <div>
+        <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
+          @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
+          icon="fa-brands fa-apple" />
         <q-btn rounded unelevated color="on-primary" text-color="scrim" @click="continueWithGoogle()"
           class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps>
           <template v-slot:default>
@@ -49,9 +52,6 @@
               alt="Google">
             {{ t('continueWithGoogle') }} </template>
         </q-btn>
-        <q-btn rounded unelevated color="on-primary" text-color="scrim" :label="t('continueWithApple')"
-          @click="continueWithApple()" class="text-subtitle2 full-width q-ma-sm" style="height: 56px;" no-caps
-          icon="fa-brands fa-apple" />
       </div>
     </div>
 
@@ -83,7 +83,11 @@
       </q-form>
     </div>
 
-    <q-separator class="q-my-md" />
+    <div class="or-separator q-my-md">
+      <div class="line"></div>
+      <div class="or-text text-subtitle2 text-outline q-px-sm">{{ t('or') }}</div>
+      <div class="line"></div>
+    </div>
 
     <div class="q-ma-sm text-center"><a class="text-subtitle2 text-outline" href="/#/contact"
         style="text-decoration: none">{{ t('contactUs') }}</a>
@@ -106,11 +110,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onUnmounted, nextTick } from 'vue';
 import { useMomentsStore } from '../../stores/moments.js'
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { getFirebaseAuth, currentUser, logEvent } from "../../boot/firebaseBoot.js";
+import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
 import { signInWithEmailAndPassword, fetchSignInMethodsForEmail, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
 
@@ -123,6 +128,8 @@ const { t } = useI18n();
 const auth = getFirebaseAuth();
 const route = useRoute();
 const router = useRouter();
+const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
+
 const to =
   route.query.redirect && typeof route.query.redirect === 'string'
     ? route.query.redirect
@@ -141,7 +148,6 @@ const showWaitingForEmailVerif = ref(false)
 const showPasswordRecovery = ref(false)
 const showWaitingForPwdRecoveryEmail = ref(false)
 const pwdVisible = ref(false)
-
 
 const isValidEmail = computed(() => {
   return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(userEmail.value)
@@ -170,8 +176,13 @@ const isKnownEmail = async (email) => {
   }
 };
 
-const onSubmit = async (event) => {
+const handleSuccessfulEmailLogin = () => {
+  logEvent("login", { method: "email" });
+  ms.setUserDocValue({ lastLoginMethod: "email" });
+  router.push(to);
+};
 
+const onSubmit = async (event) => {
   if (isOffline()) return
 
   userEmail.value = userEmail.value.trim()
@@ -195,10 +206,9 @@ const onSubmit = async (event) => {
         console.log("In EmailLogin, Signing in");
         // console.log("Signed in:", userCredential);
         if (userCredential.user.emailVerified) {
-          logEvent("login", { method: "email" });
           // User's email is already verified. Redirect to expected page.
           console.log("In EmailLogin>onSubmit User's email is already verified. Redirecting to", to);
-          router.push(to);
+          handleSuccessfulEmailLogin()
         }
         else {
           await sendEmailVerification(auth.currentUser)
@@ -270,34 +280,8 @@ const handleAuthError = (errorCode, errorMessage) => {
   }
 }
 
-let checkEmailVerifiedInterval; // Declare variable to store the interval ID
-watch(currentUser, (newVal, oldVal) => {
-  console.log('In EmailLogin page, watch currentUser:', newVal, ", replaced:", oldVal);
-  if (newVal) {
-    // User is signed in.
-    if (newVal.emailVerified) {
-      // User's email is already verified. Redirect to expected page.
-      console.log("In EmailLogin > watch (currentUser), User's email is already verified. Redirecting to", to);
-      router.push(to);
-    }
-    else {
-      checkEmailVerifiedInterval = setInterval(async () => {
-        await newVal.reload();
-        if (newVal.emailVerified) {
-          console.log("User's email is now verified. Redirecting to", to);
-          clearInterval(checkEmailVerifiedInterval); // Clear the interval
-          router.push(to);
-        }
-      }
-        , 300)
-    }
-  }
-}, { immediate: true });
-
 onUnmounted(() => {
-  if (checkEmailVerifiedInterval) {
-    clearInterval(checkEmailVerifiedInterval);
-  }
+  stopUserVerificationCheck();
 });
 
 const continueWithGoogle = async () => {
@@ -338,17 +322,6 @@ const onSendPasswordRecoveryEmail = async () => {
 </script>
 
 <style lang="scss">
-.or-separator {
-  display: flex;
-  align-items: center;
-
-  .line {
-    flex-grow: 1;
-    height: 1px;
-    background-color: #ccc; // you can adjust this color as per your design
-  }
-}
-
 .q-dialog__inner>div {
   border-top-right-radius: 14px;
   border-top-left-radius: 14px;

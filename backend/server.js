@@ -118,6 +118,9 @@ app.use("/api/learn", addMomentRouter);
 app.use("/api/learn", deleteMomentRouter);
 app.use("/api/learn", computeInsightsRouter);
 
+// Initialize the notification scheduler
+require("./scheduledTasks/journalNotifsScheduler");
+
 // The error handler must be registered before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
 

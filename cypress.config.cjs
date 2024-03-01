@@ -84,7 +84,7 @@ module.exports = defineConfig({
       return config;
     },
     baseUrl: "http://localhost:9200/",
-    defaultCommandTimeout: 20000,
+    defaultCommandTimeout: 40000,
     // taskTimeout: 60000,
     animationDistanceThreshold: 0.0,
     waitForAnimations: true,

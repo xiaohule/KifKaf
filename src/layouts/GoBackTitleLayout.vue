@@ -1,3 +1,4 @@
+<!-- src/layouts/GoBackTitleLayout.vue -->
 <template>
   <q-layout view="hHh lpr fFf" class="bg-background">
     <q-header class="bg-transparent">

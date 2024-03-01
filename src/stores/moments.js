@@ -1,13 +1,18 @@
+//src/store/moments.js
 import { defineStore } from "pinia";
 import {
   collection,
   doc,
   writeBatch,
   setDoc,
+  updateDoc,
+  addDoc,
   getDoc,
   getDocs,
   onSnapshot,
   query,
+  increment,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../boot/firebaseBoot.js";
 import { ref, computed, watch } from "vue";
@@ -26,6 +31,7 @@ import {
   logEvent,
   setUserProperty,
 } from "../boot/firebaseBoot.js";
+import { pushNotifRegistrationToken } from "../boot/pushNotificationsBoot.js";
 import { date } from "quasar";
 const {
   getDateDiff,
@@ -37,7 +43,7 @@ const {
   formatDate,
 } = date;
 import { useDateUtils } from "../composables/dateUtils.js";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 import { i18n } from "./../boot/i18nBoot.js";
 
 axios.defaults.baseURL = process.env.API_URL;
@@ -62,15 +68,17 @@ const {
   currentDate,
   currentYear,
   currentYYYYdMM,
+  currentHHmmRoundedTo15,
   dayToDate,
   monthDateRangeToDate,
 } = useDateUtils();
 
 export const useMomentsStore = defineStore("moments", () => {
-  const router = useRouter();
+  // const router = useRouter();
   const user = currentUser;
   const userDocRef = ref(null);
   const userDoc = ref(null);
+  const fetchUserLock = ref(false);
   const userFetched = ref(false);
   const momentsCollRef = ref(null);
   const momentsColl = ref([]);
@@ -81,30 +89,44 @@ export const useMomentsStore = defineStore("moments", () => {
   const aggDataInsights = ref({});
   const aggDataNeedsFetched = ref(false);
   const aggDataInsightsFetched = ref(false);
-  const shouldResetSwiper = ref(false);
   const donutSegmentClicked = ref(null);
   const firstOnSnapshotDone = ref(false);
   const needsToggleModel = ref("top");
   const activeIndex = ref(null);
   const segDateId = ref("Monthly");
+  const newMomText = ref("");
+  const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"));
+  const tmpPrivacyCheckboxState = ref(false);
+  const tmpPrivacyPolicyConsent = ref(null);
+  const tmpTermsOfServiceConsent = ref(null);
+  const consentsCollRef = ref(null);
+  const tmpUserIntentionsGroup = ref([]);
+  const tmpUIsomethingElse = ref("");
+  const tmpNotifs = ref({
+    journalNotifs: true,
+    insightsNotifs: true,
+    journalNotifsTime: currentHHmmRoundedTo15.value,
+  });
+  const tmpNotifsUpdated = ref(false);
 
-  const activeDateRange = computed(() => {
+  const getActiveDateRange = computed(() => {
     console.log(
-      "In moment.js > computed activeDateRange, activeIndex",
+      "In moment.js > computed getActiveDateRange, activeIndex",
       activeIndex.value,
       "segDateId",
       segDateId.value,
     );
     return (
-      dateRanges.value[activeIndex.value] ??
+      getDateRanges.value[activeIndex.value] ??
       formatDate(currentDate.value, "YYYY-MM")
     );
   });
-  const prevDateRange = computed(() => {
+  const getPrevDateRange = computed(() => {
     const prevIndex = activeIndex.value - 1;
     if (prevIndex >= 0) {
       return (
-        dateRanges.value[prevIndex] ?? formatDate(currentDate.value, "YYYY-MM")
+        getDateRanges.value[prevIndex] ??
+        formatDate(currentDate.value, "YYYY-MM")
       );
     }
     return null;
@@ -182,8 +204,9 @@ export const useMomentsStore = defineStore("moments", () => {
 
   const getUniqueDaysTs = computed(() => {
     console.log(
-      "In moments.js > getUniqueDaysTs, momentsColl.value:",
-      momentsColl.value,
+      "In moments.js > getUniqueDaysTs,",
+      // " momentsColl.value:",
+      // momentsColl.value,
       "returning:",
       getUniqueDaysDateFromDateRangeAndNeed(),
     );
@@ -240,7 +263,7 @@ export const useMomentsStore = defineStore("moments", () => {
         activeIndex.value = newValue.length - 1;
       }
     },
-    { immediate: true },
+    { immediate: true }, //TODO:9 this is not needed on many pages
   );
 
   const yearsSinceOldestMoment = computed(() =>
@@ -279,9 +302,9 @@ export const useMomentsStore = defineStore("moments", () => {
     { immediate: true },
   );
 
-  const dateRanges = computed(() => {
+  const getDateRanges = computed(() => {
     console.log(
-      "In moments.js > computed dateRanges, segDateId",
+      "In moments.js > computed getDateRanges, segDateId",
       segDateId.value,
       "returning:",
       segDateId.value === "Monthly"
@@ -293,58 +316,45 @@ export const useMomentsStore = defineStore("moments", () => {
       : dateRangesYears.value;
   });
 
-  //when user tap on the Insights tab while already in the Insights tab, set activeIndex to the last index
-  watch(shouldResetSwiper, (newVal) => {
-    console.log("In moments.js > watch shouldResetSwiper, newVal", newVal);
-    if (newVal) {
-      activeIndex.value = dateRanges.value.length - 1;
-      shouldResetSwiper.value = false;
-    }
-  });
-
-  const pickedDateYYYYsMMsDD = ref(formatDate(currentDate.value, "YYYY/MM/DD"));
+  const resetToCurrentMonth = () => {
+    segDateId.value = "Monthly";
+    activeIndex.value = getDateRanges.value.length - 1;
+  };
 
   watch(activeIndex, (newVal) => {
     console.log("In moments.js > watch activeIndex, newVal", newVal);
     if (segDateId.value === "Monthly") {
       pickedDateYYYYsMMsDD.value = formatDate(
-        monthDateRangeToDate(activeDateRange.value),
+        monthDateRangeToDate(getActiveDateRange.value),
         "YYYY/MM/DD",
       );
     } else if (segDateId.value === "Yearly") {
       pickedDateYYYYsMMsDD.value = formatDate(
-        activeDateRange.value,
+        getActiveDateRange.value,
         "YYYY/MM/DD",
       );
     }
   });
 
-  const suggestions = computed(() => {
-    const suggestions = {
-      continue: ["Engaging Regularly in Physical Activities"],
-      stop: ["Seeing Max", "Working without pause", "Calling your mum"],
-      start: [
-        "Mindfulness and Relaxation Practices",
-        "Engaging in a creative hobby like painting, writing, or playing a musical instrument",
-      ],
-    };
-    return suggestions;
-  });
-
   const fetchUser = async () => {
+    console.log("In moments.js, In fetchUser");
+
+    if (userFetched.value) {
+      console.log("In moments.js > fetchUser, userFetched true, returning");
+      return;
+    }
+    if (fetchUserLock.value) {
+      console.log("In moments.js > fetchUser, fetchUserLock true, returning");
+      return;
+    }
+    if (!user.value || !user.value.uid) {
+      console.log("In moments.js > fetchUser, user not yet fetched, returning");
+      return;
+    }
+
+    fetchUserLock.value = true; // Set the lock
+
     try {
-      console.log("In moments.js, In fetchUser");
-      if (userFetched.value) {
-        console.log("In moments.js, In fetchUser, already userFetched");
-        return;
-      }
-
-      // Check if user exists and has a uid property
-      if (!user.value || !user.value.uid) {
-        console.log("In moments.js, failed to fetch user or user.uid");
-        return;
-      }
-
       // Check if user doc exists, if not create & initialize it, BEWARE this way of doing means that if we add new field to the user doc data model a script/manual update should be run to add it to existing users (but it's better than the alternative of transactional write for offline)
       userDocRef.value = doc(db, "users", `${user.value.uid}`);
       momentsCollRef.value = collection(userDocRef.value, "moments");
@@ -353,38 +363,83 @@ export const useMomentsStore = defineStore("moments", () => {
         "aggregateMonthly",
       );
       aggYearlyCollRef.value = collection(userDocRef.value, "aggregateYearly");
-
-      try {
-        const userDocCheck = await getDoc(userDocRef.value);
-        if (
-          !userDocCheck.exists() ||
-          !userDocCheck.data().hasOwnProperty("showWelcomeTutorial")
-        ) {
-          console.log(
-            "In moments.js > fetchUser, User doc not initialized, initializing it",
-          );
-          const defaultUserDocValues = {
-            hasNeeds: false,
-            welcomeTutorialStep: 0,
-            showWelcomeTutorial: true,
-            showInsightsBadge: false,
-          };
-          await setDoc(userDocRef.value, defaultUserDocValues, {
-            merge: true,
-          });
-        }
-      } catch (error) {
-        console.log("In moments.js > fetchUser, getDoc failed: ", error);
-      }
-
-      onSnapshot(userDocRef.value, (snapshot) => {
-        userDoc.value = snapshot.data();
-      });
+      consentsCollRef.value = collection(userDocRef.value, "consents");
 
       userFetched.value = true;
       console.log("In moments.js, userFetched true");
+
+      onSnapshot(userDocRef.value, (snapshot) => {
+        userDoc.value = snapshot.data();
+        // console.log(
+        //   "In moments.js > fetchUser > onSnapshot userDocRef, userDoc.value updated to:",
+        //   userDoc.value,
+        // );
+      });
+
+      //NOTIFS
+      if (
+        tmpNotifsUpdated.value &&
+        (tmpNotifs.value.journalNotifs || tmpNotifs.value?.insightsNotifs)
+      ) {
+        await setUserDocValue(tmpNotifs.value);
+        tmpNotifsUpdated.value = false;
+      }
+
+      if (pushNotifRegistrationToken.value) {
+        //TODO:8 position at better place when understood when this occurs
+        await setUserDocValue(
+          {
+            fcmToken: pushNotifRegistrationToken.value,
+            fcmTokenUpdatedAt: serverTimestamp(),
+          },
+          false,
+        );
+      }
+
+      //save latest timezone
+      updateDoc(userDocRef.value, {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+
+      //ANONYMOUS ONBOARDING DATA SAVING IF ANY
+      if (tmpPrivacyPolicyConsent.value) {
+        tmpPrivacyPolicyConsent.value.acceptedAt = serverTimestamp();
+        addDoc(consentsCollRef.value, tmpPrivacyPolicyConsent.value);
+        console.log(
+          "In moments.js > fetchUser, tmpPrivacyPolicyConsent saved:",
+          tmpPrivacyPolicyConsent.value,
+        );
+      }
+
+      if (tmpTermsOfServiceConsent.value) {
+        tmpTermsOfServiceConsent.value.acceptedAt = serverTimestamp();
+        addDoc(consentsCollRef.value, tmpTermsOfServiceConsent.value);
+        console.log(
+          "In moments.js > fetchUser, tmpTermsOfServiceConsent saved:",
+          tmpTermsOfServiceConsent.value,
+        );
+      }
+
+      if (tmpUserIntentionsGroup.value?.length > 0) {
+        setUserDocValue(
+          { userIntentions: tmpUserIntentionsGroup.value },
+          false,
+        );
+        tmpUserIntentionsGroup.value.forEach((userIntention) => {
+          if (userIntention.startsWith("somethingElse:")) {
+            setUserProperty(`ui_se`, userIntention.slice(14).slice(0, 36)); //to avoid "User property value is too long. The maximum supported length is 36"
+          } else {
+            setUserProperty(`ui_${userIntention}`, true);
+          }
+        });
+        logEvent("user_property_set", {
+          userIntentions: tmpUserIntentionsGroup.value,
+        });
+      }
     } catch (error) {
-      console.log("Error in fetchUser", error);
+      console.log("Error in fetchUser", error); //TODO:8 show message asking to connect to internet when offline?
+    } finally {
+      fetchUserLock.value = false; // Release the lock
     }
   };
 
@@ -482,43 +537,74 @@ export const useMomentsStore = defineStore("moments", () => {
     return momentsColl.value.filter((moment) => !moment.deleted).length;
   });
 
+  const hasNeeds = (momentDocData) => {
+    return !(
+      !momentDocData.needs ||
+      Object.keys(momentDocData.needs).length === 0 ||
+      momentDocData.needs.Oops ||
+      momentDocData.needs.error
+    );
+  };
+
   const deleteMoment = async (momentId) => {
     try {
       console.log("In moment.js > deleteMoment for momentId:", momentId);
-      const momentDoc = doc(momentsCollRef.value, momentId);
-      const momentArchive = (await getDoc(momentDoc)).data();
-      const otherMomHasNeeds = momentsColl.value.some((moment) => {
+      const momentDocRef = doc(momentsCollRef.value, momentId);
+      const momentDocSnapshot = await getDoc(momentDocRef);
+      console.log(
+        "momentDocSnapshot",
+        momentDocSnapshot,
+        "momentDocSnapshot.data()",
+        momentDocSnapshot.data(),
+      );
+      const otherMomsHaveNeeds = momentsColl.value.some((momentDoc) => {
+        console.log(
+          "In moments.js > deleteMoment >otherMomsHaveNeeds, momentDoc:",
+          momentDoc,
+          "momentDoc.id",
+          momentDoc.id,
+          "momentDoc.deleted",
+          momentDoc.deleted,
+        );
         return (
-          !moment.deleted &&
-          moment.id !== momentId &&
-          moment.needs &&
-          Object.keys(moment.needs).length > 0
+          momentDoc.id !== momentId && !momentDoc.deleted && hasNeeds(momentDoc)
         );
       });
 
       console.log(
-        "momentDoc:",
-        momentDoc,
-        "momentArchive:",
-        momentArchive,
+        "In moments.js > deleteMoment, momentDocRef:",
+        momentDocRef,
+        "momentDocSnapshot.data():",
+        momentDocSnapshot.data(),
         "momentsCollLength:",
         momentsCollLength.value,
-        "otherMomHaveNeeds:",
-        otherMomHasNeeds,
+        "otherMomsHaveNeeds:",
+        otherMomsHaveNeeds,
       );
 
       const batch = writeBatch(db);
 
-      // batch.delete(momentDoc);
       //instead of deleting just set the flag deleted to true
-      batch.update(momentDoc, { deleted: true });
+      batch.update(momentDocRef, { deleted: true });
 
-      if (!otherMomHasNeeds) {
-        batch.update(userDocRef.value, {
-          welcomeTutorialStep: momentsCollLength.value < 2 ? 0 : 1,
-          hasNeeds: false,
-        });
+      // Prepare the updates for userDocRef
+      const userDocUpdates = {
+        momentsCount: increment(-1),
+        momentsDeletedCount: increment(1),
+      };
+      // If the moment has needs, decrement momentsWithNeedsCount
+      if (hasNeeds(momentDocSnapshot.data())) {
+        userDocUpdates.momentsWithNeedsCount = increment(-1);
       }
+      if (!otherMomsHaveNeeds) {
+        userDocUpdates.welcomeTutorialStep =
+          momentsCollLength.value < 2 ? 0 : 1;
+        userDocUpdates.hasNeeds = false;
+      }
+
+      batch.update(userDocRef.value, userDocUpdates);
+
+      logEvent("moment_deleted");
 
       await batch.commit();
 
@@ -547,7 +633,7 @@ export const useMomentsStore = defineStore("moments", () => {
       );
       console.log("In deleteMoment", response.data);
       await fetchAggDataNeeds(true /*force*/); //to get the aggDataNeeds update if older period
-      // TODO:4 this is a bit overkill, we could just update the relevant aggregate docs
+      // TODO:2 this is a bit overkill, we could just update the relevant aggregate docs
       // Notify.create("Insights recalculation complete.");
     } catch (error) {
       console.log("Error in deleteMoment", error);
@@ -563,9 +649,19 @@ export const useMomentsStore = defineStore("moments", () => {
       moment.deleted = false;
 
       // Add the new moment in momentsColl (note addDoc not working as per https://github.com/firebase/firebase-js-sdk/issues/5549#issuecomment-1043389401)
+      const batch = writeBatch(db);
+
       const newMomDocRef = doc(momentsCollRef.value);
-      await setDoc(newMomDocRef, moment);
-      logEvent("moment_added", { value: newMomDocRef.id });
+      batch.set(newMomDocRef, moment);
+
+      batch.update(userDocRef.value, {
+        momentsCount: increment(1),
+      });
+
+      await batch.commit();
+
+      logEvent("moment_added");
+
       if (navigator.onLine) {
         Notify.create(i18n.global.t("momentSaved"));
       } else {
@@ -596,7 +692,10 @@ export const useMomentsStore = defineStore("moments", () => {
         },
       );
 
-      console.log("In addMoment llm response:", response.data);
+      console.log(
+        "In addMoment /api/learn/add-moment/ response:",
+        response.data,
+      );
       //if response doesn't contain message field throw an error
       if (!response.data.message) {
         throw new Error(
@@ -604,7 +703,7 @@ export const useMomentsStore = defineStore("moments", () => {
           response.data,
         );
       }
-      logEvent("moment_needs_analyzed", { value: newMomDocRef.id });
+      logEvent("moment_needs_analyzed");
 
       // Notify.create("Needs analysis complete.");
     } catch (error) {
@@ -786,24 +885,6 @@ export const useMomentsStore = defineStore("moments", () => {
         doc(aggMonthlyCollRef.value, `${currentYYYYdMM.value}-insights`),
         async (snapshot) => {
           aggDataInsights.value[currentYYYYdMM.value] = snapshot.data();
-          console.log(
-            "In moments.js onSnapshot aggDataInsights.value[currentYYYYdMM.value]just ran:",
-            aggDataInsights.value[currentYYYYdMM.value],
-            "with firstOnSnapshotDone.value:",
-            firstOnSnapshotDone.value,
-            "and showInsightsBadge:",
-            userDoc.value?.showInsightsBadge,
-          );
-          if (!firstOnSnapshotDone.value) firstOnSnapshotDone.value = true;
-          //add condition that user is not on Insights tab to avoid triggering the badge when user is already on Insights tab
-          else if (
-            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.summary ||
-            aggDataInsights.value[currentYYYYdMM.value]?.isNew?.suggestions
-          ) {
-            await setUserDocValue({
-              showInsightsBadge: router.currentRoute.value.path !== "/insights",
-            });
-          }
         },
       );
 
@@ -861,15 +942,19 @@ export const useMomentsStore = defineStore("moments", () => {
     return moms?.sort((a, b) => b.date.seconds - a.date.seconds);
   };
 
-  const setUserDocValue = async (value) => {
+  const setUserDocValue = async (value, setAnalytics = true) => {
     console.log("In moment.js > setUserDocValue for value", value);
     try {
       if (!userFetched.value) {
         await fetchUser();
       }
       await setDoc(userDocRef.value, { ...value }, { merge: true });
-      for (const [key, val] of Object.entries(value)) {
-        setUserProperty(key, val);
+
+      if (setAnalytics) {
+        for (const [key, val] of Object.entries(value)) {
+          setUserProperty(key, val);
+          logEvent("user_property_set", { [key]: val });
+        }
       }
     } catch (error) {
       console.log(
@@ -989,6 +1074,7 @@ export const useMomentsStore = defineStore("moments", () => {
     user.value = null;
     userDocRef.value = null;
     userDoc.value = null;
+    fetchUserLock.value = false;
     userFetched.value = false;
     momentsCollRef.value = null;
     momentsColl.value = [];
@@ -999,29 +1085,48 @@ export const useMomentsStore = defineStore("moments", () => {
     aggDataInsights.value = {};
     aggDataNeedsFetched.value = false;
     aggDataInsightsFetched.value = false;
-    shouldResetSwiper.value = false;
     donutSegmentClicked.value = null;
+    firstOnSnapshotDone.value = false;
     needsToggleModel.value = "top";
     activeIndex.value = null;
     segDateId.value = "Monthly";
+    newMomText.value = "";
     pickedDateYYYYsMMsDD.value = formatDate(currentDate.value, "YYYY/MM/DD");
+    tmpPrivacyCheckboxState.value = false;
+    tmpPrivacyPolicyConsent.value = null;
+    tmpTermsOfServiceConsent.value = null;
+    consentsCollRef.value = null;
+    tmpUserIntentionsGroup.value = [];
+    tmpUIsomethingElse.value = "";
+    tmpNotifs.value = {
+      journalNotifs: true,
+      insightsNotifs: true,
+      journalNotifsTime: currentHHmmRoundedTo15.value,
+    };
+    tmpNotifsUpdated.value = false;
   }
 
   return {
     user,
+    tmpPrivacyCheckboxState,
+    tmpPrivacyPolicyConsent,
+    tmpUserIntentionsGroup,
+    tmpUIsomethingElse,
+    tmpNotifs,
+    tmpNotifsUpdated,
+    tmpTermsOfServiceConsent,
     userDoc,
     userFetched,
     momentsFetched,
-    shouldResetSwiper,
     donutSegmentClicked,
     needsToggleModel,
     activeIndex,
     segDateId,
-    activeDateRange,
-    prevDateRange,
-    dateRanges,
+    newMomText,
+    getActiveDateRange,
+    getPrevDateRange,
+    getDateRanges,
     pickedDateYYYYsMMsDD,
-    suggestions,
     getUniqueDaysTs,
     getOldestMomentDate,
     getOldestMomentDateYYYYsMM,
@@ -1046,6 +1151,7 @@ export const useMomentsStore = defineStore("moments", () => {
     getRandomMomentIdOfTheDay,
     getPlaceholderQuoteOfTheDayId,
     setAggDataInsightsValue,
+    resetToCurrentMonth,
     $reset,
   };
 });

@@ -6,7 +6,7 @@
     </q-item>
 
     <q-item v-if="topItem" class="q-pb-sm q-px-none" clickable
-      @click="router.push({ path: `/insights/needs/${needsMap[topItem.needName][2]}`, query: { dateRange: ms.activeDateRange } });">
+      @click="router.push({ path: `/insights/needs/${needsMap[topItem.needName][2]}`, query: { dateRange: ms.getActiveDateRange } });">
       <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
         <q-avatar size="42px" font-size="28px" :color="needToColor()[topItem.needName]">
           {{ needsMap[topItem.needName][0] }}
@@ -51,13 +51,13 @@
       </q-item-section>
       <q-item-section>
         <div v-if="props.topType == 'satisfier'">
-          {{ t('topSatEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
+          {{ t('topSatEmpty', ms.getDateRanges.length - ms.activeIndex) }} </div>
         <div v-else-if="props.topType == 'dissatisfier'">
-          {{ t('topDissatEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
+          {{ t('topDissatEmpty', ms.getDateRanges.length - ms.activeIndex) }} </div>
         <div v-if="props.topType == 'gainer'">
-          {{ t('topGainerEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
+          {{ t('topGainerEmpty', ms.getDateRanges.length - ms.activeIndex) }} </div>
         <div v-else-if="props.topType == 'loser'">
-          {{ t('topLoserEmpty', ms.dateRanges.length - ms.activeIndex) }} </div>
+          {{ t('topLoserEmpty', ms.getDateRanges.length - ms.activeIndex) }} </div>
       </q-item-section>
     </q-item>
   </div>
@@ -94,20 +94,20 @@ const getTopSatisfierOrDissatisfierItem = () => {
     dissatisfier: "unsatisfaction",
   };
   return ms.aggDataNeeds &&
-    ms.aggDataNeeds[ms.activeDateRange] &&
-    ms.aggDataNeeds[ms.activeDateRange][type2key[props.topType]] &&
-    ms.aggDataNeeds[ms.activeDateRange][type2key[props.topType]][0];
+    ms.aggDataNeeds[ms.getActiveDateRange] &&
+    ms.aggDataNeeds[ms.getActiveDateRange][type2key[props.topType]] &&
+    ms.aggDataNeeds[ms.getActiveDateRange][type2key[props.topType]][0];
 }
 
 // Function to calculate the top gainer/loser array
 const getTopGainerOrLoserItem = () => {
-  if (!ms.aggDataNeeds || !ms.aggDataNeeds[ms.activeDateRange] || !ms.aggDataNeeds[ms.prevDateRange]) {
+  if (!ms.aggDataNeeds || !ms.aggDataNeeds[ms.getActiveDateRange] || !ms.aggDataNeeds[ms.getPrevDateRange]) {
     return null;
   }
 
   // Creating a map for quick look-up of previous data by needName
   const prevDataMap = new Map(
-    ms.aggDataNeeds[ms.prevDateRange].importance.map(item => [
+    ms.aggDataNeeds[ms.getPrevDateRange].importance.map(item => [
       item.needName,
       {
         occurrenceCountPrev: item.occurrenceCount,
@@ -117,7 +117,7 @@ const getTopGainerOrLoserItem = () => {
   );
 
   // Mapping current data and merging with previous data
-  const topGainerArray = ms.aggDataNeeds[ms.activeDateRange].importance
+  const topGainerArray = ms.aggDataNeeds[ms.getActiveDateRange].importance
     .map(item => {
       const prevData = prevDataMap.get(item.needName);
       if (!prevData) return undefined; // Skip if no previous data is found

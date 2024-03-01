@@ -10,6 +10,7 @@ const {
 const { createOpenaiRequestOptions } = require("../utils/openaiPromptsUtils");
 const { FieldValue } = require("firebase-admin/firestore");
 const { db, openai } = require("../utils/servicesConfig");
+const { sendInsightsNotif } = require("../utils/insightsNotifsUtils");
 
 const promptVersion = "gpt4_7_2_1";
 
@@ -132,6 +133,7 @@ router.post("/compute-insights/", async (req, res) => {
         console.log(
           `In computeInsights for uid ${req.uid}, lock not released after retries.`,
         );
+        unlockId(req.uid, "computeInsights"); // prevent deadlock
         return res.status(409).json({
           message:
             "Error: In computeInsights > Lock not released after retries",
@@ -388,8 +390,10 @@ router.post("/compute-insights/", async (req, res) => {
           }
 
           //PERSIST INSIGHTS IF SUCCESS PATH
+          const batch = db.batch();
+
           //persist insights data in firestore in aggregateMonthlyInsightsDoc.insights
-          await aggregateMonthlyInsightsDocRef.update({
+          batch.update(aggregateMonthlyInsightsDocRef, {
             nSuccessRun: FieldValue.increment(1),
             isNew: {
               summary: true,
@@ -401,12 +405,32 @@ router.post("/compute-insights/", async (req, res) => {
             lastUpdate: FieldValue.serverTimestamp(),
           });
 
+          //set userDoc showInsightsBadge to true
+          batch.update(userDocRef, { showInsightsBadge: true });
+
+          // Commit the batch
+          await batch.commit();
+
           console.log(
             "In computeInsights for uid",
             req.uid,
             "added insights to aggregateMonthly.",
             `${key}-insights`,
           );
+
+          //send insights notif
+          const userDoc = (await userDocRef.get()).data();
+          if (userDoc.fcmToken && userDoc.insightsNotifs) {
+            console.log(
+              "In computeInsights for uid",
+              req.uid,
+              "sending insights notif",
+            );
+            sendInsightsNotif(
+              userDoc.fcmToken,
+              userDoc.locale || userDoc.deviceLocale,
+            );
+          }
         }
       } catch (error) {
         console.log(

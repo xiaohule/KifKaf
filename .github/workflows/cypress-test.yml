@@ -3,6 +3,9 @@ on: [push]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest # ubuntu-latest #macos-latest
+    # stop the job if it runs over x minutes
+    # to prevent a hanging process from using all your CI minutes
+    timeout-minutes: 20
     # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
     # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
     # Also see warning here https://github.com/cypress-io/github-action#parallel
@@ -15,10 +18,10 @@ jobs:
         uses: actions/checkout@v4
 
       # uncomment for specific node version
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 20.8.1
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.18.2"
 
       # Print important version numbers
       - name: Print versions
@@ -48,7 +51,8 @@ jobs:
           # build: npm run build
           start: npm run api, npm start
           browser:
-            chrome # comment for electron mode or try firefox
+            chrome
+            # comment for electron mode or try firefox/chrome
             # headed: true
           wait-on: "http://localhost:3000, http://localhost:9200"
           # wait-on-timeout: 120 # seconds

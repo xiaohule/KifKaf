@@ -1,28 +1,11 @@
+<!-- src/pages/HomeTab.vue -->
 <template >
   <q-page class="q-mx-auto q-pa-none" style="max-width: 600px;">
     <q-pull-to-refresh @refresh="refresh">
 
       <q-parallax style="height: 60vh; max-height:600px; margin-top: -100px;" :speed="0.5">
         <template v-slot:media>
-          <img src="~assets/home-background-1-tinified.png">
-          <!-- trop dark mais pas mal-->
-          <!-- <img src="~assets/ink.png"> -->
-          <!-- pas mal -->
-          <!-- <img src="~assets/pexels-brakou-abdelghani-1723637.png"> -->
-          <!-- pas mal -->
-          <!-- <img src="~assets/pexels-brakou-abdelghani-11723637.png"> -->
-
-          <!-- trop froid -->
-          <!-- <img src="~assets/luke-chesser-3rWagdKBF7U-unsplash.png"> -->
-          <!-- pas mal à réorienter -->
-          <!-- <img src="~assets/luke-chesser-eICUFSeirc0-unsplash.png"> -->
-
-          <!-- <img src="~assets/home2.png"> -->
-          <!-- <img src="~assets/basicGradient.png"> -->
-          <!-- pas mal -->
-          <!-- <img src="~assets/Rectangle29.png"> -->
-          <!-- <img src="~assets/Rectangle31.png"> -->
-          <!-- <img src="~assets/Rectangle32.png"> -->
+          <img src="~assets/home-background-1-cropped.webp">
         </template>
         <template v-slot:content>
 
@@ -77,7 +60,7 @@
             (index === 0 && !ms?.userDoc?.showWelcomeTutorial) ? 'text-on-primary' : 'text-on-background'
           ]">{{ formatDayForMomList(day, false, t, d) }}</div>
           <q-card flat class="bg-surface q-mb-md q-px-none q-py-xs rounded-borders-14">
-            <div v-for=" moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
+            <div v-for="moment  in  ms.getSortedMomsFromDayAndNeed(day)" :key="moment.id" clickable v-ripple
               class="q-px-none q-py-sm" style="min-height: 0px;"
               @click="momentModalId = moment.id; momentModalOpened = true">
 
@@ -105,6 +88,8 @@
           </q-card>
         </div>
       </div>
+      <br />
+
       <q-dialog v-model="errorDialogOpened" position="bottom" style="max-width: 600px">
         <q-card class="bg-background q-pa-lg text-center" flat>
           <q-icon name="error_outline" size="10vh" color="error" class="q-py-md" />
@@ -113,7 +98,6 @@
           </q-card-section>
         </q-card>
       </q-dialog>
-      <br />
 
       <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
 
@@ -147,19 +131,23 @@ const newMomDate = ref(null)
 const momsWithScrolledNeeds = ref({}); // This object will store scrollLeft values for each moment
 const momentModalOpened = ref(false);
 const momentModalId = ref("");
-
-// const content = ref(t('mykey4'))
+let toggleSpeech, stopSpeech
 
 const emits = defineEmits(['update:isDialogOpened'])
 
 // Using await with fetchMoments ensures the function completes its execution before the component is mounted, which can be useful if your component relies on the data fetched by fetchMoments to render correctly.
 onMounted(async () => {
+  console.log('In HomeTab > onMounted');
+  newMomText.value = ms.newMomText;
   try {
+    const result = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
+    toggleSpeech = result.toggleSpeechRecognition;
+    stopSpeech = result.stopSpeechRecognition;
+    // Delay focusing the input to give priority to speech recognition initialization
+    if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
     if (!ms.momentsFetched) {
       await ms.fetchMoments();
     }
-    if (newMomInputRef.value && newMomText.value.length > 0) newMomInputRef.value.focus()
-    momsWithScrolledNeeds.value = {};
     if (!ms.aggDataInsightsFetched) {
       await ms.fetchAggDataInsights();
     }
@@ -208,30 +196,16 @@ const newMomRules = [
 ]
 
 //SPEECH RECOGNITION
-let toggleSpeech, stopSpeech
-onMounted(async () => {
-  const result = await useSpeechRecognition(newMomText, errorDialogOpened, errorDialogText);
-  toggleSpeech = result.toggleSpeechRecognition;
-  stopSpeech = result.stopSpeechRecognition;
-});
-
-
-//focus on textarea when speech recognition is turned off
+//highlight text when speech recognition is turned off
 watch(isRecognizing, (val) => {
   if (!val) newMomInputRef.value.$el.querySelector('textarea').select();
 })
 
-// onDeactivated(async () => {
-//   console.log('HomeTab > onDeactivate fired');
-//   if (isRecognizing.value) {
-//     await stopSpeech();
-//   }
-// })
-onBeforeUnmount(async () => {
+onBeforeUnmount(() => {
   console.log('HomeTab > onBeforeUnmount fired');
-  if (isRecognizing.value) {
-    await stopSpeech();
-  }
+  ms.newMomText = newMomText.value;
+  stopSpeech();
+
 })
 
 // ADD MOMENT

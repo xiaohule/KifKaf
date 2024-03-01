@@ -5,37 +5,46 @@ PODS:
   - AppAuth/Core (1.6.2)
   - AppAuth/ExternalUserAgent (1.6.2):
     - AppAuth/Core
-  - Capacitor (5.6.0):
+  - Capacitor (5.7.0):
     - CapacitorCordova
   - CapacitorApp (5.0.7):
     - Capacitor
   - CapacitorCommunitySpeechRecognition (2.1.0):
     - Capacitor
-  - CapacitorCordova (5.6.0)
+  - CapacitorCordova (5.7.0)
   - CapacitorDevice (5.0.7):
     - Capacitor
-  - CapacitorFirebaseAnalytics (5.4.0):
+  - CapacitorFirebaseAnalytics (5.4.1):
     - Capacitor
-    - CapacitorFirebaseAnalytics/Lite (= 5.4.0)
-  - CapacitorFirebaseAnalytics/Analytics (5.4.0):
+    - CapacitorFirebaseAnalytics/Lite (= 5.4.1)
+  - CapacitorFirebaseAnalytics/Analytics (5.4.1):
     - Capacitor
     - FirebaseAnalytics (~> 10.8)
-  - CapacitorFirebaseAnalytics/Lite (5.4.0):
+  - CapacitorFirebaseAnalytics/Lite (5.4.1):
     - Capacitor
-  - CapacitorFirebaseAppCheck (5.4.0):
+  - CapacitorFirebaseAppCheck (5.4.1):
     - Capacitor
     - FirebaseAppCheck (~> 10.8)
-  - CapacitorFirebaseAuthentication (5.4.0):
+  - CapacitorFirebaseAuthentication (5.4.1):
     - Capacitor
-    - CapacitorFirebaseAuthentication/Lite (= 5.4.0)
+    - CapacitorFirebaseAuthentication/Lite (= 5.4.1)
     - FirebaseAuth (~> 10.8)
-  - CapacitorFirebaseAuthentication/Google (5.4.0):
+  - CapacitorFirebaseAuthentication/Google (5.4.1):
     - Capacitor
     - FirebaseAuth (~> 10.8)
     - GoogleSignIn (= 7.0.0)
-  - CapacitorFirebaseAuthentication/Lite (5.4.0):
+  - CapacitorFirebaseAuthentication/Lite (5.4.1):
     - Capacitor
     - FirebaseAuth (~> 10.8)
+  - CapacitorPushNotifications (5.1.1):
+    - Capacitor
+  - CapawesomeCapacitorBadge (5.0.0):
+    - Capacitor
+  - Firebase/CoreOnly (10.15.0):
+    - FirebaseCore (= 10.15.0)
+  - Firebase/Messaging (10.15.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 10.15.0)
   - FirebaseAnalytics (10.8.0):
     - FirebaseAnalytics/AdIdSupport (= 10.8.0)
     - FirebaseCore (~> 10.0)
@@ -76,6 +85,15 @@ PODS:
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
+  - FirebaseMessaging (10.15.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Reachability (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
   - GoogleAppMeasurement (10.8.0):
     - GoogleAppMeasurement/AdIdSupport (= 10.8.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
@@ -96,6 +114,10 @@ PODS:
     - GoogleUtilities/Network (~> 7.8)
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
     - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleDataTransport (9.3.0):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
   - GoogleSignIn (7.0.0):
     - AppAuth (~> 1.5)
     - GTMAppAuth (< 3.0, >= 1.3)
@@ -129,12 +151,12 @@ PODS:
   - nanopb/decode (2.30909.0)
   - nanopb/encode (2.30909.0)
   - PromisesObjC (2.3.1)
-  - Sentry/HybridSDK (8.8.0):
-    - SentryPrivate (= 8.8.0)
-  - SentryCapacitor (0.15.0):
+  - Sentry/HybridSDK (8.18.0):
+    - SentryPrivate (= 8.18.0)
+  - SentryCapacitor (0.15.1):
     - Capacitor
-    - Sentry/HybridSDK (= 8.8.0)
-  - SentryPrivate (8.8.0)
+    - Sentry/HybridSDK (= 8.18.0)
+  - SentryPrivate (8.18.0)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -147,11 +169,15 @@ DEPENDENCIES:
   - "CapacitorFirebaseAppCheck (from `../../node_modules/@capacitor-firebase/app-check`)"
   - "CapacitorFirebaseAuthentication (from `../../node_modules/@capacitor-firebase/authentication`)"
   - "CapacitorFirebaseAuthentication/Google (from `../../node_modules/@capacitor-firebase/authentication`)"
+  - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapawesomeCapacitorBadge (from `../../node_modules/@capawesome/capacitor-badge`)"
+  - Firebase/Messaging
   - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
   trunk:
     - AppAuth
+    - Firebase
     - FirebaseAnalytics
     - FirebaseAppCheck
     - FirebaseAppCheckInterop
@@ -159,7 +185,9 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseCoreInternal
     - FirebaseInstallations
+    - FirebaseMessaging
     - GoogleAppMeasurement
+    - GoogleDataTransport
     - GoogleSignIn
     - GoogleUtilities
     - GTMAppAuth
@@ -186,19 +214,26 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor-firebase/app-check"
   CapacitorFirebaseAuthentication:
     :path: "../../node_modules/@capacitor-firebase/authentication"
+  CapacitorPushNotifications:
+    :path: "../../node_modules/@capacitor/push-notifications"
+  CapawesomeCapacitorBadge:
+    :path: "../../node_modules/@capawesome/capacitor-badge"
   SentryCapacitor:
     :path: "../../node_modules/@sentry/capacitor"
 
 SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
-  Capacitor: ebfc16cdb8116d04c101686b080342872da42d43
+  Capacitor: fc155ee2ee45a2093d716f13cf5aa5a865e2d85a
   CapacitorApp: 17fecd0e6cb23feafac7eb0939417389038b0979
   CapacitorCommunitySpeechRecognition: b404ef82fa846dd48f6417eb0c47955645ca0996
-  CapacitorCordova: 931b48fcdbc9bc985fc2f16cec9f77c794a27729
+  CapacitorCordova: e825fce1a2e14e4b5730641c7e098dccf74397b7
   CapacitorDevice: fc91bdb484dc0e70755e9b621cd557afe642613a
-  CapacitorFirebaseAnalytics: 7f6190fba37be5997caedaac402f76be2f740e39
-  CapacitorFirebaseAppCheck: 33df3ec806a230b40b34e27ab9dcd81052edb6b1
-  CapacitorFirebaseAuthentication: 64eaf9727b8f29f84069595ddc239c8e5365f49a
+  CapacitorFirebaseAnalytics: dfccb704820bb7db82debbc05fded24b096bed71
+  CapacitorFirebaseAppCheck: ce24ffecbe5725e20325b7294c7a35f6f0555b86
+  CapacitorFirebaseAuthentication: 4b5146252052345d7c0cd8147dd4f1372a65e99b
+  CapacitorPushNotifications: 2327900bc002f5ff49ee6d2231796d0635b4a1b0
+  CapawesomeCapacitorBadge: 2b9919ea79b85bdc5455143cf6607c9e25bec9ae
+  Firebase: 66043bd4579e5b73811f96829c694c7af8d67435
   FirebaseAnalytics: e1fc758bd5d71823bba970c076abee4b2450a5f4
   FirebaseAppCheck: 8bde2c5f393518ab98290151188bf196b4bab91e
   FirebaseAppCheckInterop: 82358cff9f33452dd44259e88eea5e562500b1cb
@@ -206,17 +241,19 @@ SPEC CHECKSUMS:
   FirebaseCore: 2cec518b43635f96afe7ac3a9c513e47558abd2e
   FirebaseCoreInternal: 2f4bee5ed00301b5e56da0849268797a2dd31fb4
   FirebaseInstallations: 033d199474164db20c8350736842a94fe717b960
+  FirebaseMessaging: 0c0ae1eb722ef0c07f7801e5ded8dccd1357d6d4
   GoogleAppMeasurement: 0ba93018e916f7badf915c2337d43cc1fa96b3f9
+  GoogleDataTransport: 57c22343ab29bc686febbf7cbb13bad167c2d8fe
   GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
   GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
-  Sentry: 927dfb29d18a14d924229a59cc2ad149f43349f2
-  SentryCapacitor: 87ad38b15cd1ffb0ca8f202af148567adfa68ae1
-  SentryPrivate: 4350d865f898224ab9fa02b37d6ee7fbb623f47e
+  Sentry: 8984a4ffb2b9bd2894d74fb36e6f5833865bc18e
+  SentryCapacitor: 5c27da09956d89b0ba715071f6a37c137d9aea50
+  SentryPrivate: 2f0c9ba4c3fc993f70eab6ca95673509561e0085
 
-PODFILE CHECKSUM: 992fb004be84ab2ea25fc2cb217bc5264a81ae95
+PODFILE CHECKSUM: a27ca12b6d916e3bb0fc91d6735615d2d23bb567
 
 COCOAPODS: 1.12.1

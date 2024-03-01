@@ -6,8 +6,8 @@
         <q-item-section class="text-body1 text-weight-medium text-on-primary">{{
           t('welcomeTutorial.title') }}</q-item-section>
         <q-item-section side>
-          <q-btn flat dense icon="r_close" color="background" size="10px"
-            @click="ms.setUserDocValue({ showWelcomeTutorial: false })" padding="none" />
+          <q-btn flat icon="r_close" color="background" size="10px"
+            @click="ms.setUserDocValue({ showWelcomeTutorial: false })" padding="xs none" />
         </q-item-section>
       </q-item>
 
@@ -44,8 +44,8 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  :label="t('welcomeTutorial.step1Action')" @click="tutoLogMoment"
-                  :disable="newMomText.length !== 0" style="width: 100%; " no-caps />
+                  :label="t('welcomeTutorial.step1Action')" @click="tutoLogMoment" :disable="newMomText.length !== 0"
+                  style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
@@ -77,8 +77,8 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
-                  :label="t('welcomeTutorial.step2Action')" @click="tutoViewNeeds"
-                  :disable="!ms.getLatestMomWithNeedsId" style="width: 100%; " no-caps />
+                  :label="t('welcomeTutorial.step2Action')" @click="tutoViewNeeds" :disable="!ms.getLatestMomWithNeedsId"
+                  style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>
@@ -100,8 +100,8 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
               style="margin-bottom: 32px;" flat>
               <q-item>
                 <q-item-section>
-                  <q-item-section v-if="ms.aggDataInsights?.[ms.activeDateRange]?.summary?.length > 0"
-                    class="text-body1">
+                  <q-item-section v-if="ms.aggDataInsights?.[ms.getActiveDateRange]?.summary?.length > 0"
+                    class="text-body1 text-center">
                     {{ t('welcomeTutorial.step3Ready') }}
                   </q-item-section>
                   <q-item-section v-else-if="!ms.userDoc?.hasNeeds" class="text-body2"> {{
@@ -109,18 +109,18 @@ text-on-primary">{{ ms.userDoc?.welcomeTutorialStep +
                   </q-item-section>
                   <q-item-section v-else class="text-body2">
                     {{ t('welcomeTutorial.step3EmptyCountdown', Math.max(0, 3 -
-                      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange])) }}
+                      ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange])) }}
                   </q-item-section>
                 </q-item-section>
                 <q-item-section thumbnail>
-                  <img v-cloak src="~assets/tuto3_1.png"
+                  <img v-cloak src="~assets/tuto3_1.webp"
                     style="max-height: 100%; width: auto; object-fit: contain; margin-right:8px;" />
                 </q-item-section>
               </q-item>
               <q-card-actions class="q-py-none" align="center">
                 <q-btn class="text-subtitle1 text-weight-medium q-mx-xs" rounded color="primary" padding="xs"
                   :label="t('welcomeTutorial.step3Action')" @click="tutoExploreInsights"
-                  :disable="ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange] < 3" style="width: 100%; " no-caps />
+                  :disable="ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange] < 3" style="width: 100%; " no-caps />
               </q-card-actions>
             </q-card>
             <q-card v-else class="bg-surface q-py-md q-px-xs rounded-borders-14" style="margin-bottom: 32px;" flat>

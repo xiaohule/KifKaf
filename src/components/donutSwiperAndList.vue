@@ -3,13 +3,13 @@
   <!-- TODO:2 for performance, we could move to append slides when many of them instead of pre-creating all of them and using v-for -->
   <div v-if="!props.embedded">
     <!-- && ms.activeIndex !== undefined -->
-    <swiper-container v-if="swiperLoaded && ms.dateRanges.length > 0" ref="swiperDonutEl" :init="true"
+    <swiper-container v-if="swiperLoaded && ms.getDateRanges.length > 0" ref="swiperDonutEl" :init="true"
       :virtual="{ enabled: true, addSlidesAfter: 3, addSlidesBefore: 3 }" :observer="true" :observe-slide-children="true"
       :grab-cursor="true" :pagination="{ dynamicBullets: true }" @swiperactiveindexchange="onActiveIndexChangeBySwiper"
       @swiperafterinit="swiperAfterInit" @swiperupdate="console.log('In donutSwiperAndList > swiper update event fired')">
-      <swiper-slide v-for="range in ms.dateRanges" :key="range">
-        <donut-chart :percentage-threshold="percentageThreshold" :is-active="ms.activeDateRange === range"
-          :clicked-outside="(ms.activeDateRange === range) ? props.deselectSegment : false"
+      <swiper-slide v-for="range in ms.getDateRanges" :key="range">
+        <donut-chart :percentage-threshold="percentageThreshold" :is-active="ms.getActiveDateRange === range"
+          :clicked-outside="(ms.getActiveDateRange === range) ? props.deselectSegment : false"
           @click:segment="donutSegmentClicked" class="q-pt-xs" style="padding-bottom: 40px;" />
       </swiper-slide>
     </swiper-container>
@@ -23,13 +23,13 @@
   <q-card class="bg-surface q-px-sm q-py-none rounded-borders-14" flat
     v-touch-swipe.mouse.right="(event) => { goBack() }">
     <div
-      v-if="ms.aggDataNeeds && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]?.length > 0">
+      v-if="ms.aggDataNeeds && ms.aggDataNeeds[ms.getActiveDateRange] && ms.aggDataNeeds[ms.getActiveDateRange][ms.needsToggleModel]?.length > 0">
       <q-list class="q-mt-xs">
         <transition-group appear enter-active-class="meala" leave-active-class="meala la" move-class="meala"
           enter-from-class="eflt" leave-to-class="eflt">
 
           <q-item v-for="item in itemsToDisplay" :key="item.needName" class="q-pt-md q-pb-md q-px-xs" clickable
-            @click="ms.donutSegmentClicked = donutChartClickedSegmentIndex; router.push({ path: `/insights/needs/${needsMap[item.needName][2]}`, query: { dateRange: ms.activeDateRange } });">
+            @click="ms.donutSegmentClicked = donutChartClickedSegmentIndex; router.push({ path: `/insights/needs/${needsMap[item.needName][2]}`, query: { dateRange: ms.getActiveDateRange } });">
 
             <q-item-section avatar class="q-pr-none" style="min-width: 52px;">
               <q-avatar size="42px" font-size="28px" :color="needToColor()[item.needName]">
@@ -79,18 +79,19 @@
       <div v-else>
         <!-- Add Moments in the Home tab to learn more about your needs! -->
         <div v-if="ms.needsToggleModel == 'satisfaction'">
-          {{ t('needsStats.emptyPeriodSat', ms.dateRanges.length - ms.activeIndex) }}
+          {{ t('needsStats.emptyPeriodSat', ms.getDateRanges.length - ms.activeIndex) }}
         </div>
-        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">{{ t('needsStats.emptyPeriodDissat', ms.dateRanges.length
+        <div v-else-if="ms.needsToggleModel == 'unsatisfaction'">{{ t('needsStats.emptyPeriodDissat',
+          ms.getDateRanges.length
           - ms.activeIndex) }} </div>
         <div v-else>
-          {{ t('needsStats.emptyPeriodAll', ms.dateRanges.length - ms.activeIndex) }} </div>
+          {{ t('needsStats.emptyPeriodAll', ms.getDateRanges.length - ms.activeIndex) }} </div>
       </div>
 
     </div>
 
     <q-card-actions
-      v-if="props.embedded && ms.aggDataNeeds && ms.aggDataNeeds[ms.activeDateRange] && ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel].length > 0 && itemsToDisplay.length > 0"
+      v-if="props.embedded && ms.aggDataNeeds && ms.aggDataNeeds[ms.getActiveDateRange] && ms.aggDataNeeds[ms.getActiveDateRange][ms.needsToggleModel].length > 0 && itemsToDisplay.length > 0"
       align="center" class="">
       <q-btn color="primary" @click="router.push('/insights/needs')" class="q-mx-sm q-mt-sm full-width" no-caps flat>{{
         t('showMore') }}</q-btn>
@@ -165,7 +166,7 @@ watch(() => ms.activeIndex, (newVal, oldVal) => {
 }, { immediate: true })
 
 const onActiveIndexChangeBySwiper = (event) => {
-  console.log('In donutSwiperAndList with embedded:', props.embedded, ' > onActiveIndexChangeBySwiper fired with ms.activeIndex', ms.activeIndex, 'ms.activeDateRange', ms.activeDateRange, 'ms.dateRanges', ms.dateRanges, 'swiperLoaded', swiperLoaded.value, 'swiperDonutEl', swiperDonutEl.value)
+  console.log('In donutSwiperAndList with embedded:', props.embedded, ' > onActiveIndexChangeBySwiper fired with ms.activeIndex', ms.activeIndex, 'ms.getActiveDateRange', ms.getActiveDateRange, 'ms.getDateRanges', ms.getDateRanges, 'swiperLoaded', swiperLoaded.value, 'swiperDonutEl', swiperDonutEl.value)
   // console.log('In donutSwiperAndList with embedded:', props.embedded, ' > onActiveIndexChangeBySwiper fired with event:', event)
   console.log('In donutSwiperAndList with embedded:', props.embedded, ' > onActiveIndexChangeBySwiper fired from previousIndex', event.detail[0].previousIndex, 'to activeIndex', event.detail[0].activeIndex)
   displayOnlyOneNeed.value = null
@@ -173,9 +174,9 @@ const onActiveIndexChangeBySwiper = (event) => {
 }
 
 //kill-restart swiper when dateRanges change
-watch(() => ms.dateRanges, (newVal, oldVal) => {
+watch(() => ms.getDateRanges, (newVal, oldVal) => {
   if (props.embedded) return
-  console.log('In donutSwiperAndList with embedded:', props.embedded, ' > ms.dateRanges watcher, dateRanges changed from', oldVal, 'to', newVal, 'reloading swiper container')
+  console.log('In donutSwiperAndList with embedded:', props.embedded, ' > ms.getDateRanges watcher, dateRanges changed from', oldVal, 'to', newVal, 'reloading swiper container')
   swiperLoaded.value = false
   nextTick(() => {
     swiperLoaded.value = true
@@ -184,10 +185,10 @@ watch(() => ms.dateRanges, (newVal, oldVal) => {
 
 //LIST
 const itemsToDisplay = computed(() => {
-  console.log('In donutSwiperAndList with embedded:', props.embedded, ' > itemsToDisplay', ms.activeDateRange, ms.needsToggleModel, percentageThreshold.value, displayOnlyOneNeed.value)
+  console.log('In donutSwiperAndList with embedded:', props.embedded, ' > itemsToDisplay', ms.getActiveDateRange, ms.needsToggleModel, percentageThreshold.value, displayOnlyOneNeed.value)
   let filteredItems = ms.aggDataNeeds &&
-    ms.aggDataNeeds[ms.activeDateRange] &&
-    ms.aggDataNeeds[ms.activeDateRange][ms.needsToggleModel]?.filter(item => {
+    ms.aggDataNeeds[ms.getActiveDateRange] &&
+    ms.aggDataNeeds[ms.getActiveDateRange][ms.needsToggleModel]?.filter(item => {
       switch (displayOnlyOneNeed.value) {
         case null:
           return item[needsToggleModelDataKey.value] > percentageThreshold.value;

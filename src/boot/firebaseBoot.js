@@ -1,3 +1,4 @@
+//src/boot/firebaseBoot.js
 import { boot } from "quasar/wrappers";
 import { initializeApp, getApp } from "firebase/app";
 import {
@@ -8,6 +9,8 @@ import {
   collection,
   where,
   getDoc,
+  setDoc,
+  serverTimestamp,
   getDocs,
   updateDoc,
   increment,
@@ -37,7 +40,7 @@ import { markRaw, ref, watch } from "vue";
 import { debounce } from "lodash";
 import axios from "axios";
 import axiosRetry from "axios-retry";
-import * as Sentry from "@sentry/vue";
+import * as SentryVue from "@sentry/vue";
 import { i18n } from "./i18nBoot";
 import { setQuasarLangPack } from "./quasarLangPackBoot";
 
@@ -106,10 +109,22 @@ export const setUserId = async (userId) => {
 
 export const setUserProperty = async (propertyKey, propertyValue) => {
   if (process.env.MODE !== "capacitor") {
+    console.log(
+      "In firebaseBoot > setUserProperty, web mode, propertyKey:",
+      propertyKey,
+      "propertyValue:",
+      propertyValue,
+    );
     webSetUserProperties(firebaseAnalytics, {
       [propertyKey]: propertyValue,
     });
   } else {
+    console.log(
+      "In firebaseBoot > setUserProperty, capacitor mode, propertyKey:",
+      propertyKey,
+      "propertyValue:",
+      propertyValue,
+    );
     await firebaseAnalytics.setUserProperty({
       key: propertyKey,
       value: propertyValue,
@@ -121,7 +136,7 @@ export const setUserProperty = async (propertyKey, propertyValue) => {
 export const logEvent = async (eventName, eventParams) => {
   if (process.env.MODE !== "capacitor") {
     console.log(
-      "In firebaseBoot > logEvent, web mode eventName:",
+      "In firebaseBoot > logEvent, web mode, eventName:",
       eventName,
       "eventParams:",
       eventParams,
@@ -129,7 +144,7 @@ export const logEvent = async (eventName, eventParams) => {
     webLogEvent(firebaseAnalytics, eventName, eventParams);
   } else {
     console.log(
-      "In firebaseBoot > logEvent, capacitor mode eventName:",
+      "In firebaseBoot > logEvent, capacitor mode, eventName:",
       eventName,
       "eventParams:",
       eventParams,
@@ -196,32 +211,90 @@ export const currentUser = ref(null);
 const userDocRef = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
 try {
-  onAuthStateChanged(getFirebaseAuth(), (user) => {
-    // console.log("onAuthStateChanged", user);
-    currentUser.value = user;
+  onAuthStateChanged(getFirebaseAuth(), async (user) => {
+    console.log("In firebaseBoot > onAuthStateChanged, user is:", user);
+
     if (user?.uid) {
-      Sentry.setUser({ id: user.uid });
-      setUserId(user.uid);
-      //To not mess with Firebase analytics identify test accounts
-      if (
-        user.email.endsWith("@yopmail.com") ||
-        user.email.endsWith("@sharklasers.com") ||
-        user.email.endsWith("@ethereal.email") ||
-        user.email === "jules.douet@gmail.com" ||
-        user.email === "xyzdelatour@gmail.com" ||
-        user.email === "xyzdelatour2@gmail.com" ||
-        user.uid === "UtCgVuTY2XUvYmnqqYULj4r5jaI3" ||
-        user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3"
-      ) {
-        setUserProperty("isTestAccount", "true");
-      } else {
-        setUserProperty("isTestAccount", "false");
+      userDocRef.value = doc(db, "users", user.uid);
+      let userDocSnapshot = await getDoc(userDocRef.value);
+
+      //AT FIRST SIGN-IN
+      if (!userDocSnapshot.exists()) {
+        const isTestAccount =
+          user.email.endsWith("@yopmail.com") ||
+          user.email.endsWith("@sharklasers.com") ||
+          user.email.endsWith("@ethereal.email") ||
+          user.email === "jules.douet@gmail.com" ||
+          user.email === "xyzdelatour@gmail.com" ||
+          user.email === "xyzdelatour2@gmail.com" ||
+          user.uid === "UtCgVuTY2XUvYmnqqYULj4r5jaI3" ||
+          user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3";
+
+        // User document does not exist, so it's likely the first sign-in
+        console.log(
+          "In firebaseBoot > onAuthStateChanged > Initializing user doc for first-time sign-in...",
+        );
+        await setDoc(
+          userDocRef.value,
+          {
+            hasNeeds: false,
+            welcomeTutorialStep: 0,
+            showWelcomeTutorial: true,
+            showInsightsBadge: false,
+            momentsCount: 0,
+            momentsWithNeedsCount: 0,
+            momentsDeletedCount: 0,
+            createdAt: serverTimestamp(),
+            isTestAccount: isTestAccount,
+            deviceLocale: i18n.global.locale.value,
+          },
+          { merge: true },
+        );
+        console.log(
+          "In firebaseBoot > onAuthStateChanged > User doc initialized.",
+        );
+
+        //To not mess with Firebase analytics identify test accounts
+        if (isTestAccount) setUserProperty("isTestAccount", "true");
+        else setUserProperty("isTestAccount", "false");
+
+        userDocSnapshot = await getDoc(userDocRef.value); //refresh userDocSnapshot
       }
+
+      //AT ALL SIGN-INS
+      const userPickedLocale = userDocSnapshot.data().locale;
+      console.log(
+        "In firebaseBoot > onAuthStateChanged > userPickedLocale:",
+        userPickedLocale,
+        // "userDocSnapshot.data():",
+        // userDocSnapshot.data(),
+      );
+      if (userPickedLocale) {
+        //user has a picked locale set, use it in the app (overwrite Quasar.lang.getLocale() from i18nBoot)
+        i18n.global.locale.value = userPickedLocale;
+        await setQuasarLangPack(userPickedLocale);
+        console.log(
+          "In firebaseBoot > onAuthStateChanged > just set app locale to userPickedLocale: ",
+          userPickedLocale,
+        );
+      } else {
+        //at default, ensure userDoc's deviceLocale is up-to-date as it will be used for notifs since no userPickedLocale is set
+        await updateDoc(userDocRef.value, {
+          deviceLocale: i18n.global.locale.value,
+        });
+      }
+      currentUser.value = user; //We can allow fetchUser to proceed now
+      httpRetryHandler();
+      SentryVue.setUser({ id: user.uid });
+      setUserId(user.uid);
     }
     isLoadingAuth.value = false;
   });
 } catch (error) {
-  console.error("Error with onAuthStateChanged:", error);
+  console.error(
+    "In firebaseBoot > onAuthStateChanged > Error with onAuthStateChanged:",
+    error,
+  );
 }
 
 //APP CHECK
@@ -305,32 +378,6 @@ if (
     });
 }
 
-const setAppLocaleToUserPreference = async (userDocRef) => {
-  const userDocSnap = await getDoc(userDocRef.value);
-  if (userDocSnap.exists()) {
-    const userLocale = userDocSnap.data().locale;
-    if (userLocale) {
-      i18n.global.locale.value = userLocale;
-
-      //quasar lang pack
-      await setQuasarLangPack(userLocale);
-
-      console.log(
-        "In firebaseBoot > in setLocaleToUserPreference, just set app locale to user's picked locale: ",
-        userLocale,
-      );
-    } else
-      console.log(
-        "In firebaseBoot > in setLocaleToUserPreference, userDocSnap.data() is",
-        userDocSnap.data(),
-        "not containing locale",
-      );
-  } else
-    console.log(
-      "In firebaseBoot > in setLocaleToUserPreference, not able to get userDocSnap",
-    );
-};
-
 //ADD MOMENT RETRY: at each start of the app, look for moments with empty needs and retry the LLM call
 export const addDeleteMomentRetry = async (force = false) => {
   // console.log(
@@ -396,13 +443,21 @@ export const addDeleteMomentRetry = async (force = false) => {
           },
         );
         console.log(
-          "In firebaseBoot > in addDeleteMomentRetry > addMomentPromises, add-moment response:",
+          "In firebaseBoot > in addDeleteMomentRetry > addMomentPromises, /api/learn/add-moment/ response:",
           response.data,
         );
-
         await updateDoc(doc.ref, {
           retries: increment(1),
         });
+
+        //if response doesn't contain message field throw an error
+        if (!response.data.message) {
+          throw new Error(
+            "In addMoment > Error in response from llm, response.data:",
+            response.data,
+          );
+        }
+        logEvent("moment_needs_analyzed");
       } catch (error) {
         console.error(
           "In firebaseBoot.js > addDeleteMomentRetry > addMomentPromises error:",
@@ -473,36 +528,43 @@ document.addEventListener("visibilitychange", () => {
 export default boot(({ router }) => {
   //if targeting a route that needs sign in without being signed in, redirect to login
   router.beforeEach((to, from, next) => {
-    // console.log(
-    //   "In router.beforeEach, window.history:",
-    //   window.history,
-    //   "isLoadingAuth.value:",
-    //   isLoadingAuth.value,
-    // );
     if (isLoadingAuth.value) {
       watch(isLoadingAuth, (newValue) => {
         console.log(
           "In router.beforeEach, isLoadingAuth watcher, newValue:",
           newValue,
         );
-        if (!newValue) {
-          // Once loading completes, call this guard recursively.
-          next(to.path);
-        }
+        // Once onAuthStateChanged has completed, call this guard recursively.
+        if (!newValue) next(to.path);
       });
     } else {
-      if (to.meta.requiresAuth && !currentUser.value?.emailVerified) {
+      console.log(
+        "In router.beforeEach, to.fullPath:",
+        to.fullPath,
+        "to.meta.requiresAuth: ",
+        to.meta.requiresAuth,
+        "currentUser.value.uid:",
+        currentUser.value?.uid,
+        "!currentUser.value?.emailVerified:",
+        !currentUser.value?.emailVerified,
+        "to.meta.requiresAuth && !currentUser.value?.emailVerified:",
+        to.meta.requiresAuth && !currentUser.value?.emailVerified,
+      );
+      if (
+        !to.meta.requiresAuth ||
+        (currentUser.value && currentUser.value.emailVerified)
+      ) {
         console.log(
-          "In router.beforeEach, NO user yet or email NOT verified, redirected to /welcome?redirect=",
-          to.fullPath,
-        );
-        next({ path: "/welcome", query: { redirect: to.fullPath } });
-      } else {
-        console.log(
-          "In router.beforeEach, no redirection, going to",
+          "In router.beforeEach, !to.meta.requiresAuth OR currentUser exist and has emailVerified, so no redirection needed, going to",
           to.fullPath,
         );
         next();
+      } else {
+        console.log(
+          "In router.beforeEach, to.meta.requiresAuth AND (NO user yet OR email NOT verified), redirecting to /onboarding/1?redirect=",
+          to.fullPath,
+        );
+        next({ path: "/onboarding/1", query: { redirect: to.fullPath } });
       }
     }
   });
@@ -514,10 +576,13 @@ export default boot(({ router }) => {
     const tabRoutes = ["/", "/insights"];
     const slideInRoutes = ["/privacy-policy", "/terms", "/contact"];
 
-    if (
+    if (tabRoutes.includes(from.path) && tabRoutes.includes(to.path)) {
+      to.meta.transition = "";
+    } else if (
       tabRoutes.includes(from.path) &&
       !tabRoutes.includes(to.path) &&
-      to.path !== "/welcome"
+      to.path !== "/welcome" &&
+      to.path !== "/onboarding/1"
     ) {
       // If coming from a tab route and not going to one, slide new comp in
       to.meta.transition = "slide-in";
@@ -550,12 +615,40 @@ export default boot(({ router }) => {
       // If going to settings, slide old comp out
       to.meta.transition = "slide-out";
       // console.log("In router.afterEach6");
+    } else if (
+      (from.path === "/welcome" && to.path === "/login") ||
+      (from.path === "/onboarding/3" && to.path === "/welcome")
+    ) {
+      // If going onboarding/3>welcome>login, slide old comp out
+      to.meta.transition = "slide-in";
+    } else if (from.path === "/login" && to.path === "/welcome") {
+      // If coming from welcome, slide new comp in
+      to.meta.transition = "slide-out";
+    } else if (to.path === "/onboarding/1") {
+      to.meta.transition = "";
+    } else if (
+      from.path.includes("onboarding") &&
+      !to.path.includes("onboarding")
+    ) {
+      to.meta.transition = "slide-in";
+    } else if (
+      to.path.includes("onboarding") &&
+      !from.path.includes("onboarding")
+    ) {
+      to.meta.transition = "slide-out";
     } else {
       const toDepth = to.path.split("/").length;
       const fromDepth = from.path.split("/").length;
       // if going to children route, slide new comp in, if going to parent route, slide old comp out
       if (toDepth > fromDepth) to.meta.transition = "slide-in";
       else if (toDepth < fromDepth) to.meta.transition = "slide-out";
+      else {
+        //get the last part of the path and compare (it will be numbers like in onboarding/1, onboarding/2, etc...) if number is higher, slide in, if lower, slide out
+        const toLastPart = to.path.split("/").pop();
+        const fromLastPart = from.path.split("/").pop();
+        if (toLastPart > fromLastPart) to.meta.transition = "slide-in";
+        else if (toLastPart < fromLastPart) to.meta.transition = "slide-out";
+      }
       // console.log("In router.afterEach7");
     }
 
@@ -563,20 +656,10 @@ export default boot(({ router }) => {
       "In router.afterEach, to.meta.transition set to",
       to.meta.transition,
     );
-  });
 
-  // Call httpRetryHandler during app initialization
-  watch(
-    currentUser,
-    (newVal) => {
-      if (newVal) {
-        userDocRef.value = doc(db, "users", currentUser.value.uid);
-        setAppLocaleToUserPreference(userDocRef);
-        httpRetryHandler();
-      }
-    },
-    { immediate: true },
-  );
+    // Set current screen for Firebase analytics
+    setCurrentScreen(to.path);
+  });
 
   //   window.addEventListener('offline', () => {
   //   console.log("App is offline");

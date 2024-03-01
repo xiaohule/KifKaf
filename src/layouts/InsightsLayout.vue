@@ -16,11 +16,11 @@
         </router-link>
 
       </q-toolbar>
-      <q-toolbar v-if="getDatePickerLabel(ms.activeDateRange, t)" class="q-mx-auto q-pb-sm"
+      <q-toolbar v-if="getDatePickerLabel(ms.getActiveDateRange, t)" class="q-mx-auto q-pb-sm"
         style="max-width: 600px; min-height:0px;">
 
         <q-btn unelevated rounded no-caps class="q-py-none text-subtitle2 bg-surface text-on-surface"
-          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ getDatePickerLabel(ms.activeDateRange, t)
+          icon-right="r_expand_more" @click="filterDialogOpened = true">{{ getDatePickerLabel(ms.getActiveDateRange, t)
           }}</q-btn>
       </q-toolbar>
     </q-header>
@@ -40,7 +40,9 @@
         <q-route-tab name="home" icon="r_edit" :label="t('home')" to="/" class="q-pt-xs q-pb-lg"
           data-cy="insights-home-tab" :ripple="false" />
         <q-route-tab name="insights" icon="r_insights" :label="t('insights')" to="/insights" class="q-pt-xs q-pb-lg"
-          @click="handleInsightsClick" data-cy="insights-insights-tab" :ripple="false" />
+          @click="handleInsightsClick" data-cy="insights-insights-tab" :ripple="false">
+          <q-badge v-show="ms?.userDoc?.showInsightsBadge" color="red" rounded floating />
+        </q-route-tab>
       </q-tabs>
     </q-footer>
 
@@ -72,7 +74,13 @@ const filterDialogOpened = ref(false)
 //reset swiper position to latest month/year when clicking on insights tab
 const handleInsightsClick = () => {
   if (router.currentRoute.value.path === '/insights') {
-    ms.shouldResetSwiper = true
+    ms.resetToCurrentMonth()
+    if (ms.userDoc?.showInsightsBadge) {
+      //wait few seconds and hide badge
+      setTimeout(() => {
+        ms.setUserDocValue({ showInsightsBadge: false })
+      }, 1500)
+    }
   }
 }
 </script>

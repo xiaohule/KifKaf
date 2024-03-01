@@ -6,6 +6,37 @@ body {
   border-radius: 14px;
 }
 
+.pill-shape {
+  border-radius: 9999px;
+}
+
+.fixed-button {
+  min-width: 20vw;
+  position: fixed;
+  top: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  // max-width: 600px;
+  display: flex;
+  justify-content: center;
+  z-index: 2; // to ensure it's above other content if needed
+  // justify-content: space-around; // evenly space the buttons
+  // bottom: 0; // position at the bottom of the page
+  // padding: 6vh 0;
+}
+
+.or-separator {
+  display: flex;
+  align-items: center;
+
+  .line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #ccc; // you can adjust this color as per your design
+  }
+}
+
 input,
 textarea {
   user-select: text; /* Allow text selection */

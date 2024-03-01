@@ -1,3 +1,4 @@
+//src/i18n/en-US/index.js
 import privacyPolicyPage from "./privacyPolicy";
 import tosPage from "./tos";
 
@@ -5,12 +6,43 @@ export default {
   privacyPolicyPage,
   tosPage,
   filepaths: {
-    screenshot1: "/screenshot1_en.webp",
-    screenshot2: "/screenshot2_en.webp",
-    screenshot3: "/screenshot3_en.webp",
-    screenshot4: "/screenshot4_en.webp",
-    screenshot5: "/screenshot5_en.webp",
+    screenshot1: "screenshot1_en.webp",
+    screenshot2: "screenshot2_en.webp",
+    screenshot3: "screenshot3_en.webp",
+    screenshot4: "screenshot4_en.webp",
+    screenshot5: "screenshot5_en.webp",
   },
+  welcomeToKifkaf: "Welcome to KifKaf",
+  kifkaf: "KifKaf",
+  valuePropHtml:
+    "Understand what <b><i>you</i></b> need for a more fulfilled life.",
+  next: "Next",
+  privacyFirst: "Privacy first",
+  privacyFirstText:
+    "KifKaf is only about you and your happiness.<br>It is designed to be secure and private.<br>It will remain ad-free and we will never monetize your data.",
+  // Your journal is designed to be secure and private. Only you can read it.",
+  iAgreeToThe: "I agree to the",
+  andThe: "and the",
+  whatsOnYourMind: "What's on your mind?",
+  maybeLater: "Maybe later",
+  iWantTo: "I want to...",
+  yourChoicesWont:
+    "Your choices won't limit access to any features of the app.",
+  whatDoYouHope: "What do you hope to improve with KifKaf?",
+  beMoreFulFilled: "Be more fulfilled",
+  understandMyNeeds: "Understand and attend to my needs",
+  improveRelationships: "Improve my relationships",
+  manageEmotions: "Manage my emotions better",
+  keepTrackEmotions: "Keep track of my emotions",
+  makeWiserLifeDecisions: "Make wiser life decisions",
+  somethingElse: "Something else",
+  getRemindersToMake: "Get reminders to make the most out of KifKaf",
+  journalNotifs: "Journaling",
+  journalNotifsText:
+    "When will you make time for jotting down the day's ups and downs?",
+  insightsNotifs: "Insights",
+  insightsNotifsText:
+    "Receive a notification when new insights about your journal are ready.",
   login: "Log in",
   loginToKifKaf: "Log in to KifKaf",
   continueWithGoogle: "Continue with Google",
@@ -45,7 +77,7 @@ export default {
     emailInUse: "Email {email} is already in use",
     signingIn: "Error signing in with email {email}",
     speechRecognitionPermissionDeniedHtml: `
-    <strong>KifKaf needs the Speech Recognition permission for this.</strong><br>
+    <strong>KifKaf needs the Speech Recognition permission for this.</strong><br><br>
     To grant it:<br>
     1. Go to your phone's <strong>Settings</strong>.<br>
     2. Scroll and tap on <strong>KifKaf</strong>.<br>
@@ -53,11 +85,19 @@ export default {
     You have full control and can change your choices at any time.
     `,
     micAccessPermissionDeniedHtml: `
-      <strong>KifKaf needs the Microphone permission for this.</strong><br>
+      <strong>KifKaf needs the Microphone permission for this.</strong><br><br>
       To grant it:<br>
       1. Go to your device's <strong>Settings</strong>.<br>
       2. Scroll and tap on <strong>KifKaf</strong>.<br>
       3. Allow access to the <strong>Microphone</strong>.<br><br>
+      You have full control and can change your choices at any time.
+    `,
+    notificationsPermissionDeniedHtml: `
+      <strong>KifKaf needs the Notifications permission for this.</strong><br><br>
+      To grant it:<br>
+      1. Go to your device's <strong>Settings</strong>.<br>
+      2. Scroll and tap on <strong>KifKaf</strong>.<br>
+      3. Allow access to the <strong>Notifications</strong>.<br><br>
       You have full control and can change your choices at any time.
     `,
     accountDeletionFailed:
@@ -130,7 +170,7 @@ export default {
       "Keep logging moments to fine-tune KifKaf and get the most out of it.",
     complete: "complete | complete",
   },
-  momentTitle: "Moment", //TODO:6 change for "Feeling"?
+  momentTitle: "Moment", //TODO:1 change for "Feeling"?
   moment: "1 moment | {count} moments",
   needs: "Needs",
   relatedNeeds: "Related needs",
@@ -148,7 +188,7 @@ export default {
   delete: "Delete",
   momentDeleted: "Moment deleted",
   momentDeletedOffline:
-    "Moment deleted. Your need-o-meter will be updated next time you’re online.",
+    "Moment deleted. Your needs stats will be updated next time you’re online.",
   cancel: "Cancel",
   momentNeedsLearnMore: {
     title: "Needs list",
@@ -207,12 +247,12 @@ export default {
   quoteSubtitle: "Daily inspiration drawn from your moments",
   quoteWhyTitle: "Why this quote?",
   needsStats: {
-    title: "{date}'s need-o-meter", //Need-O-Meter -  Needs fingerprint/Signature - NeedPrint
-    titleThisMonth: "This month's need-o-meter",
-    titleThisYear: "This year's need-o-meter",
+    title: "{date}'s needs", //Need-O-Meter -  Needs fingerprint/Signature - NeedPrint
+    titleThisMonth: "This month's needs",
+    titleThisYear: "This year's needs",
     subtitle: "Based on the needs revealed in your feelings",
     learnMoreHtml:
-      "KifKaf analyzes the emotions in your moments to update your need-o-meter.<br><br>Our method is based on 33 essential needs, organized into 5 distinct categories:",
+      "KifKaf analyzes the emotions in your moments to update your needs stats.<br><br>Our method is based on 33 essential needs, organized into 5 distinct categories:",
     emptyInitSat:
       "Log a first positive feeling to discover the needs from which you get the most satisfaction.",
     emptyInitDissat:
@@ -279,6 +319,7 @@ export default {
   janeDoeDomain: "email.com",
   janeDoeEmail: "@:janeDoeAccount{'@'}@:janeDoeDomain",
   pwd: "Password",
+  notificationSettings: "Notifications",
   appLanguage: "App language",
   speechRecoLanguage: "Speech recognition language",
   privacyPolicy: "Privacy policy",
@@ -317,8 +358,11 @@ export default {
   nameUpdated: "Name updated",
   emailUpdated: "Email updated",
   pwdUpdated: "Password updated",
-  contactUsHtml:
-    "<p>It's our #1 priority to provide you with the smoothest possible experience. <br />Feedback, feature requests, and bug reports are always very welcome.</p><p>Whatever you need, just write us in the form below or email us at:</p>",
+  contactUsHtml1:
+    "<p>It's our #1 priority to provide you with the smoothest possible experience. <br>Feedback, feature requests, and bug reports are always very welcome.</p>",
+  contactUs2:
+    "Whatever you need, just write us in the form below or email us at",
+  weUsuallyReply: "We'll reply within 24 hours.",
   yourEmail: "Your email address",
   yourMessage: "Your message",
   pleaseTypeYourMessage: "Please type your message",

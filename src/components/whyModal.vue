@@ -86,7 +86,7 @@ function getOriginalTextBySection(section, insights) {
 }
 
 watchEffect(() => {
-  const insights = ms.aggDataInsights[ms.activeDateRange]?.[props.section];
+  const insights = ms.aggDataInsights[ms.getActiveDateRange]?.[props.section];
 
   if ((insights?.text || insights?.title) && insights.author && insights.why) {
     originalText.value = getOriginalTextBySection(props.section, insights);
@@ -97,7 +97,7 @@ watchEffect(() => {
     originalText.value = t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].quote')
     author.value = t('inspirationalQuotes[' + placeholderQuoteOfTheDayId.value + '].author')
     whyText.value = t('randomQuoteCountdown', Math.max(0, 3 -
-      ms.getDateRangeOkNeedsCounts?.[ms.activeDateRange]));
+      ms.getDateRangeOkNeedsCounts?.[ms.getActiveDateRange]));
   }
 });
 

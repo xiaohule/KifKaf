@@ -1,3 +1,4 @@
+<!-- src/pages/SettingsPage.vue -->
 <template>
   <q-page class="q-mx-auto q-px-md" style="max-width: 600px">
     <div class="text-h4 text-weight-bold q-mx-none q-mb-sm">{{ t('settings') }}</div>
@@ -39,9 +40,18 @@
           </q-item>
         </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
-          @click="localeDialogOpened = true">
+        <!-- v-if="isCapacitor" -->
+        <q-card v-if="isCapacitor" class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
+          @click="router.push('/settings/notifications')">
           <q-item>
+            <q-item-section>
+              <q-item-label>{{ t('notificationSettings') }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-card>
+
+        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat>
+          <q-item clickable v-ripple @click="localeDialogOpened = true">
             <q-item-section>
               <q-item-label>{{ t('appLanguage') }}</q-item-label>
               <q-item-label caption>
@@ -49,11 +59,8 @@
               </q-item-label>
             </q-item-section>
           </q-item>
-        </q-card>
 
-        <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat clickable v-ripple
-          @click="speechLanguageDialogOpened = true">
-          <q-item>
+          <q-item clickable v-ripple @click="speechLanguageDialogOpened = true">
             <q-item-section>
               <q-item-label>{{ t('speechRecoLanguage') }}</q-item-label>
               <q-item-label caption>
@@ -62,6 +69,7 @@
             </q-item-section>
           </q-item>
         </q-card>
+
 
         <q-card class="bg-surface q-mb-md q-px-none q-py-sm rounded-borders-14" flat>
           <!-- TODO:2 later do About us/manual section -->
@@ -194,7 +202,7 @@
           <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>
         <q-card-section class="text-h6 text-weight-medium">{{ t('changeAppLanguage') }}</q-card-section>
-        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none" style="border-radius: 14px;">
+        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none rounded-borders-14">
 
           <q-item tag="label" v-ripple v-for="(value, key) in localeOptions" :key="key" class="">
             <q-item-section>
@@ -215,7 +223,7 @@
           <q-btn flat v-close-popup round dense icon="r_close" />
         </q-toolbar>
         <q-card-section class="text-h6 text-weight-medium">{{ t('changeSpeechRecoLanguage') }}</q-card-section>
-        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none" style="border-radius: 14px;">
+        <q-card-section class="bg-surface q-mx-md q-py-sm q-px-none rounded-borders-14">
 
           <q-item tag="label" v-ripple v-for="(value, key) in speechLanguageOptions" :key="key" class="">
             <q-item-section>
@@ -243,9 +251,10 @@
         </q-card-section>
         <q-separator />
         <q-card-actions align="right">
-          <q-btn flat rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup no-caps />
-          <q-btn flat rounded data-cy="logout-button" :label="t('logout')" color="primary" v-close-popup @click="logOut"
-            no-caps />
+          <q-btn rounded unelevated :label="t('cancel')" text-color="primary" color="primary-container" padding="sm xl"
+            v-close-popup no-caps />
+          <q-btn rounded unelevated data-cy="logout-button" :label="t('logout')" text-color="surface" color="primary"
+            padding="sm xl" v-close-popup @click="logOut" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -259,8 +268,10 @@
           {{ t('deleteAccountText') }}
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn rounded :label="t('cancel')" color="primary" padding="sm md" v-close-popup no-caps />
-          <q-btn flat rounded :label="t('deleteAccount')" color="primary" v-close-popup @click="deleteAccount" no-caps />
+          <q-btn rounded unelevated="" :label="t('cancel')" text-color="surface" color="primary" padding="sm xl"
+            v-close-popup no-caps />
+          <q-btn rounded unelevated :label="t('deleteAccount')" text-color="primary" color="primary-container"
+            padding="sm xl" v-close-popup @click="deleteAccount" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -269,7 +280,7 @@
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
-import { getFirebaseAuth } from "../boot/firebaseBoot.js";
+import { getFirebaseAuth, logEvent } from "../boot/firebaseBoot.js";
 import { signOut, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
@@ -285,6 +296,7 @@ const { t } = useI18n()
 const auth = getFirebaseAuth();
 
 const version = process.env.__APP_VERSION__
+const isCapacitor = process.env.MODE === "capacitor"
 const signInMethods = ref(null);
 const signInMethodsIncludePassword = ref(true)
 
@@ -477,10 +489,11 @@ const logOut = async () => {
       await FirebaseAuthentication.signOut();
     }
 
-    console.log("In SettingsPage, signing out for web");
     // Sign out on the web layer
+    console.log("In SettingsPage, signing out for web");
     await signOut(auth)
 
+    logEvent("logout");
     setTimeout(() => {
       ms.$reset()
       router.push('/welcome')

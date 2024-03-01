@@ -140,7 +140,10 @@ const persistNeedsData = async (
     await t.update(aggregateMonthlyDocRef, newMonthlyDisplayData);
 
     await t.update(momentDocRef, { needs: momentNeedsData });
-    await t.update(userDocRef, { hasNeeds: true });
+    await t.update(userDocRef, {
+      hasNeeds: true,
+      momentsWithNeedsCount: FieldValue.increment(1),
+    });
     //TODO:2 for more safety of the data we could check if the moment needs were already set in the last minute and if so cancel the whole batch, so as not to corrupt aggregates by having a nMoments no longer matching the number of moments in the collection
     console.log(
       "Transaction success for ",

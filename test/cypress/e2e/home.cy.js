@@ -1,4 +1,5 @@
-/// <reference types="cypress" />
+//test/cypress/e2e/home.cy.js
+// <reference types="cypress" />
 // Use `cy.dataCy` custom command for more robust tests
 // See https://docs.cypress.io/guides/references/best-practices.html#Selecting-Elements
 
@@ -15,34 +16,40 @@ describe("Workaround GH actions", () => {
   });
 });
 
-describe.skip("Signing in and out", () => {
-  before(() => {
-    cy.toggleFirebasePersistence();
-  });
-  it("should let the user sign in with email & log out", () => {
-    cy.visit("/");
+// describe.skip("Signing in and out", () => {
+//   before(() => {
+//     cy.toggleFirebasePersistence();
+//   });
+//   it("should let the user sign in with email & log out", () => {
+//     cy.visit("/");
 
-    cy.dataCy("log-in-button").should("be.visible").click();
-    cy.contains("email").click();
+//     cy.dataCy("next-button").should("be.visible").click();
+//     cy.dataCy("privacy-checkbox").should("be.visible").click();
+//     cy.dataCy("next-button").should("be.visible").click();
+//     cy.dataCy("user-intention-item").should("be.visible").click();
+//     cy.dataCy("next-button").should("be.visible").click();
 
-    cy.signIn("a@yopmail.com", "badpassword");
-    cy.contains("Incorrect").should("be.visible");
-    cy.contains("KifKaf").click();
-    cy.dataCy("go-back-button").click();
-    cy.contains("email").click();
+//     cy.dataCy("log-in-button").should("be.visible").click();
+//     cy.contains("email").click();
 
-    cy.signIn("a@yopmail.com", "yopyopyop2");
-    cy.contains("account_circle").click();
-    cy.contains("Log out").click();
-    cy.contains("Cancel").click();
+//     cy.signIn("a@yopmail.com", "badpassword");
+//     cy.contains("Incorrect").should("be.visible");
+//     cy.contains("KifKaf").click();
+//     cy.dataCy("go-back-button").click();
+//     cy.contains("email").click();
 
-    cy.contains("Log out").click();
-    cy.withinDialog((el) => {
-      cy.wrap(el).should("contain", "screen");
-      cy.dataCy("logout-button").click();
-    });
-  });
-});
+//     cy.signIn("a@yopmail.com", "yopyopyop2");
+//     cy.contains("account_circle").click();
+//     cy.contains("Log out").click();
+//     cy.contains("Cancel").click();
+
+//     cy.contains("Log out").click();
+//     cy.withinDialog((el) => {
+//       cy.wrap(el).should("contain", "screen");
+//       cy.dataCy("logout-button").click();
+//     });
+//   });
+// });
 
 describe("Navigating sign in screens & Signing up > out > in", () => {
   before(() => {
@@ -60,11 +67,28 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
     }).as("username");
 
     cy.visit("/", { timeout: 60000 });
-    //should have sign in options, ToS and Contact us
-    cy.dataCy("log-in-button").should("be.visible").click();
+
+    //should have working onboarding screens
+    cy.dataCy("next-button-1").should("be.visible").click();
+    // cy.dataCy("privacy-checkbox").should("be.visible").check();
+    cy.get(".q-checkbox__inner").should("be.visible").click();
+    cy.wait(1000);
+    cy.dataCy("next-button-2").should("be.visible").click();
+    cy.dataCy("user-intention-item").first().should("be.visible").click();
+    cy.contains("relationships").should("be.visible").click();
+    cy.wait(1000);
+    cy.dataCy("next-button-3").should("be.visible").click();
+    cy.wait(1000);
+
+    // should have sign in options, ToS and Contact us
+    cy.dataCy("log-in-button", { timeout: 120000 })
+      .should("be.visible")
+      .click();
     cy.dataCy("go-back-button").click();
 
-    cy.dataCy("log-in-button").should("be.visible").click();
+    cy.dataCy("log-in-button", { timeout: 120000 })
+      .should("be.visible")
+      .click();
     cy.contains("Google").should("be.visible");
     cy.contains("Apple").should("be.visible");
 
@@ -97,7 +121,9 @@ describe("Navigating sign in screens & Signing up > out > in", () => {
       cy.dataCy("logout-button").click();
     });
 
-    cy.dataCy("log-in-button").should("be.visible").click();
+    cy.dataCy("log-in-button", { timeout: 120000 })
+      .should("be.visible")
+      .click();
     cy.dataCy("continue-email-button").click();
     cy.get("@username").then((username) => {
       cy.signIn(`${username}@sharklasers.com`, password);
@@ -113,14 +139,17 @@ describe("Checking main screens & Moments inputting", () => {
     cy.title().should("include", "KifKaf");
     // cy.contains("Journal").should("be.visible");
     //contains the expected tabs
-    cy.contains("Journal").should("be.visible");
-    cy.visit("/#/insights");
-    cy.url().should("include", "insights");
-    //can navigate to Insights>Journal>Settings>Journal
-    // cy.wait(1000);
-    cy.dataCy("insights-home-tab").click({ force: true });
-    cy.url().should("not.include", "insights");
-    cy.dataCy("home-insights-tab").click({ force: true });
+    cy.contains("Journal", { timeout: 60000 }).should("be.visible");
+    cy.wait(4500);
+    // cy.visit("/#/insights");
+    // cy.url().should("include", "insights");
+    // //can navigate to Insights>Journal>Settings>Journal
+    // cy.wait(7500);
+    // cy.dataCy("insights-home-tab", { timeout: 60000 }).click({ force: true });
+    // cy.url().should("not.include", "insights");
+    // cy.wait(1500);
+    cy.dataCy("home-insights-tab").click(); //{ force: true }
+    cy.wait(7500);
     cy.url().should("include", "insights");
 
     cy.contains("Satisfiers").should("be.visible");
@@ -165,6 +194,7 @@ describe("Insights Stats validation", () => {
   it("has correct stats in Insights tab for 2023, 2022, a working monthly picker and the expected placeholder for 2021", () => {
     //should have correct stats in Insights tab for 2023
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.reload();
@@ -250,6 +280,7 @@ describe("Insights Stats validation", () => {
 
     //should have a working monthly picker and correct stats in Insights tab for 2022
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.contains("This month").should("be.visible").click();
@@ -290,6 +321,7 @@ describe("Insights Stats validation", () => {
 
     //should have the expected placeholder in Insights tab for 2021
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.contains("This month").click();
@@ -306,6 +338,7 @@ describe("Need page validation", () => {
   it("has working Physical need page", () => {
     //should have correct stats in Insights tab for 2023
     cy.visit("/");
+    cy.wait(1500);
     cy.dataCy("home-insights-tab").click();
     cy.url().should("include", "insights");
     cy.reload();

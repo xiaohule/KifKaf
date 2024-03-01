@@ -1,3 +1,4 @@
+//./quasar.config.js
 /* eslint-env node */
 
 /*
@@ -40,6 +41,7 @@ module.exports = configure(function (ctx) {
       "firebaseBoot",
       "browserAddressbarColor",
       "swiperBoot",
+      "pushNotificationsBoot",
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -124,7 +126,8 @@ module.exports = configure(function (ctx) {
         //     "@capacitor",
         //     "@capacitor-firebase",
         //     "@capacitor-community",
-        //   ],
+        //   ],exclude: ["swiper/vue", "swiper/types"],
+
         // };
       },
       viteVuePluginOptions: {
@@ -150,6 +153,10 @@ module.exports = configure(function (ctx) {
         "@sentry/capacitor": path.resolve(
           __dirname,
           "src-capacitor/node_modules/@sentry/capacitor",
+        ),
+        "@capawesome": path.resolve(
+          __dirname,
+          "src-capacitor/node_modules/@capawesome",
         ),
       },
     },

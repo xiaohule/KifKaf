@@ -1,3 +1,7 @@
+//src/router/routes.js
+import WelcomeLayout from "src/layouts/WelcomeLayout.vue";
+import WelcomePage from "src/pages/WelcomePage.vue";
+
 const routes = [
   {
     path: "/",
@@ -50,12 +54,46 @@ const routes = [
         path: "",
         component: () => import("pages/SettingsPage.vue"),
       },
+      {
+        path: "notifications",
+        component: () => import("pages/settings/NotificationsPage.vue"),
+      },
     ],
   },
   {
     path: "/welcome",
+    component: WelcomeLayout,
+    children: [{ path: "", component: WelcomePage }],
+  },
+  {
+    path: "/onboarding",
     component: () => import("layouts/WelcomeLayout.vue"),
-    children: [{ path: "", component: () => import("pages/WelcomePage.vue") }],
+    children: [
+      {
+        path: "1",
+        component: () => import("pages/onboarding/ValuePropositionPage.vue"),
+      },
+    ],
+  },
+  {
+    path: "/onboarding",
+    component: () => import("layouts/GoBackTitleLayout.vue"),
+    children: [
+      {
+        name: "PrivacyFirstPage",
+        path: "2",
+        component: () => import("pages/onboarding/PrivacyFirstPage.vue"),
+      },
+      {
+        path: "3",
+        component: () => import("pages/onboarding/UserIntentionsPage.vue"),
+      }, //TODO:6 add skip button
+      {
+        path: "4",
+        component: () =>
+          import("pages/onboarding/OnboardingNotificationsPage.vue"),
+      },
+    ],
   },
   {
     path: "/login",
@@ -76,7 +114,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/PrivacyPolicyPage.vue"),
+        component: () => import("pages/settings/PrivacyPolicyPage.vue"),
       },
     ],
   },
@@ -87,7 +125,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/TermsConditionsPage.vue"),
+        component: () => import("pages/settings/TermsConditionsPage.vue"),
       },
     ],
   },
@@ -98,17 +136,18 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/ContactUsPage.vue"),
+        component: () => import("pages/settings/ContactUsPage.vue"),
       },
     ],
   },
   {
     path: "/account-deletion",
+    meta: { requiresAuth: true },
     component: () => import("layouts/GoBackTitleLayout.vue"),
     children: [
       {
         path: "",
-        component: () => import("pages/AccountDeletionPage.vue"),
+        component: () => import("pages/settings/AccountDeletionPage.vue"),
       },
     ],
   },
