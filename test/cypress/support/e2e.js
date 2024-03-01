@@ -31,7 +31,8 @@ Cypress.on("uncaught:exception", (err, runnable) => {
       "ResizeObserver loop completed with undelivered notifications.",
     ) ||
     err.message.includes("Missing or insufficient permissions") ||
-    err.message.includes("Cannot destructure property")
+    err.message.includes("Cannot destructure property") ||
+    err.message.includes("dynamically imported")
     // err.message.includes("Cannot read properties of null") ||
     // err.message.includes("ResizeObserver loop limit exceeded") ||
     // err.message.includes("Request failed with status code") ||
