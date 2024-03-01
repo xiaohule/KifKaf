@@ -90,6 +90,9 @@ nodeCron.schedule("* * * * *", async () => {
 
     let usersSnapshot;
 
+    console.log("process.env.SERVER_NODE_ENV", process.env.SERVER_NODE_ENV);
+    console.log("process.env", process.env);
+
     if (process.env.SERVER_NODE_ENV === "development") {
       usersSnapshot = await db
         .collection("users")
