@@ -130,10 +130,6 @@ const route = useRoute();
 const router = useRouter();
 const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
-const to =
-  route.query.redirect && typeof route.query.redirect === 'string'
-    ? route.query.redirect
-    : '/'
 const emailInputRef = ref(null)
 const pwdInputRef = ref(null)
 const nameInputRef = ref(null)
@@ -178,8 +174,7 @@ const isKnownEmail = async (email) => {
 
 const handleSuccessfulEmailLogin = () => {
   logEvent("login", { method: "email" });
-  ms.setUserDocValue({ lastLoginMethod: "email" });
-  router.push(to);
+  ms.tmpLastLoginMethod = "email";
 };
 
 const onSubmit = async (event) => {
@@ -207,7 +202,7 @@ const onSubmit = async (event) => {
         // console.log("Signed in:", userCredential);
         if (userCredential.user.emailVerified) {
           // User's email is already verified. Redirect to expected page.
-          console.log("In EmailLogin>onSubmit User's email is already verified. Redirecting to", to);
+          console.log("In EmailLogin>onSubmit User's email is already verified. Will be redirected to", route.query.redirect || '/');
           handleSuccessfulEmailLogin()
         }
         else {
