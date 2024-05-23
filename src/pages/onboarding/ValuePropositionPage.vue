@@ -18,22 +18,16 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { currentUser, logEvent } from "src/boot/firebaseBoot.js";
-import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
+import { useRouter } from 'vue-router';
+import { logEvent } from "src/boot/firebaseBoot.js";
 
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 onMounted(() => {
   logEvent("tutorial_begin", { tutorial_type: "onboarding" });
 })
 
-onUnmounted(() => {
-  stopUserVerificationCheck();
-});
 </script>

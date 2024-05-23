@@ -21,20 +21,16 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { currentUser } from "../boot/firebaseBoot.js";
-import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
+import { useRouter } from 'vue-router';
 import Swiper from 'swiper'; //line that creates the error
 import { StoriesSlider, Stories, Story } from 'src/components/stories-slider/stories-slider-vue.js';
 import 'src/assets/stories-slider/stories-slider.scss';
 import 'src/assets/stories-slider/main.scss';
 
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 const storiesData = [
   {
     stories: [
@@ -79,10 +75,6 @@ onMounted(() => {
     });
   }
 })
-
-onUnmounted(() => {
-  stopUserVerificationCheck();
-});
 
 let storiesSlider = null;
 
@@ -129,17 +121,3 @@ const onEnd = () => {
 };
 
 </script>
-
-<style scoped lang="scss">
-.fixed-login-button {
-  position: fixed;
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  z-index: 1500; // to ensure it's above other content if needed
-}
-</style>
-

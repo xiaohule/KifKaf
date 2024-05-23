@@ -65,19 +65,15 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted } from 'vue';
-import { useMomentsStore } from '../../stores/moments.js'
+import { ref } from 'vue';
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { currentUser } from "../../boot/firebaseBoot.js";
-import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
-import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
+import { useRouter } from 'vue-router';
+import { signInWithGoogle, signInWithApple } from 'src/composables/signInWith.js';
 
 const ms = useMomentsStore()
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 const errorDialogOpened = ref(false)
 const errorDialogText = ref('')
@@ -109,8 +105,4 @@ const continueWithApple = async () => {
     console.error(error);
   }
 }
-
-onUnmounted(() => {
-  stopUserVerificationCheck();
-});
 </script>

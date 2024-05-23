@@ -31,18 +31,13 @@
 </template>
 
 <script setup>
-import { onUnmounted } from 'vue';
 import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { currentUser } from "src/boot/firebaseBoot.js";
-import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
+import { useRouter } from 'vue-router';
 
 const ms = useMomentsStore();
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 const clickedNext = () => {
   console.log("clickedNext");
@@ -62,8 +57,4 @@ const clickedNext = () => {
 
   router.push('/onboarding/3')
 }
-
-onUnmounted(() => {
-  stopUserVerificationCheck();
-});
 </script>

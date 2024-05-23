@@ -18,7 +18,7 @@
 //   response.send("Hello from Firebase!");
 // });
 
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const nodemailer = require("nodemailer");
 const cors = require("cors")({ origin: true });
 const bodyParser = require("body-parser");

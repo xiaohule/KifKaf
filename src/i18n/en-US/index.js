@@ -28,12 +28,12 @@ export default {
   iWantTo: "I want to...",
   yourChoicesWont:
     "Your choices won't limit access to any features of the app.",
-  whatDoYouHope: "What do you hope to improve with KifKaf?",
-  beMoreFulFilled: "Be more fulfilled",
-  understandMyNeeds: "Understand and attend to my needs",
-  improveRelationships: "Improve my relationships",
-  manageEmotions: "Manage my emotions better",
-  keepTrackEmotions: "Keep track of my emotions",
+  whatDoYouHope: "What do you hope to improve with KifKaf?", // results as of: 4/03/24 (10 resp.)
+  beMoreFulFilled: "Be more fulfilled", //7
+  understandMyNeeds: "Understand and attend to my needs", //7
+  improveRelationships: "Improve my relationships", //6
+  manageEmotions: "Manage my emotions better", //7
+  keepTrackEmotions: "Keep track of my emotions", //7
   makeWiserLifeDecisions: "Make wiser life decisions",
   somethingElse: "Something else",
   getRemindersToMake: "Get reminders to make the most out of KifKaf",

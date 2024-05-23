@@ -105,7 +105,7 @@ export default {
   or: "ou",
   and: "et",
   home: "Journal",
-  insights: "Explorer", //Analyse Eclairages Tendances Perspectives Besoins Besoins & +
+  insights: "Explorer", //Analyse Eclairages Perspectives Besoins Aperçus Tendances Éclaircissements Vous Psy Apprentissages Enseignements Moi(s) psycho Évolution
   thisMonth: "Ce mois",
   thisYear: "Cette année",
   monthsList: {

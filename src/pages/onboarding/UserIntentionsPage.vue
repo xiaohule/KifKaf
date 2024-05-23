@@ -54,18 +54,15 @@
 </template>
 
 <script setup>
-import { onUnmounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { currentUser, logEvent } from "src/boot/firebaseBoot.js";
-import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
+import { useRouter } from 'vue-router';
+import { logEvent } from "src/boot/firebaseBoot.js";
 
 const ms = useMomentsStore();
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 const options = [//TODO:3 //make it fully depenendent on i18n files?
   { label: t('beMoreFulFilled'), value: 'beMoreFulFilled' },
@@ -119,8 +116,4 @@ const clickedNext = () => {
   }
 
 }
-
-onUnmounted(() => {
-  stopUserVerificationCheck();
-});
 </script>

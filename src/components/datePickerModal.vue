@@ -31,10 +31,10 @@ q-ma-sm q-mb-lg full-width" no-caps>{{ t('done') }}</q-btn>
 
 <script setup>
 import { ref, watch } from 'vue';
-import { useMomentsStore } from './../stores/moments.js'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from 'vue-i18n';
-import { useDateUtils } from '../composables/dateUtils.js'
-import SegmentedControl from "./../components/SegmentedControl.vue";
+import { useDateUtils } from 'src/composables/dateUtils.js'
+import SegmentedControl from "src/components/SegmentedControl.vue";
 import { date } from 'quasar'
 const { formatDate, getDateDiff, getMaxDate } = date;
 

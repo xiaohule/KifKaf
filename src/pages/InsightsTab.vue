@@ -1,4 +1,4 @@
-<!-- Here we handle date and data grouping selections -->
+<!-- src/pages/InsightsTab.vue -->
 <template >
   <q-page class="q-mx-auto q-px-md q-pt-xs q-pb-md" style="max-width: 600px">
 
@@ -273,26 +273,26 @@
     <br />
 
     <!-- <Vue3Lottie :animationData="lottie1" :width="300" :speed="0.5" :loop="true" :autoplay="true" /> -->
-    <moment-modal v-model="momentModalOpened" :moment-id="momentModalId" />
-    <why-modal v-model="whyModalOpened" :section="whyModalSection" />
-    <learn-more-modal v-model="learnMoreModalOpened" :section="learnMoreModalSection" />
+    <moment-modal v-if="momentModalOpened" v-model="momentModalOpened" :moment-id="momentModalId" />
+    <why-modal v-if="whyModalOpened" v-model="whyModalOpened" :section="whyModalSection" />
+    <learn-more-modal v-if="learnMoreModalOpened" v-model="learnMoreModalOpened" :section="learnMoreModalSection" />
   </q-page>
 </template>
 
 <script setup>
-import { onMounted, ref, watch, nextTick, computed } from 'vue'
-import { useMomentsStore } from './../stores/moments.js'
+import { onMounted, ref, watch, nextTick, computed, defineAsyncComponent } from 'vue'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from "vue-i18n"
 import { i18n } from "src/boot/i18nBoot.js";
-import donutSwiperAndList from "./../components/donutSwiperAndList.vue";
-import topItem from 'src/components/topItem.vue'
 // import { Vue3Lottie } from 'vue3-lottie'
 // import lottie1 from '~assets/lottie1.json'
-import momentModal from 'src/components/momentModal.vue'
-import whyModal from 'src/components/whyModal.vue'
-import learnMoreModal from 'src/components/learnMoreModal.vue'
-import { useDateUtils } from '../composables/dateUtils.js'
+import { useDateUtils } from 'src/composables/dateUtils.js'
 import { logEvent } from 'src/boot/firebaseBoot';
+const momentModal = defineAsyncComponent(() => import('src/components/momentModal.vue'));
+const whyModal = defineAsyncComponent(() => import('src/components/whyModal.vue'));
+const learnMoreModal = defineAsyncComponent(() => import('src/components/learnMoreModal.vue'));
+const donutSwiperAndList = defineAsyncComponent(() => import('src/components/donutSwiperAndList.vue'));
+const topItem = defineAsyncComponent(() => import('src/components/topItem.vue'));
 
 const ms = useMomentsStore()
 const { t } = useI18n()

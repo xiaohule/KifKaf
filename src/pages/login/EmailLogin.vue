@@ -110,14 +110,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted, nextTick } from 'vue';
-import { useMomentsStore } from '../../stores/moments.js'
+import { ref, computed, nextTick } from 'vue';
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { getFirebaseAuth, currentUser, logEvent } from "../../boot/firebaseBoot.js";
-import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
+import { getFirebaseAuth, logEvent } from "src/boot/firebaseBoot.js";
 import { signInWithEmailAndPassword, fetchSignInMethodsForEmail, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
-import { signInWithGoogle, signInWithApple } from '../../composables/signInWith.js';
+import { signInWithGoogle, signInWithApple } from 'src/composables/signInWith.js';
 
 //   window.addEventListener('offline', () => {
 //   console.log("App is offline");
@@ -128,7 +127,6 @@ const { t } = useI18n();
 const auth = getFirebaseAuth();
 const route = useRoute();
 const router = useRouter();
-const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 const emailInputRef = ref(null)
 const pwdInputRef = ref(null)
@@ -274,10 +272,6 @@ const handleAuthError = (errorCode, errorMessage) => {
     errorDialogOpened.value = true
   }
 }
-
-onUnmounted(() => {
-  stopUserVerificationCheck();
-});
 
 const continueWithGoogle = async () => {
   if (isOffline()) return

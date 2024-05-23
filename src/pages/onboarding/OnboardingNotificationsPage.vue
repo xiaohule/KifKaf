@@ -54,19 +54,16 @@
 </template>
 
 <script setup>
-import { onUnmounted, watch, ref } from 'vue';
+import { watch, ref } from 'vue';
 import { useMomentsStore } from 'src/stores/moments';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { currentUser, logEvent } from "src/boot/firebaseBoot.js";
-import { useVerifiedUserRedirectUtils } from 'src/composables/verifiedUserRedirectUtils';
+import { useRouter } from 'vue-router';
+import { logEvent } from "src/boot/firebaseBoot.js";
 import { PushNotifications } from '@capacitor/push-notifications';
 
 const ms = useMomentsStore();
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const { stopUserVerificationCheck } = useVerifiedUserRedirectUtils(currentUser, route.query.redirect || '/');
 
 const errorDialogOpened = ref(false)
 const errorDialogOpenedOnce = ref(false)
@@ -111,9 +108,6 @@ const clickedNext = async () => {
   router.push('/welcome')
 }
 
-onUnmounted(() => {
-  stopUserVerificationCheck();
-});
 </script>
 
 <style  lang="scss">

@@ -10,13 +10,4 @@
   </q-layout>
 </template>
 
-<script setup>
-</script>
-
-<style scoped lang="scss">
-// .q-page-container {
-//   padding-top: 0px !important;
-// }
-</style>
-
 

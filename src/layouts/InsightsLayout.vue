@@ -58,10 +58,10 @@ This makes your code more efficient and easier to read. The behavior of using na
  When you use “import ref from ‘vue’”, you need to call the function like this: const count = ref.ref(0)*/
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMomentsStore } from './../stores/moments.js'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from "vue-i18n"
-import datePickerModal from "./../components/datePickerModal.vue";
-import { useDateUtils } from '../composables/dateUtils.js'
+import datePickerModal from "src/components/datePickerModal.vue";
+import { useDateUtils } from 'src/composables/dateUtils.js'
 
 const router = useRouter()
 const ms = useMomentsStore()

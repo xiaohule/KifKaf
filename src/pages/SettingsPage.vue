@@ -280,14 +280,14 @@
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
-import { getFirebaseAuth, logEvent } from "../boot/firebaseBoot.js";
+import { getFirebaseAuth, logEvent } from "src/boot/firebaseBoot.js";
 import { signOut, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
-import { useMomentsStore } from './../stores/moments.js'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 import { useI18n } from 'vue-i18n'
-import { setQuasarLangPack } from '../boot/quasarLangPackBoot.js'
+import { setQuasarLangPack } from 'src/boot/quasarLangPackBoot.js'
 
 const $q = useQuasar()
 const router = useRouter()

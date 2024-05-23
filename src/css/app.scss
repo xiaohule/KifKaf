@@ -26,6 +26,17 @@ body {
   // padding: 6vh 0;
 }
 
+.fixed-login-button {
+  position: fixed;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  z-index: 1500; // to ensure it's above other content if needed
+}
+
 .or-separator {
   display: flex;
   align-items: center;

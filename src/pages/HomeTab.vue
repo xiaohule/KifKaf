@@ -106,17 +106,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
-import { useMomentsStore } from './../stores/moments.js'
+import { ref, onMounted, onBeforeUnmount, computed, watch, defineAsyncComponent } from 'vue'
+import { useMomentsStore } from 'src/stores/moments.js'
 import { useI18n } from "vue-i18n"
 import { Timestamp } from 'firebase/firestore'
 import { showSpeechRecognitionButton, isRecognizing, useSpeechRecognition } from '../composables/speechRecognition.js'
-import momentSyncIcon from 'src/components/momentSyncIcon.vue';
-import momentModal from 'src/components/momentModal.vue'
-import welcomeTutorial from 'src/components/welcomeTutorial.vue'
-import { needsMap, getChipColor } from "./../utils/needsUtils";
-import { useDateUtils } from './../composables/dateUtils.js'
+import { needsMap, getChipColor } from "src/utils/needsUtils";
+import { useDateUtils } from 'src/composables/dateUtils.js'
 import { addDeleteMomentRetry } from 'src/boot/firebaseBoot';
+const momentModal = defineAsyncComponent(() => import('src/components/momentModal.vue'))
+const welcomeTutorial = defineAsyncComponent(() => import('src/components/welcomeTutorial.vue'))
+const momentSyncIcon = defineAsyncComponent(() => import('src/components/momentSyncIcon.vue'))
 
 //STORE INITIALIZATION
 const ms = useMomentsStore()
