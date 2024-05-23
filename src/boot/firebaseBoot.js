@@ -206,7 +206,6 @@ export const getFirebaseAuth = () => {
 
 //USER
 export const isLoadingAuth = ref(true);
-
 export const currentUser = ref(null);
 const userDocRef = ref(null);
 //if signed out in one tab, sign out in all tabs //TODO:2 ensure this
@@ -214,7 +213,7 @@ try {
   onAuthStateChanged(getFirebaseAuth(), async (user) => {
     console.log("In firebaseBoot > onAuthStateChanged, user is:", user);
 
-    if (user?.uid) {
+    if (user) {
       userDocRef.value = doc(db, "users", user.uid);
       let userDocSnapshot = await getDoc(userDocRef.value);
 
@@ -224,9 +223,9 @@ try {
           user.email.endsWith("@yopmail.com") ||
           user.email.endsWith("@sharklasers.com") ||
           user.email.endsWith("@ethereal.email") ||
-          user.email === "jules.douet@gmail.com" ||
-          user.email === "xyzdelatour@gmail.com" ||
-          user.email === "xyzdelatour2@gmail.com" ||
+          user.email === process.env.TEST_ACCOUNT_EMAIL1 ||
+          user.email === process.env.TEST_ACCOUNT_EMAIL2 ||
+          user.email === process.env.TEST_ACCOUNT_EMAIL3 ||
           user.uid === "UtCgVuTY2XUvYmnqqYULj4r5jaI3" ||
           user.uid === "WYnWOZ4OUhcLzIlXm2FtApdNs7F3";
 
@@ -254,6 +253,7 @@ try {
           "In firebaseBoot > onAuthStateChanged > User doc initialized.",
         );
 
+        logEvent("sign_up");
         //To not mess with Firebase analytics identify test accounts
         if (isTestAccount) setUserProperty("isTestAccount", "true");
         else setUserProperty("isTestAccount", "false");
@@ -284,6 +284,7 @@ try {
         });
       }
       currentUser.value = user; //We can allow fetchUser to proceed now
+
       httpRetryHandler();
       SentryVue.setUser({ id: user.uid });
       setUserId(user.uid);
@@ -661,12 +662,40 @@ export default boot(({ router }) => {
     setCurrentScreen(to.path);
   });
 
-  //   window.addEventListener('offline', () => {
-  //   console.log("App is offline");
-  //   // Any offline handling logic...
-  // });
+  let checkEmailVerifiedInterval = null;
+  watch(
+    currentUser,
+    (newVal) => {
+      console.log(
+        "In firebaseBoot > currentUser watcher, newValue:",
+        newVal,
+        "router.currentRoute.value",
+        router.currentRoute.value,
+      );
 
-  // app.use(Vue3Lottie);
-  // // Attach the application context to the global window object
-  // window.appContext = app._context
+      if (newVal && !router.currentRoute.value?.meta?.requiresAuth) {
+        if (!newVal.emailVerified) {
+          checkEmailVerifiedInterval = setInterval(async () => {
+            await newVal.reload();
+            if (newVal.emailVerified) {
+              clearInterval(checkEmailVerifiedInterval);
+              console.log("User's email is now verified.");
+              router.push(router.currentRoute.value?.query?.redirect || "/");
+            }
+          }, 300);
+        } else if (newVal.emailVerified) {
+          router.push(router.currentRoute.value?.query?.redirect || "/");
+        }
+      }
+    },
+    { immediate: true },
+  );
 });
+//   window.addEventListener('offline', () => {
+//   console.log("App is offline");
+//   // Any offline handling logic...
+// });
+
+// app.use(Vue3Lottie);
+// // Attach the application context to the global window object
+// window.appContext = app._context

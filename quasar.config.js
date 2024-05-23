@@ -12,6 +12,7 @@
 const { configure } = require("quasar/wrappers");
 const path = require("path");
 const { sentryVitePlugin } = require("@sentry/vite-plugin");
+require("dotenv").config();
 
 // console.log("In quasar.config.js, process.env is", process.env);
 
@@ -59,9 +60,9 @@ module.exports = configure(function (ctx) {
 
       "roboto-font", // optional, you are not bound to it
       "material-icons", // optional, you are not bound to it
-      "material-icons-outlined",
-      "material-icons-round",
-      "fontawesome-v6",
+      "material-icons-outlined", //icons start with "o_"
+      "material-icons-round", //icons start with "r_"
+      "fontawesome-v6", //icons start with "fa-"
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
